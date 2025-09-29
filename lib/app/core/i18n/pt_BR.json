@@ -1,0 +1,65 @@
+{
+    "global_app_name": "E-Bolsa App",
+    "global_id": "CPF",
+        
+    "login_with_id_app_name": "e-Bolsa",
+    "login_with_id_user_id": "%s",
+    "login_with_id_password": "Senha",
+    "login_with_id_forgot_password": "Esqueci minha senha",
+    "login_with_id_enter": "Entrar",
+    "login_with_id_empty_id_exception_message": "Digite um CPF",
+    "login_with_id_empty_password_exception_message": "Digite uma senha",
+    
+    "forgot_password_h1": "Problemas para entrar",
+    "forgot_password_h2": "Insira seu %s cadastrado e enviaremos um link para cadastrar a nova senha.",
+    "forgot_password_user_id": "%s",
+    "forgot_password_send": "Enviar",
+    "forgot_password_empty_id_exception_message": "Digite um CPF",
+    
+    "forgot_password_repository_unknown_exception": "Não foi possível enviar o link",
+    
+    "home_tab_fresh": "Novos",
+    "home_tab_renewal": "Renovações",
+    "home_greetings": "Olá, %s",
+    "home_logout": "Sair",
+    "home_select_process_year": "Selecione o ano do processo",
+    "home_try_again": "Tentar novamente",
+    "home_unavailable_documentation_upload_deadline": "Prazo do processo está indisponível. Tente novamente mais tarde.",
+    "home_logout_dialog_title": "Tem certeza que deseja sair?",
+    "home_logout_dialog_option_yes": "Sim",
+    "home_logout_dialog_option_no": "Não",
+    "home_protocols_history": "Histórico de protocolos",
+
+    "select_group_document_empty_proof_list": "Não há comprovantes a serem enviados",
+    "select_group_document_take_a_photo": "Tire uma foto",
+    "select_group_document_select_from_cellphone": "Selecione do celular",
+    "select_group_document_no_accepted_documents": "Não há documentos aceitos",
+    "select_group_document_unable_to_find_accepted_documents": "Não foi possível encontrar o documento",
+    "select_group_document_accepted_documents_exception": "Não foi possível apresentar os tipos de documentos aceitos",
+    "select_group_document_empty_accepted_documents_list": "Não foi possível recuperar os tipos de documentos aceitos.",
+    "select_group_document_accept_term_label": "Estou ciente",
+    
+    "select_group_description": "O envio de documento é realizado por grupos.\nSelecione o grupo e envie os documentos.",
+    "select_group_unable_to_find_family_members": "Não foi possível recuperar os dados dos familares",
+    "select_group_family_group_label": "Grupo Familiar",
+
+    "required_accepted_documents_take_a_photo": "Tire uma foto",
+    "required_accepted_documents_select_from_cellphone": "Selecione do celular",
+
+    "refresh_token_mapper_unable_to_convert_json": "Não foi possível converter o json do refresh token",
+    "refresh_token_store_empty_or_null_access_token": "Não foi possível converter o json do refresh token",
+    "refresh_token_store_empty_or_null_refresh_token": "Não foi possível converter o json do refresh token",
+    "refresh_token_store_successful_refresh": "Refresh de token bem-sucedido",
+    "refresh_token_store_successful_logout": "Sessão finalizada",
+    
+    "login_with_id_mapper_unable_to_convert_json": "Não foi possível converter o json do login com CPF",
+    "login_with_id_datasource_incorrect_credentials": "CPF ou senha incorretos. Tente novamente.",
+    "login_with_id_datasource_unknown_exception": "Não foi possível logar no app. Tente novamente mais tarde.",
+    "login_with_id_repository_unknown_exception": "Não foi possível realizar o login",
+    "login_with_id_usecase_empty_id_exception": "Digite um CPF",
+    "login_with_id_usecase_empty_password_exception": "Digite uma senha",
+    "login_with_id_usecase_invalid_id_exception": "CPF inválido",
+
+    "global_mapper_unexpected_result_data_format": "Não foi possível receber %s. Formato da resposta inesperado.",
+    "processes_years_unexpected_result_data_format": "os anos de processo"
+}

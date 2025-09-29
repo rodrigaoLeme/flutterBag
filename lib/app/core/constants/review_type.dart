@@ -1,0 +1,1 @@
+enum ReviewType { attendant, socialWorker }

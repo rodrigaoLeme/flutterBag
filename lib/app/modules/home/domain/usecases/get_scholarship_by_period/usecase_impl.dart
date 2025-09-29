@@ -1,0 +1,13 @@
+import 'repository.dart';
+import 'result_typedef.dart';
+import 'params.dart';
+import 'usecase.dart';
+
+class UsecaseImpl implements Usecase {
+  final Repository _repository;
+
+  UsecaseImpl(this._repository);
+
+  @override
+  Result call(Params params) => _repository(params);
+}

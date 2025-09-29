@@ -1,0 +1,1 @@
+enum StorageType { token }
