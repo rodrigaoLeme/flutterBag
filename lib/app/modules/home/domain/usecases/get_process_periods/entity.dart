@@ -14,18 +14,24 @@ class Process {
   final ProcessType processType;
   final String? documentationUploadDeadline;
   final String? documentationReturnUploadDeadLine;
+  final String? supplementaryDocumentDeadlineOnUtc;
   final String registerStart;
   final String registerEnd;
   final String resultRelease;
+  final int year;
+  final int? schoolRegistrationBusinessDaysLimit;
 
   const Process({
     required this.id,
     required this.processType,
     this.documentationUploadDeadline,
     this.documentationReturnUploadDeadLine,
+    this.supplementaryDocumentDeadlineOnUtc,
     required this.registerStart,
     required this.registerEnd,
     required this.resultRelease,
+    required this.year,
+    required this.schoolRegistrationBusinessDaysLimit,
   });
 
   factory Process.empty() => const Process(
@@ -33,8 +39,11 @@ class Process {
         id: '',
         documentationUploadDeadline: '',
         documentationReturnUploadDeadLine: '',
+        supplementaryDocumentDeadlineOnUtc: '',
         registerStart: '',
         registerEnd: '',
         resultRelease: '',
+        year: 2022,
+        schoolRegistrationBusinessDaysLimit: 0,
       );
 }

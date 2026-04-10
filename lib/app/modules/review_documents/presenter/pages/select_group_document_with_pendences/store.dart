@@ -220,20 +220,20 @@ class Store extends triple.StreamStore<String, StoreState> {
     } else {
       File? scannedDoc =
           await DocumentScannerFlutter.launchForPdf(context, labelsConfig: {
-        ScannerLabelsConfig.ANDROID_NEXT_BUTTON_LABEL: "Próximo",
+        ScannerLabelsConfig.ANDROID_NEXT_BUTTON_LABEL: 'Próximo',
         ScannerLabelsConfig.PDF_GALLERY_FILLED_TITLE_SINGLE:
-            "1 foto para enviar",
+            '1 foto para enviar',
         ScannerLabelsConfig.PDF_GALLERY_FILLED_TITLE_MULTIPLE:
-            "{PAGES_COUNT} fotos para enviar",
-        ScannerLabelsConfig.PDF_GALLERY_EMPTY_TITLE: "Gerenciador de Fotos",
+            '{PAGES_COUNT} fotos para enviar',
+        ScannerLabelsConfig.PDF_GALLERY_EMPTY_TITLE: 'Gerenciador de Fotos',
         ScannerLabelsConfig.PDF_GALLERY_EMPTY_MESSAGE:
-            "Nenhuma foto adicionada",
-        ScannerLabelsConfig.PDF_GALLERY_ADD_IMAGE_LABEL: "Adicionar",
-        ScannerLabelsConfig.PICKER_CAMERA_LABEL: "Câmera",
-        ScannerLabelsConfig.PICKER_GALLERY_LABEL: "Galeria de Fotos",
-        ScannerLabelsConfig.ANDROID_OK_LABEL: "Concluir",
-        ScannerLabelsConfig.ANDROID_SAVE_BUTTON_LABEL: "Salvar",
-        ScannerLabelsConfig.PDF_GALLERY_DONE_LABEL: "Finalizar"
+            'Nenhuma foto adicionada',
+        ScannerLabelsConfig.PDF_GALLERY_ADD_IMAGE_LABEL: 'Adicionar',
+        ScannerLabelsConfig.PICKER_CAMERA_LABEL: 'Câmera',
+        ScannerLabelsConfig.PICKER_GALLERY_LABEL: 'Galeria de Fotos',
+        ScannerLabelsConfig.ANDROID_OK_LABEL: 'Concluir',
+        ScannerLabelsConfig.ANDROID_SAVE_BUTTON_LABEL: 'Salvar',
+        ScannerLabelsConfig.PDF_GALLERY_DONE_LABEL: 'Finalizar'
       });
 
       if (scannedDoc == null) return;
@@ -392,7 +392,7 @@ class Store extends triple.StreamStore<String, StoreState> {
       }
 
       final pdfPath =
-          "${directoryForThePdf.path}/${state.selectedAcceptedDocumentName}.pdf";
+          '${directoryForThePdf.path}/${state.selectedAcceptedDocumentName}.pdf';
 
       final pdfFileToFillOut = File(pdfPath);
 
@@ -467,8 +467,10 @@ class Store extends triple.StreamStore<String, StoreState> {
         ),
       );
     } else {
-      setError(
-          'Não foi possível enviar o arquivo para o servidor. Contate a administração.');
+      final errorMessage = sendProofDocumentWithPendencesStore.error ??
+          'Não foi possível enviar o arquivo para o servidor. Contate a administração.';
+
+      setError(errorMessage);
       update(state, force: true);
     }
     setLoading(false, force: true);

@@ -131,17 +131,41 @@ class _PageState extends State<Page> {
                       itemBuilder: (context, index) {
                         final isfirstIndex = index == 0;
                         if (isfirstIndex && store.hasFamilyGroupPendences) {
-                          return GroupCard.error(
-                            leading: Icon(EbolsasIcons.icon_metro_home,
-                                size: 20, color: primaryColor),
-                            title: 'Grupo Familiar',
-                            onTap: () {
-                              store.selectFamilyGroup();
-                              store.goToSelectGroupDocumentPage().then((value) {
-                                store.checkFinishButton();
-                              });
-                            },
-                          );
+                          final isComplete =
+                              store.isGroupComplete(familyMemberId: null);
+                          return isComplete
+                              ? GroupCard.success(
+                                  leading: Icon(
+                                    EbolsasIcons.icon_metro_home,
+                                    size: 20,
+                                    color: primaryColor,
+                                  ),
+                                  title: 'Grupo Familiar',
+                                  onTap: () {
+                                    store.selectFamilyGroup();
+                                    store
+                                        .goToSelectGroupDocumentPage()
+                                        .then((value) {
+                                      store.checkFinishButton();
+                                      setState(
+                                        () {},
+                                      );
+                                    });
+                                  },
+                                )
+                              : GroupCard.error(
+                                  leading: Icon(EbolsasIcons.icon_metro_home,
+                                      size: 20, color: primaryColor),
+                                  title: 'Grupo Familiar',
+                                  onTap: () {
+                                    store.selectFamilyGroup();
+                                    store
+                                        .goToSelectGroupDocumentPage()
+                                        .then((value) {
+                                      store.checkFinishButton();
+                                    });
+                                  },
+                                );
                         }
                         final isLastIndex = index ==
                             state.familyMembers.length +
@@ -162,20 +186,44 @@ class _PageState extends State<Page> {
                             index - (store.hasFamilyGroupPendences ? 1 : 0);
                         final familyMember =
                             state.familyMembers[actualFamilyMembersIndex];
-                        return GroupCard.error(
-                          leading:
-                              Icon(Icons.person_rounded, color: primaryColor),
-                          title: familyMember.name,
-                          onTap: () {
-                            store.selectFamilyMemberGroup(
-                              familyMemberId: familyMember.id,
-                              familyMemberName: familyMember.name,
-                            );
-                            store.goToSelectGroupDocumentPage().then((value) {
-                              store.checkFinishButton();
-                            });
-                          },
-                        );
+                        final isComplete = store.isGroupComplete(
+                            familyMemberId: familyMember.id);
+                        return isComplete
+                            ? GroupCard.success(
+                                leading: Icon(
+                                  Icons.person_rounded,
+                                  color: primaryColor,
+                                ),
+                                title: familyMember.name,
+                                onTap: () {
+                                  store.selectFamilyMemberGroup(
+                                    familyMemberId: familyMember.id,
+                                    familyMemberName: familyMember.name,
+                                  );
+                                  store
+                                      .goToSelectGroupDocumentPage()
+                                      .then((value) {
+                                    store.checkFinishButton();
+                                    setState(() {});
+                                  });
+                                },
+                              )
+                            : GroupCard.error(
+                                leading: Icon(Icons.person_rounded,
+                                    color: primaryColor),
+                                title: familyMember.name,
+                                onTap: () {
+                                  store.selectFamilyMemberGroup(
+                                    familyMemberId: familyMember.id,
+                                    familyMemberName: familyMember.name,
+                                  );
+                                  store
+                                      .goToSelectGroupDocumentPage()
+                                      .then((value) {
+                                    store.checkFinishButton();
+                                  });
+                                },
+                              );
                       },
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 24),

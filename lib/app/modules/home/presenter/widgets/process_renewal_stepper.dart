@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_triple/flutter_triple.dart';
 
+import '../../../../core/constants/process_type.dart';
 import '../../../../core/constants/scholarship_status.dart';
 import '../../domain/usecases/get_authorized_especial_users/entity.dart'
     as authorized_user;
+import '../../domain/usecases/get_process_periods/entity.dart'
+    as process_period;
 import '../../domain/usecases/get_process_periods/entity.dart';
 import '../../domain/usecases/get_scholarship_by_period/entity.dart'
     as scholarship;
@@ -21,6 +24,8 @@ class ProcessRenewalStepper extends StatelessWidget {
   final void Function() onDateTimeError;
   final void Function() onTapResendDocuments;
   final void Function() onTapHistoryReview;
+  final process_period.Process processPeriod;
+
   const ProcessRenewalStepper({
     Key? key,
     required this.renewalScholarship,
@@ -29,6 +34,7 @@ class ProcessRenewalStepper extends StatelessWidget {
     required this.onDateTimeError,
     required this.onTapResendDocuments,
     required this.onTapHistoryReview,
+    required this.processPeriod,
   }) : super(key: key);
 
   @override
@@ -102,9 +108,24 @@ class ProcessRenewalStepper extends StatelessWidget {
               return const SizedBox();
             }
 
+            final supplementaryDocumentDeadlineOnUtc =
+                processRenewal.supplementaryDocumentDeadlineOnUtc;
+            if (supplementaryDocumentDeadlineOnUtc == null ||
+                supplementaryDocumentDeadlineOnUtc.isEmpty) {
+              onDateTimeError();
+              return const SizedBox();
+            }
+
             final DateTime? deadline =
                 DateTime.tryParse(documentationReturnUploadDeadline);
             if (deadline == null) {
+              onDateTimeError();
+              return const SizedBox();
+            }
+
+            final DateTime? supplementaryDeadline =
+                DateTime.tryParse(supplementaryDocumentDeadlineOnUtc);
+            if (supplementaryDeadline == null) {
               onDateTimeError();
               return const SizedBox();
             }
@@ -131,6 +152,8 @@ class ProcessRenewalStepper extends StatelessWidget {
                   },
                   isAuthorizedToSendAfterDeadline: false, // fallback se erro
                   declassification: renewalScholarship.declassificationType,
+                  supplementaryDocumentDeadlineOnUtc: supplementaryDeadline,
+                  lastReviewType: renewalScholarship.lastReviewType,
                 );
               },
               onState: (_, entity) {
@@ -140,6 +163,8 @@ class ProcessRenewalStepper extends StatelessWidget {
                   onTapResendDocuments: onTapResendDocuments,
                   isAuthorizedToSendAfterDeadline: isAuthorized,
                   declassification: renewalScholarship.declassificationType,
+                  supplementaryDocumentDeadlineOnUtc: supplementaryDeadline,
+                  lastReviewType: renewalScholarship.lastReviewType,
                   onTapHistoryReview: () {
                     //TODO(adbysantos): Função "Histórico de revisão"
                   },
@@ -157,15 +182,18 @@ class ProcessRenewalStepper extends StatelessWidget {
         return ReviewedScholarshipStepper(
           declassification: renewalScholarship.declassificationType,
         );
+      // case ScholarshipStatus.analysis:
+      //   return AnalysisScholarshipStepper(
+      //     declassification: renewalScholarship.declassificationType,
+      //   );
       case ScholarshipStatus.analysis:
-        return AnalysisScholarshipStepper(
-          declassification: renewalScholarship.declassificationType,
-        );
       case ScholarshipStatus.result:
         return ResultScholarshipStepper(
           resultReleaseDate: processRenewal.resultRelease,
           onDateTimeError: onDateTimeError,
           processNewScholarship: renewalScholarship,
+          processPeriod: processPeriod,
+          tipoProcesso: ProcessType.renewal,
         );
       default:
         log('ScholarshipStatus: ${renewalScholarship.scholarshipStatus}');

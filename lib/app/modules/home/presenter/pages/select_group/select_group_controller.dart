@@ -62,4 +62,40 @@ class SelectGroupController {
     finishSendingDocumentsStore(
         finish_sending_documents.Params(scholarshipId: _scholarshipId));
   }
+
+  Future<bool> isGroupComplete({
+    required String? familyMemberId, // null = Grupo Familiar
+  }) async {
+    try {
+      if (familyMemberId == null) {
+        await getProofs(
+          get_proofs_by_family_member.FamilyGroupParams(
+            scholarshipId: scholarshipParams.id,
+          ),
+        );
+      } else {
+        await getProofs(
+          get_proofs_by_family_member.FamilyMemberParams(
+            familyMemberId: familyMemberId,
+            scholarshipId: scholarshipParams.id,
+          ),
+        );
+      }
+
+      if (getProofs.error != null) {
+        return false;
+      }
+
+      // Verifica se TEM algum documento sem fileId (não enviado)
+      final hasMissingDocuments = getProofs.state.proofs.any(
+        (element) => element.scholarshipProofDocuments.any(
+          (element) => element.fileId == null, // null = não foi enviado
+        ),
+      );
+
+      return !hasMissingDocuments;
+    } catch (e) {
+      return false;
+    }
+  }
 }

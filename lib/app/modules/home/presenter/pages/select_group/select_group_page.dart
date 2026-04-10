@@ -150,27 +150,92 @@ class _SelectGroupPageState extends State<SelectGroupPage> {
                               itemCount: state.familyMembers.length + 2,
                               itemBuilder: (context, index) {
                                 if (index == 0) {
-                                  return GroupCard.initial(
-                                    leading: Icon(EbolsasIcons.icon_metro_home,
-                                        size: 20, color: primaryColor),
-                                    title: familyGroupLabel,
-                                    onTap: () {
-                                      controller.selectGroup(
-                                        GroupParams(
-                                            proofParams: FamilyGroupParams(
-                                              scholarshipId: controller
-                                                  .scholarshipParams.id,
+                                  return FutureBuilder<bool>(
+                                      future: controller.isGroupComplete(
+                                          familyMemberId: null),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return GroupCard.initial(
+                                            leading: Icon(
+                                              EbolsasIcons.icon_metro_home,
+                                              size: 20,
+                                              color: primaryColor,
                                             ),
-                                            icon: EbolsasIcons.icon_metro_home,
-                                            groupName: 'Grupo Familiar'),
-                                      );
-                                      Modular.to
-                                          .pushNamed('select_group_document')
-                                          .then((value) {
-                                        checkFinishButton();
+                                            title: familyGroupLabel,
+                                            onTap: () {},
+                                          );
+                                        }
+
+                                        final isComplete =
+                                            snapshot.data ?? false;
+                                        return isComplete
+                                            ? GroupCard.success(
+                                                leading: Icon(
+                                                  EbolsasIcons.icon_metro_home,
+                                                  size: 20,
+                                                  color: primaryColor,
+                                                ),
+                                                title: familyGroupLabel,
+                                                onTap: () {
+                                                  controller.selectGroup(
+                                                    GroupParams(
+                                                      proofParams:
+                                                          FamilyGroupParams(
+                                                        scholarshipId: controller
+                                                            .scholarshipParams
+                                                            .id,
+                                                      ),
+                                                      icon: EbolsasIcons
+                                                          .icon_metro_home,
+                                                      groupName:
+                                                          'Grupo Familiar',
+                                                    ),
+                                                  );
+                                                  Modular.to
+                                                      .pushNamed(
+                                                          'select_group_document')
+                                                      .then((value) {
+                                                    checkFinishButton();
+                                                    setState(
+                                                      () {},
+                                                    );
+                                                  });
+                                                },
+                                              )
+                                            : GroupCard.initial(
+                                                leading: Icon(
+                                                  EbolsasIcons.icon_metro_home,
+                                                  size: 20,
+                                                  color: primaryColor,
+                                                ),
+                                                title: familyGroupLabel,
+                                                onTap: () {
+                                                  controller.selectGroup(
+                                                    GroupParams(
+                                                      proofParams:
+                                                          FamilyGroupParams(
+                                                        scholarshipId: controller
+                                                            .scholarshipParams
+                                                            .id,
+                                                      ),
+                                                      icon: EbolsasIcons
+                                                          .icon_metro_home,
+                                                      groupName:
+                                                          'Grupo Familiar',
+                                                    ),
+                                                  );
+                                                  Modular.to
+                                                      .pushNamed(
+                                                          'select_group_document')
+                                                      .then((value) {
+                                                    checkFinishButton();
+                                                    setState(
+                                                        () {}); // Força rebuild
+                                                  });
+                                                },
+                                              );
                                       });
-                                    },
-                                  );
                                 }
                                 if (index == state.familyMembers.length + 1) {
                                   return FutureBuilder(
@@ -192,28 +257,83 @@ class _SelectGroupPageState extends State<SelectGroupPage> {
                                 }
                                 final familyMember =
                                     state.familyMembers[index - 1];
-                                return GroupCard.initial(
-                                  leading: Icon(Icons.person_rounded,
-                                      color: primaryColor),
-                                  title: familyMember.name,
-                                  onTap: () {
-                                    controller.selectGroup(
-                                      GroupParams(
-                                        proofParams: FamilyMemberParams(
-                                            scholarshipId:
-                                                controller.scholarshipParams.id,
-                                            familyMemberId: familyMember.id),
-                                        icon: Icons.person_rounded,
-                                        groupName: familyMember.name,
-                                      ),
-                                    );
-                                    Modular.to
-                                        .pushNamed('select_group_document')
-                                        .then((value) {
-                                      checkFinishButton();
+                                return FutureBuilder<bool>(
+                                    future: controller.isGroupComplete(
+                                        familyMemberId: familyMember.id),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return GroupCard.initial(
+                                          leading: Icon(
+                                            Icons.person_rounded,
+                                            color: primaryColor,
+                                          ),
+                                          title: familyMember.name,
+                                          onTap: () {},
+                                        );
+                                      }
+
+                                      final isComplete = snapshot.data ?? false;
+
+                                      return isComplete
+                                          ? GroupCard.success(
+                                              leading: Icon(
+                                                Icons.person_rounded,
+                                                color: primaryColor,
+                                              ),
+                                              title: familyMember.name,
+                                              onTap: () {
+                                                controller.selectGroup(
+                                                  GroupParams(
+                                                    proofParams:
+                                                        FamilyMemberParams(
+                                                      scholarshipId: controller
+                                                          .scholarshipParams.id,
+                                                      familyMemberId:
+                                                          familyMember.id,
+                                                    ),
+                                                    icon: Icons.person_rounded,
+                                                    groupName:
+                                                        familyMember.name,
+                                                  ),
+                                                );
+                                                Modular.to
+                                                    .pushNamed(
+                                                        'select_group_document')
+                                                    .then((value) {
+                                                  checkFinishButton();
+                                                  setState(() {});
+                                                });
+                                              },
+                                            )
+                                          : GroupCard.initial(
+                                              leading: Icon(
+                                                  Icons.person_rounded,
+                                                  color: primaryColor),
+                                              title: familyMember.name,
+                                              onTap: () {
+                                                controller.selectGroup(
+                                                  GroupParams(
+                                                    proofParams: FamilyMemberParams(
+                                                        scholarshipId: controller
+                                                            .scholarshipParams
+                                                            .id,
+                                                        familyMemberId:
+                                                            familyMember.id),
+                                                    icon: Icons.person_rounded,
+                                                    groupName:
+                                                        familyMember.name,
+                                                  ),
+                                                );
+                                                Modular.to
+                                                    .pushNamed(
+                                                        'select_group_document')
+                                                    .then((value) {
+                                                  checkFinishButton();
+                                                });
+                                              },
+                                            );
                                     });
-                                  },
-                                );
                               },
                               separatorBuilder: (context, index) =>
                                   const SizedBox(height: 24),

@@ -14,6 +14,7 @@ class AppWidget extends StatelessWidget {
     ];
 
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       title: 'global_app_name'.i18n(),
       theme: lightTheme,
       routerDelegate: Modular.routerDelegate,

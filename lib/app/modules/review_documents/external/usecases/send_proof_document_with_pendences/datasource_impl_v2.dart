@@ -39,13 +39,22 @@ class DatasourceImplV2 implements Datasource {
       result.fold(
         (exception) {
           if (exception.message.contains('500')) {
-            throw ServerException();
+            throw ServerException(message: 'Erro no servidor');
           }
-          throw exception;
+          throw UnknownUsecaseException(message: exception.message);
         },
         (response) {
           if (response.statusCode.toString().startsWith('2')) {
             entity = const Entity();
+          } else {
+            String errorMessage = 'Não foi possível enviar o documento';
+
+            if (response.data != null && response.data is Map) {
+              final data = response.data as Map<String, dynamic>;
+              errorMessage = data['message'] ?? errorMessage;
+            }
+
+            throw UnknownUsecaseException(message: errorMessage);
           }
         },
       );

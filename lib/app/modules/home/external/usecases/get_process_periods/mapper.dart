@@ -138,14 +138,77 @@ class Mapper {
                 'Não foi possível recuperar os processos. ScholarshipProofDocument.resultRelease é vazio.');
       }
 
+      if (!firstEntity.containsKey('announcement')) {
+        throw const MapperException(
+            message:
+                'Não foi possível recuperar os processos. ScholarshipProofDocument não contém announcement.');
+      }
+
+      final announcement = firstEntity['announcement'];
+
+      if (!announcement.containsKey('yearProcess')) {
+        throw const MapperException(
+            message:
+                'Não foi possível recuperar os processos. ScholarshipProofDocument não contém yearProcess.');
+      }
+
+      final yearProcess = announcement['yearProcess'];
+
+      if (!yearProcess.containsKey('year')) {
+        throw const MapperException(
+            message:
+                'Não foi possível recuperar os processos. ScholarshipProofDocument não contém year.');
+      }
+
+      final year = yearProcess['year'] as int;
+
+      if (!firstEntity.containsKey('supplementaryDocumentDeadlineOnUtc')) {
+        throw const MapperException(
+            message:
+                'Não foi possível recuperar os processos. ProcessPeriod não contém supplementaryDocumentDeadlineOnUtc.');
+      }
+
+      final supplementaryDocumentDeadlineOnUtc =
+          firstEntity['supplementaryDocumentDeadlineOnUtc'];
+
+      if (supplementaryDocumentDeadlineOnUtc is! String) {
+        throw const MapperException(
+            message:
+                'Não foi possível recuperar os processos. supplementaryDocumentDeadlineOnUtc.supplementaryDocumentDeadlineOnUtc tem formato inesperado.');
+      }
+      if (supplementaryDocumentDeadlineOnUtc.isEmpty) {
+        throw const MapperException(
+            message:
+                'Não foi possível recuperar os processos. supplementaryDocumentDeadlineOnUtc.supplementaryDocumentDeadlineOnUtc é vazio.');
+      }
+
+      final schoolRegistrationBusinessDaysLimitField =
+          firstEntity['schoolRegistrationBusinessDaysLimit'];
+
+      int? schoolRegistrationBusinessDaysLimit;
+      if (schoolRegistrationBusinessDaysLimitField != null) {
+        if (schoolRegistrationBusinessDaysLimitField is! int) {
+          throw const MapperException(
+            message:
+                'Não foi possível recuperar os processos, tente novamente mais tarde.',
+          );
+        }
+
+        schoolRegistrationBusinessDaysLimit =
+            schoolRegistrationBusinessDaysLimitField;
+      }
       final process = Process(
         id: idField,
         processType: processType,
         documentationUploadDeadline: documentationUploadDeadline,
         documentationReturnUploadDeadLine: documentationReturnUploadDeadline,
+        supplementaryDocumentDeadlineOnUtc: supplementaryDocumentDeadlineOnUtc,
         registerStart: registerStart,
         registerEnd: registerEnd,
         resultRelease: resultRelease,
+        year: year,
+        schoolRegistrationBusinessDaysLimit:
+            schoolRegistrationBusinessDaysLimit,
       );
       processesList.add(process);
     }

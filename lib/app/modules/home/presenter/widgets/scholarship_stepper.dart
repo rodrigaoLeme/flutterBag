@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../presentation/presenters/result_documents/result_documents_presentation.dart';
+import '../../../../core/constants/process_type.dart';
+import '../../../../core/constants/review_type.dart';
 import '../../../../core/icons/ebolsas_icons_icons.dart';
 import '../../../../core/widgets/alternative_rounded_button.dart';
 import '../../../../core/widgets/background_icon.dart';
 import '../../../../core/widgets/custom_step.dart';
 import '../../../../core/widgets/custom_stepper.dart';
 import '../../../design_system/design_system_page.dart';
+import '../../domain/usecases/get_process_periods/entity.dart'
+    as process_period;
 import '../../domain/usecases/get_scholarship_by_period/entity.dart'
     as scholarship;
 import '../declassificaton_messages.dart';
@@ -268,15 +273,19 @@ class ErrorScholarshipStepper extends StatelessWidget {
   final void Function() onTapHistoryReview;
   final void Function() onTapResendDocuments;
   final DateTime documentationUploadDeadline;
+  final DateTime supplementaryDocumentDeadlineOnUtc;
   final bool isAuthorizedToSendAfterDeadline;
   final int declassification;
+  final ReviewType lastReviewType;
   const ErrorScholarshipStepper({
     Key? key,
     required this.onTapHistoryReview,
     required this.onTapResendDocuments,
     required this.documentationUploadDeadline,
+    required this.supplementaryDocumentDeadlineOnUtc,
     required this.isAuthorizedToSendAfterDeadline,
     required this.declassification,
+    required this.lastReviewType,
   }) : super(key: key);
 
   @override
@@ -288,8 +297,10 @@ class ErrorScholarshipStepper extends StatelessWidget {
     final formatter = DateFormat('yyyy-MM-dd');
 
     final formattedNow = DateTime.parse(formatter.format(now));
-    final formattedDeadline =
-        DateTime.parse(formatter.format(documentationUploadDeadline));
+    final deadLine = (lastReviewType == ReviewType.attendant)
+        ? documentationUploadDeadline
+        : supplementaryDocumentDeadlineOnUtc;
+    final formattedDeadline = DateTime.parse(formatter.format(deadLine));
     final bool isInsideDeadline = formattedDeadline.isAfter(formattedNow) ||
         formattedDeadline.isAtSameMomentAs(formattedNow);
 
@@ -482,8 +493,8 @@ class AnalysisScholarshipStepper extends StatelessWidget {
           CustomStep(
             icon: (declassification == 0) ? _clockIcon : _warningIcon,
             title: Text(
-                DeclassificatonMessages.shared
-                    .checkDeclassificationType(declassification, 'Resultado'),
+                DeclassificatonMessages.shared.checkDeclassificationType(
+                    declassification, 'Aguardando análise'),
                 style: (declassification > 0)
                     ? _errorTextStyle
                     : _waitingTextStyle),
@@ -499,91 +510,148 @@ class ResultScholarshipStepper extends StatelessWidget {
   final String resultReleaseDate;
   final void Function() onDateTimeError;
   final scholarship.Entity processNewScholarship;
+  final process_period.Process processPeriod;
+  final ProcessType tipoProcesso;
 
   const ResultScholarshipStepper({
     Key? key,
     required this.resultReleaseDate,
     required this.onDateTimeError,
     required this.processNewScholarship,
+    required this.processPeriod,
+    required this.tipoProcesso,
   }) : super(key: key);
 
-  Widget getContent() {
+  bool verificaData(DateTime resultRelease) {
+    DateTime dataAtual = DateTime.now();
+    return dataAtual.compareTo(resultRelease) >= 0;
+  }
+
+  Color get textColor {
     if (resultReleaseDate.isEmpty) {
-      onDateTimeError();
-      return const SizedBox();
+      return const Color(0xFFFFC547);
+    }
+
+    DateTime? resultReleaseDateDateTime = DateTime.tryParse(resultReleaseDate);
+
+    if (resultReleaseDateDateTime == null ||
+        !verificaData(resultReleaseDateDateTime)) {
+      return const Color(0xFFFFC547);
+    } else {
+      return successColor;
+    }
+  }
+
+  bool getContent() {
+    if (resultReleaseDate.isEmpty) {
+      //onDateTimeError();
+      return false;
     }
     DateTime? resultReleaseDateDateTime = DateTime.tryParse(resultReleaseDate);
-    return resultReleaseDateDateTime == null
-        ? () {
-            onDateTimeError();
-            return const SizedBox();
-          }()
-        : const Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                  width: 300,
-                  child: Text(
-                    'Consulte o portal do e-Bolsa para visualizar o resultado.',
-                    style: TextStyle(
-                        fontSize: 20,
-                        color: Color(0xFF0079b6),
-                        fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ))
-              //AlternativeRoundedButton(label: 'Mostrar resultado', onTap: () {}),
-            ],
-          );
+    if (resultReleaseDateDateTime == null) {
+      //onDateTimeError();
+      return false;
+    }
+
+    if (!verificaData(resultReleaseDateDateTime)) {
+      //onDateTimeError();
+      return false;
+    }
+
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
     return BaseStepper(
-      child: CustomStepper(
-        margin: EdgeInsets.zero,
-        physics: const NeverScrollableScrollPhysics(),
-        controlsBuilder: (context, details) => const SizedBox(),
-        titleTextStyle: const TextStyle(fontSize: 16),
-        currentStep: 4,
-        steps: [
-          const CustomStep(
-            title: Text('Cadastro', style: _successTextStyle),
-            icon: Icon(EbolsasIcons.check, color: successColor, size: 40),
-            isComplete: true,
-          ),
-          const CustomStep(
-            title: Text('Envio de documentação', style: _successTextStyle),
-            icon: Icon(EbolsasIcons.check, color: successColor, size: 40),
-            isComplete: true,
-          ),
-          const CustomStep(
-            title: Text('Revisão da documentação', style: _successTextStyle),
-            icon: Icon(EbolsasIcons.check, color: successColor, size: 40),
-            isComplete: true,
-          ),
-          const CustomStep(
-            title: Text('Avaliação socioeconômica', style: _successTextStyle),
-            icon: Icon(EbolsasIcons.check, color: successColor, size: 40),
-            isComplete: true,
-          ),
-          CustomStep(
-            icon: const BackgroundIcon(
-                icon:
-                    Icon(EbolsasIcons.resultado, color: Colors.white, size: 40),
-                backgroundColor: Color(0xFFFFC547)),
-            title: GestureDetector(
-              onTap: () {
-                print(processNewScholarship);
-                Modular.to.pushNamed('/document/result');
-              },
-              child: const Text(
-                'Resultado',
-                style: TextStyle(color: Color(0xFFFFC547)),
+      child: Column(
+        children: [
+          CustomStepper(
+            margin: EdgeInsets.zero,
+            physics: const NeverScrollableScrollPhysics(),
+            controlsBuilder: (context, details) => const SizedBox(),
+            titleTextStyle: const TextStyle(fontSize: 16),
+            currentStep: 4,
+            steps: [
+              const CustomStep(
+                title: Text('Cadastro', style: _successTextStyle),
+                icon: Icon(EbolsasIcons.check, color: successColor, size: 40),
+                isComplete: true,
               ),
-            ),
-            isActive: true,
-            content: const SizedBox(),
-          )
+              const CustomStep(
+                title: Text('Envio de documentação', style: _successTextStyle),
+                icon: Icon(EbolsasIcons.check, color: successColor, size: 40),
+                isComplete: true,
+              ),
+              const CustomStep(
+                title:
+                    Text('Revisão da documentação', style: _successTextStyle),
+                icon: Icon(EbolsasIcons.check, color: successColor, size: 40),
+                isComplete: true,
+              ),
+              const CustomStep(
+                title:
+                    Text('Avaliação socioeconômica', style: _successTextStyle),
+                icon: Icon(EbolsasIcons.check, color: successColor, size: 40),
+                isComplete: true,
+              ),
+              getContent()
+                  ? const CustomStep(
+                      title: Text('Resultado', style: _successTextStyle),
+                      icon: Icon(EbolsasIcons.check,
+                          color: successColor, size: 40),
+                      isComplete: true,
+                    )
+                  : CustomStep(
+                      icon: const BackgroundIcon(
+                        icon: Icon(EbolsasIcons.resultado,
+                            color: Colors.white, size: 40),
+                        backgroundColor: Color(0xFFFFC547),
+                      ),
+                      title: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          'Resultado',
+                          style: TextStyle(color: textColor),
+                        ),
+                      ),
+                      isActive: true,
+                      content: const SizedBox(),
+                    )
+            ],
+          ),
+          getContent()
+              ? GestureDetector(
+                  onTap: () {
+                    print(processNewScholarship);
+                    Modular.to.pushNamed(
+                      '/document/result',
+                      arguments: ProcessResultRoutesParams(
+                        scholarships: processNewScholarship,
+                        processPeriods: processPeriod,
+                        tipoProcesso: tipoProcesso,
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xff043465),
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: const Text(
+                      'Visualizar resultado',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink(),
         ],
       ),
     );

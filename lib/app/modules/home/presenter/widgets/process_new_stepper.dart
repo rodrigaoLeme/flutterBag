@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_triple/flutter_triple.dart';
 
+import '../../../../core/constants/process_type.dart';
 import '../../../../core/constants/scholarship_status.dart';
 import '../../domain/usecases/get_authorized_especial_users/entity.dart'
     as authorized_user;
+import '../../domain/usecases/get_process_periods/entity.dart'
+    as process_period;
 import '../../domain/usecases/get_process_periods/entity.dart';
 import '../../domain/usecases/get_scholarship_by_period/entity.dart'
     as scholarship;
@@ -20,14 +23,17 @@ class ProcessNewStepper extends StatelessWidget {
   final void Function() onTapSendDocuments;
   final void Function() onDateTimeError;
   final void Function() onTapResendDocuments;
-  const ProcessNewStepper(
-      {Key? key,
-      required this.processNewScholarship,
-      required this.processNew,
-      required this.onTapSendDocuments,
-      required this.onDateTimeError,
-      required this.onTapResendDocuments})
-      : super(key: key);
+  final process_period.Process processPeriod;
+
+  const ProcessNewStepper({
+    Key? key,
+    required this.processNewScholarship,
+    required this.processNew,
+    required this.onTapSendDocuments,
+    required this.onDateTimeError,
+    required this.onTapResendDocuments,
+    required this.processPeriod,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -100,10 +106,24 @@ class ProcessNewStepper extends StatelessWidget {
               onDateTimeError();
               return const SizedBox();
             }
+            final supplementaryDocumentDeadlineOnUtc =
+                processNew.supplementaryDocumentDeadlineOnUtc;
+            if (supplementaryDocumentDeadlineOnUtc == null ||
+                supplementaryDocumentDeadlineOnUtc.isEmpty) {
+              onDateTimeError();
+              return const SizedBox();
+            }
 
             final DateTime? deadline =
                 DateTime.tryParse(documentationReturnUploadDeadline);
             if (deadline == null) {
+              onDateTimeError();
+              return const SizedBox();
+            }
+
+            final DateTime? supplementaryDeadline =
+                DateTime.tryParse(supplementaryDocumentDeadlineOnUtc);
+            if (supplementaryDeadline == null) {
               onDateTimeError();
               return const SizedBox();
             }
@@ -130,6 +150,8 @@ class ProcessNewStepper extends StatelessWidget {
                     //TODO(adbysantos): Função "Histórico de revisão"
                   },
                   isAuthorizedToSendAfterDeadline: false, // fallback se erro
+                  supplementaryDocumentDeadlineOnUtc: supplementaryDeadline,
+                  lastReviewType: processNewScholarship.lastReviewType,
                 );
               },
               onState: (_, entity) {
@@ -139,6 +161,8 @@ class ProcessNewStepper extends StatelessWidget {
                   onTapResendDocuments: onTapResendDocuments,
                   isAuthorizedToSendAfterDeadline: isAuthorized,
                   declassification: processNewScholarship.declassificationType,
+                  supplementaryDocumentDeadlineOnUtc: supplementaryDeadline,
+                  lastReviewType: processNewScholarship.lastReviewType,
                   onTapHistoryReview: () {
                     //TODO(adbysantos): Função "Histórico de revisão"
                   },
@@ -172,10 +196,13 @@ class ProcessNewStepper extends StatelessWidget {
           declassification: processNewScholarship.declassificationType,
         );
       case ScholarshipStatus.result:
+        //case ScholarshipStatus.analysis:
         return ResultScholarshipStepper(
           resultReleaseDate: processNew.resultRelease,
           onDateTimeError: onDateTimeError,
           processNewScholarship: processNewScholarship,
+          processPeriod: processPeriod,
+          tipoProcesso: ProcessType.fresh,
         );
       default:
         log('ScholarshipStatus: ${processNewScholarship.scholarshipStatus}');

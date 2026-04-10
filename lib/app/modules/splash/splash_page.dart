@@ -41,27 +41,27 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
     initHttpClientAsync();
     Future.wait([
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp
-      ]),
+      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),
       initHiveForStoraging(),
       initTokenStorage(),
       initSessionStore(),
     ]).then((_) {
       FlutterNativeSplash.remove();
       Modular.to.pushReplacementNamed(isLogged ? 'home/' : 'auth/');
+    }).catchError((error) {
+      debugPrint('Erro na inicialização: $error');
+      FlutterNativeSplash.remove();
+      Modular.to.pushReplacementNamed('auth/');
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            CircularProgressIndicator.adaptive()
-          ],
+          children: [CircularProgressIndicator.adaptive()],
         ),
       ),
     );

@@ -316,7 +316,7 @@ class _PageState extends State<Page> {
                                         scholarshipProofDocument.id;
                                     final documentId =
                                         scholarshipProofDocument.documentId ??
-                                            "0";
+                                            '0';
                                     const scholarshipProofDocumentName =
                                         'TROCAR 1';
                                     //scholarshipProofDocument.name;
@@ -1100,6 +1100,9 @@ class _PageState extends State<Page> {
                                                   }
                                                   if (store.error != null ||
                                                       store.getProofsWithPendencesStore
+                                                              .error !=
+                                                          null ||
+                                                      store.sendProofDocumentWithPendencesStore
                                                               .error !=
                                                           null) return;
                                                   showSuccessfulAttachmentDialog(

@@ -62,7 +62,7 @@ Future<void> requestNotificationPermissionIfNeeded() async {
   if (Platform.isAndroid) {
     final androidInfo = await DeviceInfoPlugin().androidInfo;
     final sdkInt = androidInfo.version.sdkInt;
-    if ((sdkInt ?? 0) >= 33) {
+    if ((sdkInt) >= 33) {
       final status = await Permission.notification.status;
       if (!status.isGranted) {
         await Permission.notification.request();

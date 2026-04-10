@@ -28,6 +28,7 @@ class Store extends triple.StreamStore<String, StoreState> {
       finishSendingDocumentsStore;
   final get_proofs_with_pendences_by_family_member.Store
       getProofsWithPendencesStore;
+  final Map<String, bool> _groupCompletionStatus = {};
 
   Store(
       this.getFamilyMembersWithPendencesStore,
@@ -116,28 +117,44 @@ class Store extends triple.StreamStore<String, StoreState> {
   Future<bool> _showFinishButton() async {
     final familyMembers =
         getFamilyMembersWithPendencesStore.state.familyMembers;
-    for (int i = 0; i < familyMembers.length + 1; i++) {
-      if (i == 0) {
+
+    _groupCompletionStatus.clear();
+
+    final groupsToCheck =
+        familyMembers.length + (hasFamilyGroupPendences ? 1 : 0);
+
+    bool allComplete = true;
+
+    for (int i = 0; i < groupsToCheck; i++) {
+      String groupKey;
+      if (i == 0 && hasFamilyGroupPendences) {
+        groupKey = 'family_group';
         await getProofsWithPendencesStore(
           FamilyGroupParams(
             scholarshipReviewId: state.scholarshipReviewId,
           ),
         );
       } else {
+        final memberIndex = hasFamilyGroupPendences ? i - 1 : i;
+        groupKey = familyMembers[memberIndex].id;
         await getProofsWithPendencesStore(
           FamilyMemberParams(
-            familyMemberId: familyMembers[i - 1].id,
+            familyMemberId: familyMembers[memberIndex].id,
             scholarshipReviewId: state.scholarshipReviewId,
           ),
         );
       }
       if (getProofsWithPendencesStore.error != null) {
-        return false;
+        _groupCompletionStatus[groupKey] = false;
+        allComplete = false;
       } else if (missingSendDocuments) {
-        return false;
+        _groupCompletionStatus[groupKey] = false;
+        allComplete = false;
+      } else {
+        _groupCompletionStatus[groupKey] = true;
       }
     }
-    return true;
+    return allComplete;
   }
 
   bool get missingSendDocuments => getProofsWithPendencesStore.state.proofs.any(
@@ -152,5 +169,10 @@ class Store extends triple.StreamStore<String, StoreState> {
         scholarshipReviewId: state.scholarshipReviewId,
       ),
     );
+  }
+
+  bool isGroupComplete({required String? familyMemberId}) {
+    final key = familyMemberId ?? 'family_group';
+    return _groupCompletionStatus[key] ?? false;
   }
 }

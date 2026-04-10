@@ -816,6 +816,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         },
                                       );
                                     },
+                                    processPeriod: chosenProcessRenewal,
                                   );
 
                                   return Column(
@@ -902,6 +903,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         }
                                       });
                                     },
+                                    processPeriod: chosenProcessNew,
                                   );
                                   return Column(
                                     children: [

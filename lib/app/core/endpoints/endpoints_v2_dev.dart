@@ -46,7 +46,9 @@ class EndpointsV2Dev extends Endpoints {
           {required String scholarshipReviewId,
           required String scholarshipProofDocumentId}) =>
       '/api/v2/scholarship-reviews/$scholarshipReviewId/scholarship-proof-documents/$scholarshipProofDocumentId/upload';
-
+String processResultStudent(
+          {required String scholarshipId}) =>
+      '/api/v2/scholarships/$scholarshipId/students';
   //Resultado
   final students = '/api/v2/students';
 

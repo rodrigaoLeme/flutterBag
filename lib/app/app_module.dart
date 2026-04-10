@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
+import '../main/factories/pages/result_documents/result_documents_page_factory.dart';
 import 'core/endpoints/endpoints.dart';
 import 'core/endpoints/endpoints_v2_dev.dart';
 import 'core/services/http_client/base/http_client.dart';
@@ -20,7 +21,6 @@ import 'core/stores/session/presenter/session_store.dart';
 import 'modules/auth/presenter/auth_module.dart';
 import 'modules/design_system/design_system_page.dart';
 import 'modules/home/presenter/home_module.dart';
-import 'modules/home/presenter/widgets/document_result.dart';
 import 'modules/splash/splash_page.dart';
 
 class AppModule extends Module {
@@ -61,6 +61,6 @@ class AppModule extends Module {
     ChildRoute('/ds', child: (context, args) => const DesignSystemPage()),
     ModuleRoute('/home', module: HomeModule()),
     ChildRoute('/document/result',
-        child: (context, args) => const DocumentsResult()),
+        child: (context, args) => makeResultDocumentsPage()),
   ];
 }

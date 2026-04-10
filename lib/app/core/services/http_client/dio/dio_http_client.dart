@@ -209,6 +209,12 @@ class DioHttpClient implements HttpClient {
           name: 'END');
       return Right(response);
     } on DioException catch (exception) {
+      if (exception.response?.statusCode == 400 &&
+          exception.response?.data != null) {
+        final errorMessage =
+            exception.response?.data['message'] ?? exception.message ?? '';
+        return Left(HttpClientException(errorMessage));
+      }
       log(exception.message ?? '');
       return Left(HttpClientException(exception.message ?? ''));
     }

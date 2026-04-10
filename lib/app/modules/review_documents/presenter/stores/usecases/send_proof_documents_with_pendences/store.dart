@@ -1,11 +1,12 @@
 import 'package:flutter_triple/flutter_triple.dart';
 
+import '../../../../domain/usecases/send_proof_document_with_pendences/entity.dart';
 import '../../../../domain/usecases/send_proof_document_with_pendences/params.dart';
 import '../../../../domain/usecases/send_proof_document_with_pendences/usecase.dart';
-import '../../../../domain/usecases/send_proof_document_with_pendences/entity.dart';
+
 export '../../../../domain/usecases/send_proof_document_with_pendences/entity.dart';
-export '../../../../domain/usecases/send_proof_document_with_pendences/params.dart';
 export '../../../../domain/usecases/send_proof_document_with_pendences/exceptions.dart';
+export '../../../../domain/usecases/send_proof_document_with_pendences/params.dart';
 
 class Store extends StreamStore<String, Entity> {
   final Usecase _usecase;
@@ -16,7 +17,7 @@ class Store extends StreamStore<String, Entity> {
     setLoading(true, force: true);
     final result = await _usecase(params);
     result.fold(
-      (exception) => setError('Não foi possível enviar o documento com pendência', force: true),
+      (exception) => setError(exception.message!, force: true),
       (entity) => update(entity, force: true),
     );
     setLoading(false, force: true);
