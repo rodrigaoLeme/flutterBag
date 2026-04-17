@@ -1,0 +1,43 @@
+class Routes {
+  Routes._();
+
+  static const splash = '/';
+  static const onboarding = '/onboarding';
+  static const navBar = '/navBar';
+  static const login = '/login';
+  static const dashboard = '/dashboard';
+  static const eventDetails = '/event/details';
+  static const getInLine = '/get/in/line';
+  static const agenda = '/agenda';
+  static const myAgenda = '/my/agenda';
+  static const news = '/news';
+  static const stLouis = '/st/louis';
+  static const exhibition = '/exhibition';
+  static const support = '/support';
+  static const chatSupport = '/chat/support';
+  static const userId = '/user/id';
+  static const profile = '/profile';
+  static const editProfile = '/edit/profile';
+  static const food = '/food';
+  static const voting = '/voting';
+  static const map = '/map';
+  static const chooseEvent = '/choose/event';
+  static const webView = '/web/view';
+  static const emergency = '/emergency';
+  static const notification = '/notifications';
+  static const pushNotificationEmergency = '/push/notification/emergency';
+  static const spiritual = '/spiritual';
+  static const translation = '/translation';
+  static const business = '/business';
+  static const brochures = '/brochures';
+  static const broadcast = '/broadcast';
+  static const documents = '/documents';
+  static const prayerRoom = '/prayer-room';
+  static const music = '/music';
+  static const musicDetails = '/music/details';
+  static const devotional = '/devotional';
+  static const translationChannel = '/translation/channel';
+  static const transport = '/transport';
+  static const accessibility = '/accessibility';
+  static const socialMedia = '/socialMedia';
+}

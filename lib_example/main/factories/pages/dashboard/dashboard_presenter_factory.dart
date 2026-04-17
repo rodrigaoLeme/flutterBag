@@ -1,0 +1,44 @@
+import '../../../../presentation/presenters/dashboard/stream_dashboard_presenter.dart';
+import '../../../../ui/modules/dashboard/dashboard.dart';
+import '../../usecases/agenda/load_agenda_factory.dart';
+import '../../usecases/agenda/load_current_agenda_factory.dart';
+import '../../usecases/dashboard/load_notification_factory.dart';
+import '../../usecases/dashboard/load_notification_once_factory.dart';
+import '../../usecases/dashboard/load_schedule_factory.dart';
+import '../../usecases/dashboard/load_section_factory.dart';
+import '../../usecases/event/load_current_event_factory.dart';
+import '../../usecases/exhibition/load_current_exhibitor_factory.dart';
+import '../../usecases/exhibition/save_current_exhibitor_factory.dart';
+import '../../usecases/food/load_current_external_food_factory.dart';
+import '../../usecases/food/load_external_food_factory.dart';
+import '../../usecases/food/save_current_external_food_factory.dart';
+import '../../usecases/map/load_map_factory.dart';
+import '../../usecases/push_notification/load_current_notification_factory.dart';
+import '../../usecases/push_notification/load_current_notification_type_factory.dart';
+import '../../usecases/spiritual/load_spiritual_factory.dart';
+import '../../usecases/sponsor/load_sponsor_factory.dart';
+import '../../usecases/usecases.dart';
+
+DashboardPresenter makeDashboardPresenter() => StreamDashboardPresenter(
+      loadNews: makeRemoteLoadNews(),
+      loadNotification: makeRemoteLoadNotification(),
+      loadSchedule: makeRemoteLoadSchedule(),
+      loadVoting: makeRemoteLoadVoting(),
+      loadSection: makeRemoteLoadSection(),
+      loadCurrentEvent: makeLocalLoadCurrentEvent(),
+      loadAgenda: makeRemoteLoadAgenda(),
+      loadNewsUsecase: makeRemoteLoadNews(),
+      loadExternalFood: makeRemoteLoadExternalFood(),
+      loadCurrentExternalFood: makeLoadCurrentExternalFood(),
+      localSaveCurrentFood: makeSaveCurrentExternalFood(),
+      loadCurrentScreenType: makeLocalLoadCurrentScreenType(),
+      loadExhibition: makeRemoteLoadExhibition(),
+      loadSpirituals: makeRemoteLoadSpiritual(),
+      loadSponsor: makeRemoteLoadSponsor(),
+      localSaveCurrentExhibitor: makeSaveCurrentExhibitions(),
+      loadCurrentExhibitor: makeLoadCurrentExhibitor(),
+      loadCurrentAgenda: makeLocalLoadCurrentAgenda(),
+      loadMap: makeRemoteLoadMap(),
+      loadNotificationOnce: makeRemoteLoadNotificationOnce(),
+      loadCurrentNotification: makeLoadCurrentNotification(),
+    );

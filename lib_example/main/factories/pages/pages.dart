@@ -1,0 +1,10 @@
+export './agenda/agenda.dart';
+export './dashboard/dashboard.dart';
+export './edit_profile/edit_profile.dart';
+export './event_details/event_details.dart';
+export './get_in_line/get_in_line.dart';
+export './news/news.dart';
+export './splash/splash.dart';
+export './support/support.dart';
+export './voting/voting.dart';
+export 'food/food.dart';

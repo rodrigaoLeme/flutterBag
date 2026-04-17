@@ -1,0 +1,1 @@
+export './voting_entity.dart';
