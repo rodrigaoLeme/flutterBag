@@ -1,26 +1,19 @@
 import 'dart:async';
 
-mixin LoadingManager {
-  final StreamController<LoadingData> _isLoadingStreamController =
-      StreamController<LoadingData>.broadcast();
-
-  Stream<LoadingData> get isLoadingStream => _isLoadingStreamController.stream;
-  set isLoading(LoadingData value) =>
-      _isLoadingStreamController.sink.add(value);
-}
-
 class LoadingData {
-  bool isLoading;
-  LoadingStyle style;
-
-  LoadingData({
-    required this.isLoading,
-    this.style = LoadingStyle.light,
-  });
+  final bool isLoading;
+  const LoadingData({required this.isLoading});
 }
 
-enum LoadingStyle {
-  primary,
-  light,
-  none,
+mixin LoadingManager {
+  final StreamController<LoadingData?> _isLoadingController =
+      StreamController<LoadingData?>.broadcast();
+
+  Stream<LoadingData?> get isLoadingStream => _isLoadingController.stream;
+
+  set isLoading(LoadingData value) {
+    if (!_isLoadingController.isClosed) {
+      _isLoadingController.add(value);
+    }
+  }
 }

@@ -1,7 +1,7 @@
-import 'flavors.dart';
-import 'main.dart' as main_common;
+import 'main.dart' as runner;
+import 'main/flavors.dart';
 
 Future<void> main() async {
-  Flavor.flavorType = FlavorTypes.dev;
-  main_common.main();
+  Flavor.flavorType = FlavorType.dev;
+  runner.mainCommon();
 }

@@ -1,13 +1,11 @@
 class NavigationData {
-  String route;
-  bool clear;
-  dynamic arguments;
-  bool navigationBack;
+  final String route;
+  final bool clear;
+  final dynamic arguments;
 
   NavigationData({
     required this.route,
     required this.clear,
     this.arguments,
-    this.navigationBack = false,
   });
 }

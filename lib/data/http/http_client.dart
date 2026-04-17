@@ -1,4 +1,4 @@
-import 'dart:io';
+enum HttpMethod { get, post, put, patch, delete }
 
 abstract class HttpClient {
   Future<dynamic> request({
@@ -7,15 +7,5 @@ abstract class HttpClient {
     Map? body,
     Map? headers,
     Map<String, dynamic>? queryParameters,
-    File? file,
   });
-}
-
-enum HttpMethod {
-  post,
-  get,
-  patch,
-  put,
-  delete,
-  multipart,
 }

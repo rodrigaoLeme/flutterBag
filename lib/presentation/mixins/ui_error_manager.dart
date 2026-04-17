@@ -1,8 +1,14 @@
 import 'dart:async';
 
 mixin UIErrorManager {
-  final StreamController<String?> _mainErrorController =
+  final StreamController<String?> _uiErrorController =
       StreamController<String?>.broadcast();
-  Stream<String?> get mainErrorStream => _mainErrorController.stream;
-  set mainError(String? value) => _mainErrorController.sink.add(value);
+
+  Stream<String?> get uiErrorStream => _uiErrorController.stream;
+
+  set uiError(String? value) {
+    if (!_uiErrorController.isClosed) {
+      _uiErrorController.add(value);
+    }
+  }
 }
