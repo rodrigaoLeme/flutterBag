@@ -1,16 +1,13 @@
 import '../../../presentation/mixins/loading_manager.dart';
 import '../../mixins/navigation_data.dart';
 
-abstract class LoginPresenter {
+abstract class ForgotPasswordPresenter {
   Stream<NavigationData?> get navigateToStream;
-  Stream<bool> get isSessionExpiredStream;
   Stream<String?> get uiErrorStream;
   Stream<LoadingData?> get isLoadingStream;
+  Stream<bool?> get isSuccessStream;
 
-  Future<void> auth({
-    required String identifier,
-    required String password,
-  });
+  Future<void> forgotPassword({required String identifier});
 
   void dispose();
 }

@@ -1,6 +1,7 @@
 import 'package:flutter_modular/flutter_modular.dart';
 
 import '../factories/pages/auth/add_account_page_factory.dart';
+import '../factories/pages/auth/forgot_password_page_factory.dart';
 import '../factories/pages/auth/login_page_factory.dart';
 import '../factories/pages/splash/splash_page_factory.dart';
 import 'routes.dart';
@@ -24,6 +25,11 @@ class AppModule extends Module {
     r.child(
       Routes.addAccount,
       child: (_) => makeAddAccountPage(),
+      transition: TransitionType.fadeIn,
+    );
+    r.child(
+      Routes.forgotPassword,
+      child: (_) => makeForgotPasswordPage(),
       transition: TransitionType.fadeIn,
     );
   }

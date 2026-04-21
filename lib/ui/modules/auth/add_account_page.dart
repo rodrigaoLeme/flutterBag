@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
+import '../../../presentation/mixins/loading_manager.dart';
+import '../../helpers/themes/app_colors.dart';
 import '../../mixins/mixins.dart';
 import 'add_account_presenter.dart';
 import 'add_account_view_model.dart';
@@ -25,6 +27,8 @@ class _AddAccountPageState extends State<AddAccountPage>
 
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
+  bool _isLoading = false;
+  bool _isFormValid = false;
 
   final _cpfMask = MaskTextInputFormatter(
     mask: '###.###.###-##',
@@ -39,6 +43,36 @@ class _AddAccountPageState extends State<AddAccountPage>
   void initState() {
     super.initState();
     handleNavigation(widget.presenter.navigateToStream);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showWarning(context);
+    });
+  }
+
+  void _showWarning(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Atenção!',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          content: Text(
+              'Este cadastro inicial é exclusivo para o Responsável Legal (requerente); não utilize os dados do candidato/aluno nesta tela. \n\nSe já possui um acesso de anos anteriores, clique em "Entrar" na página inicial, e, se não lembrar a senha, use a opção "Esqueceu sua senha?" na tela de Login.'),
+          actions: [
+            TextButton(
+              child: Text(
+                'Estou ciente',
+                style: TextStyle(color: AppColors.primary),
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -74,10 +108,12 @@ class _AddAccountPageState extends State<AddAccountPage>
           initialData: const AddAccountViewModel.empty(),
           builder: (context, snapshot) {
             final vm = snapshot.data ?? const AddAccountViewModel.empty();
-            return StreamBuilder<bool?>(
+            _isFormValid = vm.isFormValid;
+            return StreamBuilder<LoadingData?>(
               stream: widget.presenter.isLoadingStream,
               builder: (context, loadingSnapshot) {
-                final isLoading = loadingSnapshot.data ?? false;
+                final isLoading = loadingSnapshot.data?.isLoading ?? false;
+                _isLoading = isLoading;
                 return SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
@@ -86,6 +122,13 @@ class _AddAccountPageState extends State<AddAccountPage>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      Text(
+                        'Cadastro Responsável',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
                       Text(
                         'Este cadastro deve ser preenchido com os dados do Responsável Legal.',
                         style: Theme.of(context).textTheme.bodyMedium,
@@ -209,6 +252,32 @@ class _AddAccountPageState extends State<AddAccountPage>
           },
         ),
       ),
+      // bottomNavigationBar: SafeArea(
+      //   child: Padding(
+      //     padding: const EdgeInsets.symmetric(
+      //       horizontal: 24,
+      //       vertical: 24,
+      //     ),
+      //     child: ElevatedButton(
+      //       onPressed: _isLoading || !_isFormValid
+      //           ? null
+      //           : () {
+      //               FocusScope.of(context).unfocus();
+      //               widget.presenter.addAccount();
+      //             },
+      //       child: _isLoading
+      //           ? const SizedBox(
+      //               height: 20,
+      //               width: 20,
+      //               child: CircularProgressIndicator(
+      //                 strokeWidth: 2,
+      //                 color: Colors.white,
+      //               ),
+      //             )
+      //           : const Text('Avançar'),
+      //     ),
+      //   ),
+      // ),
     );
   }
 }
