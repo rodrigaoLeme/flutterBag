@@ -4,7 +4,7 @@ import 'add_account_view_model.dart';
 abstract class AddAccountPresenter {
   Stream<NavigationData?> get navigateToStream;
   Stream<String?> get uiErrorStream;
-  Stream<bool?> get isLoadingStream;
+  Stream<LoadingData?> get isLoadingStream;
   Stream<AddAccountViewModel?> get viewModelStream;
 
   void validateFields({

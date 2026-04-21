@@ -188,7 +188,7 @@ class _AddAccountPageState extends State<AddAccountPage>
                             ? null
                             : () {
                                 FocusScope.of(context).unfocus();
-                                widget.presenter.addAccountCall();
+                                widget.presenter.addAccount();
                               },
                         child: isLoading
                             ? const SizedBox(

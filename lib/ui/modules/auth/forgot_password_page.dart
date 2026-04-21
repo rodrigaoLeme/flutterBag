@@ -4,8 +4,8 @@ import 'package:flutter_modular/flutter_modular.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/app_colors.dart';
 import '../../helpers/themes/app_text_styles.dart';
-import 'auth_presenter.dart';
-import 'auth_view_model.dart';
+import 'forgot_password_presenter.dart';
+import 'forgot_password_view_model.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   final ForgotPasswordPresenter presenter;

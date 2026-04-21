@@ -5,8 +5,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../../../main/routes/routes.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
-import 'auth_presenter.dart';
-import 'auth_view_model.dart';
+import 'login_presenter.dart';
 
 class LoginPage extends StatefulWidget {
   final LoginPresenter presenter;

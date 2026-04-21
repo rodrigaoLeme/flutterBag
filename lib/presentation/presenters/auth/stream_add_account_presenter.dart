@@ -14,14 +14,14 @@ import '../../mixins/mixins.dart';
 class StreamAddAccountPresenter
     with SessionManager, LoadingManager, NavigationManager, UIErrorManager
     implements AddAccountPresenter {
-  @override
-  final AddAccount addAccount;
-  final SaveCurrentAccount saveCurrentAccount;
+  final AddAccount _addAccount;
+  final SaveCurrentAccount _saveCurrentAccount;
 
   StreamAddAccountPresenter({
-    required this.addAccount,
-    required this.saveCurrentAccount,
-  });
+    required AddAccount addAccount,
+    required SaveCurrentAccount saveCurrentAccount,
+  })  : _addAccount = addAccount,
+        _saveCurrentAccount = saveCurrentAccount;
 
   final _viewModelController =
       StreamController<AddAccountViewModel?>.broadcast();
@@ -29,11 +29,6 @@ class StreamAddAccountPresenter
   @override
   Stream<AddAccountViewModel?> get viewModelStream =>
       _viewModelController.stream;
-
-  @override
-  Stream<bool?> get isLoadingStream => isLoadingStream;
-
-  AddAccountViewModel _currentViewModel = const AddAccountViewModel.empty();
 
   String _name = '';
   String _email = '';
@@ -58,7 +53,7 @@ class StreamAddAccountPresenter
     _password = password;
     _passwordConfirmation = passwordConfirmation;
 
-    _currentViewModel = AddAccountViewModel(
+    _viewModelController.add(AddAccountViewModel(
       nameError: _name.length < 3 ? 'Informe seu nome completo.' : null,
       emailError: !RegExp(r'^[\w.]+@[\w]+\.\w{2,}$').hasMatch(_email)
           ? 'E-mail inválido.'
@@ -74,18 +69,16 @@ class StreamAddAccountPresenter
           _phone.length >= 10 &&
           _password.length >= 8 &&
           _password == _passwordConfirmation,
-    );
-
-    _viewModelController.add(_currentViewModel);
+    ));
   }
 
   @override
-  Future<void> addAccountCall() async {
+  Future<void> addAccount() async {
     try {
       isLoading = LoadingData(isLoading: true);
       uiError = null;
 
-      final account = await addAccount.add(AddAccountParams(
+      final account = await _addAccount.add(AddAccountParams(
         name: _name,
         email: _email,
         cpf: _cpf,
@@ -94,8 +87,8 @@ class StreamAddAccountPresenter
         passwordConfirmation: _passwordConfirmation,
       ));
 
-      await saveCurrentAccount.save(account.accessToken);
-      navigateTo = NavigationData(route: Routes.contaCriada, clear: false);
+      await _saveCurrentAccount.save(account.accessToken);
+      navigateTo = NavigationData(route: Routes.createdAccount, clear: false);
     } on DomainError catch (error) {
       switch (error) {
         case DomainError.emailInUse:
