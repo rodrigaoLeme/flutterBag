@@ -1,6 +1,10 @@
-import '../../mixins/navigation_data.dart';
-
 abstract class SplashPresenter {
-  Stream<NavigationData?> get navigateToStream;
-  Future<void> checkAccount();
+  Stream<bool?> get isAuthenticatedStream;
+  Future<void> checkSession();
+  void dispose();
+}
+
+class SplashViewModel {
+  final bool? isAuthenticated;
+  const SplashViewModel({this.isAuthenticated});
 }

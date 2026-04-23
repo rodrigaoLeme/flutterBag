@@ -1,7 +1,11 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-import '../../mixins/mixins.dart';
-import './splash_presenter.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
+
+import '../../../main/routes/auth_routes.dart';
+import '../../helpers/themes/app_colors.dart';
+import 'splash_presenter.dart';
 
 class SplashPage extends StatefulWidget {
   final SplashPresenter presenter;
@@ -12,19 +16,51 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> with NavigationManager {
+class _SplashPageState extends State<SplashPage> {
+  late StreamSubscription<bool?> _authSubscription;
+
   @override
   void initState() {
     super.initState();
-    handleNavigation(widget.presenter.navigateToStream);
-    widget.presenter.checkAccount();
+    _subscribeStreams();
+    widget.presenter.checkSession();
+  }
+
+  void _subscribeStreams() {
+    _authSubscription =
+        widget.presenter.isAuthenticatedStream.listen((isAuthenticated) {
+      if (isAuthenticated == true) {
+        //Modular.to.navigate(); // home após implementar
+      } else {
+        Modular.to.navigate(AuthRoutes.login);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _authSubscription.cancel();
+    widget.presenter.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
+      backgroundColor: AppColors.primary,
       body: Center(
-        child: CircularProgressIndicator(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Logo — substitua pelo asset real
+            const Icon(Icons.school, size: 80, color: Colors.white),
+            const SizedBox(height: 32),
+            const CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 2,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,17 +1,21 @@
 import 'dart:convert';
 
+import '../../main/i18n/app_i18n.dart';
+
 class JwtDecoder {
   JwtDecoder._();
 
   static Map<String, dynamic> decode(String token) {
     try {
       final parts = token.split('.');
-      if (parts.length != 3) throw const FormatException('Token inválido.');
+      if (parts.length != 3) {
+        throw FormatException(AppI18n.current.jwtInvalidToken);
+      }
       final normalized = base64Url.normalize(parts[1]);
       final decoded = utf8.decode(base64Url.decode(normalized));
       return jsonDecode(decoded) as Map<String, dynamic>;
     } catch (e) {
-      throw FormatException('Erro ao decodificar JWT: $e');
+      throw FormatException(AppI18n.current.jwtDecodeError(e));
     }
   }
 

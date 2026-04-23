@@ -1,3 +1,5 @@
+import 'i18n/app_i18n.dart';
+
 enum FlavorType { dev, prod }
 
 class Flavor {
@@ -18,11 +20,13 @@ class Flavor {
   }
 
   static String get appName {
+    final appStrings = AppI18n.current;
+
     switch (flavorType) {
       case FlavorType.dev:
-        return 'e-BolsaDev';
+        return appStrings.appNameDev;
       case FlavorType.prod:
-        return 'e-Bolsa';
+        return appStrings.appNameProd;
     }
   }
 }

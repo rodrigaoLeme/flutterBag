@@ -1,39 +1,49 @@
 import 'dart:async';
 
-import '../../../domain/helpers/helpers.dart';
-import '../../../domain/usecases/account/forgot_password.dart';
-import '../../../ui/modules/auth/forgot_password_presenter.dart';
-import '../../mixins/mixins.dart';
+import '../../../data/http/http_client.dart';
+import '../../../domain/usecases/auth/auth_usecases.dart';
+import '../../../main/i18n/app_i18n.dart';
+import '../../../ui/modules/auth/auth_presenter.dart';
+import '../../../ui/modules/auth/auth_view_model.dart';
 
-class StreamForgotPasswordPresenter
-    with LoadingManager, NavigationManager, UIErrorManager
-    implements ForgotPasswordPresenter {
-  final ForgotPassword _forgotPasswordUsecase;
+class StreamForgotPasswordPresenter implements ForgotPasswordPresenter {
+  final ForgotPasswordUsecase forgotPasswordUsecase;
 
-  StreamForgotPasswordPresenter({required ForgotPassword forgotPassword})
-      : _forgotPasswordUsecase = forgotPassword;
+  StreamForgotPasswordPresenter({required this.forgotPasswordUsecase});
 
-  final _isSuccessController = StreamController<bool?>.broadcast();
-
-  @override
-  Stream<bool?> get isSuccessStream => _isSuccessController.stream;
+  final _viewModelController =
+      StreamController<ForgotPasswordViewModel?>.broadcast();
 
   @override
-  Future<void> forgotPassword({required String identifier}) async {
+  Stream<ForgotPasswordViewModel?> get viewModel => _viewModelController.stream;
+
+  @override
+  Future<void> forgotPassword(ForgotPasswordUsecaseParams params) async {
+    _emit(const ForgotPasswordViewModel.loading());
+
     try {
-      isLoading = LoadingData(isLoading: true);
-      uiError = null;
-      await _forgotPasswordUsecase.send(identifier: identifier);
-      _isSuccessController.add(true);
-    } on DomainError {
-      uiError = 'Não foi possível enviar o link. Tente novamente.';
-    } finally {
-      isLoading = LoadingData(isLoading: false);
+      await forgotPasswordUsecase.forgotPassword(params);
+      _emit(const ForgotPasswordViewModel.success());
+    } on ForgotPasswordValidationException catch (e) {
+      _emit(ForgotPasswordViewModel().withError(e.message));
+    } on HttpError catch (e) {
+      final appStrings = AppI18n.current;
+
+      if (e == HttpError.noConnectivity) {
+        _emit(ForgotPasswordViewModel().withError(appStrings.errorNoInternet));
+        return;
+      }
+      _emit(ForgotPasswordViewModel().withError(appStrings.errorUnexpected));
+    } catch (_) {
+      _emit(
+          ForgotPasswordViewModel().withError(AppI18n.current.errorUnexpected));
     }
   }
 
-  @override
-  void dispose() {
-    _isSuccessController.close();
+  void _emit(ForgotPasswordViewModel vm) {
+    if (!_viewModelController.isClosed) _viewModelController.add(vm);
   }
+
+  @override
+  void dispose() => _viewModelController.close();
 }

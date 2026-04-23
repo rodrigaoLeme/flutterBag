@@ -1,13 +1,11 @@
-import 'dart:developer' as developer;
-
 import 'package:dio/dio.dart';
 
-import '../../data/http/http.dart';
+import '../../data/http/http_client.dart';
 
 class DioAdapter implements HttpClient {
-  final Dio client;
+  final Dio _dio;
 
-  DioAdapter(this.client);
+  DioAdapter(this._dio);
 
   @override
   Future<dynamic> request({
@@ -17,53 +15,59 @@ class DioAdapter implements HttpClient {
     Map? headers,
     Map<String, dynamic>? queryParameters,
   }) async {
-    final defaultHeaders = headers?.cast<String, String>() ??
-        {
-          'content-type': 'application/json',
-          'accept': 'application/json',
-        };
-
-    final options = Options(
-      headers: defaultHeaders,
-      sendTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 24),
-    );
-
-    developer.log('>>> $method $url', name: 'HTTP');
+    Response? response;
 
     try {
-      Response? response;
+      final options = Options(headers: headers?.cast<String, dynamic>());
 
       switch (method) {
-        case HttpMethod.post:
-          response = await client.post(url, options: options, data: body);
         case HttpMethod.get:
-          response = await client.get(url,
-              options: options, queryParameters: queryParameters);
+          response = await _dio.get(
+            url,
+            queryParameters: queryParameters,
+            options: options,
+          );
+        case HttpMethod.post:
+          response = await _dio.post(
+            url,
+            data: body,
+            queryParameters: queryParameters,
+            options: options,
+          );
         case HttpMethod.put:
-          response = await client.put(url, options: options, data: body);
+          response = await _dio.put(
+            url,
+            data: body,
+            queryParameters: queryParameters,
+            options: options,
+          );
         case HttpMethod.patch:
-          response = await client.patch(url, options: options, data: body);
+          response = await _dio.patch(
+            url,
+            data: body,
+            queryParameters: queryParameters,
+            options: options,
+          );
         case HttpMethod.delete:
-          response = await client.delete(url, options: options);
+          response = await _dio.delete(
+            url,
+            queryParameters: queryParameters,
+            options: options,
+          );
       }
 
       return _handleResponse(response);
-    } catch (error) {
-      developer.log('ERROR: $error', name: 'HTTP');
-      throw HttpError.serverError;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
     }
   }
 
-  dynamic _handleResponse(Response? response) {
-    developer.log('<<< ${response?.statusCode}', name: 'HTTP');
-    switch (response?.statusCode) {
+  dynamic _handleResponse(Response response) {
+    switch (response.statusCode) {
       case 200:
-        return response?.data;
       case 201:
-        return response?.data;
       case 204:
-        return null;
+        return response.data;
       case 400:
         throw HttpError.badRequest;
       case 401:
@@ -74,6 +78,21 @@ class DioAdapter implements HttpClient {
         throw HttpError.notFound;
       default:
         throw HttpError.serverError;
+    }
+  }
+
+  HttpError _handleDioError(DioException e) {
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.receiveTimeout:
+      case DioExceptionType.sendTimeout:
+        return HttpError.timeout;
+      case DioExceptionType.connectionError:
+        return HttpError.noConnectivity;
+      case DioExceptionType.badResponse:
+        return _handleResponse(e.response!);
+      default:
+        return HttpError.unexpected;
     }
   }
 }

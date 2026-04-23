@@ -9,3 +9,17 @@ abstract class HttpClient {
     Map<String, dynamic>? queryParameters,
   });
 }
+
+enum HttpError {
+  badRequest,
+  unauthorized,
+  forbidden,
+  notFound,
+  serverError,
+  noConnectivity,
+  timeout,
+  unexpected;
+
+  bool get isUnauthorized => this == HttpError.unauthorized;
+  bool get isForbidden => this == HttpError.forbidden;
+}

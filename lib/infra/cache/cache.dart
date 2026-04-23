@@ -1,1 +1,1 @@
-export 'shared_preferences_adapter.dart';
+export 'storage_adapters.dart';

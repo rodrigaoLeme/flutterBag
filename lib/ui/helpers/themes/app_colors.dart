@@ -37,6 +37,9 @@ class AppColors {
   static const Color inputFillLight = Color(0xFFFFFFFF);
   static const Color inputFillDark = Color(0xFF2C2C2C);
 
+  // ButtonText
+  static const Color textButton = Color(0xFF0F3665);
+
   // Bordas
   static const Color borderLight = Color(0xFFBDBDBD);
   static const Color borderDark = Color(0xFF424242);

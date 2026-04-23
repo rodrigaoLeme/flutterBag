@@ -1,28 +1,52 @@
-import '../../../domain/helpers/helpers.dart';
-import '../../../domain/usecases/account/load_current_account.dart';
-import '../../../main/routes/routes.dart';
-import '../../../ui/mixins/navigation_data.dart';
+import 'dart:async';
+
+import '../../../data/cache/cache.dart';
+import '../../../share/utils/jwt_decoder.dart';
 import '../../../ui/modules/splash/splash_presenter.dart';
-import '../../mixins/mixins.dart';
 
-class StreamSplashPresenter with NavigationManager implements SplashPresenter {
-  final LoadCurrentAccount loadCurrentAccount;
+class StreamSplashPresenter implements SplashPresenter {
+  final SecureStorage secureStorage;
 
-  StreamSplashPresenter({required this.loadCurrentAccount});
+  StreamSplashPresenter({required this.secureStorage});
+
+  final _isAuthenticatedController = StreamController<bool?>.broadcast();
 
   @override
-  Future<void> checkAccount() async {
+  Stream<bool?> get isAuthenticatedStream => _isAuthenticatedController.stream;
+
+  @override
+  Future<void> checkSession() async {
     try {
-      final account = await loadCurrentAccount.load();
-      if (account != null) {
-        navigateTo = NavigationData(route: Routes.home, clear: true);
-      } else {
-        navigateTo = NavigationData(route: Routes.login, clear: true);
+      final token = await secureStorage.fetch(key: StorageKeys.accessToken);
+
+      if (token == null || token.isEmpty) {
+        _emit(false);
+        return;
       }
-    } on DomainError {
-      navigateTo = NavigationData(route: Routes.login, clear: true);
+
+      if (JwtDecoder.isExpired(token)) {
+        final refreshToken = await secureStorage.fetch(
+          key: StorageKeys.refreshToken,
+        );
+        if (refreshToken == null || refreshToken.isEmpty) {
+          await secureStorage.clean();
+          _emit(false);
+          return;
+        }
+      }
+
+      _emit(true);
     } catch (_) {
-      navigateTo = NavigationData(route: Routes.login, clear: true);
+      _emit(false);
     }
   }
+
+  void _emit(bool value) {
+    if (!_isAuthenticatedController.isClosed) {
+      _isAuthenticatedController.add(value);
+    }
+  }
+
+  @override
+  void dispose() => _isAuthenticatedController.close();
 }
