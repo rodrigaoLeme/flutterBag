@@ -1,5 +1,3 @@
-import 'package:cpf_cnpj_validator/cpf_validator.dart';
-
 import '../../../data/cache/cache.dart';
 import '../../../data/http/http_client.dart';
 import '../../../data/models/auth/remote_auth_model.dart';
@@ -71,8 +69,6 @@ class RemoteCreateAccountUsecase implements CreateAccountUsecase {
 
   @override
   Future<UserEntity> createAccount(CreateAccountUsecaseParams params) async {
-    _validate(params);
-
     try {
       final response = await httpClient.request(
         url: '${Flavor.apiBaseUrl}/auth/register',
@@ -102,47 +98,6 @@ class RemoteCreateAccountUsecase implements CreateAccountUsecase {
     } on HttpError catch (e) {
       if (e == HttpError.badRequest) throw AccountAlreadyExistsException();
       rethrow;
-    }
-  }
-
-  void _validate(CreateAccountUsecaseParams params) {
-    final appStrings = AppI18n.current;
-    final cleanCpf = params.cpf.replaceAll(RegExp(r'[^\d]'), '');
-    if (!CPFValidator.isValid(cleanCpf)) {
-      throw CreateAccountValidationException(
-        field: 'cpf',
-        message: appStrings.createAccountValidationInvalidCpf,
-      );
-    }
-    if (params.name.trim().length < 3) {
-      throw CreateAccountValidationException(
-        field: 'name',
-        message: appStrings.createAccountValidationFullNameRequired,
-      );
-    }
-    if (!RegExp(r'^[\w.]+@[\w]+\.\w{2,}$').hasMatch(params.email.trim())) {
-      throw CreateAccountValidationException(
-        field: 'email',
-        message: appStrings.createAccountValidationInvalidEmail,
-      );
-    }
-    if (params.phone.trim().length < 15) {
-      throw CreateAccountValidationException(
-        field: 'phone',
-        message: appStrings.createAccountValidationInvalidPhone,
-      );
-    }
-    if (params.password.length < 8) {
-      throw CreateAccountValidationException(
-        field: 'password',
-        message: appStrings.createAccountValidationPasswordMin,
-      );
-    }
-    if (params.password != params.passwordConfirmation) {
-      throw CreateAccountValidationException(
-        field: 'passwordConfirmation',
-        message: appStrings.createAccountValidationPasswordMismatch,
-      );
     }
   }
 }

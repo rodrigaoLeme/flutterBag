@@ -11,6 +11,7 @@ abstract class LoginPresenter {
 abstract class CreateAccountPresenter {
   Stream<AuthViewModel?> get viewModel;
   Future<void> createAccount(CreateAccountUsecaseParams params);
+  Future<void> confirmAccount();
   void dispose();
 }
 

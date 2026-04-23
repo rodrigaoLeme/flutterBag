@@ -37,6 +37,15 @@ abstract class AppI18n {
   String get createAccountConfirmPasswordLabel;
   String get createAccountConfirmPasswordHint;
   String get createAccountNextAction;
+  String get termsPageTitle;
+  String get termsContent;
+  String get termsReadAndAccept;
+  String get termsAgreeUse;
+  String get termsConfirm;
+  String get createdAccountPageTitle;
+  String get createdAccountSuccessTitle;
+  String get createdAccountSuccessDescription;
+  String get createdAccountDoneButton;
 
   // Forgot password
   String get forgotPasswordHeader;

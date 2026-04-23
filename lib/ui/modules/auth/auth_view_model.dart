@@ -3,9 +3,11 @@ class AuthViewModel {
   final String? errorMessage;
   final Map<String, String> fieldErrors;
   final bool isSuccess;
+  final bool isValid;
 
   const AuthViewModel({
     this.isLoading = false,
+    this.isValid = false,
     this.errorMessage,
     this.fieldErrors = const {},
     this.isSuccess = false,
@@ -15,6 +17,8 @@ class AuthViewModel {
 
   const AuthViewModel.loading() : this(isLoading: true);
 
+  const AuthViewModel.valid() : this(isValid: true);
+
   const AuthViewModel.success() : this(isSuccess: true);
 
   AuthViewModel withError(String message) => AuthViewModel(
@@ -23,6 +27,10 @@ class AuthViewModel {
 
   AuthViewModel withFieldError(String field, String message) => AuthViewModel(
         fieldErrors: {field: message},
+      );
+
+  AuthViewModel withFieldErrors(Map<String, String> errors) => AuthViewModel(
+        fieldErrors: errors,
       );
 
   bool hasFieldError(String field) => fieldErrors.containsKey(field);

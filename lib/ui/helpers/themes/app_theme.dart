@@ -80,11 +80,18 @@ class AppTheme {
           ),
         ),
         scrollbarTheme: ScrollbarThemeData(
-          thumbColor: WidgetStatePropertyAll(Colors.amber),
-          trackColor: WidgetStatePropertyAll(Colors.amber),
-          thickness: WidgetStatePropertyAll(2.0),
-          thumbVisibility: WidgetStatePropertyAll(true),
-          trackBorderColor: WidgetStatePropertyAll(Colors.amber),
+          thumbColor: WidgetStateProperty.resolveWith<Color?>(
+            (states) {
+              if (states.contains(WidgetState.dragged) ||
+                  states.contains(WidgetState.hovered)) {
+                return AppColors.primaryLight;
+              }
+              return AppColors.primaryLight.withValues(alpha: 0.6);
+            },
+          ),
+          thickness: WidgetStateProperty.all(4),
+          radius: const Radius.circular(8),
+          interactive: true,
         ),
       );
 
@@ -162,11 +169,18 @@ class AppTheme {
           ),
         ),
         scrollbarTheme: ScrollbarThemeData(
-          thumbColor: WidgetStatePropertyAll(Colors.amber),
-          trackColor: WidgetStatePropertyAll(Colors.amber),
-          thickness: WidgetStatePropertyAll(2.0),
-          thumbVisibility: WidgetStatePropertyAll(true),
-          trackBorderColor: WidgetStatePropertyAll(Colors.amber),
+          thumbColor: WidgetStateProperty.resolveWith<Color?>(
+            (states) {
+              if (states.contains(WidgetState.dragged) ||
+                  states.contains(WidgetState.hovered)) {
+                return AppColors.primary;
+              }
+              return AppColors.primary.withValues(alpha: 0.6);
+            },
+          ),
+          thickness: WidgetStateProperty.all(4),
+          radius: const Radius.circular(8),
+          interactive: true,
         ),
       );
 }

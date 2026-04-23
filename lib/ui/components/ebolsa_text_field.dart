@@ -36,7 +36,7 @@ class EbolsaTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
-      style: AppTextStyles.labelLarge,
+      style: AppTextStyles.bodyLarge,
       controller: controller,
       obscureText: obscureText,
       enabled: enabled,

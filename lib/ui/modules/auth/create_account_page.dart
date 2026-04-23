@@ -1,13 +1,17 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
+
+import '../../../domain/usecases/auth/auth_usecases.dart';
 import '../../../main/i18n/app_i18n.dart';
+import '../../../main/routes/auth_routes.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/app_colors.dart';
 import '../../helpers/themes/app_text_styles.dart';
 import 'auth_presenter.dart';
 import 'auth_view_model.dart';
 import 'components/components.dart';
-import 'terms_page.dart';
 
 class CreateAccountPage extends StatefulWidget {
   final CreateAccountPresenter presenter;
@@ -26,12 +30,24 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
 
+  late StreamSubscription<AuthViewModel?> _viewModelSubscription;
+
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showDialogInfo();
+    });
+
+    _viewModelSubscription = widget.presenter.viewModel.listen((vm) {
+      if (vm == null) return;
+      if (vm.isValid) {
+        Modular.to.pushNamed(
+          AuthRoutes.terms,
+          arguments: widget.presenter,
+        );
+      }
     });
   }
 
@@ -48,22 +64,17 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   }
 
   void _onSubmit() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => TermsPage()),
+    FocusScope.of(context).unfocus();
+    widget.presenter.createAccount(
+      CreateAccountUsecaseParams(
+        cpf: _cpfController.text,
+        name: _nameController.text,
+        email: _emailController.text,
+        phone: _phoneController.text,
+        password: _passwordController.text,
+        passwordConfirmation: _confirmController.text,
+      ),
     );
-
-    // FocusScope.of(context).unfocus();
-    // widget.presenter.createAccount(
-    //   CreateAccountUsecaseParams(
-    //     cpf: _cpfController.text,
-    //     name: _nameController.text,
-    //     email: _emailController.text,
-    //     phone: _phoneController.text,
-    //     password: _passwordController.text,
-    //     passwordConfirmation: _confirmController.text,
-    //   ),
-    // );
   }
 
   void _showDialogInfo() {
