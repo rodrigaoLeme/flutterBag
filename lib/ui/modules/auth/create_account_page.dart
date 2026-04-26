@@ -59,7 +59,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     _phoneController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
-    widget.presenter.dispose();
+    _viewModelSubscription.cancel();
     super.dispose();
   }
 
@@ -73,6 +73,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
         phone: _phoneController.text,
         password: _passwordController.text,
         passwordConfirmation: _confirmController.text,
+        termsOfUseAccepted: true,
       ),
     );
   }

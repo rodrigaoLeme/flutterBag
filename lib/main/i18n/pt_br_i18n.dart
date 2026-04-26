@@ -240,11 +240,21 @@ class PtBrI18n implements AppI18n {
 
   @override
   String get createAccountValidationPasswordMin =>
-      'A senha deve ter no mínimo 8 caracteres.';
+      'A senha deve ter no mínimo 12 caracteres.';
 
   @override
   String get createAccountValidationPasswordMismatch =>
       'As senhas não conferem.';
+
+  @override
+  String get errorInvalidCpf => 'CPF inválido.';
+
+  @override
+  String get errorCreationFailed =>
+      'Erro criar conta, tente novamente mais tarde';
+
+  @override
+  String get errorRateLimit => 'Excesso de requisições.';
 
   @override
   String get forgotPasswordValidationCpfRequired =>

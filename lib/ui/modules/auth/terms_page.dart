@@ -59,6 +59,7 @@ class _TermsPageState extends State<TermsPage> {
   @override
   void dispose() {
     _viewModelSubscription.cancel();
+    widget.presenter.dispose();
     super.dispose();
   }
 

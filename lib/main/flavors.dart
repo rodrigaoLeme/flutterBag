@@ -13,9 +13,9 @@ class Flavor {
   static String get apiBaseUrl {
     switch (flavorType) {
       case FlavorType.dev:
-        return 'https://api-ebolsa-dev.educadventista.org';
+        return 'https://api-mobile-ebolsa-dev.educadventista.org';
       case FlavorType.prod:
-        return 'https://api-ebolsa.educadventista.org';
+        return 'https://api-mobile-ebolsa.educadventista.org';
     }
   }
 

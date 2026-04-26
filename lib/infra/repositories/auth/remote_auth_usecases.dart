@@ -43,7 +43,7 @@ class RemoteLoginUsecase implements LoginUsecase {
 
       await secureStorage.save(
         key: StorageKeys.accessToken,
-        value: model.accessToken,
+        value: model.token,
       );
       await secureStorage.save(
         key: StorageKeys.refreshToken,
@@ -74,10 +74,13 @@ class RemoteCreateAccountUsecase implements CreateAccountUsecase {
         url: '${Flavor.apiBaseUrl}/auth/register',
         method: HttpMethod.post,
         body: {
-          'name': params.name.trim(),
-          'email': params.email.trim().toLowerCase(),
           'cpf': params.cpf.replaceAll(RegExp(r'[^\d]'), ''),
+          'fullName': params.name.trim(),
+          'email': params.email.trim().toLowerCase(),
+          'mobileNumber': params.phone.replaceAll(RegExp(r'[^\d]'), ''),
           'password': params.password,
+          'passwordConfirmation': params.passwordConfirmation,
+          'termsOfUseAccepted': params.termsOfUseAccepted,
         },
       );
 
@@ -87,7 +90,7 @@ class RemoteCreateAccountUsecase implements CreateAccountUsecase {
 
       await secureStorage.save(
         key: StorageKeys.accessToken,
-        value: model.accessToken,
+        value: model.token,
       );
       await secureStorage.save(
         key: StorageKeys.refreshToken,
@@ -95,8 +98,37 @@ class RemoteCreateAccountUsecase implements CreateAccountUsecase {
       );
 
       return model.toEntity();
+    } on ApiException catch (e) {
+      switch (e.code) {
+        case 'User.ExistsUser':
+          throw AccountAlreadyExistsException(e.title);
+        case 'User.InvalidCpf':
+          throw CreateAccountValidationException(
+            field: 'cpf',
+            message: e.title,
+          );
+        case 'User.EmailVerificationRequired':
+          throw EmailVerificationRequiredException();
+        case 'User.CreationFailed':
+          throw CreateAccountValidationException(
+            field: 'password',
+            message: e.title,
+          );
+        case 'User.TermsOfUseRequired':
+          throw CreateAccountValidationException(
+            field: '',
+            message: e.title,
+          );
+        default:
+          throw CreateAccountValidationException(
+            field: '',
+            message: (e.title.isNotEmpty)
+                ? e.title
+                : AppI18n.current.errorUnexpected,
+          );
+      }
     } on HttpError catch (e) {
-      if (e == HttpError.badRequest) throw AccountAlreadyExistsException();
+      if (e == HttpError.tooManyRequests) throw RateLimitException();
       rethrow;
     }
   }

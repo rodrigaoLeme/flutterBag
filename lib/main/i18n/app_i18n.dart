@@ -56,7 +56,7 @@ abstract class AppI18n {
   String get forgotPasswordSuccessDescription;
   String get forgotPasswordBackToLoginAction;
 
-  // Domain and validation messages
+  // Account validation messages
   String get invalidCredentials;
   String get accountAlreadyExists;
   String get loginValidationCpfRequired;
@@ -67,6 +67,9 @@ abstract class AppI18n {
   String get createAccountValidationInvalidPhone;
   String get createAccountValidationPasswordMin;
   String get createAccountValidationPasswordMismatch;
+  String get errorInvalidCpf;
+  String get errorCreationFailed;
+  String get errorRateLimit;
   String get forgotPasswordValidationCpfRequired;
 
   // JWT

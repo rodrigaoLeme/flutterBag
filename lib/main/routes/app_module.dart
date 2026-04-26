@@ -3,6 +3,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import '../../ui/modules/auth/auth_presenter.dart';
 import '../../ui/modules/auth/created_account_page.dart';
 import '../../ui/modules/auth/terms_page.dart';
+import '../../ui/modules/home/home_page.dart';
 import '../factories/pages/auth/auth_page_factory.dart';
 import '../factories/pages/splash/splash_page_factory.dart';
 import 'auth_routes.dart';
@@ -44,6 +45,11 @@ class AppModule extends Module {
     r.child(
       AuthRoutes.forgotPassword,
       child: (_) => makeForgotPasswordPage(),
+      transition: TransitionType.fadeIn,
+    );
+    r.child(
+      AuthRoutes.home,
+      child: (_) => const HomePage(),
       transition: TransitionType.fadeIn,
     );
   }

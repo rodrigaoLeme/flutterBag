@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:dio/dio.dart';
 
 import '../../data/http/http_client.dart';
@@ -15,10 +17,22 @@ class DioAdapter implements HttpClient {
     Map? headers,
     Map<String, dynamic>? queryParameters,
   }) async {
-    Response? response;
+    final defaultHeaders = headers?.cast<String, dynamic>() ??
+        {
+          'content-type': 'application/json',
+          'accept': 'application/json',
+        };
+
+    final options = Options(
+      headers: defaultHeaders,
+      sendTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 24),
+    );
+
+    developer.log('>>> $method $url | body: $body', name: 'HTTP');
 
     try {
-      final options = Options(headers: headers?.cast<String, dynamic>());
+      Response? response;
 
       switch (method) {
         case HttpMethod.get:
@@ -58,41 +72,58 @@ class DioAdapter implements HttpClient {
 
       return _handleResponse(response);
     } on DioException catch (e) {
-      throw _handleDioError(e);
+      developer.log('<<< ${e.response?.statusCode} | ${e.response?.data}',
+          name: 'HTTP ERROR');
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        throw HttpError.timeout;
+      }
+      if (e.type == DioExceptionType.connectionError) {
+        throw HttpError.noConnectivity;
+      }
+      if (e.response != null) {
+        return _handleErrorResponse(e.response!);
+      }
+      throw HttpError.unexpected;
     }
   }
 
   dynamic _handleResponse(Response response) {
+    developer.log('<<< ${response.statusCode}', name: 'HTTP');
     switch (response.statusCode) {
       case 200:
       case 201:
+        return response.data;
       case 204:
         return response.data;
+      default:
+        throw HttpError.serverError;
+    }
+  }
+
+  Never _handleErrorResponse(Response response) {
+    developer.log('<<< ${response.statusCode} | body: ${response.data}',
+        name: 'HTTP ERROR');
+
+    final code = response.data?['code'] as String? ?? '';
+    final title = response.data?['title'] as String? ?? '';
+
+    switch (response.statusCode) {
       case 400:
-        throw HttpError.badRequest;
+      case 422:
+        throw ApiException(
+            code: code, title: title, statusCode: response.statusCode ?? 400);
       case 401:
         throw HttpError.unauthorized;
       case 403:
         throw HttpError.forbidden;
       case 404:
         throw HttpError.notFound;
+      case 429:
+        throw HttpError.tooManyRequests;
       default:
         throw HttpError.serverError;
-    }
-  }
-
-  HttpError _handleDioError(DioException e) {
-    switch (e.type) {
-      case DioExceptionType.connectionTimeout:
-      case DioExceptionType.receiveTimeout:
-      case DioExceptionType.sendTimeout:
-        return HttpError.timeout;
-      case DioExceptionType.connectionError:
-        return HttpError.noConnectivity;
-      case DioExceptionType.badResponse:
-        return _handleResponse(e.response!);
-      default:
-        return HttpError.unexpected;
     }
   }
 }

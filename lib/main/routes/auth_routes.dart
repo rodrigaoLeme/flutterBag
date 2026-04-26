@@ -6,4 +6,5 @@ class AuthRoutes {
   static const forgotPassword = '/esqueci-senha';
   static const terms = '/termos';
   static const createdAccount = '/conta-criada';
+  static const home = '/home';
 }

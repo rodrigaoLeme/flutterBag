@@ -18,6 +18,7 @@ class CreateAccountUsecaseParams {
   final String phone;
   final String password;
   final String passwordConfirmation;
+  final bool termsOfUseAccepted;
 
   const CreateAccountUsecaseParams({
     required this.name,
@@ -26,6 +27,7 @@ class CreateAccountUsecaseParams {
     required this.phone,
     required this.password,
     required this.passwordConfirmation,
+    required this.termsOfUseAccepted,
   });
 }
 
@@ -66,6 +68,15 @@ class CreateAccountValidationException implements Exception {
   });
 }
 
+class CreateAccountApiException implements Exception {
+  final String type;
+  const CreateAccountApiException(this.type);
+}
+
+class RateLimitException implements Exception {}
+
+class EmailVerificationRequiredException implements Exception {}
+
 class ForgotPasswordValidationException implements Exception {
   final String message;
   const ForgotPasswordValidationException(this.message);
@@ -76,5 +87,6 @@ class InvalidCredentialsException implements Exception {
 }
 
 class AccountAlreadyExistsException implements Exception {
-  final String message = AppI18n.current.accountAlreadyExists;
+  final String message;
+  const AccountAlreadyExistsException([this.message = '']);
 }

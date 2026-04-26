@@ -39,7 +39,7 @@ class StreamCreateAccountPresenter implements CreateAccountPresenter {
     if (cleanPhone.length < 10) {
       errors['phone'] = s.createAccountValidationInvalidPhone;
     }
-    if (params.password.length < 8) {
+    if (params.password.length < 12) {
       errors['password'] = s.createAccountValidationPasswordMin;
     }
     if (params.password != params.passwordConfirmation) {
@@ -63,10 +63,29 @@ class StreamCreateAccountPresenter implements CreateAccountPresenter {
     _emit(const AuthViewModel.loading());
 
     try {
-      await createAccountUsecase.createAccount(_params!);
+      await createAccountUsecase.createAccount(
+        CreateAccountUsecaseParams(
+          name: _params!.name,
+          email: _params!.email,
+          cpf: _params!.cpf,
+          phone: _params!.phone,
+          password: _params!.password,
+          passwordConfirmation: _params!.passwordConfirmation,
+          termsOfUseAccepted: true,
+        ),
+      );
+      _emit(const AuthViewModel.success());
+    } on EmailVerificationRequiredException {
+      /// Estranho eu criar um usuário novo, com credencial de logado
+      /// mas não posso logar o cara enquanto não concluir o
+      /// aceite por e-mail
       _emit(const AuthViewModel.success());
     } on AccountAlreadyExistsException catch (e) {
       _emit(AuthViewModel().withError(e.message));
+    } on CreateAccountValidationException catch (e) {
+      _emit(AuthViewModel().withFieldError(e.field, e.message));
+    } on RateLimitException {
+      _emit(AuthViewModel().withError(AppI18n.current.errorRateLimit));
     } on HttpError catch (e) {
       final s = AppI18n.current;
       if (e == HttpError.noConnectivity) {
