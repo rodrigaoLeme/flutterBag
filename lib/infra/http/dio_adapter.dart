@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../data/http/http_client.dart';
 
@@ -33,6 +35,14 @@ class DioAdapter implements HttpClient {
 
     try {
       Response? response;
+
+      _logRequest(
+        method: method,
+        url: url,
+        headers: options.headers,
+        body: body,
+        queryParameters: queryParameters,
+      );
 
       switch (method) {
         case HttpMethod.get:
@@ -70,6 +80,8 @@ class DioAdapter implements HttpClient {
           );
       }
 
+      _logResponse(response);
+
       return _handleResponse(response);
     } on DioException catch (e) {
       developer.log('<<< ${e.response?.statusCode} | ${e.response?.data}',
@@ -87,6 +99,86 @@ class DioAdapter implements HttpClient {
       }
       throw HttpError.unexpected;
     }
+  }
+
+  void _logRequest({
+    required HttpMethod method,
+    required String url,
+    Map<String, dynamic>? headers,
+    Map? body,
+    Map<String, dynamic>? queryParameters,
+  }) {
+    if (!kDebugMode) return;
+
+    final buffer = StringBuffer()
+      ..writeln('[HTTP REQUEST] ${method.name.toUpperCase()} $url')
+      ..writeln('headers: ${_encodePretty(_sanitizeHeaders(headers))}')
+      ..writeln('queryParams: ${_encodePretty(queryParameters ?? {})}')
+      ..writeln('body: ${_encodePretty(_sanitizeBody(body))}');
+
+    debugPrint(buffer.toString());
+  }
+
+  void _logResponse(Response? response) {
+    if (!kDebugMode || response == null) return;
+
+    final buffer = StringBuffer()
+      ..writeln(
+        '[HTTP RESPONSE] ${response.requestOptions.method} ${response.requestOptions.uri}',
+      )
+      ..writeln('statusCode: ${response.statusCode}')
+      ..writeln('data: ${_encodePretty(response.data)}');
+
+    debugPrint(buffer.toString());
+  }
+
+  String _encodePretty(Object? value) {
+    try {
+      final encoder = const JsonEncoder.withIndent('  ');
+      return encoder.convert(value);
+    } catch (_) {
+      return value?.toString() ?? 'null';
+    }
+  }
+
+  Map<String, dynamic> _sanitizeHeaders(Map<String, dynamic>? headers) {
+    if (headers == null) return {};
+    final sanitized = Map<String, dynamic>.from(headers);
+
+    sanitized.forEach((key, value) {
+      final lowerKey = key.toLowerCase();
+      if (lowerKey == 'authorization' || lowerKey == 'cookie') {
+        sanitized[key] = '***';
+      } else {
+        sanitized[key] = value;
+      }
+    });
+
+    return sanitized;
+  }
+
+  Object? _sanitizeBody(Map? body) {
+    if (body == null) return null;
+    final sanitized = Map<String, dynamic>.from(body.cast<String, dynamic>());
+
+    const sensitiveKeys = {
+      'password',
+      'newPassword',
+      'confirmPassword',
+      'refreshToken',
+      'token',
+      'accessToken',
+    };
+
+    sanitized.forEach((key, value) {
+      if (sensitiveKeys.contains(key)) {
+        sanitized[key] = '***';
+      } else {
+        sanitized[key] = value;
+      }
+    });
+
+    return sanitized;
   }
 
   dynamic _handleResponse(Response response) {

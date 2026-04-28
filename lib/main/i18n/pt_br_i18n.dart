@@ -183,6 +183,16 @@ class PtBrI18n implements AppI18n {
   @override
   String get createdAccountDoneButton => 'Ok, Entendi';
 
+  @override
+  String get createAccountDialogTitle => 'Atenção!';
+
+  @override
+  String get createAccountDialogDescription =>
+      'Este cadastro inicial é exclusivo para o Responsável Legal (requerente); não utilize os dados do candidato/aluno nesta tela.\n\nSe já possui um acesso de anos anteriores, clique em "Entrar" na página inicial, e, se não lembrar a senha, use a opção "Esqueceu sua senha?" na tela de Login.';
+
+  @override
+  String get createAccountDialogDoneButton => 'Estou ciente';
+
   /// ------------------- Forgot password -------------------
   @override
   String get forgotPasswordHeader => 'Redefinir Senha';
@@ -222,7 +232,11 @@ class PtBrI18n implements AppI18n {
 
   /// ------------------- Domain and validation messages -------------------
   @override
-  String get invalidCredentials => 'CPF/CNPJ, e-mail ou senha incorretos.';
+  String get invalidCredentials => 'Usuário ou senha inválidos.';
+
+  @override
+  String get loginAccessDenied =>
+      'Acesso ao serviço de autenticação negado. Tente novamente mais tarde.';
 
   @override
   String get accountAlreadyExists =>
@@ -232,7 +246,10 @@ class PtBrI18n implements AppI18n {
   String get loginValidationCpfRequired => 'Informe seu CPF';
 
   @override
-  String get loginValidationPasswordRequired => 'Informe sua senha.';
+  String get loginValidationInvalidCpf => 'CPF inválido';
+
+  @override
+  String get loginValidationPasswordRequired => 'Informe sua senha';
 
   @override
   String get createAccountValidationInvalidCpf => 'CPF inválido.';
@@ -262,6 +279,26 @@ class PtBrI18n implements AppI18n {
   @override
   String get forgotPasswordValidationCpfRequired =>
       'Informe seu CPF cadastrado.';
+
+  @override
+  String get accountNotConfirmedTitle => 'Seu e-mail não foi confirmado!';
+
+  @override
+  String get accountNotConfirmedDescription =>
+      '''Para acessar o sistema clique no link que enviamos para sua caixa de entrada.\n\n**Caso não tenha recebido nossa mensagem**, atualize seu e-mail e clique em Reenviar''';
+
+  @override
+  String get accountNotConfirmedResendEmailButton => 'Reenviar E-mail';
+
+  @override
+  String get accountNotConfirmedDialogTitle => 'Verifique seu e-mail';
+
+  @override
+  String get accountNotConfirmedDialogDescription =>
+      'Enviamos um e-mail de confirmação para você. Acesse sua caixa de entrada e clique no link para ativar sua conta e começar a usar o sistema.';
+
+  @override
+  String get accountNotConfirmedDialogDoneButton => 'Ok';
 
   /// ------------------- JWT -------------------
   @override
@@ -342,4 +379,41 @@ class PtBrI18n implements AppI18n {
   @override
   String get noticesTermsDocumentDevMessage =>
       'Visualizacao de documento em desenvolvimento.\n\nNesta area sera exibido PDF ou WebView.';
+
+  /// ------------------- Onboarding -------------------
+  @override
+  String get onboardingItem1Title => 'e-Bolsa';
+
+  @override
+  String get onboardingItem1Description =>
+      'Com o E-bolsa você solicita pedido de bolsa para qualquer unidade escolar da rede Adventista no Brasil!';
+
+  @override
+  String get onboardingItem2Title => '1º Passo';
+
+  @override
+  String get onboardingItem2Description =>
+      'Para concorrer a um bolsa cadastre as  informações socioeconômicas da  família e do(s) candidatos.';
+
+  @override
+  String get onboardingItem3Title => '2º Passo';
+
+  @override
+  String get onboardingItem3Description =>
+      'Envie os documentos da família e do candidato solicitados pelo edital.';
+
+  @override
+  String get onboardingItem4Title => 'Vamos começar!';
+
+  @override
+  String get onboardingItem4Description => '';
+
+  @override
+  String get onboardingViewNoticesAction => 'Ver Editais';
+
+  @override
+  String get onboardingNextAction => 'Próximo';
+
+  @override
+  String get onboardingEnterAction => 'Entrar';
 }

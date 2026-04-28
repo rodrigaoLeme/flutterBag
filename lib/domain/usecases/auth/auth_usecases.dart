@@ -1,4 +1,3 @@
-import '../../../main/i18n/app_i18n.dart';
 import '../../entities/user_entity.dart';
 
 class LoginUsecaseParams {
@@ -45,8 +44,14 @@ abstract class CreateAccountUsecase {
   Future<UserEntity> createAccount(CreateAccountUsecaseParams params);
 }
 
+class ForgotPasswordResult {
+  final String emailMasked;
+  const ForgotPasswordResult({required this.emailMasked});
+}
+
 abstract class ForgotPasswordUsecase {
-  Future<void> forgotPassword(ForgotPasswordUsecaseParams params);
+  Future<ForgotPasswordResult> forgotPassword(
+      ForgotPasswordUsecaseParams params);
 }
 
 abstract class LogoutUsecase {
@@ -55,8 +60,9 @@ abstract class LogoutUsecase {
 
 // Exceções de domínio
 class LoginValidationException implements Exception {
+  final String field;
   final String message;
-  const LoginValidationException(this.message);
+  const LoginValidationException(this.message, {this.field = ''});
 }
 
 class CreateAccountValidationException implements Exception {
@@ -83,7 +89,8 @@ class ForgotPasswordValidationException implements Exception {
 }
 
 class InvalidCredentialsException implements Exception {
-  final String message = AppI18n.current.invalidCredentials;
+  final String message;
+  const InvalidCredentialsException(this.message);
 }
 
 class AccountAlreadyExistsException implements Exception {

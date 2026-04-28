@@ -30,6 +30,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
 
+  final appStrings = AppI18n.current;
+
   late StreamSubscription<AuthViewModel?> _viewModelSubscription;
 
   @override
@@ -88,7 +90,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           children: [
             Expanded(
               child: Text(
-                'Atenção!',
+                appStrings.createAccountDialogTitle,
                 style: AppTextStyles.titleLarge,
               ),
             ),
@@ -100,7 +102,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Este cadastro inicial é exclusivo para o Responsável Legal (requerente); não utilize os dados do candidato/aluno nesta tela.\n\nSe já possui um acesso de anos anteriores, clique em "Entrar" na página inicial, e, se não lembrar a senha, use a opção "Esqueceu sua senha?" na telade Login.',
+                appStrings.createAccountDialogDescription,
                 style: AppTextStyles.bodyMedium,
               ),
             ],
@@ -109,7 +111,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
         actions: [
           EbolsaTextButton(
             onPressed: () => Navigator.pop(context),
-            label: 'Estou ciente',
+            label: appStrings.createAccountDialogDoneButton,
           ),
         ],
       ),
@@ -118,8 +120,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    final appStrings = AppI18n.current;
-
     return Scaffold(
       appBar: AppBar(title: Text(appStrings.createAccountPageTitle)),
       body: SafeArea(

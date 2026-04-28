@@ -3,6 +3,7 @@ class AuthViewModel {
   final String? errorMessage;
   final Map<String, String> fieldErrors;
   final bool isSuccess;
+  final String? loginRoute;
   final bool isValid;
 
   const AuthViewModel({
@@ -11,12 +12,15 @@ class AuthViewModel {
     this.errorMessage,
     this.fieldErrors = const {},
     this.isSuccess = false,
+    this.loginRoute,
   });
 
   const AuthViewModel.initial() : this();
 
   const AuthViewModel.loading() : this(isLoading: true);
 
+  AuthViewModel withSuccess(String route) =>
+      AuthViewModel(isSuccess: true, loginRoute: route);
   const AuthViewModel.valid() : this(isValid: true);
 
   const AuthViewModel.success() : this(isSuccess: true);
@@ -39,18 +43,26 @@ class AuthViewModel {
 
 class ForgotPasswordViewModel {
   final bool isLoading;
-  final String? errorMessage;
   final bool isSuccess;
+  final String? errorMessage;
+  final String? emailMasked;
 
   const ForgotPasswordViewModel({
     this.isLoading = false,
-    this.errorMessage,
     this.isSuccess = false,
+    this.errorMessage,
+    this.emailMasked,
   });
 
   const ForgotPasswordViewModel.initial() : this();
   const ForgotPasswordViewModel.loading() : this(isLoading: true);
   const ForgotPasswordViewModel.success() : this(isSuccess: true);
+
+  ForgotPasswordViewModel withSuccess(String emailMasked) =>
+      ForgotPasswordViewModel(
+        isSuccess: true,
+        emailMasked: emailMasked,
+      );
 
   ForgotPasswordViewModel withError(String message) =>
       ForgotPasswordViewModel(errorMessage: message);

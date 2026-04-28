@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../../main/i18n/app_i18n.dart';
 import '../../../main/routes/routes.dart';
-import '../../components/onboarding_item.dart';
 import 'onboarding_presenter.dart';
 
 class OnboardingPage extends StatefulWidget {
-  const OnboardingPage({super.key, required OnboardingPresenter presenter});
+  final OnboardingPresenter presenter;
+
+  const OnboardingPage({super.key, required this.presenter});
 
   @override
   State<OnboardingPage> createState() => _OnboardingPageState();
@@ -15,47 +17,45 @@ class OnboardingPage extends StatefulWidget {
 
 class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _controller = PageController();
-  int _currentIndex = 0;
 
-  final List<OnboardingItem> items = [
-    OnboardingItem(
-      title: 'e-Bolsa',
-      description:
-          'Com o E-bolsa você solicita pedido de bolsa para qualquer unidade escolar da rede Adventista no Brasil!',
-      image: 'lib/ui/assets/images/map_brasil.svg',
-    ),
-    OnboardingItem(
-      title: '1º Passo',
-      description:
-          'Para concorrer a um bolsa cadastre as  informações socioeconômicas da  família e do(s) candidatos.',
-      image: 'lib/ui/assets/images/group_3.svg',
-    ),
-    OnboardingItem(
-      title: '2º Passo',
-      description:
-          'Envie os documentos da família e do candidato solicitados pelo edital.',
-      image: 'lib/ui/assets/images/group_1.svg',
-    ),
-    OnboardingItem(
-      title: 'Vamos começar!',
-      description: '',
-      image: 'lib/ui/assets/images/group_2.svg',
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _listenToNavigation();
+  }
 
-  void _nextPage() {
-    if (_currentIndex < items.length - 1) {
+  void _listenToNavigation() {
+    widget.presenter.navigationRouteStream.listen(
+      (route) {
+        if (mounted && route != null) {
+          Modular.to.navigate(Routes.login);
+        }
+      },
+    );
+  }
+
+  Future<void> _nextPage(int currentIndex) async {
+    await widget.presenter.nextPage(currentIndex);
+
+    if (!widget.presenter.isLastPage(currentIndex) && mounted) {
       _controller.nextPage(
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
       );
-    } else {
-      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    widget.presenter.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final items = widget.presenter.items;
+
     return Scaffold(
       body: Column(
         children: [
@@ -64,9 +64,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             child: PageView.builder(
               controller: _controller,
               itemCount: items.length,
-              onPageChanged: (index) {
-                setState(() => _currentIndex = index);
-              },
+              physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (_, index) {
                 final item = items[index];
 
@@ -75,10 +73,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SvgPicture.asset(item.image ?? '', height: 250),
+                      SvgPicture.asset(item.image, height: 250),
                       const SizedBox(height: 24),
                       Text(
-                        item.title ?? '',
+                        item.title,
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -86,7 +84,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        item.description ?? '',
+                        item.description,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 16,
@@ -101,20 +99,28 @@ class _OnboardingPageState extends State<OnboardingPage> {
           ),
 
           /// INDICADORES (bolinhas)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(items.length, (index) {
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                margin: const EdgeInsets.all(4),
-                width: _currentIndex == index ? 12 : 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: _currentIndex == index ? Colors.blue : Colors.grey,
-                  borderRadius: BorderRadius.circular(4),
-                ),
+          StreamBuilder<int>(
+            stream: widget.presenter.currentPageIndexStream,
+            initialData: 0,
+            builder: (context, snapshot) {
+              final currentIndex = snapshot.data ?? 0;
+
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(items.length, (index) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.all(4),
+                    width: currentIndex == index ? 12 : 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: currentIndex == index ? Colors.blue : Colors.grey,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  );
+                }),
               );
-            }),
+            },
           ),
 
           const SizedBox(height: 24),
@@ -122,28 +128,41 @@ class _OnboardingPageState extends State<OnboardingPage> {
           /// BOTÕES
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Row(
-              children: [
-                /// VER EDITAIS
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Modular.to.pushNamed(Routes.noticesTerms),
-                    child: const Text('Ver Editais'),
-                  ),
-                ),
+            child: StreamBuilder<int>(
+              stream: widget.presenter.currentPageIndexStream,
+              initialData: 0,
+              builder: (context, snapshot) {
+                final currentIndex = snapshot.data ?? 0;
+                final isLast = widget.presenter.isLastPage(currentIndex);
+                final appStrings = AppI18n.current;
 
-                const SizedBox(width: 12),
-
-                /// ENTRAR / PRÓXIMO
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _nextPage,
-                    child: Text(
-                      _currentIndex == items.length - 1 ? 'Entrar' : 'Próximo',
+                return Row(
+                  children: [
+                    /// VER EDITAIS
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () =>
+                            Modular.to.pushNamed(Routes.noticesTerms),
+                        child: Text(appStrings.onboardingViewNoticesAction),
+                      ),
                     ),
-                  ),
-                ),
-              ],
+
+                    const SizedBox(width: 12),
+
+                    /// ENTRAR / PRÓXIMO
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _nextPage(currentIndex),
+                        child: Text(
+                          isLast
+                              ? appStrings.onboardingEnterAction
+                              : appStrings.onboardingNextAction,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
 

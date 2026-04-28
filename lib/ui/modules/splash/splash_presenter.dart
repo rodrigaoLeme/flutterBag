@@ -1,10 +1,7 @@
 abstract class SplashPresenter {
-  Stream<bool?> get isAuthenticatedStream;
+  Stream<String?> get navigationRouteStream;
+  Stream<bool> get showSecondLogoStream;
+  Stream<double> get opacityStream;
   Future<void> checkSession();
   void dispose();
-}
-
-class SplashViewModel {
-  final bool? isAuthenticated;
-  const SplashViewModel({this.isAuthenticated});
 }

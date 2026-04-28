@@ -25,6 +25,12 @@ abstract class AppI18n {
 
   // Login
   String get loginPasswordHint;
+  String get accountNotConfirmedTitle;
+  String get accountNotConfirmedDescription;
+  String get accountNotConfirmedResendEmailButton;
+  String get accountNotConfirmedDialogTitle;
+  String get accountNotConfirmedDialogDescription;
+  String get accountNotConfirmedDialogDoneButton;
 
   // Create account
   String get createAccountPageTitle;
@@ -46,6 +52,9 @@ abstract class AppI18n {
   String get createdAccountSuccessTitle;
   String get createdAccountSuccessDescription;
   String get createdAccountDoneButton;
+  String get createAccountDialogTitle;
+  String get createAccountDialogDescription;
+  String get createAccountDialogDoneButton;
 
   // Forgot password
   String get forgotPasswordHeader;
@@ -61,8 +70,10 @@ abstract class AppI18n {
 
   // Account validation messages
   String get invalidCredentials;
+  String get loginAccessDenied;
   String get accountAlreadyExists;
   String get loginValidationCpfRequired;
+  String get loginValidationInvalidCpf;
   String get loginValidationPasswordRequired;
   String get createAccountValidationInvalidCpf;
   String get createAccountValidationFullNameRequired;
@@ -100,4 +111,17 @@ abstract class AppI18n {
   String get noticesTermsDocumentNoticeDescription;
   String get noticesTermsDocumentAdditiveTermDescription;
   String get noticesTermsDocumentDevMessage;
+
+  // Onboarding
+  String get onboardingItem1Title;
+  String get onboardingItem1Description;
+  String get onboardingItem2Title;
+  String get onboardingItem2Description;
+  String get onboardingItem3Title;
+  String get onboardingItem3Description;
+  String get onboardingItem4Title;
+  String get onboardingItem4Description;
+  String get onboardingViewNoticesAction;
+  String get onboardingNextAction;
+  String get onboardingEnterAction;
 }

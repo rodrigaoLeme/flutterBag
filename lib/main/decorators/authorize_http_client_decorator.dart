@@ -61,7 +61,7 @@ class AuthorizeHttpClientDecorator implements HttpClient {
       key: StorageKeys.refreshToken,
     );
     if (refreshToken == null) {
-      await secureStorage.clean();
+      await _clearSessionOnly();
       throw HttpError.forbidden;
     }
     try {
@@ -84,8 +84,14 @@ class AuthorizeHttpClientDecorator implements HttpClient {
       }
       return newToken;
     } catch (_) {
-      await secureStorage.clean();
+      await _clearSessionOnly();
       throw HttpError.forbidden;
     }
+  }
+
+  Future<void> _clearSessionOnly() async {
+    await secureStorage.delete(key: StorageKeys.accessToken);
+    await secureStorage.delete(key: StorageKeys.refreshToken);
+    await secureStorage.delete(key: StorageKeys.refreshTokenExpiryTime);
   }
 }

@@ -1,3 +1,5 @@
+import 'package:cpf_cnpj_validator/cpf_validator.dart';
+
 import '../../../data/cache/cache.dart';
 import '../../../data/http/http_client.dart';
 import '../../../data/models/auth/remote_auth_model.dart';
@@ -19,12 +21,25 @@ class RemoteLoginUsecase implements LoginUsecase {
   Future<UserEntity> login(LoginUsecaseParams params) async {
     final appStrings = AppI18n.current;
 
-    if (params.identifier.trim().isEmpty) {
-      throw LoginValidationException(appStrings.loginValidationCpfRequired);
+    final cleanCpf = params.identifier.replaceAll(RegExp(r'[^\d]'), '');
+
+    if (cleanCpf.isEmpty) {
+      throw LoginValidationException(
+        appStrings.loginValidationCpfRequired,
+        field: 'cpf',
+      );
+    }
+    if (!CPFValidator.isValid(cleanCpf)) {
+      throw LoginValidationException(
+        appStrings.loginValidationInvalidCpf,
+        field: 'cpf',
+      );
     }
     if (params.password.trim().isEmpty) {
       throw LoginValidationException(
-          appStrings.loginValidationPasswordRequired);
+        appStrings.loginValidationPasswordRequired,
+        field: 'password',
+      );
     }
 
     try {
@@ -32,7 +47,7 @@ class RemoteLoginUsecase implements LoginUsecase {
         url: '${Flavor.apiBaseUrl}/auth/login',
         method: HttpMethod.post,
         body: {
-          'identifier': params.identifier.trim(),
+          'userName': cleanCpf,
           'password': params.password,
         },
       );
@@ -49,10 +64,25 @@ class RemoteLoginUsecase implements LoginUsecase {
         key: StorageKeys.refreshToken,
         value: model.refreshToken,
       );
+      if (model.refreshTokenExpiryTime != null) {
+        await secureStorage.save(
+          key: StorageKeys.refreshTokenExpiryTime,
+          value: model.refreshTokenExpiryTime!.toIso8601String(),
+        );
+      }
 
       return model.toEntity();
+    } on ApiException catch (e) {
+      switch (e.code) {
+        case 'Identity.InvalidCredentials':
+          throw InvalidCredentialsException(e.title);
+        default:
+          throw InvalidCredentialsException(AppI18n.current.invalidCredentials);
+      }
     } on HttpError catch (e) {
-      if (e == HttpError.unauthorized) throw InvalidCredentialsException();
+      if (e == HttpError.unauthorized) {
+        throw InvalidCredentialsException(AppI18n.current.invalidCredentials);
+      }
       rethrow;
     }
   }
@@ -100,8 +130,8 @@ class RemoteCreateAccountUsecase implements CreateAccountUsecase {
       return model.toEntity();
     } on ApiException catch (e) {
       switch (e.code) {
-        case 'User.ExistsUser':
-          throw AccountAlreadyExistsException(e.title);
+        case 'User.ExistUser':
+          throw InvalidCredentialsException(e.title);
         case 'User.InvalidCpf':
           throw CreateAccountValidationException(
             field: 'cpf',
@@ -140,17 +170,33 @@ class RemoteForgotPasswordUsecase implements ForgotPasswordUsecase {
   const RemoteForgotPasswordUsecase({required this.httpClient});
 
   @override
-  Future<void> forgotPassword(ForgotPasswordUsecaseParams params) async {
+  Future<ForgotPasswordResult> forgotPassword(
+      ForgotPasswordUsecaseParams params) async {
     if (params.identifier.trim().isEmpty) {
       throw ForgotPasswordValidationException(
         AppI18n.current.forgotPasswordValidationCpfRequired,
       );
     }
-    await httpClient.request(
-      url: '${Flavor.apiBaseUrl}/auth/forgot-password',
-      method: HttpMethod.post,
-      body: {'identifier': params.identifier.trim()},
-    );
+    try {
+      final response = await httpClient.request(
+        url: '${Flavor.apiBaseUrl}/account/forgot-password',
+        method: HttpMethod.post,
+        body: {'username': params.identifier.trim()},
+      );
+
+      final emailMasked = response['emailMasked'] as String? ?? '';
+      return ForgotPasswordResult(emailMasked: emailMasked);
+    } on ApiException catch (e) {
+      throw ForgotPasswordValidationException(
+        e.title.isNotEmpty ? e.title : AppI18n.current.errorUnexpected,
+      );
+    } on HttpError catch (e) {
+      if (e == HttpError.noConnectivity) {
+        throw ForgotPasswordValidationException(
+            AppI18n.current.errorNoInternet);
+      }
+      throw ForgotPasswordValidationException(AppI18n.current.errorUnexpected);
+    }
   }
 }
 
@@ -173,7 +219,9 @@ class RemoteLogoutUsecase implements LogoutUsecase {
     } catch (_) {
       // Segue limpando sessão local mesmo com erro na API
     } finally {
-      await secureStorage.clean();
+      await secureStorage.delete(key: StorageKeys.accessToken);
+      await secureStorage.delete(key: StorageKeys.refreshToken);
+      await secureStorage.delete(key: StorageKeys.refreshTokenExpiryTime);
     }
   }
 }

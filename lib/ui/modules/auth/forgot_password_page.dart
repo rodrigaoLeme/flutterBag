@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 
 import '../../../domain/usecases/auth/auth_usecases.dart';
 import '../../../main/i18n/app_i18n.dart';
+import '../../../main/routes/auth_routes.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/app_colors.dart';
 import '../../helpers/themes/app_text_styles.dart';
@@ -21,18 +25,25 @@ class ForgotPasswordPage extends StatefulWidget {
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _identifierController = TextEditingController();
   final appStrings = AppI18n.current;
+  late StreamSubscription<ForgotPasswordViewModel?> _viewModelSubscription;
 
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showDialogInfo('ro********@gmail.com');
-    });
+    _viewModelSubscription = widget.presenter.viewModel.listen(
+      (vm) {
+        if (vm == null) return;
+        if (vm.isSuccess && vm.emailMasked != null) {
+          _showDialogInfo(vm.emailMasked!);
+        }
+      },
+    );
   }
 
   @override
   void dispose() {
+    _viewModelSubscription.cancel();
     _identifierController.dispose();
     widget.presenter.dispose();
     super.dispose();
@@ -48,6 +59,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   void _showDialogInfo(String email) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: Row(
           children: [
@@ -78,7 +90,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         ),
         actions: [
           EbolsaTextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Navigator.pop(context);
+              Modular.to.navigate(AuthRoutes.login);
+            },
             label: appStrings.forgotPasswordDialogDoneButton,
           ),
         ],

@@ -5,6 +5,7 @@ class UserEntity {
   final String accessToken;
   final String refreshToken;
   final DateTime? tokenExpiresAt;
+  final DateTime? refreshTokenExpiryTime;
 
   const UserEntity({
     required this.id,
@@ -13,6 +14,7 @@ class UserEntity {
     required this.accessToken,
     required this.refreshToken,
     this.tokenExpiresAt,
+    this.refreshTokenExpiryTime,
   });
 
   bool get isTokenExpired {

@@ -22,8 +22,8 @@ class StreamForgotPasswordPresenter implements ForgotPasswordPresenter {
     _emit(const ForgotPasswordViewModel.loading());
 
     try {
-      await forgotPasswordUsecase.forgotPassword(params);
-      _emit(const ForgotPasswordViewModel.success());
+      final result = await forgotPasswordUsecase.forgotPassword(params);
+      _emit(ForgotPasswordViewModel().withSuccess(result.emailMasked));
     } on ForgotPasswordValidationException catch (e) {
       _emit(ForgotPasswordViewModel().withError(e.message));
     } on HttpError catch (e) {

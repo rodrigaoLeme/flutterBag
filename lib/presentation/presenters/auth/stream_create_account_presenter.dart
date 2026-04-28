@@ -78,8 +78,6 @@ class StreamCreateAccountPresenter implements CreateAccountPresenter {
       );
       _emit(const AuthViewModel.success());
     } on EmailVerificationRequiredException {
-      /// Aqui existe uma regra que o usuário deve terminar o processo clicando
-      /// em um link que ele recebeu no e-mail.
       _emit(const AuthViewModel.success());
     } on AccountAlreadyExistsException catch (e) {
       _emit(AuthViewModel().withError(e.message));

@@ -15,4 +15,6 @@ class StorageKeys {
   StorageKeys._();
   static const accessToken = 'access_token';
   static const refreshToken = 'refresh_token';
+  static const refreshTokenExpiryTime = 'refresh_token_expiry_time';
+  static const hasSeenTutorial = 'has_seen_tutorial';
 }

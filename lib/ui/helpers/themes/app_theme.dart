@@ -76,7 +76,7 @@ class AppTheme {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: AppColors.textButton,
-            textStyle: AppTextStyles.titleSmall,
+            textStyle: AppTextStyles.bodyLarge,
           ),
         ),
         scrollbarTheme: ScrollbarThemeData(
