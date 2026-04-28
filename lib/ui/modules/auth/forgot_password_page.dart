@@ -20,6 +20,16 @@ class ForgotPasswordPage extends StatefulWidget {
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _identifierController = TextEditingController();
+  final appStrings = AppI18n.current;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showDialogInfo('ro********@gmail.com');
+    });
+  }
 
   @override
   void dispose() {
@@ -32,6 +42,47 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     FocusScope.of(context).unfocus();
     widget.presenter.forgotPassword(
       ForgotPasswordUsecaseParams(identifier: _identifierController.text),
+    );
+  }
+
+  void _showDialogInfo(String email) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                appStrings.forgotPasswordDialogTitle,
+                style: AppTextStyles.titleLarge,
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                appStrings.forgotPasswordDialogDescription,
+                style: AppTextStyles.bodyMedium,
+              ),
+              Text(
+                email,
+                style: AppTextStyles.bodyMedium
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          EbolsaTextButton(
+            onPressed: () => Navigator.pop(context),
+            label: appStrings.forgotPasswordDialogDoneButton,
+          ),
+        ],
+      ),
     );
   }
 
@@ -50,12 +101,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
             if (vm.isSuccess) return const AuthForgotPasswordSuccessView();
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+            return Padding(
+              padding: const EdgeInsets.only(right: 16, left: 16, top: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 8),
                   Text(
                     appStrings.forgotPasswordHeader,
                     style: AppTextStyles.titleLarge.copyWith(
@@ -63,32 +113,37 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     ),
                   ),
                   const SizedBox(height: 28),
-                  Text(
-                    appStrings.forgotPasswordDescription,
-                    style: AppTextStyles.bodyMedium,
-                  ),
-                  const SizedBox(height: 14),
-                  if (vm.errorMessage != null)
-                    EbolsaErrorBanner(message: vm.errorMessage!),
-                  EbolsaCpfField(
-                    controller: _identifierController,
-                    enabled: !vm.isLoading,
-                  ),
-                  const SizedBox(height: 32),
-                  Text(
-                    appStrings.forgotPasswordHelpText,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: const Color(0xFF1D1B20),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          appStrings.forgotPasswordDescription,
+                          style: AppTextStyles.bodyMedium,
+                        ),
+                        const SizedBox(height: 14),
+                        if (vm.errorMessage != null)
+                          EbolsaErrorBanner(message: vm.errorMessage!),
+                        EbolsaCpfField(
+                          controller: _identifierController,
+                          enabled: !vm.isLoading,
+                        ),
+                        const SizedBox(height: 32),
+                        Text(
+                          appStrings.forgotPasswordHelpText,
+                          textAlign: TextAlign.center,
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            color: AppColors.onSurface,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 32),
                   EbolsaLoadingButton(
                     onPressed: _onSubmit,
                     label: appStrings.forgotPasswordConfirmAction,
                     isLoading: vm.isLoading,
                   ),
-                  const SizedBox(height: 16),
                 ],
               ),
             );

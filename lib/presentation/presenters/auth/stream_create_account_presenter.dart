@@ -32,7 +32,9 @@ class StreamCreateAccountPresenter implements CreateAccountPresenter {
     if (params.name.trim().length < 3) {
       errors['name'] = s.createAccountValidationFullNameRequired;
     }
-    if (!RegExp(r'^[\w.]+@[\w]+\.\w{2,}$').hasMatch(params.email.trim())) {
+    //TODO: descomentar a linha abaixo após os testes para impedir o uso do "+"
+    //if (!RegExp(r'^[\w.]+@[\w]+\.\w{2,}$').hasMatch(params.email.trim())) {
+    if (!RegExp(r'^[\w.+]+@[\w]+\.\w{2,}$').hasMatch(params.email.trim())) {
       errors['email'] = s.createAccountValidationInvalidEmail;
     }
     final cleanPhone = params.phone.replaceAll(RegExp(r'[^\d]'), '');
@@ -76,14 +78,13 @@ class StreamCreateAccountPresenter implements CreateAccountPresenter {
       );
       _emit(const AuthViewModel.success());
     } on EmailVerificationRequiredException {
-      /// Estranho eu criar um usuário novo, com credencial de logado
-      /// mas não posso logar o cara enquanto não concluir o
-      /// aceite por e-mail
+      /// Aqui existe uma regra que o usuário deve terminar o processo clicando
+      /// em um link que ele recebeu no e-mail.
       _emit(const AuthViewModel.success());
     } on AccountAlreadyExistsException catch (e) {
       _emit(AuthViewModel().withError(e.message));
     } on CreateAccountValidationException catch (e) {
-      _emit(AuthViewModel().withFieldError(e.field, e.message));
+      _emit(AuthViewModel().withError(e.message));
     } on RateLimitException {
       _emit(AuthViewModel().withError(AppI18n.current.errorRateLimit));
     } on HttpError catch (e) {

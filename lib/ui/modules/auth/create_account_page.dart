@@ -80,6 +80,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
   void _showDialogInfo() {
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (context) => AlertDialog(
         //backgroundColor: AppStyle.backgroundColor,

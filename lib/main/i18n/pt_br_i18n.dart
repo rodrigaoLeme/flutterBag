@@ -73,7 +73,7 @@ class PtBrI18n implements AppI18n {
   String get createAccountEmailHint => 'seu@email.com';
 
   @override
-  String get createAccountPasswordHint => 'Mínimo 8 caracteres';
+  String get createAccountPasswordHint => 'Mínimo 12 caracteres';
 
   @override
   String get createAccountConfirmPasswordLabel => 'Confirmar senha';
@@ -210,6 +210,16 @@ class PtBrI18n implements AppI18n {
   @override
   String get forgotPasswordBackToLoginAction => 'Voltar para o login';
 
+  @override
+  String get forgotPasswordDialogTitle => 'Recuperação de senha';
+
+  @override
+  String get forgotPasswordDialogDescription =>
+      '''Enviamos um link de recuperação para o e-mail cadastrado neste CPF. Acesse sua caixa de entrada para criar uma nova senha.\n\nPara sua segurança, ele expira em 3 horas.\n''';
+
+  @override
+  String get forgotPasswordDialogDoneButton => 'Ok';
+
   /// ------------------- Domain and validation messages -------------------
   @override
   String get invalidCredentials => 'CPF/CNPJ, e-mail ou senha incorretos.';
@@ -247,13 +257,6 @@ class PtBrI18n implements AppI18n {
       'As senhas não conferem.';
 
   @override
-  String get errorInvalidCpf => 'CPF inválido.';
-
-  @override
-  String get errorCreationFailed =>
-      'Erro criar conta, tente novamente mais tarde';
-
-  @override
   String get errorRateLimit => 'Excesso de requisições.';
 
   @override
@@ -265,4 +268,78 @@ class PtBrI18n implements AppI18n {
   String get jwtInvalidToken => 'Token inválido.';
   @override
   String jwtDecodeError(Object error) => 'Erro ao decodificar JWT: $error';
+
+  @override
+  String get noticesTermsTitle => 'Editais e Termos Aditivos';
+
+  @override
+  String get noticesTermsDescription =>
+      'Selecione o ano, a cidade e unidade escolar para conferir os Editais e Termos Aditivos';
+
+  @override
+  String get noticesTermsLocationDeniedPermanently =>
+      'A localizacao foi negada permanentemente. Ative nas configuracoes para melhorar os resultados.';
+
+  @override
+  String get noticesTermsLocationDenied =>
+      'A localizacao foi negada. Voce pode continuar selecionando os filtros manualmente.';
+
+  @override
+  String get noticesTermsBottomSheetSearchHelp =>
+      'Digite para filtrar e toque para selecionar';
+
+  @override
+  String get noticesTermsBottomSheetNoResults => 'Nenhum resultado encontrado';
+
+  @override
+  String get noticesTermsCloseAction => 'Fechar';
+
+  @override
+  String get noticesTermsSearchHint => 'Pesquisar';
+
+  @override
+  String get noticesTermsSelectYear => 'Selecione o ano';
+
+  @override
+  String get noticesTermsSelectCity => 'Selecione a cidade';
+
+  @override
+  String get noticesTermsSelectUnit => 'Selecione a unidade';
+
+  @override
+  String get noticesTermsIncompleteFiltersMessage =>
+      'Preencha Ano letivo, Cidade e Unidade escolar para visualizar os editais.';
+
+  @override
+  String get noticesTermsNoResultsMessage =>
+      'Nao encontramos editais para os filtros selecionados. Tente outro ano, cidade ou unidade.';
+
+  @override
+  String get noticesTermsPublishedAtLabel => 'Data de Publicação';
+
+  @override
+  String get noticesTermsModalityLabel => 'Modalidade';
+
+  @override
+  String get noticesTermsEnrollmentTypeLabel => 'Tipo de Inscrição';
+
+  @override
+  String get noticesTermsViewNoticeAction => 'Ver Edital';
+
+  @override
+  String get noticesTermsViewAdditiveTermAction => 'Ver Termo Aditivo';
+
+  @override
+  String get noticesTermsDocumentTitle => 'Documento';
+
+  @override
+  String get noticesTermsDocumentNoticeDescription => 'Visualizacao do edital';
+
+  @override
+  String get noticesTermsDocumentAdditiveTermDescription =>
+      'Visualizacao do termo aditivo';
+
+  @override
+  String get noticesTermsDocumentDevMessage =>
+      'Visualizacao de documento em desenvolvimento.\n\nNesta area sera exibido PDF ou WebView.';
 }

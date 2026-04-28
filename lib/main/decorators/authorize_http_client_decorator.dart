@@ -78,7 +78,7 @@ class AuthorizeHttpClientDecorator implements HttpClient {
       );
       if (newRefresh != null) {
         await secureStorage.save(
-          key: StorageKeys.accessToken,
+          key: StorageKeys.refreshToken,
           value: newRefresh,
         );
       }

@@ -43,8 +43,15 @@ class AppColors {
   // Bordas
   static const Color borderLight = Color(0xFFBDBDBD);
   static const Color borderDark = Color(0xFF424242);
+  static const Color outline = Color(0xFF74777F);
 
   // Divisor
   static const Color dividerLight = Color(0xFFE0E0E0);
   static const Color dividerDark = Color(0xFF303030);
+  static const Color onSurface = Color(0xFF212121);
+
+  // Tons neutros de apoio (Figma)
+  static const Color onSurfaceHigh = Color(0xFF20232A);
+  static const Color onSurfaceVariant = Color(0xFF43474E);
+  static const Color grey800 = Color(0xFF212121);
 }

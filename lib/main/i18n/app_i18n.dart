@@ -55,6 +55,9 @@ abstract class AppI18n {
   String get forgotPasswordSuccessTitle;
   String get forgotPasswordSuccessDescription;
   String get forgotPasswordBackToLoginAction;
+  String get forgotPasswordDialogTitle;
+  String get forgotPasswordDialogDescription;
+  String get forgotPasswordDialogDoneButton;
 
   // Account validation messages
   String get invalidCredentials;
@@ -67,12 +70,34 @@ abstract class AppI18n {
   String get createAccountValidationInvalidPhone;
   String get createAccountValidationPasswordMin;
   String get createAccountValidationPasswordMismatch;
-  String get errorInvalidCpf;
-  String get errorCreationFailed;
   String get errorRateLimit;
   String get forgotPasswordValidationCpfRequired;
 
   // JWT
   String get jwtInvalidToken;
   String jwtDecodeError(Object error);
+
+  // Notices terms
+  String get noticesTermsTitle;
+  String get noticesTermsDescription;
+  String get noticesTermsLocationDeniedPermanently;
+  String get noticesTermsLocationDenied;
+  String get noticesTermsBottomSheetSearchHelp;
+  String get noticesTermsBottomSheetNoResults;
+  String get noticesTermsCloseAction;
+  String get noticesTermsSearchHint;
+  String get noticesTermsSelectYear;
+  String get noticesTermsSelectCity;
+  String get noticesTermsSelectUnit;
+  String get noticesTermsIncompleteFiltersMessage;
+  String get noticesTermsNoResultsMessage;
+  String get noticesTermsPublishedAtLabel;
+  String get noticesTermsModalityLabel;
+  String get noticesTermsEnrollmentTypeLabel;
+  String get noticesTermsViewNoticeAction;
+  String get noticesTermsViewAdditiveTermAction;
+  String get noticesTermsDocumentTitle;
+  String get noticesTermsDocumentNoticeDescription;
+  String get noticesTermsDocumentAdditiveTermDescription;
+  String get noticesTermsDocumentDevMessage;
 }
