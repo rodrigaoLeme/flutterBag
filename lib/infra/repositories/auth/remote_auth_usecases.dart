@@ -76,6 +76,8 @@ class RemoteLoginUsecase implements LoginUsecase {
       switch (e.code) {
         case 'Identity.InvalidCredentials':
           throw InvalidCredentialsException(e.title);
+        case 'Identity.EmailNotConfirmed':
+          throw EmailNotConfirmedException();
         default:
           throw InvalidCredentialsException(AppI18n.current.invalidCredentials);
       }
@@ -84,6 +86,33 @@ class RemoteLoginUsecase implements LoginUsecase {
         throw InvalidCredentialsException(AppI18n.current.invalidCredentials);
       }
       rethrow;
+    }
+  }
+}
+
+class RemoteSendEmailVerificationUseCase
+    implements SendEmailVerificationUseCase {
+  final HttpClient httpClient;
+
+  const RemoteSendEmailVerificationUseCase({required this.httpClient});
+
+  @override
+  Future<void> send(SendEmailVerificationParams params) async {
+    try {
+      await httpClient.request(
+        url: '${Flavor.apiBaseUrl}/account/SendEmailVerification',
+        method: HttpMethod.get,
+        queryParameters: {'userId': params.userId},
+      );
+    } on ApiException catch (e) {
+      throw SendEmailVerificationException(
+        (e.title.isEmpty) ? e.title : AppI18n.current.errorUnexpected,
+      );
+    } on HttpError catch (e) {
+      if (e == HttpError.noConnectivity) {
+        throw SendEmailVerificationException(AppI18n.current.errorNoInternet);
+      }
+      throw SendEmailVerificationException(AppI18n.current.errorUnexpected);
     }
   }
 }

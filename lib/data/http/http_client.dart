@@ -29,10 +29,12 @@ enum HttpError {
 class ApiException implements Exception {
   final String code;
   final String title;
+  final String detail;
   final int statusCode;
   const ApiException({
     required this.code,
     required this.title,
+    this.detail = '',
     required this.statusCode,
   });
 

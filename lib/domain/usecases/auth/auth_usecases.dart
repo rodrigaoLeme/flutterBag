@@ -97,3 +97,22 @@ class AccountAlreadyExistsException implements Exception {
   final String message;
   const AccountAlreadyExistsException([this.message = '']);
 }
+
+class SendEmailVerificationParams {
+  final String userId;
+  const SendEmailVerificationParams({required this.userId});
+}
+
+abstract class SendEmailVerificationUseCase {
+  Future<void> send(SendEmailVerificationParams params);
+}
+
+class EmailNotConfirmedException implements Exception {
+  const EmailNotConfirmedException();
+}
+
+class SendEmailVerificationException implements Exception {
+  final String message;
+
+  const SendEmailVerificationException(this.message);
+}

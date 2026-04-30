@@ -15,6 +15,11 @@ CreateAccountUsecase makeRemoteCreateAccount() => RemoteCreateAccountUsecase(
       secureStorage: makeSecureStorage(),
     );
 
+SendEmailVerificationUseCase makeRemoteSendEmailVerification() =>
+    RemoteSendEmailVerificationUseCase(
+      httpClient: makeDioAdapter(),
+    );
+
 ForgotPasswordUsecase makeRemoteForgotPassword() =>
     RemoteForgotPasswordUsecase(httpClient: makeDioAdapter());
 

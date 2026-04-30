@@ -20,7 +20,7 @@ class AppTheme {
           elevation: 0,
           centerTitle: true,
           titleTextStyle: AppTextStyles.titleMedium.copyWith(
-            color: AppColors.textPrimaryLight,
+            color: AppColors.secondary,
           ),
         ),
         textTheme: AppTextStyles.textTheme,
@@ -64,9 +64,8 @@ class AppTheme {
           style: OutlinedButton.styleFrom(
             padding: EdgeInsets.symmetric(vertical: 18),
             foregroundColor: AppColors.textSecondaryLight,
-            backgroundColor: AppColors.secondary,
             minimumSize: const Size(double.infinity, 48),
-            side: BorderSide(width: 0, color: AppColors.secondary),
+            side: BorderSide(width: 2, color: AppColors.primaryOutline),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
             ),

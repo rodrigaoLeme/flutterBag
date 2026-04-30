@@ -1,15 +1,25 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../../domain/usecases/auth/auth_usecases.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../../main/routes/auth_routes.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
+import 'auth_presenter.dart';
+import 'auth_view_model.dart';
 
 class AccountNotConfirmedPage extends StatefulWidget {
-  const AccountNotConfirmedPage({super.key});
+  final AccountNotConfirmedPresenter presenter;
+
+  const AccountNotConfirmedPage({
+    super.key,
+    required this.presenter,
+  });
 
   @override
   State<AccountNotConfirmedPage> createState() =>
@@ -20,6 +30,8 @@ class _AccountNotConfirmedPageState extends State<AccountNotConfirmedPage> {
   final _emailController = TextEditingController();
 
   final appStrings = AppI18n.current;
+
+  late StreamSubscription<AuthViewModel?> _viewModelSubscription;
 
   final MarkdownBody _accountNotConfirmedDescription = MarkdownBody(
     data: AppI18n.current.accountNotConfirmedDescription,
@@ -36,12 +48,36 @@ class _AccountNotConfirmedPageState extends State<AccountNotConfirmedPage> {
   );
 
   @override
+  void initState() {
+    super.initState();
+    _viewModelSubscription = widget.presenter.viewModel.listen(
+      (vm) {
+        if (vm == null) return;
+        if (vm.isValid) {
+          widget.presenter.sendEmailVerification(
+            SendEmailVerificationParams(userId: _emailController.text.trim()),
+          );
+        }
+        if (vm.isSuccess) {
+          _showDialogInfo();
+        }
+      },
+    );
+  }
+
+  @override
   void dispose() {
     _emailController;
+    _viewModelSubscription.cancel();
+    widget.presenter.dispose();
     super.dispose();
   }
 
-  void _onResendPressed() {}
+  void _onResendPressed() {
+    FocusScope.of(context).unfocus();
+    final email = _emailController.text.trim();
+    widget.presenter.validateEmail(email);
+  }
 
   void _showDialogInfo() {
     showDialog(
@@ -93,9 +129,11 @@ class _AccountNotConfirmedPageState extends State<AccountNotConfirmedPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Expanded(
-              child: StreamBuilder(
-                stream: null,
+              child: StreamBuilder<AuthViewModel?>(
+                stream: widget.presenter.viewModel,
+                initialData: const AuthViewModel.initial(),
                 builder: (context, snapshot) {
+                  final vm = snapshot.data ?? const AuthViewModel.initial();
                   return SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 32),
@@ -129,6 +167,7 @@ class _AccountNotConfirmedPageState extends State<AccountNotConfirmedPage> {
                           controller: _emailController,
                           label: appStrings.authEmailLabel,
                           hint: appStrings.authEmailLabel,
+                          errorText: vm.fieldError('email'),
                           keyboardType: TextInputType.emailAddress,
                         ),
                       ],
@@ -137,13 +176,20 @@ class _AccountNotConfirmedPageState extends State<AccountNotConfirmedPage> {
                 },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: EbolsaButton(
-                onPressed: () => _showDialogInfo(),
-                label: appStrings.accountNotConfirmedResendEmailButton,
-              ),
-            ),
+            StreamBuilder(
+                stream: widget.presenter.viewModel,
+                initialData: const AuthViewModel.initial(),
+                builder: (context, snapshot) {
+                  final vm = snapshot.data ?? const AuthViewModel.initial();
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: EbolsaLoadingButton(
+                      onPressed: vm.isLoading ? null : _onResendPressed,
+                      isLoading: vm.isLoading,
+                      label: appStrings.accountNotConfirmedResendEmailButton,
+                    ),
+                  );
+                }),
           ],
         ),
       ),

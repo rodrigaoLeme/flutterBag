@@ -20,3 +20,10 @@ abstract class ForgotPasswordPresenter {
   Future<void> forgotPassword(ForgotPasswordUsecaseParams params);
   void dispose();
 }
+
+abstract class AccountNotConfirmedPresenter {
+  Stream<AuthViewModel?> get viewModel;
+  void validateEmail(String email);
+  Future<void> sendEmailVerification(SendEmailVerificationParams params);
+  void dispose();
+}

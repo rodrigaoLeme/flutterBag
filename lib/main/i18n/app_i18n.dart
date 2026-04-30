@@ -124,4 +124,12 @@ abstract class AppI18n {
   String get onboardingViewNoticesAction;
   String get onboardingNextAction;
   String get onboardingEnterAction;
+
+  // Home
+  String get homeTitle;
+  String get homeSubtitleEmptyProcess;
+  String get homeRenewScholarshipButton;
+  String get homeNewScholarshipButton;
+  String get homeImportantTitle;
+  String get homeImportantMessage;
 }

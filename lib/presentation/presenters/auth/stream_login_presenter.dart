@@ -36,6 +36,8 @@ class StreamLoginPresenter with SessionManager implements LoginPresenter {
       } else {
         _emit(AuthViewModel().withError(e.message));
       }
+    } on EmailNotConfirmedException catch (_) {
+      _emit(AuthViewModel().withEmailNotConfirmed());
     } on InvalidCredentialsException catch (e) {
       _emit(AuthViewModel().withError(e.message));
     } on HttpError catch (e) {

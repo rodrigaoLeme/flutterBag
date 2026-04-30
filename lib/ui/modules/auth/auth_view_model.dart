@@ -1,29 +1,32 @@
 class AuthViewModel {
   final bool isLoading;
-  final String? errorMessage;
-  final Map<String, String> fieldErrors;
   final bool isSuccess;
-  final String? loginRoute;
   final bool isValid;
+  final bool isEmailNotConfirmed;
+  final String? errorMessage;
+  final String? loginRoute;
+  final Map<String, String> fieldErrors;
 
   const AuthViewModel({
     this.isLoading = false,
-    this.isValid = false,
-    this.errorMessage,
-    this.fieldErrors = const {},
     this.isSuccess = false,
+    this.isValid = false,
+    this.isEmailNotConfirmed = false,
+    this.errorMessage,
     this.loginRoute,
+    this.fieldErrors = const {},
   });
 
   const AuthViewModel.initial() : this();
 
   const AuthViewModel.loading() : this(isLoading: true);
 
-  AuthViewModel withSuccess(String route) =>
-      AuthViewModel(isSuccess: true, loginRoute: route);
   const AuthViewModel.valid() : this(isValid: true);
 
   const AuthViewModel.success() : this(isSuccess: true);
+
+  AuthViewModel withSuccess(String route) =>
+      AuthViewModel(isSuccess: true, loginRoute: route);
 
   AuthViewModel withError(String message) => AuthViewModel(
         errorMessage: message,
@@ -35,6 +38,10 @@ class AuthViewModel {
 
   AuthViewModel withFieldErrors(Map<String, String> errors) => AuthViewModel(
         fieldErrors: errors,
+      );
+
+  AuthViewModel withEmailNotConfirmed() => AuthViewModel(
+        isEmailNotConfirmed: true,
       );
 
   bool hasFieldError(String field) => fieldErrors.containsKey(field);

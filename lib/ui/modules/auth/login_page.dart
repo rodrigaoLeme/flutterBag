@@ -80,6 +80,12 @@ class _LoginPageState extends State<LoginPage> {
                     });
                   }
 
+                  if (vm.isEmailNotConfirmed) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      Modular.to.pushNamed(AuthRoutes.accountNotConfirmed);
+                    });
+                  }
+
                   return SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 32),
@@ -142,6 +148,15 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   );
                 },
+              ),
+            ),
+            //TODO: Remover esse botão
+            Align(
+              alignment: Alignment.center,
+              child: EbolsaTextButton(
+                onPressed: () =>
+                    Modular.to.pushNamed(AuthRoutes.accountNotConfirmed),
+                label: 'Teste email não confirmado',
               ),
             ),
             Align(

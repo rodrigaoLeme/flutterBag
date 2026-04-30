@@ -28,6 +28,11 @@ class AppModule extends Module {
       transition: TransitionType.fadeIn,
     );
     r.child(
+      AuthRoutes.accountNotConfirmed,
+      child: (_) => makeAccountNotConfirmedPage(),
+      transition: TransitionType.fadeIn,
+    );
+    r.child(
       AuthRoutes.createAccount,
       child: (_) => makeCreateAccountPage(),
       transition: TransitionType.fadeIn,

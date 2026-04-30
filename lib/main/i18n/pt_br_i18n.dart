@@ -416,4 +416,26 @@ class PtBrI18n implements AppI18n {
 
   @override
   String get onboardingEnterAction => 'Entrar';
+
+  /// ------------------- Home -------------------
+  @override
+  String get homeTitle => 'Processos';
+
+  @override
+  String get homeSubtitleEmptyProcess =>
+      'Continue a solicitação iniciada ou crie uma nova solicitação para o ano de';
+
+  @override
+  String get homeRenewScholarshipButton => 'Renovar Bolsa';
+
+  @override
+  String get homeNewScholarshipButton => 'Nova Solicitação';
+
+  @override
+  String get homeImportantTitle => 'Importante';
+
+  @override
+  String get homeImportantMessage => '''
+A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação anual através de seleção. A concessão de bolsa de estudo estará sujeita à disponibilidade de vagas na unidade escolar solicitada e ao perfil socioeconômico compatível às exigências da Lei Complementar nº 187/2021.
+''';
 }
