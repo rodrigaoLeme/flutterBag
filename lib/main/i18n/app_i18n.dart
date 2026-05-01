@@ -128,8 +128,17 @@ abstract class AppI18n {
   // Home
   String get homeTitle;
   String get homeSubtitleEmptyProcess;
+  String get homeSubtitleProcessInProgress;
+  String get homeSubtitleProcessCompleted;
   String get homeRenewScholarshipButton;
   String get homeNewScholarshipButton;
   String get homeImportantTitle;
   String get homeImportantMessage;
+
+  // End Drawer
+  String get endDrawerTitle;
+  String get endDrawerHomeLabel;
+  String get endDrawerNoticesLabel;
+  String get endDrawerProfileLabel;
+  String get endDrawerLogoutLabel;
 }

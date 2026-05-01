@@ -55,4 +55,8 @@ class AppColors {
   static const Color onSurfaceHigh = Color(0xFF20232A);
   static const Color onSurfaceVariant = Color(0xFF43474E);
   static const Color grey800 = Color(0xFF212121);
+  static const Color surface = Color(0xFFEDEDF4);
+
+  // Container
+  static const Color secondaryContainer = Color(0xFFD9E3F8);
 }

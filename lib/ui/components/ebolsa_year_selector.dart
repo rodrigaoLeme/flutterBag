@@ -50,7 +50,7 @@ class _EBolsaYearSelectorState extends State<EBolsaYearSelector> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 60,
+      height: 50,
       child: ListView.builder(
         controller: _scrollController,
         scrollDirection: Axis.horizontal,
