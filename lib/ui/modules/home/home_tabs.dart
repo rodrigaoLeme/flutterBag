@@ -1,7 +1,7 @@
 enum HomeTab {
-  editais(0),
-  home(1),
-  perfil(2);
+  notices(0),
+  process(1),
+  profile(2);
 
   const HomeTab(this.tabIndex);
   final int tabIndex;

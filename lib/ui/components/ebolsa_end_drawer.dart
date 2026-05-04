@@ -40,27 +40,27 @@ class EbolsaEndDrawer extends StatelessWidget {
             _DrawerItem(
               iconPaht: 'lib/ui/assets/icons/home-icon.svg',
               label: appsString.endDrawerHomeLabel,
-              isSelected: currentTab == HomeTab.home,
+              isSelected: currentTab == HomeTab.process,
               onTap: () {
-                onTabSelected(HomeTab.home);
+                onTabSelected(HomeTab.process);
                 Navigator.pop(context);
               },
             ),
             _DrawerItem(
               iconPaht: 'lib/ui/assets/icons/notice-icon.svg',
               label: appsString.endDrawerNoticesLabel,
-              isSelected: currentTab == HomeTab.editais,
+              isSelected: currentTab == HomeTab.notices,
               onTap: () {
-                onTabSelected(HomeTab.editais);
+                onTabSelected(HomeTab.notices);
                 Navigator.pop(context);
               },
             ),
             _DrawerItem(
               iconPaht: 'lib/ui/assets/icons/profile-icon.svg',
               label: appsString.endDrawerProfileLabel,
-              isSelected: currentTab == HomeTab.perfil,
+              isSelected: currentTab == HomeTab.profile,
               onTap: () {
-                onTabSelected(HomeTab.perfil);
+                onTabSelected(HomeTab.profile);
                 Navigator.pop(context);
               },
             ),
