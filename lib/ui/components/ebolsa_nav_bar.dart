@@ -16,42 +16,40 @@ class EbolsaNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        height: 72,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 8,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _NavBarItem(
-              iconPath: 'lib/ui/assets/icons/notice-icon.svg',
-              label: 'Editais',
-              isSelected: currentTab == HomeTab.editais,
-              onTap: () => onTabSelected(HomeTab.editais),
-            ),
-            _NavBarItem(
-              iconPath: 'lib/ui/assets/icons/home-icon.svg',
-              label: 'Home',
-              isSelected: currentTab == HomeTab.home,
-              onTap: () => onTabSelected(HomeTab.home),
-            ),
-            _NavBarItem(
-              iconPath: 'lib/ui/assets/icons/profile-icon.svg',
-              label: 'Perfil',
-              isSelected: currentTab == HomeTab.perfil,
-              onTap: () => onTabSelected(HomeTab.perfil),
-            ),
-          ],
-        ),
+    return Container(
+      height: 72,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _NavBarItem(
+            iconPath: 'lib/ui/assets/icons/notice-icon.svg',
+            label: 'Editais',
+            isSelected: currentTab == HomeTab.editais,
+            onTap: () => onTabSelected(HomeTab.editais),
+          ),
+          _NavBarItem(
+            iconPath: 'lib/ui/assets/icons/home-icon.svg',
+            label: 'Home',
+            isSelected: currentTab == HomeTab.home,
+            onTap: () => onTabSelected(HomeTab.home),
+          ),
+          _NavBarItem(
+            iconPath: 'lib/ui/assets/icons/profile-icon.svg',
+            label: 'Perfil',
+            isSelected: currentTab == HomeTab.perfil,
+            onTap: () => onTabSelected(HomeTab.perfil),
+          ),
+        ],
       ),
     );
   }

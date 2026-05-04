@@ -4,6 +4,8 @@ import '../../../main/factories/pages/notices_terms/notices_terms_page_factory.d
 import '../../../main/i18n/app_i18n.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
+import '../notices_terms/notices_terms_page.dart';
+import '../notices_terms/notices_terms_presenter.dart';
 import 'home_tabs.dart';
 
 final appStrings = AppI18n.current;
@@ -19,6 +21,15 @@ class _HomePageState extends State<HomePage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   HomeTab _currentTab = HomeTab.home;
 
+  // ignore: unused_field
+  late final NoticesTermsPresenter _noticesPresenter;
+
+  @override
+  void initState() {
+    super.initState();
+    _noticesPresenter = makeNoticesTermsPresenter();
+  }
+
   void _onTabSelected(HomeTab tab) {
     setState(() => _currentTab = tab);
   }
@@ -26,7 +37,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface,
       key: _scaffoldKey,
       appBar: AppBar(
         titleSpacing: 20,
@@ -54,7 +64,10 @@ class _HomePageState extends State<HomePage> {
       body: IndexedStack(
         index: _currentTab.tabIndex,
         children: [
-          makeNoticesTermsPage(),
+          NoticesTermsPage(
+            presenter: makeNoticesTermsPresenter(),
+            showAppBar: false,
+          ),
           _HomeContent(currentTab: _currentTab),
           _PerfilPage(),
         ],
@@ -67,9 +80,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Conteúdo da aba Home com YearSelector
-// ---------------------------------------------------------------------------
 class _HomeContent extends StatefulWidget {
   final HomeTab currentTab;
   const _HomeContent({required this.currentTab});
@@ -84,19 +94,26 @@ class _HomeContentState extends State<_HomeContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.backgroundLight,
-      child: Column(
-        children: [
-          Image.asset(
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Image.asset(
             'lib/ui/assets/images/banner-home.png',
           ),
-          EBolsaYearSelector(
-            years: _years,
-            selectedYear: _selectedYear,
-            onYearSelected: (year) => setState(() => _selectedYear = year),
+        ),
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: _YearSelectorDelegate(
+            child: EBolsaYearSelector(
+              years: _years,
+              selectedYear: _selectedYear,
+              onYearSelected: (year) => setState(() => _selectedYear = year),
+            ),
           ),
-          Expanded(
+        ),
+        SliverToBoxAdapter(
+          child: Container(
+            color: AppColors.backgroundLight,
             child: _selectedYear == 2027
                 ? _Year2027Content()
                 : Center(
@@ -106,10 +123,35 @@ class _HomeContentState extends State<_HomeContent> {
                     ),
                   ),
           ),
-        ],
-      ),
+        )
+      ],
     );
   }
+}
+
+class _YearSelectorDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+
+  const _YearSelectorDelegate({required this.child});
+
+  @override
+  double get minExtent => 50;
+
+  @override
+  double get maxExtent => 50;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      color: AppColors.backgroundLight,
+      child: child,
+    );
+  }
+
+  @override
+  bool shouldRebuild(_YearSelectorDelegate oldDelegate) =>
+      oldDelegate.child != child;
 }
 
 class _Year2027Content extends StatelessWidget {
@@ -155,6 +197,6 @@ class _Year2027Content extends StatelessWidget {
 class _PerfilPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('Perfil — em breve'));
+    return const Center(child: Text('Perfil — Vem da Maira'));
   }
 }

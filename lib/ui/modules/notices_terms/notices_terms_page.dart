@@ -31,10 +31,12 @@ class _NoticeFilterOption {
 
 class NoticesTermsPage extends StatefulWidget {
   final NoticesTermsPresenter presenter;
+  final bool showAppBar;
 
   const NoticesTermsPage({
     super.key,
     required this.presenter,
+    this.showAppBar = true,
   });
 
   @override
@@ -307,14 +309,16 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
     final appStrings = AppI18n.current;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          appStrings.noticesTermsTitle,
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: AppColors.primary,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
+      appBar: widget.showAppBar
+          ? AppBar(
+              title: Text(
+                appStrings.noticesTermsTitle,
+                style: TextStyle(color: Colors.white),
+              ),
+              backgroundColor: AppColors.primary,
+              iconTheme: const IconThemeData(color: Colors.white),
+            )
+          : null,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),
