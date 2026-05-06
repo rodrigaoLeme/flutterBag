@@ -3,7 +3,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../../main/routes/routes.dart';
-import '../../helpers/themes/app_colors.dart';
+import '../../helpers/themes/themes.dart';
 import 'splash_presenter.dart';
 
 class SplashPage extends StatefulWidget {
@@ -96,7 +96,7 @@ class _SplashPageState extends State<SplashPage> {
                       ),
                       alignment: Alignment.center,
                       child: SvgPicture.asset(
-                        'lib/ui/assets/images/logo-white.svg',
+                        AppImages.logoWhite,
                         height: 102,
                         width: 102,
                       ),
@@ -106,7 +106,7 @@ class _SplashPageState extends State<SplashPage> {
                     opacity: showSecond ? 1.0 : 0.0,
                     duration: _crossFadeDuration,
                     child: SvgPicture.asset(
-                      'lib/ui/assets/images/logo-white.svg',
+                      AppImages.logoWhite,
                       height: 102,
                       width: 102,
                     ),

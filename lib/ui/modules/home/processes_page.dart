@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
+import 'components/cards/processes_cards_current.dart';
 import 'helpers/processes_cards_page.dart';
-import 'helpers/processes_finished_page.dart';
 
 class ProcessesPage extends StatefulWidget {
   const ProcessesPage({super.key});
@@ -21,9 +21,7 @@ class _ProcessesPageState extends State<ProcessesPage> {
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
-          child: Image.asset(
-            'lib/ui/assets/images/banner-home.png',
-          ),
+          child: Image.asset(AppImages.bannerHome),
         ),
         SliverPersistentHeader(
           pinned: true,
@@ -40,17 +38,34 @@ class _ProcessesPageState extends State<ProcessesPage> {
             color: AppColors.backgroundLight,
             child: _selectedYear == 2027
                 ? const ProcessesEmptyPage()
-                : _selectedYear == 2024
-                    ? const ProcessesFinishedPage()
-                    : Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Text(
-                            'Conteúdo do ano $_selectedYear',
-                            style: Theme.of(context).textTheme.bodyLarge,
-                          ),
-                        ),
-                      ),
+                : _selectedYear == 2026
+                    ? ProcessesCurrentPage(
+                        yearSelected: _selectedYear,
+                        processesBanner: ProcessesBanner.warning,
+                      )
+                    : _selectedYear == 2025
+                        ? ProcessesCurrentPage(
+                            yearSelected: _selectedYear,
+                            processesBanner: ProcessesBanner.pending)
+                        : _selectedYear == 2024
+                            ? ProcessesCurrentPage(
+                                yearSelected: _selectedYear,
+                                processesBanner: ProcessesBanner.error)
+                            : _selectedYear == 2023
+                                ? ProcessesFinishedPage(
+                                    yearSelected: _selectedYear,
+                                  )
+                                : Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(24),
+                                      child: Text(
+                                        'Conteúdo do ano $_selectedYear',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge,
+                                      ),
+                                    ),
+                                  ),
           ),
         ),
       ],

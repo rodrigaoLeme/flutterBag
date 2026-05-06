@@ -1,64 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../helpers/themes/themes.dart';
+import '../../../../../main/i18n/app_i18n.dart';
+import '../../../../components/components.dart';
+import '../../../../helpers/themes/themes.dart';
 
-// ---------------------------------------------------------------------------
-// Enums de status
-// ---------------------------------------------------------------------------
+final appStrings = AppI18n.current;
+
 enum ProcessResult {
-  aprovado,
-  desclassificado,
-  emAnalise,
-  pendente;
+  approved,
+  disqualified,
+  underReview,
+  pending;
 
   String get label {
     switch (this) {
-      case aprovado:
-        return 'Aprovado';
-      case desclassificado:
-        return 'Desclassificado';
-      case emAnalise:
-        return 'Em Análise';
-      case pendente:
-        return 'Pendente';
+      case approved:
+        return appStrings.approved;
+      case disqualified:
+        return appStrings.disqualified;
+      case underReview:
+        return appStrings.underReview;
+      case pending:
+        return appStrings.pending;
     }
   }
 
   Color get color {
     switch (this) {
-      case aprovado:
+      case approved:
         return const Color(0xFF4CAF50);
-      case desclassificado:
-        return const Color(0xFFFF6B35);
-      case emAnalise:
+      case disqualified:
+        return const Color(0xFFFF9950);
+      case underReview:
         return const Color(0xFF2196F3);
-      case pendente:
+      case pending:
         return const Color(0xFF9E9E9E);
     }
   }
 }
 
 enum EnrollmentStatus {
-  semMatricula,
-  matriculado,
-  emProcesso;
+  withoutRegistration,
+  registered,
+  inProcess;
 
   String get label {
     switch (this) {
-      case semMatricula:
-        return 'Sem Matrícula';
-      case matriculado:
-        return 'Matriculado';
-      case emProcesso:
-        return 'Em Processo';
+      case withoutRegistration:
+        return appStrings.withoutRegistration;
+      case registered:
+        return appStrings.registered;
+      case inProcess:
+        return appStrings.inProcess;
     }
   }
 }
 
-// ---------------------------------------------------------------------------
-// ProcessCard
-// ---------------------------------------------------------------------------
-class ProcessCard extends StatelessWidget {
+class ProcessCardResult extends StatelessWidget {
   final String studentName;
   final String schoolUnit;
   final String course;
@@ -67,7 +66,7 @@ class ProcessCard extends StatelessWidget {
   final EnrollmentStatus enrollmentStatus;
   final VoidCallback? onViewProcess;
 
-  const ProcessCard({
+  const ProcessCardResult({
     super.key,
     required this.studentName,
     required this.schoolUnit,
@@ -81,6 +80,7 @@ class ProcessCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
@@ -91,7 +91,6 @@ class ProcessCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Nome do aluno
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
             child: Center(
@@ -103,33 +102,28 @@ class ProcessCard extends StatelessWidget {
               ),
             ),
           ),
-
           const Divider(
             height: 1,
             endIndent: 16,
             indent: 16,
           ),
-
-          // Unidade Escolar e Curso
           Padding(
             padding: const EdgeInsets.only(left: 32, right: 32, top: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _InfoRow(
-                  label: 'Unidade Escolar',
+                  label: appStrings.schoolUnit,
                   value: schoolUnit,
                 ),
                 const SizedBox(height: 12),
                 _InfoRow(
-                  label: 'Curso',
+                  label: appStrings.course,
                   value: course,
                 ),
               ],
             ),
           ),
-
-          // Processo + botão Visualizar
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             padding: const EdgeInsets.symmetric(
@@ -147,7 +141,7 @@ class ProcessCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Processo',
+                        appStrings.processCode,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: AppColors.textSecondaryLight,
                             ),
@@ -162,33 +156,23 @@ class ProcessCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                OutlinedButton.icon(
-                  onPressed: onViewProcess,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: AppColors.borderLight),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
+                Flexible(
+                  child: EbolsaIconButton(
+                    onPressed: () {},
+                    label: appStrings.viewButton,
+                    iconPath: AppIcons.pdfFileIcon,
+                    isOutlined: true,
                   ),
-                  icon: const Icon(Icons.picture_as_pdf_outlined, size: 18),
-                  label: const Text('Visualizar'),
-                ),
+                )
               ],
             ),
           ),
-
           const SizedBox(height: 16),
           const Divider(
             height: 1,
             endIndent: 16,
             indent: 16,
           ),
-
-          // // Resultado e Status Matrícula
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -198,7 +182,7 @@ class ProcessCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'Resultado',
+                        appStrings.result,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: AppColors.textSecondaryLight,
                             ),
@@ -213,7 +197,7 @@ class ProcessCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'Status Matrícula',
+                        appStrings.enrollmentStatus,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: AppColors.textSecondaryLight,
                             ),
@@ -232,9 +216,6 @@ class ProcessCard extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Subwidgets internos
-// ---------------------------------------------------------------------------
 class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
@@ -272,7 +253,7 @@ class _ResultBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: result.color,
         borderRadius: BorderRadius.circular(8),
@@ -304,13 +285,11 @@ class _EnrollmentBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (status == EnrollmentStatus.semMatricula)
+          if (status == EnrollmentStatus.withoutRegistration)
             Padding(
               padding: const EdgeInsets.only(right: 6),
-              child: Icon(
-                Icons.block_outlined,
-                size: 16,
-                color: AppColors.textSecondaryLight,
+              child: SvgPicture.asset(
+                AppIcons.noneIcon,
               ),
             ),
           Text(

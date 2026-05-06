@@ -8,4 +8,5 @@ class AuthRoutes {
   static const terms = '/termos';
   static const createdAccount = '/conta-criada';
   static const home = '/home';
+  static const perfil = '/perfil';
 }

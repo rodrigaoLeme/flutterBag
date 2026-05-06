@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../main/i18n/app_i18n.dart';
 import '../helpers/themes/themes.dart';
 import '../modules/home/home_tabs.dart';
 
@@ -16,6 +17,8 @@ class EbolsaNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appStrings = AppI18n.current;
+
     return Container(
       height: 72,
       decoration: BoxDecoration(
@@ -32,20 +35,20 @@ class EbolsaNavBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _NavBarItem(
-            iconPath: 'lib/ui/assets/icons/notice-icon.svg',
-            label: 'Editais',
+            iconPath: AppIcons.noticeIcon,
+            label: appStrings.navBarNoticesLabel,
             isSelected: currentTab == HomeTab.notices,
             onTap: () => onTabSelected(HomeTab.notices),
           ),
           _NavBarItem(
-            iconPath: 'lib/ui/assets/icons/home-icon.svg',
-            label: 'Home',
+            iconPath: AppIcons.homeIcon,
+            label: appStrings.navBarHomeLabel,
             isSelected: currentTab == HomeTab.process,
             onTap: () => onTabSelected(HomeTab.process),
           ),
           _NavBarItem(
-            iconPath: 'lib/ui/assets/icons/profile-icon.svg',
-            label: 'Perfil',
+            iconPath: AppIcons.profileIcon,
+            label: appStrings.navBarProfileLabel,
             isSelected: currentTab == HomeTab.profile,
             onTap: () => onTabSelected(HomeTab.profile),
           ),

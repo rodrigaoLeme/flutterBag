@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../../main/i18n/app_i18n.dart';
-import '../components/processes_cards_result.dart';
+import '../components/cards/processes_cards_result.dart';
 
 class ProcessesFinishedPage extends StatefulWidget {
-  const ProcessesFinishedPage({super.key});
+  final int yearSelected;
+  const ProcessesFinishedPage({super.key, required this.yearSelected});
 
   @override
   State<ProcessesFinishedPage> createState() => _ProcessesFinishedPageState();
@@ -15,7 +16,7 @@ class _ProcessesFinishedPageState extends State<ProcessesFinishedPage> {
   Widget build(BuildContext context) {
     final appStrings = AppI18n.current;
 
-    return SingleChildScrollView(
+    return Padding(
       padding: const EdgeInsets.only(left: 12, top: 20, right: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -26,17 +27,17 @@ class _ProcessesFinishedPageState extends State<ProcessesFinishedPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Veja os processos que você participou em 2024', // appStrings.homeSubtitleFinishedProcess,
+            '${appStrings.homeSubtitleProcessCompleted} ${widget.yearSelected}', // appStrings.homeSubtitleFinishedProcess,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 40),
-          ProcessCard(
+          ProcessCardResult(
             studentName: 'Ana Silva',
             schoolUnit: 'Colégio Adventista de Hortolândia',
             course: '6º Ano - Ensino Fundamental',
             processCode: '12345ABCDE',
-            result: ProcessResult.desclassificado,
-            enrollmentStatus: EnrollmentStatus.semMatricula,
+            result: ProcessResult.disqualified,
+            enrollmentStatus: EnrollmentStatus.withoutRegistration,
             onViewProcess: () {
               // abre o PDF do processo
             },

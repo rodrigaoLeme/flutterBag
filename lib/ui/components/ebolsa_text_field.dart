@@ -16,6 +16,9 @@ class EbolsaTextField extends StatelessWidget {
   final String? errorText;
   final void Function(String)? onChanged;
   final void Function(String)? onSubmitted;
+  final Color? borderColor;
+  final double borderWidth;
+  final double borderRadius;
 
   const EbolsaTextField({
     super.key,
@@ -31,6 +34,9 @@ class EbolsaTextField extends StatelessWidget {
     this.errorText,
     this.onChanged,
     this.onSubmitted,
+    this.borderColor,
+    this.borderWidth = 1.0,
+    this.borderRadius = 8.0,
   });
 
   @override
@@ -50,6 +56,41 @@ class EbolsaTextField extends StatelessWidget {
         hintText: hint,
         suffixIcon: suffixIcon,
         errorText: errorText,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(
+            color: borderColor ?? Colors.grey.shade300,
+            width: borderWidth,
+          ),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(
+            color: borderColor ?? Colors.grey.shade300,
+            width: borderWidth,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(
+            color: borderColor ?? Theme.of(context).colorScheme.primary,
+            width: borderWidth,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(
+            color: Colors.red.shade700,
+            width: borderWidth,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(
+            color: Colors.red.shade700,
+            width: borderWidth,
+          ),
+        ),
       ),
     );
   }

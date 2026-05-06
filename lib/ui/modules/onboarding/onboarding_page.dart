@@ -59,7 +59,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
     return Scaffold(
       body: Column(
         children: [
-          /// CARROSSEL
           Expanded(
             child: PageView.builder(
               controller: _controller,
@@ -97,8 +96,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
               },
             ),
           ),
-
-          /// INDICADORES (bolinhas)
           StreamBuilder<int>(
             stream: widget.presenter.currentPageIndexStream,
             initialData: 0,
@@ -122,10 +119,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
               );
             },
           ),
-
           const SizedBox(height: 24),
-
-          /// BOTÕES
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: StreamBuilder<int>(
@@ -138,7 +132,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
                 return Row(
                   children: [
-                    /// VER EDITAIS
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () =>
@@ -146,10 +139,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         child: Text(appStrings.onboardingViewNoticesAction),
                       ),
                     ),
-
                     const SizedBox(width: 12),
-
-                    /// ENTRAR / PRÓXIMO
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () => _nextPage(currentIndex),
@@ -165,7 +155,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
               },
             ),
           ),
-
           const SizedBox(height: 40),
         ],
       ),

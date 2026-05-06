@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../helpers/themes/themes.dart';
+
 class AuthLoginLogo extends StatelessWidget {
   const AuthLoginLogo({super.key});
 
@@ -8,7 +10,7 @@ class AuthLoginLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: SvgPicture.asset(
-        'lib/ui/assets/images/logo.svg',
+        AppImages.logo,
         height: 100,
         placeholderBuilder: (_) => const Icon(Icons.school, size: 80),
       ),

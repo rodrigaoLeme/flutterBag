@@ -3,6 +3,7 @@ import 'dart:async';
 import '../../../data/cache/cache.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../../main/routes/routes.dart';
+import '../../../ui/helpers/themes/themes.dart';
 import '../../../ui/modules/onboarding/onboarding_presenter.dart';
 
 class StreamOnboardingPresenter implements OnboardingPresenter {
@@ -16,22 +17,22 @@ class StreamOnboardingPresenter implements OnboardingPresenter {
       OnboardingItem(
         title: strings.onboardingItem1Title,
         description: strings.onboardingItem1Description,
-        image: 'lib/ui/assets/images/map_brasil.svg',
+        image: AppImages.mapBrasil,
       ),
       OnboardingItem(
         title: strings.onboardingItem2Title,
         description: strings.onboardingItem2Description,
-        image: 'lib/ui/assets/images/group_3.svg',
+        image: AppImages.onboarding3,
       ),
       OnboardingItem(
         title: strings.onboardingItem3Title,
         description: strings.onboardingItem3Description,
-        image: 'lib/ui/assets/images/group_1.svg',
+        image: AppImages.onboarding1,
       ),
       OnboardingItem(
         title: strings.onboardingItem4Title,
         description: strings.onboardingItem4Description,
-        image: 'lib/ui/assets/images/group_2.svg',
+        image: AppImages.onboarding2,
       ),
     ];
   }

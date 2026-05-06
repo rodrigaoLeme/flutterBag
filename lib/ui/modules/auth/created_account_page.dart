@@ -48,7 +48,7 @@ class CreatedAccountPage extends StatelessWidget {
                   height: 32,
                 ),
                 SvgPicture.asset(
-                  'lib/ui/assets/images/created-user.svg',
+                  AppImages.createdAccount,
                 ),
                 SizedBox(
                   height: 32,

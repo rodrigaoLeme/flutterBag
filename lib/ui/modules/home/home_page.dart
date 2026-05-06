@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 import '../../../main/factories/pages/notices_terms/notices_terms_page_factory.dart';
+import '../../../main/factories/pages/profile/profile_presenter_factory.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
 import '../notices_terms/notices_terms_page.dart';
 import '../notices_terms/notices_terms_presenter.dart';
+import '../profile/profile_page.dart';
+import '../profile/profile_presenter.dart';
 import 'home_tabs.dart';
 import 'processes_page.dart';
-import 'profile_page.dart';
 
 final appStrings = AppI18n.current;
 
@@ -24,11 +26,13 @@ class _HomePageState extends State<HomePage> {
   HomeTab _currentTab = HomeTab.process;
 
   late final NoticesTermsPresenter _noticesPresenter;
+  late final ProfilePresenter _profilePresenter;
 
   @override
   void initState() {
     super.initState();
     _noticesPresenter = makeNoticesTermsPresenter();
+    _profilePresenter = makeProfilePresenter();
   }
 
   void _onTabSelected(HomeTab tab) {
@@ -70,7 +74,9 @@ class _HomePageState extends State<HomePage> {
             showAppBar: false,
           ),
           ProcessesPage(),
-          ProfilePage(),
+          ProfilePage(
+            presenter: _profilePresenter,
+          ),
         ],
       ),
       bottomNavigationBar: EbolsaNavBar(

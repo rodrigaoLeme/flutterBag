@@ -447,6 +447,111 @@ class PtBrI18n implements AppI18n {
 A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação anual através de seleção. A concessão de bolsa de estudo estará sujeita à disponibilidade de vagas na unidade escolar solicitada e ao perfil socioeconômico compatível às exigências da Lei Complementar nº 187/2021.
 ''';
 
+  /// ------------------- Process Result -------------------
+  @override
+  String get approved => 'Aprovado';
+
+  @override
+  String get disqualified => 'Desclassificado';
+
+  @override
+  String get underReview => 'Em Análise';
+
+  @override
+  String get pending => 'Pendente';
+
+  /// ------------------- Enrollment Status -------------------
+  @override
+  String get withoutRegistration => 'Sem Matrícula';
+
+  @override
+  String get registered => 'Matriculado';
+
+  @override
+  String get inProcess => 'Em Processo';
+
+  /// ------------------- Process Card  -------------------
+  @override
+  String get schoolUnit => 'Unidade Escolar';
+
+  @override
+  String get course => 'Curso';
+
+  @override
+  String get processCode => 'Processo';
+
+  @override
+  String get viewButton => 'Visualizar';
+
+  @override
+  String get result => 'Resultado';
+
+  @override
+  String get enrollmentStatus => 'Status Matrícula';
+
+  @override
+  String get administrativeRegion => 'Região Administrativa';
+
+  @override
+  String get processCardNotice => 'Edital';
+
+  @override
+  String get processCardLevel => 'Nível';
+
+  @override
+  String get processCardScholarshipType => 'Tipo de Bolsa';
+
+  @override
+  String get processCardProcessType => 'Tipo de Inscrição';
+
+  @override
+  String get processCardStep => 'Etapa';
+
+  @override
+  String get processCardCandidateSingular => 'Candidato';
+
+  @override
+  String get processCardCandidatePlural => 'Candidatos';
+
+  @override
+  String get processCardDetaiButton => 'Detalhe';
+
+  /// ------------------- Process Card Banners  -------------------
+  @override
+  String get processCardBannerAttention => 'Atenção';
+
+  @override
+  String get processCardBannerPendindDocumentsSingular => 'Documento Pendente';
+
+  @override
+  String get processCardBannerPendindDocumentsPlural => 'Documentos Pendentes';
+
+  /// ------------------- Process Steps  -------------------
+  @override
+  String get processStepsInitial => '1/6 Iniciado';
+
+  @override
+  String get processStepsSecond => '2/6 Segundo';
+
+  @override
+  String get processStepsThird => '3/6 Third';
+
+  @override
+  String get processStepsVerification => '4/6 Conferência';
+
+  @override
+  String get processStepsFifth => '5/6 Fifth';
+
+  @override
+  String get processStepsCompleted => '6/6 Concluído';
+
+  /// ------------------- Processes Type -------------------
+  @override
+  String get newProcess => 'Nova Solicitação';
+
+  @override
+  String get renewProcess => 'Renovação';
+
   /// ------------------- End Drawer -------------------
   @override
   String get endDrawerTitle => 'Navegação';
@@ -462,4 +567,14 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
 
   @override
   String get endDrawerLogoutLabel => 'Sair';
+
+  /// ------------------- Nav Bar -------------------
+  @override
+  String get navBarHomeLabel => 'Home';
+
+  @override
+  String get navBarNoticesLabel => 'Editais';
+
+  @override
+  String get navBarProfileLabel => 'Perfil';
 }

@@ -135,10 +135,60 @@ abstract class AppI18n {
   String get homeImportantTitle;
   String get homeImportantMessage;
 
+  // Process result
+  String get approved;
+  String get disqualified;
+  String get underReview;
+  String get pending;
+
+  // Enrollment Status
+  String get withoutRegistration;
+  String get registered;
+  String get inProcess;
+
+  // Process Card
+  String get schoolUnit;
+  String get course;
+  String get processCode;
+  String get viewButton;
+  String get result;
+  String get enrollmentStatus;
+  String get administrativeRegion;
+  String get processCardNotice;
+  String get processCardLevel;
+  String get processCardScholarshipType;
+  String get processCardProcessType;
+  String get processCardStep;
+  String get processCardCandidateSingular;
+  String get processCardCandidatePlural;
+  String get processCardDetaiButton;
+
+  // Process Card Banners
+  String get processCardBannerAttention;
+  String get processCardBannerPendindDocumentsSingular;
+  String get processCardBannerPendindDocumentsPlural;
+
+  // Process Steps
+  String get processStepsInitial;
+  String get processStepsSecond;
+  String get processStepsThird;
+  String get processStepsVerification;
+  String get processStepsFifth;
+  String get processStepsCompleted;
+
+  // Processes Type
+  String get newProcess;
+  String get renewProcess;
+
   // End Drawer
   String get endDrawerTitle;
   String get endDrawerHomeLabel;
   String get endDrawerNoticesLabel;
   String get endDrawerProfileLabel;
   String get endDrawerLogoutLabel;
+
+  // Nav Bar
+  String get navBarHomeLabel;
+  String get navBarNoticesLabel;
+  String get navBarProfileLabel;
 }

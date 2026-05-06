@@ -3,6 +3,7 @@ export 'ebolsa_checkbox_item.dart';
 export 'ebolsa_cpf_field.dart';
 export 'ebolsa_end_drawer.dart';
 export 'ebolsa_error_banner.dart';
+export 'ebolsa_icon_button.dart';
 export 'ebolsa_important_banner.dart';
 export 'ebolsa_loading_button.dart';
 export 'ebolsa_nav_bar.dart';

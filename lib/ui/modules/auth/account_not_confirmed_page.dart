@@ -143,9 +143,7 @@ class _AccountNotConfirmedPageState extends State<AccountNotConfirmedPage> {
                         SizedBox(
                           height: 32,
                         ),
-                        SvgPicture.asset(
-                          'lib/ui/assets/images/account-not-confirmed.svg',
-                        ),
+                        SvgPicture.asset(AppImages.accountNotConfirmed),
                         SizedBox(
                           height: 32,
                         ),

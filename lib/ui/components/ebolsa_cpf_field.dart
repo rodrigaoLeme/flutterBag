@@ -12,6 +12,9 @@ class EbolsaCpfField extends StatefulWidget {
   final String? errorText;
   final void Function(String)? onChanged;
   final void Function(String)? onSubmitted;
+  final Color? borderColor;
+  final double borderWidth;
+  final double borderRadius;
 
   const EbolsaCpfField({
     super.key,
@@ -22,6 +25,9 @@ class EbolsaCpfField extends StatefulWidget {
     this.errorText,
     this.onChanged,
     this.onSubmitted,
+    this.borderColor,
+    this.borderWidth = 1.0,
+    this.borderRadius = 8.0,
   });
 
   @override
@@ -46,6 +52,9 @@ class _EbolsaCpfFieldState extends State<EbolsaCpfField> {
       inputFormatters: [_cpfMask],
       enabled: widget.enabled,
       errorText: widget.errorText,
+      borderColor: widget.borderColor,
+      borderWidth: widget.borderWidth,
+      borderRadius: widget.borderRadius,
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
     );
