@@ -200,6 +200,13 @@ abstract class AppI18n {
   String get profileMyDataEmail;
   String get profileMyDataPhone;
   String get profileMyDataSaveButton;
+  String get profileSaveSuccessTitle;
+  String get profileSaveSuccessDescription;
+  String get profileSaveSuccessDoneButton;
+  String get profileEmailChangedTitle;
+  String get profileEmailChangedDescription;
+  String get profileEmailChangedDoneButton;
+  String get profileSaveSuccess;
   String get profileChangePasswordTitle;
   String get profileChangePasswordSubtitle;
   String get profileChangePasswordNewPassword;

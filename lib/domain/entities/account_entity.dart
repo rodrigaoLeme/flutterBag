@@ -19,7 +19,7 @@ class AccountEntity {
     bool? emailConfirmed,
   }) {
     return AccountEntity(
-      name: name ?? this.email,
+      name: name ?? this.name,
       email: email ?? this.email,
       mobileNumber: mobileNumber ?? this.mobileNumber,
       emailConfirmed: emailConfirmed ?? this.emailConfirmed,

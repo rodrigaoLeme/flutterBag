@@ -1,6 +1,7 @@
 export 'ebolsa_button.dart';
 export 'ebolsa_checkbox_item.dart';
 export 'ebolsa_cpf_field.dart';
+export 'ebolsa_dialog.dart';
 export 'ebolsa_end_drawer.dart';
 export 'ebolsa_error_banner.dart';
 export 'ebolsa_icon_button.dart';
@@ -8,6 +9,7 @@ export 'ebolsa_important_banner.dart';
 export 'ebolsa_loading_button.dart';
 export 'ebolsa_nav_bar.dart';
 export 'ebolsa_phone_field.dart';
+export 'ebolsa_success_banner.dart';
 export 'ebolsa_text_button.dart';
 export 'ebolsa_text_field.dart';
 export 'ebolsa_year_selector.dart';

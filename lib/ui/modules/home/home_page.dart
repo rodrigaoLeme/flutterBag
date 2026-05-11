@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../../main/di/injection_container.dart';
 import '../../../main/factories/pages/notices_terms/notices_terms_page_factory.dart';
-import '../../../main/factories/pages/profile/profile_presenter_factory.dart';
+import '../../../main/factories/pages/profile/profile_page_factory.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../../share/current_account.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
 import '../notices_terms/notices_terms_page.dart';
 import '../notices_terms/notices_terms_presenter.dart';
-import '../profile/profile_page.dart';
-import '../profile/profile_presenter.dart';
 import 'home_tabs.dart';
 import 'processes_page.dart';
 
@@ -28,13 +26,11 @@ class _HomePageState extends State<HomePage> {
   HomeTab _currentTab = HomeTab.process;
 
   late final NoticesTermsPresenter _noticesPresenter;
-  late final ProfilePresenter _profilePresenter;
 
   @override
   void initState() {
     super.initState();
     _noticesPresenter = makeNoticesTermsPresenter();
-    _profilePresenter = makeProfilePresenter();
   }
 
   void _onTabSelected(HomeTab tab) {
@@ -76,9 +72,7 @@ class _HomePageState extends State<HomePage> {
             showAppBar: false,
           ),
           ProcessesPage(),
-          ProfilePage(
-            presenter: _profilePresenter,
-          ),
+          makeProfilePage(),
         ],
       ),
       bottomNavigationBar: EbolsaNavBar(

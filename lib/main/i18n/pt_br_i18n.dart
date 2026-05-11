@@ -602,6 +602,29 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get profileMyDataSaveButton => 'Salvar alterações';
 
   @override
+  String get profileSaveSuccessTitle => 'Sucesso';
+
+  @override
+  String get profileSaveSuccessDescription =>
+      'O telefone foi alterado com sucesso.';
+
+  @override
+  String get profileSaveSuccessDoneButton => 'Ok';
+
+  @override
+  String get profileEmailChangedTitle => 'Atenção';
+
+  @override
+  String get profileEmailChangedDescription =>
+      'O seu e-mail foi alterado com sucesso.\n\nEnviamos um e-mail de confirmação para o e-mail cadastrado.\n\nVerifique sua caixa de entrada e também a pasta de spam ou lixo eletrônico e clique no link de confirmação para ativar sua conta.\n\nVocê precisa confirmar seu e-mail para acessar o sistema.';
+
+  @override
+  String get profileEmailChangedDoneButton => 'Estou ciente!';
+
+  @override
+  String get profileSaveSuccess => 'Alterações realizadas com sucesso.';
+
+  @override
   String get profileChangePasswordTitle => 'Alterar senha';
 
   @override

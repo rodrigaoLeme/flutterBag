@@ -60,6 +60,22 @@ mixin UIErrorManager {
 }
 
 // ---------------------------------------------------------------------------
+// UISuccessManager
+// ---------------------------------------------------------------------------
+mixin UISuccessManager {
+  final StreamController<String?> _uiSuccessController =
+      StreamController<String?>.broadcast();
+
+  Stream<String?> get uiSuccessStream => _uiSuccessController.stream;
+
+  set uiSuccess(String? value) {
+    if (!_uiSuccessController.isClosed) {
+      _uiSuccessController.add(value);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // SessionManager
 // ---------------------------------------------------------------------------
 mixin SessionManager {
