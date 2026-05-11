@@ -4,16 +4,18 @@ import '../../../../presentation/presenters/auth/stream_forgot_password_presente
 import '../../../../presentation/presenters/auth/stream_login_presenter.dart';
 import '../../../../ui/modules/auth/auth_presenter.dart';
 import '../../http/http_factories.dart';
+import '../../usecases/account/update_contact_info_factory.dart';
 import '../../usecases/auth/auth_usecase_factories.dart';
 
 LoginPresenter makeLoginPresenter() => StreamLoginPresenter(
       loginUsecase: makeRemoteLogin(),
       secureStorage: makeSecureStorage(),
+      loadAccountUsecase: makeRemoteLoadAccount(),
     );
 
 AccountNotConfirmedPresenter makeAccountNotConfirmedPresenter() =>
     StreamAccountNotConfirmedPresenter(
-      sendEmailVerificationUseCase: makeRemoteSendEmailVerification(),
+      updateContactInfoUsecase: makeRemoteUpdateContactInfo(),
     );
 
 CreateAccountPresenter makeCreateAccountPresenter() =>

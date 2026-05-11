@@ -5,8 +5,10 @@ import '../../../data/http/http_client.dart';
 import '../../../data/models/auth/remote_auth_model.dart';
 import '../../../domain/entities/user_entity.dart';
 import '../../../domain/usecases/auth/auth_usecases.dart';
+import '../../../main/di/injection_container.dart';
 import '../../../main/flavors.dart';
 import '../../../main/i18n/app_i18n.dart';
+import '../../../share/current_account.dart';
 
 class RemoteLoginUsecase implements LoginUsecase {
   final HttpClient httpClient;
@@ -90,33 +92,6 @@ class RemoteLoginUsecase implements LoginUsecase {
   }
 }
 
-class RemoteSendEmailVerificationUseCase
-    implements SendEmailVerificationUseCase {
-  final HttpClient httpClient;
-
-  const RemoteSendEmailVerificationUseCase({required this.httpClient});
-
-  @override
-  Future<void> send(SendEmailVerificationParams params) async {
-    try {
-      await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/account/SendEmailVerification',
-        method: HttpMethod.get,
-        queryParameters: {'userId': params.userId},
-      );
-    } on ApiException catch (e) {
-      throw SendEmailVerificationException(
-        (e.title.isEmpty) ? e.title : AppI18n.current.errorUnexpected,
-      );
-    } on HttpError catch (e) {
-      if (e == HttpError.noConnectivity) {
-        throw SendEmailVerificationException(AppI18n.current.errorNoInternet);
-      }
-      throw SendEmailVerificationException(AppI18n.current.errorUnexpected);
-    }
-  }
-}
-
 class RemoteCreateAccountUsecase implements CreateAccountUsecase {
   final HttpClient httpClient;
   final SecureStorage secureStorage;
@@ -154,6 +129,10 @@ class RemoteCreateAccountUsecase implements CreateAccountUsecase {
       await secureStorage.save(
         key: StorageKeys.refreshToken,
         value: model.refreshToken,
+      );
+      await secureStorage.save(
+        key: StorageKeys.userCpf,
+        value: params.cpf,
       );
 
       return model.toEntity();
@@ -251,6 +230,8 @@ class RemoteLogoutUsecase implements LogoutUsecase {
       await secureStorage.delete(key: StorageKeys.accessToken);
       await secureStorage.delete(key: StorageKeys.refreshToken);
       await secureStorage.delete(key: StorageKeys.refreshTokenExpiryTime);
+      await secureStorage.delete(key: StorageKeys.userCpf);
+      sl<CurrentAccount>().clear;
     }
   }
 }

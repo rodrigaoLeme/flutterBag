@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../main/di/injection_container.dart';
 import '../../../main/i18n/app_i18n.dart';
+import '../../../share/current_account.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
 import 'profile_presenter.dart';
@@ -15,11 +17,14 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final String _fullCpf = '123.456.789-10';
+  final String _fullCpf = sl<CurrentAccount>().userCpf;
   late final TextEditingController _cpfController;
-  final _nameController = TextEditingController(text: 'Ana Julia da Silva');
-  final _emailController = TextEditingController(text: 'ana@email.com');
-  final _phoneController = TextEditingController(text: '19 9999-8888');
+  final _nameController =
+      TextEditingController(text: sl<CurrentAccount>().name);
+  final _emailController =
+      TextEditingController(text: sl<CurrentAccount>().email);
+  final _phoneController =
+      TextEditingController(text: sl<CurrentAccount>().mobileNumber);
 
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
@@ -67,13 +72,13 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             const SizedBox(height: 8),
             Text(
-              'Meus dados',
+              appStrings.profileMyDataTitle,
               style: AppTextStyles.titleLarge,
               selectionColor: AppColors.textSecondaryLight,
             ),
             const SizedBox(height: 8),
             Text(
-              'Confira suas informações de contato e identificação.',
+              appStrings.profileMyDataSubtitle,
               style: AppTextStyles.bodyMedium,
               selectionColor: AppColors.textSecondaryLight,
             ),
@@ -88,7 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 16),
             EbolsaTextField(
               controller: _nameController,
-              label: 'Nome',
+              label: appStrings.profileMyDataName,
               enabled: false,
               borderWidth: 1,
               borderColor: AppColors.secondary,
@@ -97,35 +102,31 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 16),
             EbolsaTextField(
               controller: _emailController,
-              label: 'E-mail',
+              label: appStrings.profileMyDataEmail,
               keyboardType: TextInputType.emailAddress,
               borderWidth: 1,
               borderColor: AppColors.secondary,
               borderRadius: 16,
             ),
             const SizedBox(height: 16),
-            EbolsaTextField(
+            EbolsaPhoneField(
               controller: _phoneController,
-              label: 'Telefone',
-              keyboardType: TextInputType.phone,
-              borderWidth: 1,
-              borderColor: AppColors.secondary,
-              borderRadius: 16,
+              label: appStrings.profileMyDataPhone,
+              //errorText: vm.fieldError('phone'),
             ),
             const SizedBox(height: 20),
-            EbolsaButton(
+            EbolsaLoadingButton(
               onPressed: () {},
-              label: 'Salvar alterações',
-              isSecondary: true,
+              label: appStrings.profileMyDataSaveButton,
             ),
             const SizedBox(height: 32),
             Text(
-              'Alterar senha',
+              appStrings.profileChangePasswordTitle,
               style: AppTextStyles.titleLarge,
             ),
             const SizedBox(height: 8),
             Text(
-              'Mantenha sua conta segura. Se precisar, você pode criar uma nova senha de acesso clicando abaixo.',
+              appStrings.profileChangePasswordSubtitle,
               style: AppTextStyles.bodyMedium,
             ),
             const SizedBox(height: 12),
@@ -149,7 +150,7 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 12),
             EbolsaTextField(
               controller: _newPasswordController,
-              label: 'Nova senha',
+              label: appStrings.profileChangePasswordNewPassword,
               obscureText: true,
               borderWidth: 1,
               borderColor: AppColors.secondary,
@@ -158,7 +159,7 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 12),
             EbolsaTextField(
               controller: _confirmPasswordController,
-              label: 'Confirme nova senha',
+              label: appStrings.profileChangePasswordConfirmNewPassword,
               obscureText: true,
               borderWidth: 1,
               borderColor: AppColors.secondary,
@@ -167,7 +168,7 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 20),
             EbolsaButton(
               onPressed: () {},
-              label: 'Alterar senha',
+              label: appStrings.profileChangePasswordButton,
               isSecondary: true,
             ),
             const SizedBox(height: 48),

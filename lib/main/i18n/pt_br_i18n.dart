@@ -419,6 +419,9 @@ class PtBrI18n implements AppI18n {
 
   /// ------------------- Home -------------------
   @override
+  String get homeWelcome => 'Olá,';
+
+  @override
   String get homeTitle => 'Processos';
 
   @override
@@ -577,4 +580,40 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
 
   @override
   String get navBarProfileLabel => 'Perfil';
+
+  /// ------------------- Profile -------------------
+  @override
+  String get profileMyDataTitle => 'Meus dados';
+
+  @override
+  String get profileMyDataSubtitle =>
+      'Confira suas informações de contato e identificação.';
+
+  @override
+  String get profileMyDataName => 'Nome';
+
+  @override
+  String get profileMyDataEmail => 'E-mail';
+
+  @override
+  String get profileMyDataPhone => 'Telefone';
+
+  @override
+  String get profileMyDataSaveButton => 'Salvar alterações';
+
+  @override
+  String get profileChangePasswordTitle => 'Alterar senha';
+
+  @override
+  String get profileChangePasswordSubtitle =>
+      'Mantenha sua conta segura. Se precisar, você pode criar uma nova senha de acesso clicando abaixo.';
+
+  @override
+  String get profileChangePasswordNewPassword => 'Nova senha';
+
+  @override
+  String get profileChangePasswordConfirmNewPassword => 'Confirme nova senha';
+
+  @override
+  String get profileChangePasswordButton => 'Alterar senha';
 }

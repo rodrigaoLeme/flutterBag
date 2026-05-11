@@ -24,6 +24,6 @@ abstract class ForgotPasswordPresenter {
 abstract class AccountNotConfirmedPresenter {
   Stream<AuthViewModel?> get viewModel;
   void validateEmail(String email);
-  Future<void> sendEmailVerification(SendEmailVerificationParams params);
+  Future<void> updateContactInfo(String email);
   void dispose();
 }

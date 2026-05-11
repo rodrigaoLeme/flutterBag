@@ -1,3 +1,4 @@
+import '../../entities/account_entity.dart';
 import '../../entities/user_entity.dart';
 
 class LoginUsecaseParams {
@@ -38,6 +39,10 @@ class ForgotPasswordUsecaseParams {
 
 abstract class LoginUsecase {
   Future<UserEntity> login(LoginUsecaseParams params);
+}
+
+abstract class LoadAccountUsecase {
+  Future<AccountEntity> load();
 }
 
 abstract class CreateAccountUsecase {
@@ -98,21 +103,6 @@ class AccountAlreadyExistsException implements Exception {
   const AccountAlreadyExistsException([this.message = '']);
 }
 
-class SendEmailVerificationParams {
-  final String userId;
-  const SendEmailVerificationParams({required this.userId});
-}
-
-abstract class SendEmailVerificationUseCase {
-  Future<void> send(SendEmailVerificationParams params);
-}
-
 class EmailNotConfirmedException implements Exception {
   const EmailNotConfirmedException();
-}
-
-class SendEmailVerificationException implements Exception {
-  final String message;
-
-  const SendEmailVerificationException(this.message);
 }

@@ -1,5 +1,6 @@
 import '../../../../domain/usecases/auth/auth_usecases.dart';
 import '../../../../infra/repositories/auth/remote_auth_usecases.dart';
+import '../../../../infra/repositories/auth/remote_load_account_usecase.dart';
 import '../../http/http_factories.dart';
 
 // Casos de uso são stateless: recebem os singletons de infraestrutura
@@ -10,14 +11,12 @@ LoginUsecase makeRemoteLogin() => RemoteLoginUsecase(
       secureStorage: makeSecureStorage(),
     );
 
+LoadAccountUsecase makeRemoteLoadAccount() => RemoteLoadAccountUsecase(
+      httpClient: makeAuthorizeHttpClientDecorator(),
+    );
 CreateAccountUsecase makeRemoteCreateAccount() => RemoteCreateAccountUsecase(
       httpClient: makeDioAdapter(),
       secureStorage: makeSecureStorage(),
-    );
-
-SendEmailVerificationUseCase makeRemoteSendEmailVerification() =>
-    RemoteSendEmailVerificationUseCase(
-      httpClient: makeDioAdapter(),
     );
 
 ForgotPasswordUsecase makeRemoteForgotPassword() =>

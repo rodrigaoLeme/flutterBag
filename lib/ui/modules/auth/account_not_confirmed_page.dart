@@ -5,9 +5,11 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../../domain/usecases/auth/auth_usecases.dart';
+import '../../../data/cache/cache.dart';
+import '../../../main/di/injection_container.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../../main/routes/auth_routes.dart';
+import '../../../main/routes/routes.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
 import 'auth_presenter.dart';
@@ -54,9 +56,7 @@ class _AccountNotConfirmedPageState extends State<AccountNotConfirmedPage> {
       (vm) {
         if (vm == null) return;
         if (vm.isValid) {
-          widget.presenter.sendEmailVerification(
-            SendEmailVerificationParams(userId: _emailController.text.trim()),
-          );
+          widget.presenter.updateContactInfo(_emailController.text.trim());
         }
         if (vm.isSuccess) {
           _showDialogInfo();
@@ -108,9 +108,13 @@ class _AccountNotConfirmedPageState extends State<AccountNotConfirmedPage> {
         ),
         actions: [
           EbolsaTextButton(
-            onPressed: () {
+            onPressed: () async {
+              await sl<SecureStorage>().delete(
+                key: StorageKeys.emailConfirmationPending,
+              );
+              // ignore: use_build_context_synchronously
               Navigator.pop(context);
-              Modular.to.navigate(AuthRoutes.login);
+              Modular.to.navigate(Routes.splash);
             },
             label: appStrings.accountNotConfirmedDialogDoneButton,
           ),
@@ -121,74 +125,82 @@ class _AccountNotConfirmedPageState extends State<AccountNotConfirmedPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: StreamBuilder<AuthViewModel?>(
-                stream: widget.presenter.viewModel,
-                initialData: const AuthViewModel.initial(),
-                builder: (context, snapshot) {
-                  final vm = snapshot.data ?? const AuthViewModel.initial();
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 32),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: 32,
-                        ),
-                        SvgPicture.asset(AppImages.accountNotConfirmed),
-                        SizedBox(
-                          height: 32,
-                        ),
-                        Text(
-                          appStrings.accountNotConfirmedTitle,
-                          style: AppTextStyles.titleMedium.copyWith(
-                            fontSize: 22,
-                            color: AppColors.textSecondaryLight,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) Modular.to.navigate(AuthRoutes.login);
+      },
+      child: Scaffold(
+        appBar: AppBar(),
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child: StreamBuilder<AuthViewModel?>(
+                  stream: widget.presenter.viewModel,
+                  initialData: const AuthViewModel.initial(),
+                  builder: (context, snapshot) {
+                    final vm = snapshot.data ?? const AuthViewModel.initial();
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 32),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 32,
                           ),
-                        ),
-                        SizedBox(
-                          height: 16,
-                        ),
-                        _accountNotConfirmedDescription,
-                        SizedBox(
-                          height: 24,
-                        ),
-                        EbolsaTextField(
-                          controller: _emailController,
-                          label: appStrings.authEmailLabel,
-                          hint: appStrings.authEmailLabel,
-                          errorText: vm.fieldError('email'),
-                          keyboardType: TextInputType.emailAddress,
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                          SvgPicture.asset(AppImages.accountNotConfirmed),
+                          SizedBox(
+                            height: 32,
+                          ),
+                          Text(
+                            appStrings.accountNotConfirmedTitle,
+                            style: AppTextStyles.titleMedium.copyWith(
+                              fontSize: 22,
+                              color: AppColors.textSecondaryLight,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 16,
+                          ),
+                          _accountNotConfirmedDescription,
+                          SizedBox(
+                            height: 24,
+                          ),
+                          if (vm.errorMessage != null)
+                            EbolsaErrorBanner(message: vm.errorMessage!),
+                          EbolsaTextField(
+                            controller: _emailController,
+                            label: appStrings.authEmailLabel,
+                            hint: appStrings.authEmailLabel,
+                            errorText: vm.fieldError('email'),
+                            keyboardType: TextInputType.emailAddress,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-            StreamBuilder(
-                stream: widget.presenter.viewModel,
-                initialData: const AuthViewModel.initial(),
-                builder: (context, snapshot) {
-                  final vm = snapshot.data ?? const AuthViewModel.initial();
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: EbolsaLoadingButton(
-                      onPressed: vm.isLoading ? null : _onResendPressed,
-                      isLoading: vm.isLoading,
-                      label: appStrings.accountNotConfirmedResendEmailButton,
-                    ),
-                  );
-                }),
-          ],
+              StreamBuilder(
+                  stream: widget.presenter.viewModel,
+                  initialData: const AuthViewModel.initial(),
+                  builder: (context, snapshot) {
+                    final vm = snapshot.data ?? const AuthViewModel.initial();
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: EbolsaLoadingButton(
+                        onPressed: vm.isLoading ? null : _onResendPressed,
+                        isLoading: vm.isLoading,
+                        label: appStrings.accountNotConfirmedResendEmailButton,
+                      ),
+                    );
+                  }),
+            ],
+          ),
         ),
       ),
     );

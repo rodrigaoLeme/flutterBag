@@ -26,6 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   late StreamSubscription<bool> _sessionExpiredSubscription;
+  late StreamSubscription<AuthViewModel?> _viewModelSubscription;
 
   @override
   void initState() {
@@ -38,11 +39,24 @@ class _LoginPageState extends State<LoginPage> {
         widget.presenter.isSessionExpiredStream.listen((_) {
       Modular.to.navigate(AuthRoutes.login);
     });
+
+    _viewModelSubscription = widget.presenter.viewModel.listen((vm) {
+      if (vm == null) return;
+      if (vm.isEmailNotConfirmed) {
+        Modular.to.navigate(AuthRoutes.accountNotConfirmed);
+        return;
+      }
+
+      if (vm.isSuccess && vm.loginRoute != null) {
+        Modular.to.navigate(vm.loginRoute!);
+      }
+    });
   }
 
   @override
   void dispose() {
     _sessionExpiredSubscription.cancel();
+    _viewModelSubscription.cancel();
     _identifierController.dispose();
     _passwordController.dispose();
     widget.presenter.dispose();
@@ -74,15 +88,15 @@ class _LoginPageState extends State<LoginPage> {
                 builder: (context, snapshot) {
                   final vm = snapshot.data ?? const AuthViewModel.initial();
 
-                  if (vm.isSuccess && vm.loginRoute != null) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      Modular.to.navigate(vm.loginRoute!);
-                    });
-                  }
-
                   if (vm.isEmailNotConfirmed) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       Modular.to.pushNamed(AuthRoutes.accountNotConfirmed);
+                    });
+                  }
+
+                  if (vm.isSuccess && vm.loginRoute != null) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      Modular.to.navigate(vm.loginRoute!);
                     });
                   }
 
@@ -148,15 +162,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   );
                 },
-              ),
-            ),
-            //TODO: Remover esse botão
-            Align(
-              alignment: Alignment.center,
-              child: EbolsaTextButton(
-                onPressed: () =>
-                    Modular.to.pushNamed(AuthRoutes.accountNotConfirmed),
-                label: 'Teste email não confirmado',
               ),
             ),
             Align(

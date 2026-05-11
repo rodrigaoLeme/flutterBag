@@ -1,36 +1,25 @@
 import 'dart:async';
 
-import '../../../domain/usecases/auth/auth_usecases.dart';
+import '../../../domain/usecases/account/update_contact_info.dart';
+import '../../../infra/repositories/account/remote_update_contact_info.dart';
+import '../../../main/di/injection_container.dart';
 import '../../../main/i18n/app_i18n.dart';
+import '../../../share/current_account.dart';
 import '../../../ui/modules/auth/auth_presenter.dart';
 import '../../../ui/modules/auth/auth_view_model.dart';
 
 class StreamAccountNotConfirmedPresenter
     implements AccountNotConfirmedPresenter {
-  final SendEmailVerificationUseCase sendEmailVerificationUseCase;
+  final UpdateContactInfoUsecase updateContactInfoUsecase;
 
   StreamAccountNotConfirmedPresenter({
-    required this.sendEmailVerificationUseCase,
+    required this.updateContactInfoUsecase,
   });
 
   final _viewModelController = StreamController<AuthViewModel?>.broadcast();
 
   @override
   Stream<AuthViewModel?> get viewModel => _viewModelController.stream;
-
-  @override
-  Future<void> sendEmailVerification(SendEmailVerificationParams params) async {
-    _emit(const AuthViewModel.loading());
-
-    try {
-      await sendEmailVerificationUseCase.send(params);
-      _emit(const AuthViewModel.success());
-    } on SendEmailVerificationException catch (e) {
-      _emit(const AuthViewModel().withError(e.message));
-    } catch (_) {
-      _emit(const AuthViewModel().withError(AppI18n.current.errorUnexpected));
-    }
-  }
 
   @override
   void validateEmail(String email) {
@@ -42,6 +31,25 @@ class StreamAccountNotConfirmedPresenter
       return;
     }
     _emit(const AuthViewModel.valid()); // ← isValid: true
+  }
+
+  @override
+  Future<void> updateContactInfo(String email) async {
+    _emit(const AuthViewModel.loading());
+
+    try {
+      await updateContactInfoUsecase.update(
+        UpdateContactInfoParams(
+          email: email.trim().toLowerCase(),
+          mobileNumber: sl<CurrentAccount>().mobileNumber,
+        ),
+      );
+      _emit(const AuthViewModel.success());
+    } on UpdateContactInfoException catch (e) {
+      _emit(AuthViewModel().withError(e.message));
+    } catch (_) {
+      _emit(AuthViewModel().withError(AppI18n.current.errorUnexpected));
+    }
   }
 
   void _emit(AuthViewModel vm) {

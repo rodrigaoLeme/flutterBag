@@ -126,6 +126,7 @@ abstract class AppI18n {
   String get onboardingEnterAction;
 
   // Home
+  String get homeWelcome;
   String get homeTitle;
   String get homeSubtitleEmptyProcess;
   String get homeSubtitleProcessInProgress;
@@ -191,4 +192,17 @@ abstract class AppI18n {
   String get navBarHomeLabel;
   String get navBarNoticesLabel;
   String get navBarProfileLabel;
+
+  // Profile Page
+  String get profileMyDataTitle;
+  String get profileMyDataSubtitle;
+  String get profileMyDataName;
+  String get profileMyDataEmail;
+  String get profileMyDataPhone;
+  String get profileMyDataSaveButton;
+  String get profileChangePasswordTitle;
+  String get profileChangePasswordSubtitle;
+  String get profileChangePasswordNewPassword;
+  String get profileChangePasswordConfirmNewPassword;
+  String get profileChangePasswordButton;
 }

@@ -1,19 +1,28 @@
 import 'dart:async';
 
 import '../../../data/cache/cache.dart';
+import '../../../domain/entities/account_entity.dart';
+import '../../../domain/usecases/auth/auth_usecases.dart';
+import '../../../main/di/injection_container.dart';
+import '../../../main/routes/auth_routes.dart';
 import '../../../main/routes/routes.dart';
+import '../../../share/current_account.dart';
 import '../../../share/utils/jwt_decoder.dart';
 import '../../../ui/modules/splash/splash_presenter.dart';
 
 class StreamSplashPresenter implements SplashPresenter {
   final SecureStorage secureStorage;
+  final LoadAccountUsecase loadAccountUsecase;
 
   static const Duration minDuration = Duration(seconds: 3);
   static const Duration firstStageDuration = Duration(milliseconds: 1200);
   static const Duration crossFadeDuration = Duration(milliseconds: 700);
   static const Duration fadeDuration = Duration(milliseconds: 700);
 
-  StreamSplashPresenter({required this.secureStorage});
+  StreamSplashPresenter({
+    required this.secureStorage,
+    required this.loadAccountUsecase,
+  });
 
   final _navigationController = StreamController<String?>.broadcast();
   final _showSecondLogoController = StreamController<bool>.broadcast();
@@ -60,11 +69,11 @@ class StreamSplashPresenter implements SplashPresenter {
           if (refreshToken == null || refreshToken.isEmpty) {
             await _clearSessionOnly();
           } else {
-            await _fadeOutAndNavigate(Routes.home);
+            await _loadAccountAndNavigate();
             return;
           }
         } else {
-          await _fadeOutAndNavigate(Routes.home);
+          await _loadAccountAndNavigate();
           return;
         }
       }
@@ -74,6 +83,37 @@ class StreamSplashPresenter implements SplashPresenter {
       await _fadeOutAndNavigate(
           hasSeen == 'true' ? Routes.login : Routes.onboarding);
     } catch (_) {
+      await _fadeOutAndNavigate(Routes.login);
+    }
+  }
+
+  Future<void> _loadAccountAndNavigate() async {
+    try {
+      final account = await loadAccountUsecase.load();
+      final saveCpf = await secureStorage.fetch(key: StorageKeys.userCpf) ?? '';
+
+      sl<CurrentAccount>().set(
+        AccountEntity(
+          name: account.name,
+          email: account.email,
+          mobileNumber: account.mobileNumber,
+          emailConfirmed: account.emailConfirmed,
+          cpf: saveCpf,
+        ),
+      );
+
+      final isPending = await secureStorage.fetch(
+        key: StorageKeys.emailConfirmationPending,
+      );
+
+      if (isPending == 'true' || !account.emailConfirmed) {
+        await _fadeOutAndNavigate(AuthRoutes.accountNotConfirmed);
+        return;
+      }
+
+      await _fadeOutAndNavigate(Routes.home);
+    } catch (_) {
+      await _clearSessionOnly();
       await _fadeOutAndNavigate(Routes.login);
     }
   }

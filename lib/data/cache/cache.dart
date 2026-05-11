@@ -17,4 +17,6 @@ class StorageKeys {
   static const refreshToken = 'refresh_token';
   static const refreshTokenExpiryTime = 'refresh_token_expiry_time';
   static const hasSeenTutorial = 'has_seen_tutorial';
+  static const emailConfirmationPending = 'email_confirmation_pending';
+  static const userCpf = 'user_cpf';
 }

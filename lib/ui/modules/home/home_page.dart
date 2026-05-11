@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../main/di/injection_container.dart';
 import '../../../main/factories/pages/notices_terms/notices_terms_page_factory.dart';
 import '../../../main/factories/pages/profile/profile_presenter_factory.dart';
 import '../../../main/i18n/app_i18n.dart';
+import '../../../share/current_account.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
 import '../notices_terms/notices_terms_page.dart';
@@ -50,7 +52,7 @@ class _HomePageState extends State<HomePage> {
         ),
         centerTitle: false,
         title: Text(
-          'Olá, Maria!',
+          '${appStrings.homeWelcome} ${sl<CurrentAccount>().name.split(' ').first}!',
           style: AppTextStyles.titleLarge.copyWith(
             fontSize: 22,
           ),

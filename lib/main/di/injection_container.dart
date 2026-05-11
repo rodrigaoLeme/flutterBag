@@ -3,8 +3,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../data/cache/cache.dart';
+import '../../domain/usecases/auth/auth_usecases.dart';
 import '../../infra/cache/storage_adapters.dart';
 import '../../infra/http/dio_adapter.dart';
+import '../../infra/repositories/auth/remote_load_account_usecase.dart';
+import '../../share/current_account.dart';
 import '../decorators/authorize_http_client_decorator.dart';
 import '../flavors.dart';
 
@@ -43,6 +46,16 @@ void setupInjection() {
     () => AuthorizeHttpClientDecorator(
       decoratee: sl<DioAdapter>(),
       secureStorage: sl<SecureStorage>(),
+    ),
+  );
+
+  // Singleton de usuário logado
+  sl.registerLazySingleton<CurrentAccount>(() => CurrentAccount());
+
+  // Usecase de carregar account - usa o cliente autenticado
+  sl.registerLazySingleton<LoadAccountUsecase>(
+    () => RemoteLoadAccountUsecase(
+      httpClient: sl<AuthorizeHttpClientDecorator>(),
     ),
   );
 }
