@@ -31,6 +31,7 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _obscurePassword = true;
 
   late StreamSubscription<ProfileViewModel?> _viewModelSubscription;
+  late StreamSubscription<String?> _successSubscription;
   late final String _originalEmail;
 
   final appStrings = AppI18n.current;
@@ -52,17 +53,17 @@ class _ProfilePageState extends State<ProfilePage> {
         _phoneController.text = vm.formattedPhone;
         _originalEmail = vm.email;
       }
+    });
 
-      widget.presenter.uiSuccessStream.listen((_) {
-        final emailChanged = _emailController.text.trim().toLowerCase() !=
-            _originalEmail.trim().toLowerCase();
+    _successSubscription = widget.presenter.uiSuccessStream.listen((_) {
+      final emailChanged = _emailController.text.trim().toLowerCase() !=
+          _originalEmail.trim().toLowerCase();
 
-        if (emailChanged) {
-          _showEmailChangedDialog();
-        } else {
-          _showSuccessDialog();
-        }
-      });
+      if (emailChanged) {
+        _showEmailChangedDialog();
+      } else {
+        _showSuccessDialog();
+      }
     });
 
     widget.presenter.loadData();
@@ -78,6 +79,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     _viewModelSubscription.cancel();
+    _successSubscription.cancel();
     widget.presenter.dispose();
     super.dispose();
   }
