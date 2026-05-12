@@ -219,19 +219,10 @@ class RemoteLogoutUsecase implements LogoutUsecase {
 
   @override
   Future<void> logout() async {
-    try {
-      await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/auth/logout',
-        method: HttpMethod.post,
-      );
-    } catch (_) {
-      // Segue limpando sessão local mesmo com erro na API
-    } finally {
-      await secureStorage.delete(key: StorageKeys.accessToken);
-      await secureStorage.delete(key: StorageKeys.refreshToken);
-      await secureStorage.delete(key: StorageKeys.refreshTokenExpiryTime);
-      await secureStorage.delete(key: StorageKeys.userCpf);
-      sl<CurrentAccount>().clear;
-    }
+    await secureStorage.delete(key: StorageKeys.accessToken);
+    await secureStorage.delete(key: StorageKeys.refreshToken);
+    await secureStorage.delete(key: StorageKeys.refreshTokenExpiryTime);
+    await secureStorage.delete(key: StorageKeys.userCpf);
+    sl<CurrentAccount>().clear;
   }
 }

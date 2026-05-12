@@ -39,7 +39,7 @@ class EbolsaDialog extends StatelessWidget {
     return showDialog(
       context: context,
       barrierDismissible: barrierDismissible,
-      builder: (_) => EbolsaDialog(
+      builder: (dialogContext) => EbolsaDialog(
         title: title,
         description: description,
         actions: actions,
@@ -57,17 +57,23 @@ class EbolsaDialog extends StatelessWidget {
       ),
       content: Text(
         description,
-        style: AppTextStyles.titleMedium,
+        style: AppTextStyles.bodyMedium,
       ),
       actions: actions
           .map(
             (action) => action.isPrimary
                 ? EbolsaButton(
-                    onPressed: action.onPressed,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      action.onPressed();
+                    },
                     label: action.label,
                   )
                 : EbolsaTextButton(
-                    onPressed: action.onPressed,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      action.onPressed();
+                    },
                     label: action.label,
                   ),
           )

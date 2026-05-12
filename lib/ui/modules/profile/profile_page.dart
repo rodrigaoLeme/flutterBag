@@ -1,9 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 
+import '../../../main/di/injection_container.dart';
 import '../../../main/i18n/app_i18n.dart';
+import '../../../main/routes/auth_routes.dart';
 import '../../../presentation/mixins/mixins.dart';
+import '../../../share/current_account.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
 import 'profile_presenter.dart';
@@ -31,8 +35,8 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _obscurePassword = true;
 
   late StreamSubscription<ProfileViewModel?> _viewModelSubscription;
-  late StreamSubscription<String?> _successSubscription;
-  late final String _originalEmail;
+  String _originalEmail = '';
+  bool successChangeEmail = false;
 
   final appStrings = AppI18n.current;
 
@@ -55,15 +59,9 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     });
 
-    _successSubscription = widget.presenter.uiSuccessStream.listen((_) {
-      final emailChanged = _emailController.text.trim().toLowerCase() !=
-          _originalEmail.trim().toLowerCase();
-
-      if (emailChanged) {
-        _showEmailChangedDialog();
-      } else {
-        _showSuccessDialog();
-      }
+    widget.presenter.isSessionExpiredStream.listen((_) {
+      sl<CurrentAccount>().clear();
+      Modular.to.navigate(AuthRoutes.login);
     });
 
     widget.presenter.loadData();
@@ -79,7 +77,6 @@ class _ProfilePageState extends State<ProfilePage> {
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     _viewModelSubscription.cancel();
-    _successSubscription.cancel();
     widget.presenter.dispose();
     super.dispose();
   }
@@ -89,21 +86,6 @@ class _ProfilePageState extends State<ProfilePage> {
     widget.presenter.validateAndSave(
       email: _emailController.text,
       phone: _phoneController.text,
-    );
-  }
-
-  void _showSuccessDialog() {
-    EbolsaDialog.show(
-      context: context,
-      title: appStrings.profileSaveSuccessTitle,
-      description: appStrings.profileSaveSuccessDescription,
-      actions: [
-        EbolsaDialogAction(
-          label: appStrings.profileSaveSuccessDoneButton,
-          isPrimary: true,
-          onPressed: () => Navigator.pop(context),
-        ),
-      ],
     );
   }
 
@@ -117,8 +99,7 @@ class _ProfilePageState extends State<ProfilePage> {
           label: appStrings.profileEmailChangedDoneButton,
           isPrimary: true,
           onPressed: () async {
-            Navigator.pop(context);
-            await widget.presenter.logout();
+            Modular.to.navigate(AuthRoutes.login);
           },
         )
       ],
@@ -127,148 +108,182 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: StreamBuilder<ProfileViewModel?>(
-          stream: widget.presenter.viewModel,
-          initialData: const ProfileViewModel.empty(),
-          builder: (context, snapshot) {
-            final vm = snapshot.data ?? const ProfileViewModel.empty();
-            return StreamBuilder<LoadingData?>(
-                stream: widget.presenter.isLoadingStream,
-                builder: (context, loadingSnapshot) {
-                  final isLoading = loadingSnapshot.data?.isLoading ?? false;
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const SizedBox(height: 8),
-                        Text(
-                          appStrings.profileMyDataTitle,
-                          style: AppTextStyles.titleLarge,
-                          selectionColor: AppColors.textSecondaryLight,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          appStrings.profileMyDataSubtitle,
-                          style: AppTextStyles.bodyMedium,
-                          selectionColor: AppColors.textSecondaryLight,
-                        ),
-                        const SizedBox(height: 16),
-                        EbolsaCpfField(
-                          controller: _cpfController,
-                          enabled: false,
-                          borderWidth: 1,
-                          borderColor: AppColors.secondary,
-                          borderRadius: 16,
-                        ),
-                        const SizedBox(height: 16),
-                        EbolsaTextField(
-                          controller: _nameController,
-                          label: appStrings.profileMyDataName,
-                          enabled: false,
-                          borderWidth: 1,
-                          borderColor: AppColors.secondary,
-                          borderRadius: 16,
-                        ),
-                        const SizedBox(height: 16),
-                        EbolsaTextField(
-                          controller: _emailController,
-                          label: appStrings.profileMyDataEmail,
-                          keyboardType: TextInputType.emailAddress,
-                          enabled: !isLoading,
-                          borderWidth: 1,
-                          borderColor: AppColors.secondary,
-                          borderRadius: 16,
-                          errorText: vm.emailError,
-                        ),
-                        const SizedBox(height: 16),
-                        EbolsaPhoneField(
-                          controller: _phoneController,
-                          label: appStrings.profileMyDataPhone,
-                          enabled: !isLoading,
-                          errorText: vm.phoneError,
-                        ),
-                        const SizedBox(height: 20),
-                        StreamBuilder<String?>(
-                            stream: widget.presenter.uiErrorStream,
-                            builder: (context, errorSnapshot) {
-                              if (errorSnapshot.data != null) {
-                                return Column(
-                                  children: [
-                                    EbolsaErrorBanner(
-                                        message: errorSnapshot.data!),
-                                    const SizedBox(height: 12),
-                                  ],
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            }),
-                        EbolsaLoadingButton(
-                          onPressed: isLoading ? null : _onSave,
-                          isLoading: isLoading,
-                          label: appStrings.profileMyDataSaveButton,
-                        ),
-                        const SizedBox(height: 32),
-                        Text(
-                          appStrings.profileChangePasswordTitle,
-                          style: AppTextStyles.titleLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          appStrings.profileChangePasswordSubtitle,
-                          style: AppTextStyles.bodyMedium,
-                        ),
-                        const SizedBox(height: 12),
-                        EbolsaTextField(
-                          controller: _currentPasswordController,
-                          label: appStrings.authPasswordLabel,
-                          obscureText: _obscurePassword,
-                          borderWidth: 1,
-                          borderColor: AppColors.secondary,
-                          borderRadius: 16,
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                            ),
-                            onPressed: () => setState(
-                                () => _obscurePassword = !_obscurePassword),
+    return StreamBuilder<String?>(
+        stream: widget.presenter.uiSuccessStream,
+        builder: (context, successSnapshot) {
+          if (successSnapshot.hasData && successSnapshot.data != null) {
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) {
+                if (!mounted) return;
+
+                final emailChanged =
+                    _emailController.text.trim().toLowerCase() !=
+                        _originalEmail.trim().toLowerCase();
+
+                if (emailChanged) {
+                  _showEmailChangedDialog();
+                }
+              },
+            );
+          }
+          return Scaffold(
+            body: StreamBuilder<ProfileViewModel?>(
+                stream: widget.presenter.viewModel,
+                initialData: const ProfileViewModel.empty(),
+                builder: (context, snapshot) {
+                  final vm = snapshot.data ?? const ProfileViewModel.empty();
+                  return StreamBuilder<LoadingData?>(
+                      stream: widget.presenter.isLoadingStream,
+                      builder: (context, loadingSnapshot) {
+                        final isLoading =
+                            loadingSnapshot.data?.isLoading ?? false;
+                        return SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const SizedBox(height: 8),
+                              Text(
+                                appStrings.profileMyDataTitle,
+                                style: AppTextStyles.titleLarge,
+                                selectionColor: AppColors.textSecondaryLight,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                appStrings.profileMyDataSubtitle,
+                                style: AppTextStyles.bodyMedium,
+                                selectionColor: AppColors.textSecondaryLight,
+                              ),
+                              const SizedBox(height: 16),
+                              EbolsaCpfField(
+                                controller: _cpfController,
+                                enabled: false,
+                                borderWidth: 1,
+                                borderColor: AppColors.secondary,
+                                borderRadius: 16,
+                              ),
+                              const SizedBox(height: 16),
+                              EbolsaTextField(
+                                controller: _nameController,
+                                label: appStrings.profileMyDataName,
+                                enabled: false,
+                                borderWidth: 1,
+                                borderColor: AppColors.secondary,
+                                borderRadius: 16,
+                              ),
+                              const SizedBox(height: 16),
+                              EbolsaTextField(
+                                controller: _emailController,
+                                label: appStrings.profileMyDataEmail,
+                                keyboardType: TextInputType.emailAddress,
+                                enabled: !isLoading,
+                                borderWidth: 1,
+                                borderColor: AppColors.secondary,
+                                borderRadius: 16,
+                                errorText: vm.emailError,
+                              ),
+                              const SizedBox(height: 16),
+                              EbolsaPhoneField(
+                                controller: _phoneController,
+                                label: appStrings.profileMyDataPhone,
+                                enabled: !isLoading,
+                                errorText: vm.phoneError,
+                              ),
+                              const SizedBox(height: 20),
+                              StreamBuilder<String?>(
+                                  stream: widget.presenter.uiSuccessStream,
+                                  builder: (context, succesSnapshot) =>
+                                      AnimatedSwitcher(
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        child: succesSnapshot.data != null
+                                            ? EbolsaSuccessBanner(
+                                                key: ValueKey(
+                                                    succesSnapshot.data),
+                                                message: succesSnapshot.data!,
+                                              )
+                                            : const SizedBox.shrink(),
+                                      )),
+                              StreamBuilder<String?>(
+                                stream: widget.presenter.uiErrorStream,
+                                builder: (context, errorSnapshot) =>
+                                    AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  child: errorSnapshot.data != null
+                                      ? EbolsaErrorBanner(
+                                          key: ValueKey(errorSnapshot.data),
+                                          message: errorSnapshot.data!,
+                                        )
+                                      : const SizedBox.shrink(),
+                                ),
+                              ),
+                              EbolsaLoadingButton(
+                                onPressed: isLoading ? null : _onSave,
+                                isLoading: isLoading,
+                                label: appStrings.profileMyDataSaveButton,
+                              ),
+                              const SizedBox(height: 32),
+                              Text(
+                                appStrings.profileChangePasswordTitle,
+                                style: AppTextStyles.titleLarge,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                appStrings.profileChangePasswordSubtitle,
+                                style: AppTextStyles.bodyMedium,
+                              ),
+                              const SizedBox(height: 12),
+                              EbolsaTextField(
+                                controller: _currentPasswordController,
+                                label: appStrings.authPasswordLabel,
+                                obscureText: _obscurePassword,
+                                borderWidth: 1,
+                                borderColor: AppColors.secondary,
+                                borderRadius: 16,
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                  ),
+                                  onPressed: () => setState(() =>
+                                      _obscurePassword = !_obscurePassword),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              EbolsaTextField(
+                                controller: _newPasswordController,
+                                label:
+                                    appStrings.profileChangePasswordNewPassword,
+                                obscureText: true,
+                                borderWidth: 1,
+                                borderColor: AppColors.secondary,
+                                borderRadius: 16,
+                              ),
+                              const SizedBox(height: 12),
+                              EbolsaTextField(
+                                controller: _confirmPasswordController,
+                                label: appStrings
+                                    .profileChangePasswordConfirmNewPassword,
+                                obscureText: true,
+                                borderWidth: 1,
+                                borderColor: AppColors.secondary,
+                                borderRadius: 16,
+                              ),
+                              const SizedBox(height: 20),
+                              EbolsaButton(
+                                onPressed: () {},
+                                label: appStrings.profileChangePasswordButton,
+                                isSecondary: true,
+                              ),
+                              const SizedBox(height: 48),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        EbolsaTextField(
-                          controller: _newPasswordController,
-                          label: appStrings.profileChangePasswordNewPassword,
-                          obscureText: true,
-                          borderWidth: 1,
-                          borderColor: AppColors.secondary,
-                          borderRadius: 16,
-                        ),
-                        const SizedBox(height: 12),
-                        EbolsaTextField(
-                          controller: _confirmPasswordController,
-                          label: appStrings
-                              .profileChangePasswordConfirmNewPassword,
-                          obscureText: true,
-                          borderWidth: 1,
-                          borderColor: AppColors.secondary,
-                          borderRadius: 16,
-                        ),
-                        const SizedBox(height: 20),
-                        EbolsaButton(
-                          onPressed: () {},
-                          label: appStrings.profileChangePasswordButton,
-                          isSecondary: true,
-                        ),
-                        const SizedBox(height: 48),
-                      ],
-                    ),
-                  );
-                });
-          }),
-    );
+                        );
+                      });
+                }),
+          );
+        });
   }
 }

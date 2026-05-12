@@ -5,6 +5,7 @@ import '../../ui/modules/auth/created_account_page.dart';
 import '../../ui/modules/auth/terms_page.dart';
 import '../../ui/modules/home/home_page.dart';
 import '../factories/pages/auth/auth_page_factory.dart';
+import '../factories/pages/new_scholarship_request/new_scholarship_request_page_factory.dart';
 import '../factories/pages/notices_terms/notices_terms_page_factory.dart';
 import '../factories/pages/onboarding/onboarding_page_factory.dart';
 import '../factories/pages/profile/profile_page_factory.dart';
@@ -73,6 +74,11 @@ class AppModule extends Module {
     r.child(
       Routes.profile,
       child: (_) => makeProfilePage(),
+      transition: TransitionType.fadeIn,
+    );
+    r.child(
+      Routes.newRequest,
+      child: (_) => makeNewRequestPage(),
       transition: TransitionType.fadeIn,
     );
   }

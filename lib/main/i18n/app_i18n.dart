@@ -212,4 +212,29 @@ abstract class AppI18n {
   String get profileChangePasswordNewPassword;
   String get profileChangePasswordConfirmNewPassword;
   String get profileChangePasswordButton;
+
+  // New Request (Nova Solicitação) strings
+  String get finishAction;
+
+  // Housing step
+  String get housingStepResidenceTitle;
+  String get housingStepResidenceDescription;
+  String get addressCepLabel;
+  String get addressNumberLabel;
+  String get addressComplementLabel;
+  String get addressLabel;
+  String get addressNeighborhoodLabel;
+  String get addressCityLabel;
+  String get addressStateLabel;
+  String get housingTitle;
+  String get housingAreaQuestion;
+  String get housingAreaUrban;
+  String get housingAreaRural;
+  String get housingAreaVulnerability;
+  String get housingGroupQuestion;
+  String get housingTypeHint;
+  String get housingTypeAlugada;
+  String get housingTypeCedida;
+  String get housingTypeFinanciada;
+  String get housingTypePropria;
 }

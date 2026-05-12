@@ -38,7 +38,7 @@ class EbolsaEndDrawer extends StatelessWidget {
               ),
             ),
             _DrawerItem(
-              iconPaht: 'lib/ui/assets/icons/home-icon.svg',
+              iconPaht: AppIcons.homeIcon,
               label: appsString.endDrawerHomeLabel,
               isSelected: currentTab == HomeTab.process,
               onTap: () {
@@ -47,7 +47,7 @@ class EbolsaEndDrawer extends StatelessWidget {
               },
             ),
             _DrawerItem(
-              iconPaht: 'lib/ui/assets/icons/notice-icon.svg',
+              iconPaht: AppIcons.noticeIcon,
               label: appsString.endDrawerNoticesLabel,
               isSelected: currentTab == HomeTab.notices,
               onTap: () {
@@ -56,7 +56,7 @@ class EbolsaEndDrawer extends StatelessWidget {
               },
             ),
             _DrawerItem(
-              iconPaht: 'lib/ui/assets/icons/profile-icon.svg',
+              iconPaht: AppIcons.profileIcon,
               label: appsString.endDrawerProfileLabel,
               isSelected: currentTab == HomeTab.profile,
               onTap: () {
@@ -66,7 +66,7 @@ class EbolsaEndDrawer extends StatelessWidget {
             ),
             const Divider(indent: 24, endIndent: 24),
             _DrawerItem(
-              iconPaht: 'lib/ui/assets/icons/logout-icon.svg',
+              iconPaht: AppIcons.logoutIcon,
               label: appsString.endDrawerLogoutLabel,
               isSelected: false,
               onTap: () async {

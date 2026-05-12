@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../../../data/http/http_client.dart';
 import '../../../domain/usecases/account/update_contact_info.dart';
 import '../../../domain/usecases/auth/auth_usecases.dart';
 import '../../../infra/repositories/account/remote_update_contact_info.dart';
@@ -84,7 +85,10 @@ class StreamProfilePresenter
       uiSuccess = AppI18n.current.profileSaveSuccess;
     } on UpdateContactInfoException catch (e) {
       uiError = e.message;
-    } catch (_) {
+    } on HttpError catch (e) {
+      if (handleHttpError(e)) return;
+      uiError = AppI18n.current.errorUnexpected;
+    } catch (e) {
       uiError = AppI18n.current.errorUnexpected;
     } finally {
       isLoading = LoadingData(isLoading: false);

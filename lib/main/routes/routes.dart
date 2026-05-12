@@ -9,4 +9,5 @@ class Routes {
   static const noticesTerms = '/notices-terms';
   static const home = '/home';
   static const profile = '/perfil';
+  static const newRequest = '/nova-solicitacao';
 }

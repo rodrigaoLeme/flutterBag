@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import '../../data/http/http_client.dart';
+
 // ---------------------------------------------------------------------------
 // LoadingManager
 // ---------------------------------------------------------------------------
@@ -55,6 +57,13 @@ mixin UIErrorManager {
   set uiError(String? value) {
     if (!_uiErrorController.isClosed) {
       _uiErrorController.add(value);
+      if (value != null) {
+        Future.delayed(const Duration(seconds: 4), () {
+          if (!_uiErrorController.isClosed) {
+            _uiErrorController.add(null);
+          }
+        });
+      }
     }
   }
 }
@@ -71,6 +80,13 @@ mixin UISuccessManager {
   set uiSuccess(String? value) {
     if (!_uiSuccessController.isClosed) {
       _uiSuccessController.add(value);
+      if (value != null) {
+        Future.delayed(const Duration(seconds: 4), () {
+          if (!_uiSuccessController.isClosed) {
+            _uiSuccessController.add(null);
+          }
+        });
+      }
     }
   }
 }
@@ -88,6 +104,14 @@ mixin SessionManager {
     if (!_isSessionExpiredController.isClosed) {
       _isSessionExpiredController.add(value);
     }
+  }
+
+  bool handleHttpError(HttpError error) {
+    if (error == HttpError.forbidden) {
+      isSessionExpired = true;
+      return true;
+    }
+    return false;
   }
 
   /// Deve ser chamado no dispose() do presenter que usa este mixin.

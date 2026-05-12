@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 
 import '../../../../main/i18n/app_i18n.dart';
+import '../../../../main/routes/routes.dart';
 import '../../../components/components.dart';
 
 class ProcessesEmptyPage extends StatefulWidget {
@@ -36,7 +38,7 @@ class _ProcessesEmptyPageState extends State<ProcessesEmptyPage> {
           ),
           const SizedBox(height: 16),
           EbolsaButton(
-            onPressed: () {},
+            onPressed: () => Modular.to.pushNamed(Routes.newRequest),
             label: appStrings.homeNewScholarshipButton,
             isOutlined: true,
           ),

@@ -57,6 +57,7 @@ class AuthorizeHttpClientDecorator implements HttpClient {
   }
 
   Future<String> _tryRefresh() async {
+    var token = await secureStorage.fetch(key: StorageKeys.accessToken);
     final refreshToken = await secureStorage.fetch(
       key: StorageKeys.refreshToken,
     );
@@ -68,7 +69,7 @@ class AuthorizeHttpClientDecorator implements HttpClient {
       final response = await decoratee.request(
         url: '${Flavor.apiBaseUrl}/auth/refresh',
         method: HttpMethod.post,
-        body: {'refreshToken': refreshToken},
+        body: {'token': token, 'refreshToken': refreshToken},
       );
       final newToken = response['accessToken'] as String;
       final newRefresh = response['refreshToken'] as String?;

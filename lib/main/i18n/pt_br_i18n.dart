@@ -13,6 +13,74 @@ class PtBrI18n implements AppI18n {
   @override
   String get appNameProd => 'e-Bolsa';
 
+  // New Request (Nova Solicitação) strings
+
+  @override
+  String get finishAction => 'Finalizar';
+
+  // Housing step
+  @override
+  String get housingStepResidenceTitle => 'Local da sua residência';
+
+  @override
+  String get housingStepResidenceDescription =>
+      'Comece informando o endereço onde você e sua família moram atualmente. Preencha os campos com atenção.';
+
+  @override
+  String get addressCepLabel => 'CEP';
+
+  @override
+  String get addressNumberLabel => 'Número';
+
+  @override
+  String get addressComplementLabel => 'Complemento (opcional)';
+
+  @override
+  String get addressLabel => 'Endereço';
+
+  @override
+  String get addressNeighborhoodLabel => 'Bairro';
+
+  @override
+  String get addressCityLabel => 'Cidade';
+
+  @override
+  String get addressStateLabel => 'Estado';
+
+  @override
+  String get housingTitle => 'Moradia';
+
+  @override
+  String get housingAreaQuestion =>
+      'O imóvel em que família reside localiza-se em área:';
+
+  @override
+  String get housingAreaUrban => 'Urbana';
+
+  @override
+  String get housingAreaRural => 'Rural';
+
+  @override
+  String get housingAreaVulnerability => 'De vulnerabilidade e risco';
+
+  @override
+  String get housingGroupQuestion => 'A moradia do grupo familiar é:';
+
+  @override
+  String get housingTypeHint => 'Tipo';
+
+  @override
+  String get housingTypeAlugada => 'Alugada';
+
+  @override
+  String get housingTypeCedida => 'Cedida';
+
+  @override
+  String get housingTypeFinanciada => 'Financiada';
+
+  @override
+  String get housingTypePropria => 'Própria';
+
   /// Common errors
   @override
   String get errorNoInternet => 'Sem conexão com a internet.';
