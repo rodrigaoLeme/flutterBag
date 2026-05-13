@@ -1,91 +1,133 @@
 import 'dart:async';
 
+import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/notice_entity.dart';
+import '../../../domain/entities/school_entity.dart';
+import '../../../domain/usecases/notices/load_announcements.dart';
+import '../../../domain/usecases/notices/load_schools.dart';
+import '../../../infra/repositories/notices/remote_load_announcements_usecase.dart';
+import '../../../infra/repositories/notices/remote_load_schools_usecase.dart';
 import '../../../ui/modules/notices_terms/notices_terms_presenter.dart';
+import '../../../ui/modules/notices_terms/notices_terms_view_model.dart';
 
 class StreamNoticesTermsPresenter implements NoticesTermsPresenter {
+  final LoadSchoolsUsecase loadSchoolsUsecase;
+  final LoadAnnouncementsUsecase loadAnnouncementsUsecase;
+
+  StreamNoticesTermsPresenter({
+    required this.loadSchoolsUsecase,
+    required this.loadAnnouncementsUsecase,
+  });
+
+  final _viewModelController =
+      StreamController<NoticesTermsViewModel>.broadcast();
   final _noticesController = StreamController<List<NoticeEntity>>.broadcast();
+
+  List<SchoolEntity> _cachedSchools = [];
+
+  NoticesTermsViewModel _currentViewModel =
+      const NoticesTermsViewModel.initial();
+
+  @override
+  Stream<NoticesTermsViewModel> get viewModelStream =>
+      _viewModelController.stream;
 
   @override
   Stream<List<NoticeEntity>> get noticesStream => _noticesController.stream;
 
   @override
+  void loadInitialData() {
+    final now = DateTime.now();
+    final currentYear = now.year;
+
+    // Regra hardcoded dos anos
+    // Ano atual + 1 e 4 anteriores
+    final years = List.generate(
+      6,
+      (i) => (currentYear + 1 - i).toString(),
+    );
+
+    _currentViewModel = _currentViewModel.copyWith(years: years);
+    _emit(_currentViewModel);
+  }
+
+  @override
+  Future<void> loadSchools(String year) async {
+    _currentViewModel = _currentViewModel.copyWith(
+      isLoadingSchools: true,
+      cities: [],
+      units: [],
+      schoolsError: null,
+    );
+    _emit(_currentViewModel);
+
+    try {
+      _cachedSchools =
+          await loadSchoolsUsecase.load(LoadSchoolsParams(year: year));
+
+      final cities = _cachedSchools.map((s) => s.cityState).toSet().toList()
+        ..sort();
+
+      _currentViewModel = _currentViewModel.copyWith(
+        isLoadingSchools: false,
+        cities: cities,
+        units: [],
+      );
+      _emit(_currentViewModel);
+    } on LoadSchoolsException catch (e) {
+      _cachedSchools = [];
+      _currentViewModel = _currentViewModel.copyWith(
+        isLoadingSchools: false,
+        schoolsError: e.message,
+      );
+      _emit(_currentViewModel);
+    }
+  }
+
+  @override
+  List<SchoolEntity> getUnitsForCity(String cityState) {
+    return _cachedSchools.where((s) => s.cityState == cityState).toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
+  }
+
+  @override
   Future<void> fetchNotices({
     required String year,
     required String city,
-    required String unit,
+    required String schoolId,
+    EducationLevel? educationLevel,
   }) async {
     try {
-      // TODO: Implement API call to fetch notices
-      // For now, returning mock data for development
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      final mockNotices = _getMockNotices(
-        year: year,
-        city: city,
-        unit: unit,
+      final notices = await loadAnnouncementsUsecase.load(
+        LoadAnnouncementsParams(
+          year: year,
+          city: city,
+          schoolId: schoolId,
+          educationLevel: educationLevel,
+        ),
       );
-      _emit(mockNotices);
-    } catch (_) {
-      _emit([]);
+      if (!_noticesController.isClosed) {
+        _noticesController.add(notices);
+      }
+    } on LoadAnnouncementsException catch (_) {
+      if (!_noticesController.isClosed) {
+        _noticesController.add([]);
+      }
     }
   }
 
   @override
-  void clearNotices() => _emit([]);
+  void clearNotices() => _noticesController.add([]);
 
-  void _emit(List<NoticeEntity> notices) {
-    if (!_noticesController.isClosed) {
-      _noticesController.add(notices);
+  void _emit(NoticesTermsViewModel vm) {
+    if (!_viewModelController.isClosed) {
+      _viewModelController.add(vm);
     }
   }
 
   @override
-  void dispose() => _noticesController.close();
-
-  List<NoticeEntity> _getMockNotices({
-    required String year,
-    required String city,
-    required String unit,
-  }) {
-    if (year != '2026' ||
-        city != 'Engenheiro Coelho - SP' ||
-        unit != 'UNASP - EC') {
-      return [];
-    }
-
-    return [
-      NoticeEntity(
-        id: '1',
-        name: 'Edital Nº 01/2026',
-        publishedAt: DateTime.parse('2026-02-27T17:00:40'),
-        modality: 'PROUNI - Ensino Superior',
-        enrollmentType: 'Nova',
-        additiveTerms: [
-          AdditiveTermEntity(
-            id: 'at1',
-            name: 'Termo Aditivo Nº 01/2026 ao Edital Nº 01/2026',
-            publishedAt: DateTime.parse('2026-02-27T17:00:40'),
-            modality: 'CEBAS',
-            enrollmentType: 'Renovação',
-            noticeId: '1',
-          ),
-        ],
-      ),
-      NoticeEntity(
-        id: '2',
-        name: 'Edital Nº 02/2026',
-        publishedAt: DateTime.parse('2026-02-20T10:30:00'),
-        modality: 'PROUNI - Ensino Superior',
-        enrollmentType: 'Nova',
-      ),
-      NoticeEntity(
-        id: '3',
-        name: 'Edital Nº 03/2026',
-        publishedAt: DateTime.parse('2026-02-15T14:45:00'),
-        modality: 'Bolsa Integral',
-        enrollmentType: 'Renovação',
-      ),
-    ];
+  void dispose() {
+    _viewModelController.close();
+    _noticesController.close();
   }
 }

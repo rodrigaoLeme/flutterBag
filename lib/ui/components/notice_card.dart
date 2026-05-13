@@ -32,7 +32,7 @@ class NoticeCard extends StatelessWidget {
         children: [
           Center(
             child: Text(
-              notice.name,
+              notice.title,
               textAlign: TextAlign.center,
               style: AppTextStyles.ebolsaTitleMedium,
             ),
@@ -42,14 +42,15 @@ class NoticeCard extends StatelessWidget {
           const SizedBox(height: 12),
           _buildInfoRow(
             appStrings.noticesTermsPublishedAtLabel,
-            _formatDate(notice.publishedAt),
+            _formatDate(notice.editalReleaseDate ?? DateTime(0)),
           ),
           const SizedBox(height: 12),
-          _buildInfoRow(appStrings.noticesTermsModalityLabel, notice.modality),
+          _buildInfoRow(appStrings.noticesTermsModalityLabel,
+              notice.scholarshipTypeLabel),
           const SizedBox(height: 12),
           _buildInfoRow(
             appStrings.noticesTermsEnrollmentTypeLabel,
-            notice.enrollmentType,
+            notice.processTypeLabel,
           ),
           const SizedBox(height: 16),
           Divider(color: Colors.grey.shade400, height: 1),

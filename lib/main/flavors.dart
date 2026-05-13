@@ -14,6 +14,7 @@ class Flavor {
     switch (flavorType) {
       case FlavorType.dev:
         return 'https://api-mobile-ebolsa-dev.educadventista.org';
+      //return 'https://v0xg6tjp-5001.brs.devtunnels.ms';
       case FlavorType.prod:
         return 'https://api-mobile-ebolsa.educadventista.org';
     }

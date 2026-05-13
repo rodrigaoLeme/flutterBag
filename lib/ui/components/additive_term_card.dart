@@ -32,7 +32,7 @@ class AdditiveTermCard extends StatelessWidget {
         children: [
           Center(
             child: Text(
-              additiveTerm.name,
+              additiveTerm.title,
               textAlign: TextAlign.center,
               style: AppTextStyles.ebolsaTitleMedium,
             ),
@@ -42,17 +42,17 @@ class AdditiveTermCard extends StatelessWidget {
           const SizedBox(height: 12),
           _buildInfoRow(
             appStrings.noticesTermsPublishedAtLabel,
-            _formatDate(additiveTerm.publishedAt),
+            _formatDate(additiveTerm.editalReleaseDate ?? DateTime(0)),
           ),
           const SizedBox(height: 12),
           _buildInfoRow(
             appStrings.noticesTermsModalityLabel,
-            additiveTerm.modality,
+            additiveTerm.scholarshipType!.label,
           ),
           const SizedBox(height: 12),
           _buildInfoRow(
             appStrings.noticesTermsEnrollmentTypeLabel,
-            additiveTerm.enrollmentType,
+            additiveTerm.processType!.label,
           ),
           const SizedBox(height: 16),
           Divider(color: Colors.grey.shade400, height: 1),

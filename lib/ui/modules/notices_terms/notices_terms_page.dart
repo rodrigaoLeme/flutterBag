@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/notice_entity.dart';
+import '../../../domain/entities/school_entity.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../components/additive_term_card.dart';
 import '../../components/notice_card.dart';
@@ -12,6 +14,7 @@ import '../../helpers/themes/app_colors.dart';
 import '../../helpers/themes/app_text_styles.dart';
 import 'notice_document_page.dart';
 import 'notices_terms_presenter.dart';
+import 'notices_terms_view_model.dart';
 
 class _NoticeFilterOption {
   final String id;
@@ -45,6 +48,8 @@ class NoticesTermsPage extends StatefulWidget {
 
 class _NoticesTermsPageState extends State<NoticesTermsPage> {
   late StreamSubscription<List<NoticeEntity>> _noticesSubscription;
+  late StreamSubscription<NoticesTermsViewModel> _viewModelSubscription;
+
   List<NoticeEntity> _notices = [];
   bool _hasAppliedFilters = false;
   bool _isLoading = false;
@@ -54,78 +59,119 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
   _NoticeFilterOption? _selectedCity;
   _NoticeFilterOption? _selectedUnit;
 
-  final List<_NoticeFilterOption> _years = const [
-    _NoticeFilterOption(id: '2026', label: '2026'),
-    _NoticeFilterOption(id: '2025', label: '2025'),
-    _NoticeFilterOption(id: '2024', label: '2024'),
-    _NoticeFilterOption(id: '2023', label: '2023'),
-  ];
+  List<_NoticeFilterOption> _years = [];
+  List<_NoticeFilterOption> _cities = [];
+  List<_NoticeFilterOption> _units = [];
+  bool _isLoadingSchools = false;
+  String? _schoolsError;
 
-  final Map<String, List<_NoticeFilterOption>> _citiesByYear = {
-    '2026': const [
-      _NoticeFilterOption(
-        id: 'Engenheiro Coelho - SP',
-        label: 'Engenheiro Coelho - SP',
-      ),
-      _NoticeFilterOption(id: 'São Paulo - SP', label: 'São Paulo - SP'),
-    ],
-    '2025': const [
-      _NoticeFilterOption(
-        id: 'Engenheiro Coelho - SP',
-        label: 'Engenheiro Coelho - SP',
-      ),
-      _NoticeFilterOption(
-          id: 'Rio de Janeiro - RJ', label: 'Rio de Janeiro - RJ'),
-    ],
-    '2024': const [
-      _NoticeFilterOption(id: 'São Paulo - SP', label: 'São Paulo - SP'),
-    ],
-    '2023': const [
-      _NoticeFilterOption(
-          id: 'Rio de Janeiro - RJ', label: 'Rio de Janeiro - RJ'),
-    ],
-  };
+  List<_NoticeFilterOption> get _availableCities => _cities;
 
-  final Map<String, List<_NoticeFilterOption>> _unitsByCity = {
-    'Engenheiro Coelho - SP': const [
-      _NoticeFilterOption(id: 'UNASP - EC', label: 'UNASP - EC'),
-    ],
-    'São Paulo - SP': const [
-      _NoticeFilterOption(id: 'UNASP - SP', label: 'UNASP - SP'),
-    ],
-    'Rio de Janeiro - RJ': const [
-      _NoticeFilterOption(
-        id: 'Colégio Adventista - RJ',
-        label: 'Colégio Adventista - RJ',
-      ),
-    ],
-  };
-
-  List<_NoticeFilterOption> get _availableCities =>
-      _selectedYear == null ? [] : (_citiesByYear[_selectedYear!.id] ?? []);
-
-  List<_NoticeFilterOption> get _availableUnits =>
-      _selectedCity == null ? [] : (_unitsByCity[_selectedCity!.id] ?? []);
+  List<_NoticeFilterOption> get _availableUnits => _units;
 
   bool get _areFiltersComplete =>
       _selectedYear != null && _selectedCity != null && _selectedUnit != null;
 
+  EducationLevel? _selectedEducationLevel;
+
+  List<SchoolEntity> _currentUnits = [];
+
   @override
   void initState() {
     super.initState();
-    _subscribeToNotices();
+
+    _viewModelSubscription = widget.presenter.viewModelStream.listen((vm) {
+      if (!mounted) return;
+      setState(() {
+        _years =
+            vm.years.map((y) => _NoticeFilterOption(id: y, label: y)).toList();
+        _cities =
+            vm.cities.map((c) => _NoticeFilterOption(id: c, label: c)).toList();
+        _isLoadingSchools = vm.isLoadingSchools;
+        _schoolsError = vm.schoolsError;
+      });
+    });
+
+    _noticesSubscription = widget.presenter.noticesStream.listen((notices) {
+      if (!mounted) return;
+      setState(() {
+        _notices = notices;
+        _isLoading = false;
+      });
+    });
+
+    widget.presenter.loadInitialData();
     _requestLocationPermission();
   }
 
-  void _subscribeToNotices() {
-    _noticesSubscription = widget.presenter.noticesStream.listen((notices) {
-      if (mounted) {
-        setState(() {
-          _notices = notices;
-          _isLoading = false;
-        });
-      }
+  @override
+  void dispose() {
+    _viewModelSubscription.cancel();
+    _noticesSubscription.cancel();
+    widget.presenter.dispose();
+    super.dispose();
+  }
+
+  void _onYearChanged(_NoticeFilterOption? value) {
+    setState(() {
+      _selectedYear = value;
+      _selectedCity = null;
+      _selectedUnit = null;
+      _cities = [];
+      _units = [];
     });
+    _clearResults();
+    if (value != null) {
+      widget.presenter.loadSchools(value.id);
+    }
+  }
+
+  void _onCityChanged(_NoticeFilterOption? value) {
+    setState(() {
+      _selectedCity = value;
+      _selectedUnit = null;
+      _units = [];
+    });
+    _clearResults();
+
+    if (value != null) {
+      _currentUnits = widget.presenter.getUnitsForCity(value.id);
+      setState(() {
+        _units = _currentUnits
+            .map((s) => _NoticeFilterOption(id: s.id, label: s.name))
+            .toList();
+      });
+    }
+    _applyFiltersIfComplete();
+  }
+
+  void _onUnitChanged(_NoticeFilterOption? value) {
+    print('ID - ${value!.id}');
+    setState(() {
+      _selectedUnit = value;
+      final school = _currentUnits.firstWhere(
+        (s) => s.id == value.id,
+        orElse: () => _currentUnits.first,
+      );
+      _selectedEducationLevel = school.educationLevel;
+    });
+    _clearResults();
+    _applyFiltersIfComplete();
+  }
+
+  void _applyFilters() {
+    if (_areFiltersComplete) {
+      setState(() {
+        _hasAppliedFilters = true;
+        _isLoading = true;
+      });
+      widget.presenter.fetchNotices(
+        year: _selectedYear!.id,
+        city: _selectedCity!.id.split(' - ').first,
+        schoolId: _selectedUnit!.id,
+        educationLevel: _selectedEducationLevel,
+      );
+    }
   }
 
   Future<void> _requestLocationPermission() async {
@@ -154,50 +200,9 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
     });
   }
 
-  void _onYearChanged(_NoticeFilterOption? value) {
-    setState(() {
-      _selectedYear = value;
-      _selectedCity = null;
-      _selectedUnit = null;
-    });
-    _clearResults();
-    _applyFiltersIfComplete();
-  }
-
-  void _onCityChanged(_NoticeFilterOption? value) {
-    setState(() {
-      _selectedCity = value;
-      _selectedUnit = null;
-    });
-    _clearResults();
-    _applyFiltersIfComplete();
-  }
-
-  void _onUnitChanged(_NoticeFilterOption? value) {
-    setState(() {
-      _selectedUnit = value;
-    });
-    _clearResults();
-    _applyFiltersIfComplete();
-  }
-
   void _applyFiltersIfComplete() {
     if (_areFiltersComplete) {
       _applyFilters();
-    }
-  }
-
-  void _applyFilters() {
-    if (_areFiltersComplete) {
-      setState(() {
-        _hasAppliedFilters = true;
-        _isLoading = true;
-      });
-      widget.presenter.fetchNotices(
-        year: _selectedYear!.id,
-        city: _selectedCity!.id,
-        unit: _selectedUnit!.id,
-      );
     }
   }
 
@@ -295,13 +300,6 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _noticesSubscription.cancel();
-    widget.presenter.dispose();
-    super.dispose();
   }
 
   @override
@@ -416,20 +414,19 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
                           notice: notice,
                           onViewPressed: () {
                             _openDocument(
-                              title: notice.name,
+                              title: notice.title,
                               description: appStrings
                                   .noticesTermsDocumentNoticeDescription,
                             );
                           },
                         ),
-                        if (notice.additiveTerms != null &&
-                            notice.additiveTerms!.isNotEmpty)
-                          ...notice.additiveTerms!.map(
+                        if (notice.additiveTerms.isNotEmpty)
+                          ...notice.additiveTerms.map(
                             (term) => AdditiveTermCard(
                               additiveTerm: term,
                               onViewPressed: () {
                                 _openDocument(
-                                  title: term.name,
+                                  title: term.title,
                                   description: appStrings
                                       .noticesTermsDocumentAdditiveTermDescription,
                                 );
