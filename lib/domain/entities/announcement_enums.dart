@@ -42,13 +42,8 @@ enum EducationLevel {
   final int value;
   final String label;
 
-  static EducationLevel? fromValue(int? value) {
-    if (value == null) return null;
-    try {
-      return EducationLevel.values.firstWhere((e) => e.value == value);
-    } catch (_) {
-      return null;
-    }
+  static EducationLevel fromValue(int value) {
+    return EducationLevel.values.firstWhere((e) => e.value == value);
   }
 }
 

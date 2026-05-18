@@ -6,10 +6,11 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/notice_entity.dart';
 import '../../../domain/entities/school_entity.dart';
+import '../../../main/factories/pages/notices_terms/notice_document_page_factory.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../components/additive_term_card.dart';
+import '../../components/components.dart';
 import '../../components/notice_card.dart';
-import '../../components/searchable_options_bottom_sheet.dart';
 import '../../helpers/themes/app_colors.dart';
 import '../../helpers/themes/app_text_styles.dart';
 import 'notice_document_page.dart';
@@ -119,6 +120,7 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
       _selectedUnit = null;
       _cities = [];
       _units = [];
+      _schoolsError = null;
     });
     _clearResults();
     if (value != null) {
@@ -138,7 +140,7 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
       _currentUnits = widget.presenter.getUnitsForCity(value.id);
       setState(() {
         _units = _currentUnits
-            .map((s) => _NoticeFilterOption(id: s.id, label: s.name))
+            .map((s) => _NoticeFilterOption(id: s.id, label: s.name ?? ''))
             .toList();
       });
     }
@@ -206,12 +208,13 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
     }
   }
 
-  void _openDocument({required String title, required String description}) {
+  void _openDocument({required String announcementId, required String title}) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => NoticeDocumentPage(
+          presenter: makeNoticeDocumentPresenter(),
+          announcementId: announcementId,
           title: title,
-          description: description,
         ),
       ),
     );
@@ -356,11 +359,21 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
               ),
               const SizedBox(height: 16),
 
+              if (_schoolsError != null) ...[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: EbolsaErrorBanner(message: _schoolsError!),
+                ),
+                const SizedBox(height: 8),
+              ],
+
               /// CITY FILTER
               _buildSelectorField(
                 hint: appStrings.noticesTermsSelectCity,
                 value: _selectedCity,
-                enabled: _selectedYear != null && _availableCities.isNotEmpty,
+                enabled: _selectedYear != null &&
+                    _availableCities.isNotEmpty &&
+                    !_isLoadingSchools,
                 onTap: _openCitySelector,
               ),
               const SizedBox(height: 16),
@@ -410,29 +423,27 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        NoticeCard(
-                          notice: notice,
-                          onViewPressed: () {
-                            _openDocument(
-                              title: notice.title,
-                              description: appStrings
-                                  .noticesTermsDocumentNoticeDescription,
-                            );
-                          },
-                        ),
                         if (notice.additiveTerms.isNotEmpty)
                           ...notice.additiveTerms.map(
                             (term) => AdditiveTermCard(
                               additiveTerm: term,
                               onViewPressed: () {
                                 _openDocument(
+                                  announcementId: term.id,
                                   title: term.title,
-                                  description: appStrings
-                                      .noticesTermsDocumentAdditiveTermDescription,
                                 );
                               },
                             ),
                           ),
+                        NoticeCard(
+                          notice: notice,
+                          onViewPressed: () {
+                            _openDocument(
+                              announcementId: notice.id,
+                              title: notice.title,
+                            );
+                          },
+                        ),
                         const SizedBox(height: 16),
                       ],
                     );

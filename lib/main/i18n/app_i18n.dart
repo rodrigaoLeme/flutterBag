@@ -13,6 +13,9 @@ abstract class AppI18n {
   String get errorTimeout;
   String get errorUnexpected;
 
+  // Common Messages
+  String get tryAgain;
+
   // Auth common
   String get authCpfLabel;
   String get authCpfHint;
@@ -110,7 +113,8 @@ abstract class AppI18n {
   String get noticesTermsDocumentTitle;
   String get noticesTermsDocumentNoticeDescription;
   String get noticesTermsDocumentAdditiveTermDescription;
-  String get noticesTermsDocumentDevMessage;
+  String get noticesTermsFileNotFound;
+  String get noticesStreamError;
 
   // Onboarding
   String get onboardingItem1Title;
@@ -193,6 +197,9 @@ abstract class AppI18n {
   String get navBarNoticesLabel;
   String get navBarProfileLabel;
 
+  // PDF Viewer
+  String get pdfViewerErrorToLoadArchive;
+
   // Profile Page
   String get profileMyDataTitle;
   String get profileMyDataSubtitle;
@@ -237,4 +244,56 @@ abstract class AppI18n {
   String get housingTypeCedida;
   String get housingTypeFinanciada;
   String get housingTypePropria;
+  String get addFamilyMember;
+  String get peopleHomeLabel;
+  String get familyStepDescriptionPrefix;
+  String get familyStepDescriptionEmphasis;
+  String get familyStepDescriptionSuffix;
+
+  // Family info bottom sheet
+  String get familyInfoGroupTitle;
+  String get familyInfoGroupDescription;
+  String get familyInfoIncomeTitle;
+  String get familyInfoIncomeDescription;
+  String get familyInfoKinshipTitle;
+  String get familyInfoKinshipDescription;
+  String get familyInfoCloseButton;
+
+  // Member registration (family) step
+  String get memberRegistrationAppBarTitle;
+  String get memberRegistrationTitle;
+  String get memberRegistrationDescription;
+  String get personalDataTitle;
+  String get dobLabel;
+  String get genderLabel;
+  String get responsibleLabel;
+  String get maritalStatusLabel;
+  String get receivesPensionQuestion;
+  String get isRetiredQuestion;
+  String get willApplyScholarshipQuestion;
+  String get nationalityLabel;
+  String get naturalizedQuestion;
+  String get concessionBannerTitle;
+  String get concessionBannerMessage;
+  String get hasCINQuestion;
+  String get rgLabel;
+  String get issuingOrgLabel;
+  String get hasCadunicoQuestion;
+  String get nisLabel;
+  String get hasChronicDiseaseQuestion;
+  String get diseaseTypeLabel;
+  String get pcdLabel;
+  String get irpfConditionLabel;
+  String get irpfDeclarante;
+  String get irpfIsento;
+  String get declaredThisYearQuestion;
+  String get hasWorkCardQuestion;
+  String get ruralWorkerQuestion;
+  String get dataComplementTitle;
+  String get complementFieldsPlaceholder;
+  String get documentsTitle;
+  String get documentsPlaceholder;
+  String get concludeAction;
+  String get answerYes;
+  String get answerNo;
 }

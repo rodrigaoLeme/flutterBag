@@ -7,7 +7,7 @@ class RemoteAnnouncementModel {
   final String? title;
   final String? editalNumber;
   final DateTime? editalReleaseDate;
-  final int? educationLevel;
+  final int educationLevel;
   final int? processType;
   final int? scholarshipType;
   final int? announcementType;
@@ -18,7 +18,7 @@ class RemoteAnnouncementModel {
     this.title,
     this.editalNumber,
     this.editalReleaseDate,
-    this.educationLevel,
+    required this.educationLevel,
     this.processType,
     this.scholarshipType,
     this.announcementType,
@@ -35,7 +35,7 @@ class RemoteAnnouncementModel {
           ? DateTime.tryParse(
               json['announcement']['editalReleaseDate'] as String)
           : null,
-      educationLevel: json['announcement']['educationLevel'] as int?,
+      educationLevel: json['announcement']['educationLevel'] as int,
       processType: json['processPeriods'].first['processType'] as int?,
       scholarshipType: json['announcement']['scholarshipType'] as int?,
       announcementType: json['announcement']['announcementType'] as int?,

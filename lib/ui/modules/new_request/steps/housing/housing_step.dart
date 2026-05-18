@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
+import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/themes/themes.dart';
-import '../../../../../main/i18n/app_i18n.dart';
 
 class HousingStep extends StatelessWidget {
   final int currentSubStep;
@@ -135,7 +135,7 @@ class HousingStep extends StatelessWidget {
                             BorderSide(color: AppColors.secondary, width: 1),
                       ),
                     ),
-                    value: stateVal,
+                    initialValue: stateVal,
                     items: const [
                       DropdownMenuItem(value: 'AC', child: Text('AC')),
                       DropdownMenuItem(value: 'AL', child: Text('AL')),
@@ -184,29 +184,32 @@ class HousingStep extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RadioListTile<String>(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(AppI18n.current.housingAreaUrban),
-                  value: AppI18n.current.housingAreaUrban,
+                RadioGroup<String>(
                   groupValue: residenceVal,
-                  onChanged: (v) => onResidenceAreaChanged(
-                      v ?? AppI18n.current.housingAreaUrban),
-                ),
-                RadioListTile<String>(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(AppI18n.current.housingAreaRural),
-                  value: AppI18n.current.housingAreaRural,
-                  groupValue: residenceVal,
-                  onChanged: (v) => onResidenceAreaChanged(
-                      v ?? AppI18n.current.housingAreaRural),
-                ),
-                RadioListTile<String>(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(AppI18n.current.housingAreaVulnerability),
-                  value: AppI18n.current.housingAreaVulnerability,
-                  groupValue: residenceVal,
-                  onChanged: (v) => onResidenceAreaChanged(
-                      v ?? AppI18n.current.housingAreaVulnerability),
+                  onChanged: (value) {
+                    onResidenceAreaChanged(
+                      value ?? AppI18n.current.housingAreaUrban,
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      RadioListTile<String>(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(AppI18n.current.housingAreaUrban),
+                        value: AppI18n.current.housingAreaUrban,
+                      ),
+                      RadioListTile<String>(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(AppI18n.current.housingAreaRural),
+                        value: AppI18n.current.housingAreaRural,
+                      ),
+                      RadioListTile<String>(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(AppI18n.current.housingAreaVulnerability),
+                        value: AppI18n.current.housingAreaVulnerability,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             );
@@ -235,7 +238,7 @@ class HousingStep extends StatelessWidget {
                   borderSide: BorderSide(color: AppColors.secondary, width: 1),
                 ),
               ),
-              value: housingVal,
+              initialValue: housingVal,
               items: [
                 DropdownMenuItem(
                     value: AppI18n.current.housingTypeAlugada,

@@ -60,4 +60,7 @@ class AppColors {
   // Container
   static const Color secondaryContainer = Color(0xFFD9E3F8);
   static const Color outlineVariant = Color(0xFFF7F7FF);
+  static const Color onPrimaryContainer = Color(0xFF3D4758);
+  static const Color alerta = Color(0xFFEDAE00);
+  static const Color surfaceCl = Color(0xFF64748B);
 }

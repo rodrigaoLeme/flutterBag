@@ -6,6 +6,7 @@ import '../../components/components.dart';
 import 'widgets/scholarship_step_indicator.dart';
 import 'steps/housing/housing_step.dart';
 import 'steps/family/family_step.dart';
+import 'steps/family/member_registration_page.dart';
 import 'steps/expenses/expenses_step.dart';
 import 'steps/candidate/candidate_step.dart';
 import 'steps/documents/documents_step.dart';
@@ -69,7 +70,12 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         );
 
       case 2:
-        return FamilyStep(currentSubStep: _currentSubStep);
+        return FamilyStep(
+          currentSubStep: _currentSubStep,
+          onAddMember: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const MemberRegistrationPage()),
+          ),
+        );
 
       case 3:
         return ExpensesStep(currentSubStep: _currentSubStep);
@@ -118,12 +124,15 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                 child: _buildCurrentStep(),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: EbolsaButton(
-                onPressed: _next,
-                label: _currentStep < _totalSteps ? 'Avançar' : 'Finalizar',
-                isSecondary: false,
+            Visibility(
+              visible: !(_currentStep == 2 && _currentSubStep == 1),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: EbolsaButton(
+                  onPressed: _next,
+                  label: _currentStep < _totalSteps ? 'Avançar' : 'Finalizar',
+                  isSecondary: false,
+                ),
               ),
             ),
           ],

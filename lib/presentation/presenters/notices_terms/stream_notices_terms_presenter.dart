@@ -37,14 +37,19 @@ class StreamNoticesTermsPresenter implements NoticesTermsPresenter {
 
   @override
   void loadInitialData() {
+    const initialYear = 2020;
+    const initialMonthForEditalRelease = 5;
+
     final now = DateTime.now();
     final currentYear = now.year;
 
-    // Regra hardcoded dos anos
-    // Ano atual + 1 e 4 anteriores
+    final finalYear = now.month >= initialMonthForEditalRelease
+        ? currentYear + 1
+        : currentYear;
+
     final years = List.generate(
-      6,
-      (i) => (currentYear + 1 - i).toString(),
+      finalYear - initialYear + 1,
+      (i) => (finalYear - i).toString(),
     );
 
     _currentViewModel = _currentViewModel.copyWith(years: years);
@@ -65,7 +70,11 @@ class StreamNoticesTermsPresenter implements NoticesTermsPresenter {
       _cachedSchools =
           await loadSchoolsUsecase.load(LoadSchoolsParams(year: year));
 
-      final cities = _cachedSchools.map((s) => s.cityState).toSet().toList()
+      final cities = _cachedSchools
+          .where((s) => s.city != null && s.state != null)
+          .map((s) => s.cityState)
+          .toSet()
+          .toList()
         ..sort();
 
       _currentViewModel = _currentViewModel.copyWith(
@@ -87,7 +96,7 @@ class StreamNoticesTermsPresenter implements NoticesTermsPresenter {
   @override
   List<SchoolEntity> getUnitsForCity(String cityState) {
     return _cachedSchools.where((s) => s.cityState == cityState).toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+      ..sort((a, b) => (a.name ?? '').compareTo(b.name ?? ''));
   }
 
   @override

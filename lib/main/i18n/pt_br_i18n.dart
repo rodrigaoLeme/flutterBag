@@ -91,6 +91,10 @@ class PtBrI18n implements AppI18n {
   @override
   String get errorUnexpected => 'Erro inesperado. Tente novamente.';
 
+  /// Common Messages
+  @override
+  String get tryAgain => 'Tente novamente';
+
   /// ------------------- Auth common -------------------
   @override
   String get authCpfLabel => 'CPF';
@@ -374,6 +378,8 @@ class PtBrI18n implements AppI18n {
   @override
   String jwtDecodeError(Object error) => 'Erro ao decodificar JWT: $error';
 
+  /// ------------------- NOTICES -------------------
+
   @override
   String get noticesTermsTitle => 'Editais e Termos Aditivos';
 
@@ -438,15 +444,17 @@ class PtBrI18n implements AppI18n {
   String get noticesTermsDocumentTitle => 'Documento';
 
   @override
-  String get noticesTermsDocumentNoticeDescription => 'Visualizacao do edital';
+  String get noticesTermsDocumentNoticeDescription => 'Visualização do edital';
 
   @override
   String get noticesTermsDocumentAdditiveTermDescription =>
-      'Visualizacao do termo aditivo';
+      'Visualização do termo aditivo';
 
   @override
-  String get noticesTermsDocumentDevMessage =>
-      'Visualizacao de documento em desenvolvimento.\n\nNesta area sera exibido PDF ou WebView.';
+  String get noticesTermsFileNotFound => 'Arquivo não encontrado.';
+
+  @override
+  String get noticesStreamError => 'Erro inesperado. Tente novamente';
 
   /// ------------------- Onboarding -------------------
   @override
@@ -648,6 +656,153 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
 
   @override
   String get navBarProfileLabel => 'Perfil';
+  @override
+  String get addFamilyMember => 'Adicionar membro familiar';
+  @override
+  String get peopleHomeLabel => 'Pessoas da sua casa';
+  @override
+  String get familyStepDescriptionPrefix =>
+      'Agora, registre cada pessoas que vive na residência, ';
+  @override
+  String get familyStepDescriptionEmphasis =>
+      'incluindo você e quem vai estudar.';
+  @override
+  String get familyStepDescriptionSuffix =>
+      ' É importante listar todos os membros da família.';
+
+  /// ------------------- Nav Bar -------------------
+  @override
+  String get pdfViewerErrorToLoadArchive => 'Não foi possível carregar o PDF.';
+
+  // Family info bottom sheet
+  @override
+  String get familyInfoGroupTitle => 'Grupo Familiar';
+  @override
+  String get familyInfoGroupDescription =>
+      'São todas as pessoas que moram na sua casa e dividem a renda ou as despesas (conforme a Lei 187/2021).';
+  @override
+  String get familyInfoIncomeTitle => 'Valor da Renda Bruta Mensal';
+  @override
+  String get familyInfoIncomeDescription =>
+      'É a soma de tudo o que a família ganha (salário, bicos, pensões ou aluguéis) antes de qualquer desconto.';
+  @override
+  String get familyInfoKinshipTitle => 'Parentesco';
+  @override
+  String get familyInfoKinshipDescription =>
+      'Indique o que cada pessoa da casa é para você (exemplo: filho, esposa, irmão ou neto).';
+  @override
+  String get familyInfoCloseButton => 'Fechar';
+
+  // Member registration (family) step
+  @override
+  String get memberRegistrationAppBarTitle => 'Cadastro membro familiar';
+
+  @override
+  String get memberRegistrationTitle => 'Cadastro individual';
+
+  @override
+  String get memberRegistrationDescription =>
+      'Abaixo informe os dados pessoais do membro da familia';
+
+  @override
+  String get personalDataTitle => 'Dados Pessoais';
+
+  @override
+  String get dobLabel => 'Dt. de Nascimento';
+
+  @override
+  String get genderLabel => 'Gênero';
+
+  @override
+  String get responsibleLabel => 'Responsável';
+
+  @override
+  String get maritalStatusLabel => 'Estado Civil';
+
+  @override
+  String get receivesPensionQuestion => 'Recebe pensão?';
+
+  @override
+  String get isRetiredQuestion => 'É aposentado(a)?';
+
+  @override
+  String get willApplyScholarshipQuestion => 'Será candidato a bolsa?';
+
+  @override
+  String get nationalityLabel => 'Nacionalidade';
+
+  @override
+  String get naturalizedQuestion => 'É naturalizado como Brasileiro?';
+
+  @override
+  String get concessionBannerTitle => 'Concessão de bolsa';
+
+  @override
+  String get concessionBannerMessage =>
+      'De acordo com a Lei Complementar nº 187/2021 a bolsa de estudo é voltada para brasileiros natos ou naturalizados. Se você nasceu em outro país, precisará enviar o documento que comprova sua naturalização brasileira para concorrer ao benefício mediante a exigência do dispositivo legal citado.';
+
+  @override
+  String get hasCINQuestion => 'Possui nova Carteira de Identidade (CIN)?';
+
+  @override
+  String get rgLabel => 'RG/RNE';
+
+  @override
+  String get issuingOrgLabel => 'Órgão Emissor';
+
+  @override
+  String get hasCadunicoQuestion => 'Possui Cadúnico?';
+
+  @override
+  String get nisLabel => 'N° do NIS (Cadúnico)';
+
+  @override
+  String get hasChronicDiseaseQuestion => 'Possui Doença Crônica?';
+
+  @override
+  String get diseaseTypeLabel => 'Tipo de doença';
+
+  @override
+  String get pcdLabel => 'Portador de Deficiência - PcD?';
+
+  @override
+  String get irpfConditionLabel => 'Condição para IRPF';
+
+  @override
+  String get irpfDeclarante => 'Declarante';
+
+  @override
+  String get irpfIsento => 'Isento';
+
+  @override
+  String get declaredThisYearQuestion => 'Declarou esse ano?';
+
+  @override
+  String get hasWorkCardQuestion => 'Tem carteira de trabalho?';
+
+  @override
+  String get ruralWorkerQuestion => 'Trabalhador rural?';
+
+  @override
+  String get dataComplementTitle => 'Dados Complementares';
+
+  @override
+  String get complementFieldsPlaceholder => 'Campos complementares aqui...';
+
+  @override
+  String get documentsTitle => 'Documentos';
+
+  @override
+  String get documentsPlaceholder => 'Campos para anexar documentos...';
+
+  @override
+  String get concludeAction => 'Concluir';
+
+  @override
+  String get answerYes => 'Sim';
+
+  @override
+  String get answerNo => 'Não';
 
   /// ------------------- Profile -------------------
   @override
