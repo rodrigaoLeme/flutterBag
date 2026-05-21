@@ -50,7 +50,7 @@ class NoticeCard extends StatelessWidget {
           const SizedBox(height: 12),
           _buildInfoRow(
             appStrings.noticesTermsEnrollmentTypeLabel,
-            notice.processTypeLabel,
+            notice.processTypeDescription ?? '',
           ),
           const SizedBox(height: 16),
           Divider(color: Colors.grey.shade400, height: 1),

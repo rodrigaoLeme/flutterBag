@@ -8,6 +8,7 @@ import '../../infra/cache/storage_adapters.dart';
 import '../../infra/http/dio_adapter.dart';
 import '../../infra/repositories/auth/remote_load_account_usecase.dart';
 import '../../share/current_account.dart';
+import '../../share/session_events.dart';
 import '../decorators/authorize_http_client_decorator.dart';
 import '../flavors.dart';
 
@@ -51,6 +52,9 @@ void setupInjection() {
 
   // Singleton de usuário logado
   sl.registerLazySingleton<CurrentAccount>(() => CurrentAccount());
+
+  // Singleton de unauthorized request
+  sl.registerLazySingleton<SessionEvents>(() => SessionEvents());
 
   // Usecase de carregar account - usa o cliente autenticado
   sl.registerLazySingleton<LoadAccountUsecase>(

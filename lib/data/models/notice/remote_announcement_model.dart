@@ -8,9 +8,9 @@ class RemoteAnnouncementModel {
   final String? editalNumber;
   final DateTime? editalReleaseDate;
   final int educationLevel;
-  final int? processType;
   final int? scholarshipType;
   final int? announcementType;
+  final String? processTypeDescription;
 
   const RemoteAnnouncementModel({
     required this.id,
@@ -19,9 +19,9 @@ class RemoteAnnouncementModel {
     this.editalNumber,
     this.editalReleaseDate,
     required this.educationLevel,
-    this.processType,
     this.scholarshipType,
     this.announcementType,
+    this.processTypeDescription,
   });
 
   factory RemoteAnnouncementModel.fromJson(Map<String, dynamic> json) {
@@ -36,9 +36,9 @@ class RemoteAnnouncementModel {
               json['announcement']['editalReleaseDate'] as String)
           : null,
       educationLevel: json['announcement']['educationLevel'] as int,
-      processType: json['processPeriods'].first['processType'] as int?,
       scholarshipType: json['announcement']['scholarshipType'] as int?,
       announcementType: json['announcement']['announcementType'] as int?,
+      processTypeDescription: json['processTypeDescription'] as String?,
     );
   }
 
@@ -50,9 +50,9 @@ class RemoteAnnouncementModel {
         editalNumber: editalNumber,
         editalReleaseDate: editalReleaseDate,
         educationLevel: EducationLevel.fromValue(educationLevel),
-        processType: ProcessType.fromValue(processType),
         scholarshipType: ScholarshipType.fromValue(scholarshipType),
         noticeId: noticeId,
+        processTypeDescription: processTypeDescription ?? '',
       );
 
   NoticeEntity toEntity() => NoticeEntity(
@@ -61,7 +61,7 @@ class RemoteAnnouncementModel {
         editalNumber: editalNumber,
         editalReleaseDate: editalReleaseDate,
         educationLevel: EducationLevel.fromValue(educationLevel),
-        processType: ProcessType.fromValue(processType),
         scholarshipType: ScholarshipType.fromValue(scholarshipType),
+        processTypeDescription: processTypeDescription ?? '',
       );
 }

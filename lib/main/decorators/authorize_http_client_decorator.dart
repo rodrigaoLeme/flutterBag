@@ -1,7 +1,10 @@
 import '../../data/cache/cache.dart';
 import '../../data/http/http_client.dart';
 import '../../main/flavors.dart';
+import '../../share/current_account.dart';
+import '../../share/session_events.dart';
 import '../../share/utils/jwt_decoder.dart';
+import '../di/injection_container.dart';
 
 class AuthorizeHttpClientDecorator implements HttpClient {
   final SecureStorage secureStorage;
@@ -71,8 +74,9 @@ class AuthorizeHttpClientDecorator implements HttpClient {
         method: HttpMethod.post,
         body: {'token': token, 'refreshToken': refreshToken},
       );
-      final newToken = response['accessToken'] as String;
+      final newToken = response['token'] as String;
       final newRefresh = response['refreshToken'] as String?;
+      final newRefreshExpiry = response['refreshTokenExpiryTime'] as String?;
       await secureStorage.save(
         key: StorageKeys.accessToken,
         value: newToken,
@@ -83,9 +87,17 @@ class AuthorizeHttpClientDecorator implements HttpClient {
           value: newRefresh,
         );
       }
+      if (newRefreshExpiry != null) {
+        await secureStorage.save(
+          key: StorageKeys.refreshTokenExpiryTime,
+          value: newRefreshExpiry,
+        );
+      }
       return newToken;
     } catch (_) {
       await _clearSessionOnly();
+      sl<CurrentAccount>().clear();
+      sl<SessionEvents>().notifySessionExpired();
       throw HttpError.forbidden;
     }
   }

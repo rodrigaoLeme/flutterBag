@@ -61,15 +61,14 @@ class RemoteLoadAnnouncementsUsecase implements LoadAnnouncementsUsecase {
           .compareTo(a.editalReleaseDate ?? DateTime(0)));
 
       return NoticeEntity(
-        id: edital.id,
-        title: edital.title ?? '',
-        editalNumber: edital.editalNumber,
-        editalReleaseDate: edital.editalReleaseDate,
-        educationLevel: EducationLevel.fromValue(edital.educationLevel),
-        processType: ProcessType.fromValue(edital.processType),
-        scholarshipType: ScholarshipType.fromValue(edital.scholarshipType),
-        additiveTerms: terms,
-      );
+          id: edital.id,
+          title: edital.title ?? '',
+          editalNumber: edital.editalNumber,
+          editalReleaseDate: edital.editalReleaseDate,
+          educationLevel: EducationLevel.fromValue(edital.educationLevel),
+          scholarshipType: ScholarshipType.fromValue(edital.scholarshipType),
+          additiveTerms: terms,
+          processTypeDescription: edital.processTypeDescription);
     }).toList();
 
     grouped.sort((a, b) => (b.editalReleaseDate ?? DateTime(0))

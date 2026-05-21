@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../main/di/injection_container.dart';
+import '../../../main/factories/pages/home/home_presenter_factory.dart';
 import '../../../main/factories/pages/notices_terms/notices_terms_page_factory.dart';
 import '../../../main/factories/pages/profile/profile_page_factory.dart';
 import '../../../main/i18n/app_i18n.dart';
@@ -9,6 +10,7 @@ import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
 import '../notices_terms/notices_terms_page.dart';
 import '../notices_terms/notices_terms_presenter.dart';
+import 'home_presenter.dart';
 import 'home_tabs.dart';
 import 'processes_page.dart';
 
@@ -26,11 +28,20 @@ class _HomePageState extends State<HomePage> {
   HomeTab _currentTab = HomeTab.process;
 
   late final NoticesTermsPresenter _noticesPresenter;
+  late final HomePresenter _homePresenter;
 
   @override
   void initState() {
     super.initState();
     _noticesPresenter = makeNoticesTermsPresenter();
+    _homePresenter = makeHomePresenter();
+  }
+
+  @override
+  void dispose() {
+    _noticesPresenter.dispose();
+    _homePresenter.dispose();
+    super.dispose();
   }
 
   void _onTabSelected(HomeTab tab) {
@@ -71,7 +82,9 @@ class _HomePageState extends State<HomePage> {
             presenter: _noticesPresenter,
             showAppBar: false,
           ),
-          ProcessesPage(),
+          ProcessesPage(
+            presenter: _homePresenter,
+          ),
           makeProfilePage(),
         ],
       ),

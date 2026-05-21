@@ -3,6 +3,7 @@ import 'dart:async';
 import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/notice_entity.dart';
 import '../../../domain/entities/school_entity.dart';
+import '../../../domain/helpers/app_constants.dart';
 import '../../../domain/usecases/notices/load_announcements.dart';
 import '../../../domain/usecases/notices/load_schools.dart';
 import '../../../infra/repositories/notices/remote_load_announcements_usecase.dart';
@@ -37,8 +38,9 @@ class StreamNoticesTermsPresenter implements NoticesTermsPresenter {
 
   @override
   void loadInitialData() {
-    const initialYear = 2020;
-    const initialMonthForEditalRelease = 5;
+    const initialYear = AppConstants.initialProcessYear;
+    const initialMonthForEditalRelease =
+        AppConstants.initialMonthForEditalRelease;
 
     final now = DateTime.now();
     final currentYear = now.year;

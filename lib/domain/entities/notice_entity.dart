@@ -6,19 +6,20 @@ class AdditiveTermEntity {
   final String? editalNumber;
   final DateTime? editalReleaseDate;
   final EducationLevel? educationLevel;
-  final ProcessType? processType;
   final ScholarshipType? scholarshipType;
   final String noticeId;
+  final String? processTypeDescription;
 
-  const AdditiveTermEntity(
-      {required this.id,
-      required this.title,
-      this.editalNumber,
-      this.editalReleaseDate,
-      this.educationLevel,
-      this.processType,
-      this.scholarshipType,
-      required this.noticeId});
+  const AdditiveTermEntity({
+    required this.id,
+    required this.title,
+    this.editalNumber,
+    this.editalReleaseDate,
+    this.educationLevel,
+    this.scholarshipType,
+    required this.noticeId,
+    this.processTypeDescription,
+  });
 }
 
 class NoticeEntity {
@@ -27,9 +28,9 @@ class NoticeEntity {
   final String? editalNumber;
   final DateTime? editalReleaseDate;
   final EducationLevel? educationLevel;
-  final ProcessType? processType;
   final ScholarshipType? scholarshipType;
   final List<AdditiveTermEntity> additiveTerms;
+  final String? processTypeDescription;
 
   const NoticeEntity({
     required this.id,
@@ -37,12 +38,12 @@ class NoticeEntity {
     this.editalNumber,
     this.editalReleaseDate,
     this.educationLevel,
-    this.processType,
     this.scholarshipType,
     this.additiveTerms = const [],
+    this.processTypeDescription,
   });
 
-  String get processTypeLabel => processType?.label ?? '';
+  String get processTypeLabel => processTypeDescription ?? '';
   String get scholarshipTypeLabel => scholarshipType?.label ?? '';
   String get educationLevelLabel => educationLevel?.label ?? '';
 }
