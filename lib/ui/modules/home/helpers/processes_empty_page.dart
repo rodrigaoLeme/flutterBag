@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_modular/flutter_modular.dart';
 
+import '../../../../main/factories/pages/new_scholarship/new_scholarship_page_factory.dart';
 import '../../../../main/i18n/app_i18n.dart';
-import '../../../../main/routes/routes.dart';
 import '../../../components/components.dart';
 
 class ProcessesEmptyPage extends StatefulWidget {
-  const ProcessesEmptyPage({super.key});
+  final int yearSelected;
+  const ProcessesEmptyPage({super.key, required this.yearSelected});
 
   @override
   State<ProcessesEmptyPage> createState() => _ProcessesEmptyPageState();
@@ -38,7 +38,12 @@ class _ProcessesEmptyPageState extends State<ProcessesEmptyPage> {
           ),
           const SizedBox(height: 16),
           EbolsaButton(
-            onPressed: () => Modular.to.pushNamed(Routes.newRequest),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) =>
+                    makeNewScholarshipPage(lockedYear: widget.yearSelected),
+              ),
+            ),
             label: appStrings.homeNewScholarshipButton,
             isOutlined: true,
           ),

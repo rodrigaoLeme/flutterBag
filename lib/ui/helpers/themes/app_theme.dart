@@ -92,6 +92,9 @@ class AppTheme {
           radius: const Radius.circular(8),
           interactive: true,
         ),
+        dividerTheme: DividerThemeData(
+          color: Colors.grey.shade400,
+        ),
       );
 
   static ThemeData get dark => ThemeData(

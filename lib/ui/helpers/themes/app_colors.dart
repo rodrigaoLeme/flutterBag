@@ -54,8 +54,10 @@ class AppColors {
   // Tons neutros de apoio (Figma)
   static const Color onSurfaceHigh = Color(0xFF20232A);
   static const Color onSurfaceVariant = Color(0xFF43474E);
+  static const Color surfaceVariant = Color(0xFFE0E2EC);
   static const Color grey800 = Color(0xFF212121);
   static const Color surface = Color(0xFFEDEDF4);
+  static const Color surfaceContainerLow = Color(0xFFF3F3FA);
 
   // Container
   static const Color secondaryContainer = Color(0xFFD9E3F8);

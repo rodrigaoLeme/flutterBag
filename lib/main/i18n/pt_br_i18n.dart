@@ -16,6 +16,32 @@ class PtBrI18n implements AppI18n {
   // New Request (Nova Solicitação) strings
 
   @override
+  String get newScholarshipTitle => 'Nova Solicitação';
+
+  @override
+  String get newScholarshipSubtitle => 'Editais Disponíveis';
+
+  @override
+  String get newScholarshipDescription =>
+      'Selecione a cidade e unidade escolar para conferir as vagas disponíves.';
+
+  @override
+  String get newScholarshipShowExpired => 'Exibir encerrados';
+
+  @override
+  String get newScholarshipDialogTitle => 'Solicitação de bolsa';
+
+  @override
+  String get newScholarshipDialogDescription =>
+      'Você está iniciando o formulário...';
+
+  @override
+  String get newScholarshipDialogCancel => 'Cancelar';
+
+  @override
+  String get newScholarshipDialogContinue => 'Continuar';
+
+  @override
   String get finishAction => 'Finalizar';
 
   // Housing step
@@ -422,14 +448,26 @@ class PtBrI18n implements AppI18n {
       'Preencha Ano letivo, Cidade e Unidade escolar para visualizar os editais.';
 
   @override
+  String get noticesTermsNoResultsTitle => 'Sem editais abertos';
+
+  @override
   String get noticesTermsNoResultsMessage =>
-      'Nao encontramos editais para os filtros selecionados. Tente outro ano, cidade ou unidade.';
+      'Não encontramos editais para os filtros selecionados. Tente outro ano, cidade ou unidade.';
+
+  @override
+  String get noticesTermsRegistrationPeriod => 'Período de Incrição';
 
   @override
   String get noticesTermsPublishedAtLabel => 'Data de Publicação';
 
   @override
+  String get noticesTermsLevelLabel => 'Nível de Ensino';
+
+  @override
   String get noticesTermsModalityLabel => 'Modalidade';
+
+  @override
+  String get noticesTermsModalityLabel2 => 'Tipo de Bolsa';
 
   @override
   String get noticesTermsEnrollmentTypeLabel => 'Tipo de Inscrição';
@@ -439,6 +477,13 @@ class PtBrI18n implements AppI18n {
 
   @override
   String get noticesTermsViewAdditiveTermAction => 'Ver Termo Aditivo';
+
+  @override
+  String get noticesTermsScholarshipApplication => 'Solicitação de bolsa';
+
+  @override
+  String get noticesTermsScholarshipApplicationDescription =>
+      'Você está iniciando o formulário de solicitação para a bolsa. Solicitaremos informações pessoais dos membros da sua família para compor sua análise.\n\nGarantimos que seus dados estão protegidos e serão usados apenas para a análise da bolsa';
 
   @override
   String get noticesTermsDocumentTitle => 'Documento';
@@ -575,6 +620,12 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get processCardNotice => 'Edital';
 
   @override
+  String get processCardNoticeSentence => 'Edital';
+
+  @override
+  String get processCardAddendumSentence => 'Termo Aditivo';
+
+  @override
   String get processCardLevel => 'Nível';
 
   @override
@@ -593,7 +644,14 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get processCardCandidatePlural => 'Candidatos';
 
   @override
+  String get processCardParticipatingEducationalUnits =>
+      'Unidades Educacionais Participantes';
+
+  @override
   String get processCardDetaiButton => 'Detalhe';
+
+  @override
+  String get processCardApplyForAScholarshipButton => 'Solicitar Bolsa';
 
   /// ------------------- Process Card Banners  -------------------
   @override

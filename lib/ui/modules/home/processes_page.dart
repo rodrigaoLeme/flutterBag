@@ -100,7 +100,9 @@ class _ProcessesPageState extends State<ProcessesPage> {
 
         // Sem incrições no ano -> tela vazia
         if (scholarships.isEmpty) {
-          return const ProcessesEmptyPage();
+          return ProcessesEmptyPage(
+            yearSelected: _selectedYear,
+          );
         }
 
         //TODO: dependendo do retorno exibe telas diferentes

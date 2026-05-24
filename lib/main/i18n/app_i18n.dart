@@ -104,12 +104,18 @@ abstract class AppI18n {
   String get noticesTermsSelectCity;
   String get noticesTermsSelectUnit;
   String get noticesTermsIncompleteFiltersMessage;
+  String get noticesTermsNoResultsTitle;
   String get noticesTermsNoResultsMessage;
+  String get noticesTermsRegistrationPeriod;
   String get noticesTermsPublishedAtLabel;
+  String get noticesTermsLevelLabel;
   String get noticesTermsModalityLabel;
+  String get noticesTermsModalityLabel2;
   String get noticesTermsEnrollmentTypeLabel;
   String get noticesTermsViewNoticeAction;
   String get noticesTermsViewAdditiveTermAction;
+  String get noticesTermsScholarshipApplication;
+  String get noticesTermsScholarshipApplicationDescription;
   String get noticesTermsDocumentTitle;
   String get noticesTermsDocumentNoticeDescription;
   String get noticesTermsDocumentAdditiveTermDescription;
@@ -160,13 +166,17 @@ abstract class AppI18n {
   String get enrollmentStatus;
   String get administrativeRegion;
   String get processCardNotice;
+  String get processCardNoticeSentence;
+  String get processCardAddendumSentence;
   String get processCardLevel;
   String get processCardScholarshipType;
   String get processCardProcessType;
   String get processCardStep;
   String get processCardCandidateSingular;
   String get processCardCandidatePlural;
+  String get processCardParticipatingEducationalUnits;
   String get processCardDetaiButton;
+  String get processCardApplyForAScholarshipButton;
 
   // Process Card Banners
   String get processCardBannerAttention;
@@ -221,6 +231,14 @@ abstract class AppI18n {
   String get profileChangePasswordButton;
 
   // New Request (Nova Solicitação) strings
+  String get newScholarshipTitle;
+  String get newScholarshipSubtitle;
+  String get newScholarshipDescription;
+  String get newScholarshipShowExpired;
+  String get newScholarshipDialogTitle;
+  String get newScholarshipDialogDescription;
+  String get newScholarshipDialogCancel;
+  String get newScholarshipDialogContinue;
   String get finishAction;
 
   // Housing step
