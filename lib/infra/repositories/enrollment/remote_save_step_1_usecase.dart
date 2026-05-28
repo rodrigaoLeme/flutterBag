@@ -37,7 +37,10 @@ class RemoteSaveStep1Usecase implements SaveStep1Usecase {
           throw SaveStep1Exception(AppI18n.current.errorProcessPeriodInvalid);
         default:
           throw SaveStep1Exception(
-              e.title.isNotEmpty ? e.title : AppI18n.current.errorUnexpected);
+            e.fullMessage.isNotEmpty
+                ? e.fullMessage
+                : AppI18n.current.errorUnexpected,
+          );
       }
     } on HttpError catch (e) {
       if (e == HttpError.noConnectivity) {

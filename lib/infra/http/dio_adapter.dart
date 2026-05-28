@@ -202,14 +202,28 @@ class DioAdapter implements HttpClient {
     final title = response.data?['title'] as String? ?? '';
     final detail = response.data?['detail'] as String? ?? '';
 
+    final rawErrors = response.data?['errors'] as Map?;
+    final errors = <String, List<String>>{};
+    if (rawErrors != null) {
+      for (final entry in rawErrors.entries) {
+        final key = entry.key as String;
+        final value = entry.value;
+        if (value is List) {
+          errors[key] = value.map((e) => e.toString()).toList();
+        }
+      }
+    }
+
     switch (response.statusCode) {
       case 400:
       case 422:
         throw ApiException(
-            code: code,
-            title: title,
-            detail: detail,
-            statusCode: response.statusCode ?? 400);
+          code: code,
+          title: title,
+          detail: detail,
+          statusCode: response.statusCode ?? 400,
+          errors: errors,
+        );
       case 401:
         throw HttpError.unauthorized;
       case 403:

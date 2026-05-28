@@ -140,6 +140,18 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                 child: _buildCurrentStep(),
               ),
             ),
+            StreamBuilder<String?>(
+              stream: _presenter.uiErrorStream,
+              builder: (context, snapshot) {
+                if (snapshot.data != null) {
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    child: EbolsaErrorBanner(message: snapshot.data!),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
             Visibility(
               visible: !(_currentStep == 2 && _currentSubStep == 1),
               child: Padding(

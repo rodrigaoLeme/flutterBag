@@ -26,7 +26,7 @@ class HousingEntity {
   });
 
   Map<String, dynamic> toJson() => {
-        'processPeridoId': processPeriodId,
+        'processPeriodId': processPeriodId,
         'zipCode': zipCode.replaceAll(RegExp(r'\D'), ''),
         'street': street,
         'number': number,

@@ -98,7 +98,7 @@ class PtBrI18n implements AppI18n {
   String get housingAreaRural => 'Rural';
 
   @override
-  String get housingAreaVulnerability => 'De vulnerabilidade e risco';
+  String get housingAreaVulnerability => 'Vulnerabilidade e risco';
 
   @override
   String get housingGroupQuestion => 'A moradia do grupo familiar é:';

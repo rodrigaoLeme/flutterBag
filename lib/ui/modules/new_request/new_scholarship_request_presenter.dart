@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import '../../../domain/entities/enrollment_enums.dart';
+
 abstract class NewScholarshipRequestPresenter {
   Stream<String?> get navigationRouteStream;
   Stream<int> get currentStepStream;
@@ -25,6 +27,7 @@ abstract class NewScholarshipRequestPresenter {
   void updateStateValue(String? v);
   void updateResidenceArea(String v);
   void updateHousingType(String? v);
+  void updateHousingTypeEnum(ResidenceType? v);
 
   ValueListenable<String?> get cepListenable;
   ValueListenable<String?> get numberListenable;
@@ -34,7 +37,7 @@ abstract class NewScholarshipRequestPresenter {
   ValueListenable<String?> get cityListenable;
   ValueListenable<String?> get stateListenable;
   ValueListenable<String?> get residenceAreaListenable;
-  ValueListenable<String?> get housingTypeListenable;
+  ValueListenable<ResidenceType?> get housingTypeListenable;
   ValueListenable<Map<String, String?>> get fieldErrorsListenable;
 
   Stream<void> get isLoadingStream;

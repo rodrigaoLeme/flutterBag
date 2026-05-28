@@ -57,6 +57,7 @@ class StreamNewScholarshipRequestPresenter
   String? _stateValue;
   String? _residenceArea;
   String? _housingType;
+  ResidenceType? _residenceType;
 
   // ValueNotifiers for UI binding
   final ValueNotifier<String?> _cepNotifier = ValueNotifier<String?>(null);
@@ -69,8 +70,8 @@ class StreamNewScholarshipRequestPresenter
   final ValueNotifier<String?> _cityNotifier = ValueNotifier<String?>(null);
   final ValueNotifier<String?> _stateNotifier = ValueNotifier<String?>(null);
   final ValueNotifier<String?> _residenceAreaNotifier = ValueNotifier(null);
-  final ValueNotifier<String?> _housingTypeNotifier =
-      ValueNotifier<String?>(null);
+  final ValueNotifier<ResidenceType?> _housingTypeNotifier =
+      ValueNotifier(null);
   final ValueNotifier<Map<String, String?>> _fieldErrorsNotifier =
       ValueNotifier({});
 
@@ -108,7 +109,7 @@ class StreamNewScholarshipRequestPresenter
       }
       if (entity.residenceType != null) {
         _housingType = entity.residenceType!.label;
-        _housingTypeNotifier.value = _housingType;
+        _housingTypeNotifier.value = _residenceType;
       }
     } catch (_) {}
   }
@@ -134,6 +135,7 @@ class StreamNewScholarshipRequestPresenter
         residenceAreaType: ResidenceAreaType.values.firstWhereOrNull(
           (e) => e.label == _residenceArea,
         ),
+        residenceType: _residenceType,
       );
 
   @override
@@ -206,7 +208,8 @@ class StreamNewScholarshipRequestPresenter
       _residenceAreaNotifier;
 
   @override
-  ValueListenable<String?> get housingTypeListenable => _housingTypeNotifier;
+  ValueListenable<ResidenceType?> get housingTypeListenable =>
+      _housingTypeNotifier;
 
   @override
   ValueListenable<Map<String, String?>> get fieldErrorsListenable =>
@@ -228,8 +231,17 @@ class StreamNewScholarshipRequestPresenter
 
   @override
   void updateHousingType(String? v) {
-    _housingType = v;
-    _housingTypeNotifier.value = v;
+    _residenceType = ResidenceType.values.firstWhereOrNull(
+      (e) => e.label == v,
+    );
+    _housingTypeNotifier.value = _residenceType;
+    _saveDraftSilently();
+  }
+
+  @override
+  void updateHousingTypeEnum(ResidenceType? type) {
+    _residenceType = type;
+    _housingTypeNotifier.value = type;
     _saveDraftSilently();
   }
 

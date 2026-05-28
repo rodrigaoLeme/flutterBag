@@ -19,10 +19,10 @@ class HousingStep extends StatefulWidget {
   final TextEditingController cityController;
   final ValueListenable<String?> stateListenable;
   final ValueListenable<String?> residenceAreaListenable;
-  final ValueListenable<String?> housingTypeListenable;
+  final ValueListenable<ResidenceType?> housingTypeListenable;
   final ValueChanged<String?> onStateChanged;
   final ValueChanged<String> onResidenceAreaChanged;
-  final ValueChanged<String?> onHousingTypeChanged;
+  final ValueChanged<ResidenceType?> onHousingTypeChanged;
   final Future<void> Function(String cep)? onZipCodeComplete;
   final VoidCallback? onClearAddressFields;
 
@@ -98,10 +98,10 @@ class _HousingStepState extends State<HousingStep> {
 
   Future<void> _openHousingTypeSelector() async {
     final appStrings = AppI18n.current;
-    final options = ResidenceType.values.map((e) => e.label).toList();
+    final options = ResidenceType.values.toList();
 
     final current = widget.housingTypeListenable.value;
-    final selected = await SearchableOptionsBottomSheet.show<String>(
+    final selected = await SearchableOptionsBottomSheet.show<ResidenceType>(
       context: context,
       title: appStrings.housingGroupQuestion,
       options: options,
@@ -110,8 +110,8 @@ class _HousingStepState extends State<HousingStep> {
       emptyStateText: appStrings.noticesTermsBottomSheetNoResults,
       closeTooltip: appStrings.noticesTermsCloseAction,
       selectedValue: current,
-      labelBuilder: (item) => item,
-      searchTextBuilder: (item) => item,
+      labelBuilder: (item) => item.label,
+      searchTextBuilder: (item) => item.label,
     );
     if (selected != null) {
       widget.onHousingTypeChanged(selected);
@@ -309,7 +309,7 @@ class _HousingStepState extends State<HousingStep> {
         // Tipo de imóvel
         Text(appStrings.housingGroupQuestion, style: AppTextStyles.bodyMedium),
         const SizedBox(height: 8),
-        ValueListenableBuilder<String?>(
+        ValueListenableBuilder<ResidenceType?>(
           valueListenable: widget.housingTypeListenable,
           builder: (context, housingVal, _) {
             final appStrings = AppI18n.current;
@@ -337,7 +337,7 @@ class _HousingStepState extends State<HousingStep> {
                       suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                     ),
                     child: Text(
-                      housingVal ?? appStrings.housingTypeHint,
+                      housingVal?.label ?? appStrings.housingTypeHint,
                       style: housingVal == null
                           ? AppTextStyles.ebolsaBodyLargeOutline
                           : AppTextStyles.ebolsaBodyLarge,

@@ -56,6 +56,8 @@ class AuthorizeHttpClientDecorator implements HttpClient {
         );
       }
       rethrow;
+    } on ApiException {
+      rethrow;
     }
   }
 
