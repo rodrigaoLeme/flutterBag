@@ -6,17 +6,25 @@ import '../helpers/themes/app_text_styles.dart';
 class EbolsaImportantBanner extends StatelessWidget {
   final String title;
   final String message;
+  final Color? backgroundColor;
 
-  const EbolsaImportantBanner(
-      {super.key, required this.title, required this.message});
+  const EbolsaImportantBanner({
+    super.key,
+    required this.title,
+    required this.message,
+    this.backgroundColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        vertical: 12,
+      ),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainer,
+        color:
+            backgroundColor ?? Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -29,13 +37,14 @@ class EbolsaImportantBanner extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary,
                 size: 24,
               ),
-              const SizedBox(
-                width: 12,
-              ),
-              Text(
-                title,
-                style: AppTextStyles.titleMedium.copyWith(
-                  color: AppColors.onSurface,
+              const SizedBox(width: 12),
+              Flexible(
+                child: Text(
+                  title,
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: AppColors.onSurface,
+                  ),
+                  maxLines: 2,
                 ),
               ),
             ],

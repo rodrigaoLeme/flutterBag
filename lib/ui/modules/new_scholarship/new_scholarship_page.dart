@@ -9,6 +9,7 @@ import '../../../main/factories/pages/notices_terms/notice_document_page_factory
 import '../../../main/i18n/app_i18n.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/app_text_styles.dart';
+import '../new_request/new_scholarship_request_page.dart';
 import '../notices_terms/notice_document_page.dart';
 import 'new_scholarship_presenter.dart';
 import 'new_scholarship_view_model.dart';
@@ -52,7 +53,6 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
   List<SchoolEntity> _currentUnits = [];
   EducationLevel? _selectedEducationLevel;
 
-  List<AvailableAnnouncementEntity> _announcements = [];
   List<AvailableAnnouncementEntity> _activeAnnouncements = [];
   List<AvailableAnnouncementEntity> _expiredAnnouncements = [];
 
@@ -81,7 +81,6 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
         widget.presenter.announcementsStream.listen((announcements) {
       if (!mounted) return;
       setState(() {
-        _announcements = announcements;
         _activeAnnouncements = announcements.where((a) => a.isActive).toList();
         _expiredAnnouncements =
             announcements.where((a) => !a.isActive).toList();
@@ -137,7 +136,6 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
   void _clearResults() {
     widget.presenter.clearAnnouncements();
     setState(() {
-      _announcements = [];
       _activeAnnouncements = [];
       _expiredAnnouncements = [];
       _hasAppliedFilters = false;
@@ -207,7 +205,12 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
           label: AppI18n.current.newScholarshipDialogContinue,
           isPrimary: true,
           onPressed: () {
-            // TODO: Navegar para a etapa 1
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => NewScholarshipRequestPage(
+                    processPeriodId: announcement.processPeriod!.id),
+              ),
+            );
           },
         ),
       ],

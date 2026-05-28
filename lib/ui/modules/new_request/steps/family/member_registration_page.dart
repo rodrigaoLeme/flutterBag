@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../main/i18n/app_i18n.dart';
-import '../../../../components/components.dart';
-import '../../../../components/ebolsa_typeahead_field.dart';
 import '../../../../helpers/themes/themes.dart';
-import '../../widgets/scholarship_step_indicator.dart';
 import 'member_registration_view_model.dart';
+import '../../../../components/components.dart';
+import '../ocupation/occupation_page.dart';
+import '../../widgets/scholarship_step_indicator.dart';
 
 class MemberRegistrationPage extends StatefulWidget {
   const MemberRegistrationPage({super.key});
@@ -20,6 +20,10 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
   int _currentSubStep = 1;
   static const int _totalSubSteps = 3;
   late final ScrollController _scrollController;
+  // Local state for substep 2 (occupation) questions
+  int _recebePensaoAlimenticia = 0;
+  int _recebePrevidenciaPrivada = 0;
+  int _recebeOutroBeneficioINSS = 0;
 
   @override
   void dispose() {
@@ -58,6 +62,46 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     if (picked != null) {
       setState(() {
         _vm.dobController.text = DateFormat('dd/MM/yyyy').format(picked);
+      });
+    }
+  }
+
+  Future<void> _openNationalitySelector() async {
+    final appStrings = AppI18n.current;
+    final selected = await SearchableOptionsBottomSheet.show<String>(
+      context: context,
+      title: appStrings.nationalityLabel,
+      options: _vm.nationalityOptions,
+      searchHint: appStrings.noticesTermsSearchHint,
+      helperText: appStrings.noticesTermsBottomSheetSearchHelp,
+      emptyStateText: appStrings.noticesTermsBottomSheetNoResults,
+      closeTooltip: appStrings.noticesTermsCloseAction,
+      selectedValue: _vm.nacionalityController.text.isNotEmpty
+          ? _vm.nacionalityController.text
+          : null,
+    );
+    if (selected != null) {
+      setState(() {
+        _vm.nacionalityController.text = selected;
+      });
+    }
+  }
+
+  Future<void> _openPcdSelector() async {
+    final appStrings = AppI18n.current;
+    final selected = await SearchableOptionsBottomSheet.show<String>(
+      context: context,
+      title: appStrings.pcdLabel,
+      options: _vm.pcdOptions,
+      searchHint: appStrings.noticesTermsSearchHint,
+      helperText: appStrings.noticesTermsBottomSheetSearchHelp,
+      emptyStateText: appStrings.noticesTermsBottomSheetNoResults,
+      closeTooltip: appStrings.noticesTermsCloseAction,
+      selectedValue: _vm.selectedPcd,
+    );
+    if (selected != null) {
+      setState(() {
+        _vm.selectedPcd = selected;
       });
     }
   }
@@ -128,7 +172,11 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                             Expanded(
                               child: Center(
                                 child: Text(
-                                  AppI18n.current.personalDataTitle,
+                                  _currentSubStep == 1
+                                      ? AppI18n.current.personalDataTitle
+                                      : _currentSubStep == 2
+                                          ? 'Ocupação'
+                                          : AppI18n.current.documentsTitle,
                                   style: AppTextStyles.titleLarge,
                                 ),
                               ),
@@ -167,11 +215,12 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                         ),
                         const SizedBox(height: 12),
                         SizedBox(
-                            height: 56,
-                            child: EbolsaTextField(
-                                controller: _vm.nameController,
-                                label: AppI18n
-                                    .current.createAccountFullNameLabel)),
+                          height: 56,
+                          child: EbolsaTextField(
+                              controller: _vm.nameController,
+                              label:
+                                  AppI18n.current.createAccountFullNameLabel),
+                        ),
                         const SizedBox(height: 12),
                         Row(
                           children: [
@@ -194,7 +243,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                               child: SizedBox(
                                 height: 56,
                                 child: DropdownButtonFormField<String>(
-                                  initialValue: _vm.selectedGender,
+                                  value: _vm.selectedGender,
                                   style: AppTextStyles.bodyMedium
                                       .copyWith(color: AppColors.onSurface),
                                   icon: const Icon(Icons.keyboard_arrow_down),
@@ -234,7 +283,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                               child: SizedBox(
                                 height: 56,
                                 child: DropdownButtonFormField<String>(
-                                  initialValue: _vm.selectedResponsible,
+                                  value: _vm.selectedResponsible,
                                   style: AppTextStyles.bodyMedium
                                       .copyWith(color: AppColors.onSurface),
                                   icon: const Icon(Icons.keyboard_arrow_down),
@@ -270,7 +319,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                               child: SizedBox(
                                 height: 56,
                                 child: DropdownButtonFormField<MaritalStatus>(
-                                  initialValue: _vm.maritalStatus,
+                                  value: _vm.maritalStatus,
                                   style: AppTextStyles.bodyMedium
                                       .copyWith(color: AppColors.onSurface),
                                   icon: const Icon(Icons.keyboard_arrow_down),
@@ -301,133 +350,79 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                         // se o estado civil for viuva deve aparecer esse campo abaixo para informar se recebe pensão
                         if (_vm.showReceivesPension) ...[
                           const SizedBox(height: 16),
-                          Text(
-                            AppI18n.current.receivesPensionQuestion,
-                            style: AppTextStyles.bodyMedium,
-                          ),
-                          const SizedBox(height: 8),
-                          RadioGroup<int>(
+                          EbolsaRadioGroup<int>(
+                            question: AppI18n.current.receivesPensionQuestion,
+                            options: [
+                              RadioOption(
+                                  label: AppI18n.current.answerNo, value: 0),
+                              RadioOption(
+                                  label: AppI18n.current.answerYes, value: 1),
+                            ],
                             groupValue: _vm.recebePensao,
                             onChanged: (v) => _vm.setRecebePensao(v),
-                            child: Row(
-                              children: [
-                                InkWell(
-                                  onTap: () => _vm.setRecebePensao(0),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Radio<int>(
-                                        value: 0,
-                                      ),
-                                      Text(AppI18n.current.answerNo),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                InkWell(
-                                  onTap: () => _vm.setRecebePensao(1),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Radio<int>(
-                                        value: 1,
-                                      ),
-                                      Text(AppI18n.current.answerYes),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
                           ),
                           // se ele responder que sim, deve mostrar o campo para inserir se é aposentado(a)?
                           if (_vm.showIsRetired) ...[
                             const SizedBox(height: 16),
-                            Text(AppI18n.current.isRetiredQuestion,
-                                style: AppTextStyles.bodyMedium),
-                            const SizedBox(height: 8),
-                            RadioGroup<int>(
+                            EbolsaRadioGroup<int>(
+                              question: AppI18n.current.isRetiredQuestion,
+                              options: [
+                                RadioOption(
+                                    label: AppI18n.current.answerNo, value: 0),
+                                RadioOption(
+                                    label: AppI18n.current.answerYes, value: 1),
+                              ],
                               groupValue: _vm.aposentado,
                               onChanged: (v) => _vm.setAposentado(v),
-                              child: Row(
-                                children: [
-                                  InkWell(
-                                    onTap: () => _vm.setAposentado(0),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Radio<int>(
-                                          value: 0,
-                                        ),
-                                        Text(AppI18n.current.answerNo),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  InkWell(
-                                    onTap: () => _vm.setAposentado(1),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Radio<int>(
-                                          value: 1,
-                                        ),
-                                        Text(AppI18n.current.answerYes),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
                             ),
                           ]
                         ],
                         const SizedBox(height: 16),
-                        Text(AppI18n.current.willApplyScholarshipQuestion,
-                            style: AppTextStyles.bodyMedium),
-                        const SizedBox(height: 8),
-                        RadioGroup<int>(
+                        EbolsaRadioGroup<int>(
+                          question:
+                              AppI18n.current.willApplyScholarshipQuestion,
+                          options: [
+                            RadioOption(
+                                label: AppI18n.current.answerNo, value: 0),
+                            RadioOption(
+                                label: AppI18n.current.answerYes, value: 1),
+                          ],
                           groupValue: _vm.seraCandidato,
                           onChanged: (v) => _vm.setSeraCandidato(v),
-                          child: Row(
-                            children: [
-                              InkWell(
-                                onTap: () => _vm.setSeraCandidato(0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 0,
-                                    ),
-                                    Text(AppI18n.current.answerNo),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              InkWell(
-                                onTap: () => _vm.setSeraCandidato(1),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 1,
-                                    ),
-                                    Text(AppI18n.current.answerYes),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
                         ),
-                        //Se ele responder sim, mostrar o campo para inserir a nacionalidade
+                        //Se ele responder sim, mostrar o campo para selecionar a nacionalidade
                         if (_vm.seraCandidato == 1) ...[
                           const SizedBox(height: 12),
                           SizedBox(
                             height: 56,
-                            child: EbolsaTypeAheadField(
-                              controller: _vm.nacionalityController,
-                              label: AppI18n.current.nationalityLabel,
-                              suggestions: _vm.nationalityOptions,
-                              onChanged: (s) => setState(() {}),
-                              onSuggestionSelected: (s) => setState(() {}),
+                            child: InkWell(
+                              onTap: _openNationalitySelector,
+                              borderRadius: BorderRadius.circular(12),
+                              child: InputDecorator(
+                                decoration: InputDecoration(
+                                  hintText: AppI18n.current.nationalityLabel,
+                                  isDense: true,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 16),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  suffixIcon:
+                                      const Icon(Icons.keyboard_arrow_down),
+                                ),
+                                child: Text(
+                                  _vm.nacionalityController.text.isNotEmpty
+                                      ? _vm.nacionalityController.text
+                                      : AppI18n.current.nationalityLabel,
+                                  style: _vm.nacionalityController.text.isEmpty
+                                      ? AppTextStyles.bodyMedium.copyWith(
+                                          color: AppColors.onSurface
+                                              .withOpacity(0.6))
+                                      : AppTextStyles.bodyMedium,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -436,41 +431,16 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                             .trim()
                             .isNotEmpty)) ...[
                           const SizedBox(height: 16),
-                          Text(AppI18n.current.naturalizedQuestion,
-                              style: AppTextStyles.bodyMedium),
-                          const SizedBox(height: 8),
-                          RadioGroup<int>(
+                          EbolsaRadioGroup<int>(
+                            question: AppI18n.current.naturalizedQuestion,
+                            options: [
+                              RadioOption(
+                                  label: AppI18n.current.answerNo, value: 0),
+                              RadioOption(
+                                  label: AppI18n.current.answerYes, value: 1),
+                            ],
                             groupValue: _vm.naturalizado,
-                            onChanged: (v) => _vm.setSeraCandidato(v),
-                            child: Row(
-                              children: [
-                                InkWell(
-                                  onTap: () => _vm.setNaturalizado(0),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Radio<int>(
-                                        value: 0,
-                                      ),
-                                      Text(AppI18n.current.answerNo),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                InkWell(
-                                  onTap: () => _vm.setNaturalizado(1),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Radio<int>(
-                                        value: 1,
-                                      ),
-                                      Text(AppI18n.current.answerYes),
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
+                            onChanged: (v) => _vm.setNaturalizado(v),
                           ),
                           //se ele responder que não é naturalizado, deve mostrar o campo abaixo de alerta EbolsaImportantBanner
                           if (_vm.naturalizado == 0) ...[
@@ -481,41 +451,16 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                           ]
                         ],
                         const SizedBox(height: 12),
-                        Text(AppI18n.current.hasCINQuestion,
-                            style: AppTextStyles.bodyMedium),
-                        const SizedBox(height: 8),
-                        RadioGroup<int>(
+                        EbolsaRadioGroup<int>(
+                          question: AppI18n.current.hasCINQuestion,
+                          options: [
+                            RadioOption(
+                                label: AppI18n.current.answerNo, value: 0),
+                            RadioOption(
+                                label: AppI18n.current.answerYes, value: 1),
+                          ],
                           groupValue: _vm.possuiCIN,
                           onChanged: (v) => setState(() => _vm.possuiCIN = v),
-                          child: Row(
-                            children: [
-                              InkWell(
-                                onTap: () => setState(() => _vm.possuiCIN = 0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 0,
-                                    ),
-                                    Text(AppI18n.current.answerNo),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              InkWell(
-                                onTap: () => setState(() => _vm.possuiCIN = 1),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 1,
-                                    ),
-                                    Text(AppI18n.current.answerYes),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
                         ),
                         // se a resposta for sim, mostrar os campos abaixo para inserir o número do CIN e o órgão emissor
                         if (_vm.possuiCIN == 1) ...[
@@ -544,44 +489,17 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                           ),
                         ],
                         const SizedBox(height: 12),
-                        Text(AppI18n.current.hasCadunicoQuestion,
-                            style: AppTextStyles.bodyMedium),
-                        const SizedBox(height: 8),
-                        RadioGroup<int>(
+                        EbolsaRadioGroup<int>(
+                          question: AppI18n.current.hasCadunicoQuestion,
+                          options: [
+                            RadioOption(
+                                label: AppI18n.current.answerNo, value: 0),
+                            RadioOption(
+                                label: AppI18n.current.answerYes, value: 1),
+                          ],
                           groupValue: _vm.cadunicoValue,
                           onChanged: (v) =>
                               setState(() => _vm.cadunicoValue = v),
-                          child: Row(
-                            children: [
-                              InkWell(
-                                onTap: () =>
-                                    setState(() => _vm.cadunicoValue = 0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 0,
-                                    ),
-                                    Text(AppI18n.current.answerNo),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              InkWell(
-                                onTap: () =>
-                                    setState(() => _vm.cadunicoValue = 1),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 1,
-                                    ),
-                                    Text(AppI18n.current.answerYes),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
                         ),
                         //se a responda for sim mostrar o campo para inserir o número do NIS (Cadúnico)
                         if (_vm.cadunicoValue == 1) ...[
@@ -594,44 +512,17 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                           ),
                         ],
                         const SizedBox(height: 12),
-                        Text(AppI18n.current.hasChronicDiseaseQuestion,
-                            style: AppTextStyles.bodyMedium),
-                        const SizedBox(height: 8),
-                        RadioGroup<int>(
+                        EbolsaRadioGroup<int>(
+                          question: AppI18n.current.hasChronicDiseaseQuestion,
+                          options: [
+                            RadioOption(
+                                label: AppI18n.current.answerNo, value: 0),
+                            RadioOption(
+                                label: AppI18n.current.answerYes, value: 1),
+                          ],
                           groupValue: _vm.possuiDoenca,
                           onChanged: (v) =>
                               setState(() => _vm.possuiDoenca = v),
-                          child: Row(
-                            children: [
-                              InkWell(
-                                onTap: () =>
-                                    setState(() => _vm.possuiDoenca = 0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 0,
-                                    ),
-                                    Text(AppI18n.current.answerNo),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              InkWell(
-                                onTap: () =>
-                                    setState(() => _vm.possuiDoenca = 1),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 1,
-                                    ),
-                                    Text(AppI18n.current.answerYes),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
                         ),
                         // se a resposta for sim, mostrar o campo para inserir o tipo de doença
                         if (_vm.possuiDoenca == 1) ...[
@@ -648,202 +539,183 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                         const SizedBox(height: 8),
                         SizedBox(
                           height: 56,
-                          child: DropdownButtonFormField<String>(
-                            initialValue: _vm.selectedPcd,
-                            style: AppTextStyles.bodyMedium
-                                .copyWith(color: AppColors.onSurface),
-                            icon: const Icon(Icons.keyboard_arrow_down),
-                            decoration: InputDecoration(
-                              hintText: AppI18n.current.pcdLabel,
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 16),
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                          child: InkWell(
+                            onTap: _openPcdSelector,
+                            borderRadius: BorderRadius.circular(12),
+                            child: InputDecorator(
+                              decoration: InputDecoration(
+                                hintText: AppI18n.current.pcdLabel,
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 16),
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                suffixIcon:
+                                    const Icon(Icons.keyboard_arrow_down),
+                              ),
+                              child: Text(
+                                _vm.selectedPcd ?? AppI18n.current.pcdLabel,
+                                style: _vm.selectedPcd == null
+                                    ? AppTextStyles.bodyMedium.copyWith(
+                                        color: AppColors.onSurface
+                                            .withOpacity(0.6))
+                                    : AppTextStyles.bodyMedium,
                               ),
                             ),
-                            items: _vm.pcdOptions
-                                .map((m) => DropdownMenuItem(
-                                    value: m,
-                                    child: Text(m,
-                                        style: AppTextStyles.bodyMedium)))
-                                .toList(),
-                            onChanged: (v) =>
-                                setState(() => _vm.selectedPcd = v),
                           ),
                         ),
                         const SizedBox(height: 12),
-                        Text(AppI18n.current.irpfConditionLabel,
-                            style: AppTextStyles.bodyMedium),
-                        const SizedBox(height: 8),
-                        RadioGroup<int>(
+                        EbolsaRadioGroup<int>(
+                          question: AppI18n.current.irpfConditionLabel,
+                          options: [
+                            RadioOption(
+                                label: AppI18n.current.irpfDeclarante,
+                                value: 0),
+                            RadioOption(
+                                label: AppI18n.current.irpfIsento, value: 1),
+                          ],
                           groupValue: _vm.irpfCondition,
                           onChanged: (v) =>
                               setState(() => _vm.irpfCondition = v),
-                          child: Row(
-                            children: [
-                              InkWell(
-                                onTap: () =>
-                                    setState(() => _vm.irpfCondition = 0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 0,
-                                    ),
-                                    Text(AppI18n.current.irpfDeclarante),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              InkWell(
-                                onTap: () =>
-                                    setState(() => _vm.irpfCondition = 1),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 1,
-                                    ),
-                                    Text(AppI18n.current.irpfIsento),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
                         ),
                         const SizedBox(height: 12),
-                        Text(AppI18n.current.declaredThisYearQuestion,
-                            style: AppTextStyles.bodyMedium),
-                        const SizedBox(height: 8),
-                        RadioGroup<int>(
+                        EbolsaRadioGroup<int>(
+                          question: AppI18n.current.declaredThisYearQuestion,
+                          options: [
+                            RadioOption(
+                                label: AppI18n.current.answerNo, value: 0),
+                            RadioOption(
+                                label: AppI18n.current.answerYes, value: 1),
+                          ],
                           groupValue: _vm.declarouEsseAno,
                           onChanged: (v) =>
                               setState(() => _vm.declarouEsseAno = v),
-                          child: Row(
-                            children: [
-                              InkWell(
-                                onTap: () =>
-                                    setState(() => _vm.declarouEsseAno = 0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 0,
-                                    ),
-                                    Text(AppI18n.current.answerNo),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              InkWell(
-                                onTap: () =>
-                                    setState(() => _vm.declarouEsseAno = 1),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 1,
-                                    ),
-                                    Text(AppI18n.current.answerYes),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
                         ),
                         const SizedBox(height: 12),
-                        Text(AppI18n.current.hasWorkCardQuestion,
-                            style: AppTextStyles.bodyMedium),
-                        const SizedBox(height: 8),
-                        RadioGroup<int>(
+                        EbolsaRadioGroup<int>(
+                          question: AppI18n.current.hasWorkCardQuestion,
+                          options: [
+                            RadioOption(
+                                label: AppI18n.current.answerNo, value: 0),
+                            RadioOption(
+                                label: AppI18n.current.answerYes, value: 1),
+                          ],
                           groupValue: _vm.temCarteira,
                           onChanged: (v) => setState(() => _vm.temCarteira = v),
-                          child: Row(
-                            children: [
-                              InkWell(
-                                onTap: () =>
-                                    setState(() => _vm.temCarteira = 0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 0,
-                                    ),
-                                    Text(AppI18n.current.answerNo),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              InkWell(
-                                onTap: () =>
-                                    setState(() => _vm.temCarteira = 1),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 1,
-                                    ),
-                                    Text(AppI18n.current.answerYes),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
                         ),
                         const SizedBox(height: 12),
-                        Text(AppI18n.current.ruralWorkerQuestion,
-                            style: AppTextStyles.bodyMedium),
-                        const SizedBox(height: 8),
-                        RadioGroup<int>(
+                        EbolsaRadioGroup<int>(
+                          question: AppI18n.current.ruralWorkerQuestion,
+                          options: [
+                            RadioOption(
+                                label: AppI18n.current.answerNo, value: 0),
+                            RadioOption(
+                                label: AppI18n.current.answerYes, value: 1),
+                          ],
                           groupValue: _vm.trabalhadorRural,
                           onChanged: (v) =>
                               setState(() => _vm.trabalhadorRural = v),
-                          child: Row(
-                            children: [
-                              InkWell(
-                                onTap: () =>
-                                    setState(() => _vm.trabalhadorRural = 0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 0,
-                                    ),
-                                    Text(AppI18n.current.answerNo),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              InkWell(
-                                onTap: () =>
-                                    setState(() => _vm.trabalhadorRural = 1),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<int>(
-                                      value: 1,
-                                    ),
-                                    Text(AppI18n.current.answerYes),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
                         ),
                       ] else if (_currentSubStep == 2) ...[
-                        Center(
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline_rounded,
+                              color: AppColors.surfaceContainer,
+                              size: 24,
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              AppI18n.current.dataComplementTitle,
+                              style: AppTextStyles.ebolsaTitleMedium,
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(top: 12.0, bottom: 22.0),
                           child: Text(
-                            AppI18n.current.dataComplementTitle,
-                            style: AppTextStyles.titleLarge,
+                            AppI18n.current.complementFieldsPlaceholder,
+                            style: AppTextStyles.bodySmall,
                           ),
                         ),
+                        SizedBox(
+                          height: 56,
+                          child: EbolsaButton(
+                            height: 56,
+                            borderRadius: 8,
+                            backgroundColor: AppColors.secondaryContainer,
+                            onPressed: () async {
+                              final res = await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => OccupationPage(
+                                    initialPension: _recebePensaoAlimenticia,
+                                    initialPrevidencia:
+                                        _recebePrevidenciaPrivada,
+                                    initialInss: _recebeOutroBeneficioINSS,
+                                  ),
+                                ),
+                              );
+                              if (res != null && res is Map<String, int>) {
+                                setState(() {
+                                  _recebePensaoAlimenticia = res['pension'] ??
+                                      _recebePensaoAlimenticia;
+                                  _recebePrevidenciaPrivada =
+                                      res['previdencia'] ??
+                                          _recebePrevidenciaPrivada;
+                                  _recebeOutroBeneficioINSS =
+                                      res['inss'] ?? _recebeOutroBeneficioINSS;
+                                });
+                              }
+                            },
+                            label: '+ Adicionar ocupação',
+                            textStyle: AppTextStyles.ebolsaTitleMedium.copyWith(
+                              color: AppColors.onPrimaryContainer,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        EbolsaRadioGroup<int>(
+                          question: AppI18n.current.receivesPensionQuestion,
+                          options: [
+                            RadioOption(
+                                label: AppI18n.current.answerNo, value: 0),
+                            RadioOption(
+                                label: AppI18n.current.answerYes, value: 1),
+                          ],
+                          groupValue: _recebePensaoAlimenticia,
+                          onChanged: (v) =>
+                              setState(() => _recebePensaoAlimenticia = v ?? 0),
+                        ),
                         const SizedBox(height: 12),
-                        Text(AppI18n.current.complementFieldsPlaceholder,
-                            style: AppTextStyles.bodyMedium),
-                        const SizedBox(height: 200),
+                        EbolsaRadioGroup<int>(
+                          question: 'Recebe Previdência Privada?',
+                          options: [
+                            RadioOption(
+                                label: AppI18n.current.answerNo, value: 0),
+                            RadioOption(
+                                label: AppI18n.current.answerYes, value: 1),
+                          ],
+                          groupValue: _recebePrevidenciaPrivada,
+                          onChanged: (v) => setState(
+                              () => _recebePrevidenciaPrivada = v ?? 0),
+                        ),
+                        const SizedBox(height: 12),
+                        EbolsaRadioGroup<int>(
+                          question: 'Recebe outro benefício/auxílio do INSS?',
+                          options: [
+                            RadioOption(
+                                label: AppI18n.current.answerNo, value: 0),
+                            RadioOption(
+                                label: AppI18n.current.answerYes, value: 1),
+                          ],
+                          groupValue: _recebeOutroBeneficioINSS,
+                          onChanged: (v) => setState(
+                              () => _recebeOutroBeneficioINSS = v ?? 0),
+                        ),
                       ] else ...[
                         Center(
                             child: Text(AppI18n.current.documentsTitle,

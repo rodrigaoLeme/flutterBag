@@ -44,6 +44,17 @@ class PtBrI18n implements AppI18n {
   @override
   String get finishAction => 'Finalizar';
 
+  // Steps - Erros de domínio
+  @override
+  String get errorPersonNotFound => 'Usuário sem cadastro de pessoa associado';
+
+  @override
+  String get errorProcessPeriodInvalid =>
+      'Período de processo inválido ou não encontrado';
+
+  @override
+  String get fieldRequired => 'Campo obrigatório';
+
   // Housing step
   @override
   String get housingStepResidenceTitle => 'Local da sua residência';
@@ -728,6 +739,16 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get familyStepDescriptionSuffix =>
       ' É importante listar todos os membros da família.';
 
+  @override
+  String get zipCodeNotFound => 'CEP não encontrado';
+
+  @override
+  String get zipCodeInvalid => 'CEP inválido ou não encontrado';
+
+  @override
+  String get enrollmentStep1ValidationError =>
+      'Preencha todos os campos obrigatórios';
+
   /// ------------------- Nav Bar -------------------
   @override
   String get pdfViewerErrorToLoadArchive => 'Não foi possível carregar o PDF.';
@@ -842,10 +863,11 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get ruralWorkerQuestion => 'Trabalhador rural?';
 
   @override
-  String get dataComplementTitle => 'Dados Complementares';
+  String get dataComplementTitle => 'Múltiplas ocupações';
 
   @override
-  String get complementFieldsPlaceholder => 'Campos complementares aqui...';
+  String get complementFieldsPlaceholder =>
+      'Lembre-se de que uma pessoa pode ter múltiplas ocupações: como dois empregos, ser aposentada e ainda trabalhar, ser estudante e aprendiz, ou assalariada e sócia de uma empresa. Certifique-se de registrar todas as informações relevantes.';
 
   @override
   String get documentsTitle => 'Documentos';

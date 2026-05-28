@@ -36,7 +36,8 @@ enum AnnouncementType {
 
 enum EducationLevel {
   basic(0, 'Ensino Básico'),
-  higher(1, 'Ensino Superior');
+  higher(1, 'Ensino Superior'),
+  basicAndHigher(2, 'Básico e Superior');
 
   const EducationLevel(this.value, this.label);
   final int value;

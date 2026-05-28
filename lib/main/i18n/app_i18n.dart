@@ -241,6 +241,11 @@ abstract class AppI18n {
   String get newScholarshipDialogContinue;
   String get finishAction;
 
+  // Steps - Erros de domínio
+  String get errorPersonNotFound;
+  String get errorProcessPeriodInvalid;
+  String get fieldRequired;
+
   // Housing step
   String get housingStepResidenceTitle;
   String get housingStepResidenceDescription;
@@ -267,6 +272,9 @@ abstract class AppI18n {
   String get familyStepDescriptionPrefix;
   String get familyStepDescriptionEmphasis;
   String get familyStepDescriptionSuffix;
+  String get zipCodeNotFound;
+  String get zipCodeInvalid;
+  String get enrollmentStep1ValidationError;
 
   // Family info bottom sheet
   String get familyInfoGroupTitle;

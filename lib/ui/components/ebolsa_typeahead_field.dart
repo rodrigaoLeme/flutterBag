@@ -25,44 +25,65 @@ class EbolsaTypeAheadField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TypeAheadFormField<String>(
-      textFieldConfiguration: TextFieldConfiguration(
-        controller: controller,
-        decoration: InputDecoration(
-          hintText: label,
-          isDense: true,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+    return TypeAheadField<String>(
+      controller: controller,
+      builder: (context, controller, focusNode) {
+        return TextField(
+          controller: controller,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            hintText: label,
+            isDense: true,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
-        ),
-        style: AppTextStyles.bodyMedium,
-        onChanged: onChanged,
-      ),
+          style: AppTextStyles.bodyMedium,
+          onChanged: onChanged,
+        );
+      },
       suggestionsCallback: suggestionsCallback ??
           (pattern) async {
             final list = suggestions ?? <String>[];
+
             if (pattern.trim().isEmpty) return list;
+
             return list
-                .where((s) =>
-                    s.toLowerCase().contains(pattern.trim().toLowerCase()))
+                .where(
+                  (s) => s.toLowerCase().contains(
+                        pattern.trim().toLowerCase(),
+                      ),
+                )
                 .toList();
           },
-      itemBuilder: (context, String suggestion) => ListTile(
-        title: Text(suggestion, style: AppTextStyles.bodyMedium),
-      ),
-      onSuggestionSelected: (String suggestion) {
-        controller.text = suggestion;
-        if (onSuggestionSelected != null) onSuggestionSelected!(suggestion);
+      itemBuilder: (context, String suggestion) {
+        return ListTile(
+          title: Text(
+            suggestion,
+            style: AppTextStyles.bodyMedium,
+          ),
+        );
       },
-      noItemsFoundBuilder: (context) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child:
-            Text('Nenhuma opção encontrada', style: AppTextStyles.bodyMedium),
-      ),
+      onSelected: (String suggestion) {
+        controller.text = suggestion;
+
+        if (onSuggestionSelected != null) {
+          onSuggestionSelected!(suggestion);
+        }
+      },
+      emptyBuilder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'Nenhuma opção encontrada',
+            style: AppTextStyles.bodyMedium,
+          ),
+        );
+      },
     );
   }
 }

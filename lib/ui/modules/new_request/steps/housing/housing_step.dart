@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
+import '../../../../../domain/entities/enrollment_enums.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/themes/themes.dart';
 
-class HousingStep extends StatelessWidget {
+class HousingStep extends StatefulWidget {
   final int currentSubStep;
   final TextEditingController cepController;
   final TextEditingController numberController;
@@ -14,11 +18,22 @@ class HousingStep extends StatelessWidget {
   final TextEditingController neighborhoodController;
   final TextEditingController cityController;
   final ValueListenable<String?> stateListenable;
-  final ValueListenable<String> residenceAreaListenable;
+  final ValueListenable<String?> residenceAreaListenable;
   final ValueListenable<String?> housingTypeListenable;
   final ValueChanged<String?> onStateChanged;
   final ValueChanged<String> onResidenceAreaChanged;
   final ValueChanged<String?> onHousingTypeChanged;
+  final Future<void> Function(String cep)? onZipCodeComplete;
+  final VoidCallback? onClearAddressFields;
+
+  final String? cepError;
+  final String? numberError;
+  final String? addressError;
+  final String? neighborhoodError;
+  final String? cityError;
+  final String? stateError;
+  final String? residenceAreaError;
+  final String? housingTypeError;
 
   const HousingStep({
     super.key,
@@ -35,137 +50,205 @@ class HousingStep extends StatelessWidget {
     required this.onStateChanged,
     required this.onResidenceAreaChanged,
     required this.onHousingTypeChanged,
+    this.onZipCodeComplete,
+    this.onClearAddressFields,
+    this.cepError,
+    this.numberError,
+    this.addressError,
+    this.neighborhoodError,
+    this.cityError,
+    this.stateError,
+    this.residenceAreaError,
+    this.housingTypeError,
   });
 
   @override
+  State<HousingStep> createState() => _HousingStepState();
+}
+
+class _HousingStepState extends State<HousingStep> {
+  final _cepMask = MaskTextInputFormatter(
+    mask: '#####-###',
+    filter: {'#': RegExp(r'\d')},
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    widget.cepController.addListener(_onCepChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.cepController.removeListener(_onCepChanged);
+    super.dispose();
+  }
+
+  void _onCepChanged() {
+    final clean = widget.cepController.text.replaceAll(RegExp(r'\D'), '');
+
+    if (clean.length < 8) {
+      widget.onClearAddressFields?.call();
+    }
+
+    if (clean.length == 8) {
+      widget.onZipCodeComplete?.call(clean);
+    }
+  }
+
+  Future<void> _openHousingTypeSelector() async {
+    final appStrings = AppI18n.current;
+    final options = ResidenceType.values.map((e) => e.label).toList();
+
+    final current = widget.housingTypeListenable.value;
+    final selected = await SearchableOptionsBottomSheet.show<String>(
+      context: context,
+      title: appStrings.housingGroupQuestion,
+      options: options,
+      searchHint: appStrings.noticesTermsSearchHint,
+      helperText: '',
+      emptyStateText: appStrings.noticesTermsBottomSheetNoResults,
+      closeTooltip: appStrings.noticesTermsCloseAction,
+      selectedValue: current,
+      labelBuilder: (item) => item,
+      searchTextBuilder: (item) => item,
+    );
+    if (selected != null) {
+      widget.onHousingTypeChanged(selected);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final appStrings = AppI18n.current;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 8),
-        Text(AppI18n.current.housingStepResidenceTitle,
+        Text(appStrings.housingStepResidenceTitle,
             style: AppTextStyles.titleLarge),
         const SizedBox(height: 8),
         Text(
-          AppI18n.current.housingStepResidenceDescription,
+          appStrings.housingStepResidenceDescription,
           style: AppTextStyles.bodyMedium,
         ),
         const SizedBox(height: 16),
+
+        // CEP e Número
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: EbolsaTextField(
-                controller: cepController,
-                label: AppI18n.current.addressCepLabel,
+                controller: widget.cepController,
+                label: appStrings.addressCepLabel,
                 keyboardType: TextInputType.number,
+                inputFormatters: [_cepMask],
                 borderRadius: 16,
                 borderWidth: 1,
                 borderColor: AppColors.secondary,
+                errorText: widget.cepError,
               ),
             ),
             const SizedBox(width: 12),
             SizedBox(
               width: 120,
               child: EbolsaTextField(
-                controller: numberController,
-                label: AppI18n.current.addressNumberLabel,
+                controller: widget.numberController,
+                label: appStrings.addressNumberLabel,
                 keyboardType: TextInputType.number,
                 borderRadius: 16,
                 borderWidth: 1,
                 borderColor: AppColors.secondary,
+                errorText: widget.numberError,
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
+
+        // Complemento
         EbolsaTextField(
-          controller: complementController,
-          label: AppI18n.current.addressComplementLabel,
+          controller: widget.complementController,
+          label: appStrings.addressComplementLabel,
           borderRadius: 16,
           borderWidth: 1,
           borderColor: AppColors.secondary,
         ),
         const SizedBox(height: 12),
+
+        // Endereço
         EbolsaTextField(
-          controller: addressController,
-          label: AppI18n.current.addressLabel,
+          controller: widget.addressController,
+          label: appStrings.addressLabel,
           borderRadius: 16,
           borderWidth: 1,
           borderColor: AppColors.secondary,
+          enabled: false,
+          errorText: widget.addressError,
         ),
         const SizedBox(height: 12),
+
+        // Bairro
         EbolsaTextField(
-          controller: neighborhoodController,
-          label: AppI18n.current.addressNeighborhoodLabel,
+          controller: widget.neighborhoodController,
+          label: appStrings.addressNeighborhoodLabel,
           borderRadius: 16,
           borderWidth: 1,
           borderColor: AppColors.secondary,
+          enabled: false,
+          errorText: widget.neighborhoodError,
         ),
         const SizedBox(height: 12),
+
+        // Cidade / Estado
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: EbolsaTextField(
-                controller: cityController,
-                label: AppI18n.current.addressCityLabel,
+                controller: widget.cityController,
+                label: appStrings.addressCityLabel,
                 borderRadius: 16,
                 borderWidth: 1,
                 borderColor: AppColors.secondary,
+                enabled: false,
+                errorText: widget.cityError,
               ),
             ),
             const SizedBox(width: 12),
             SizedBox(
               width: 140,
               child: ValueListenableBuilder<String?>(
-                valueListenable: stateListenable,
+                valueListenable: widget.stateListenable,
                 builder: (context, stateVal, _) {
-                  return DropdownButtonFormField<String>(
-                    style: AppTextStyles.bodyLarge
-                        .copyWith(color: AppColors.textPrimaryLight),
+                  return InputDecorator(
                     decoration: InputDecoration(
-                      labelText: AppI18n.current.addressStateLabel,
+                      labelText: appStrings.addressStateLabel,
+                      errorText: widget.stateError,
+                      enabled: false,
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide:
-                            BorderSide(color: AppColors.secondary, width: 1),
+                        borderSide: BorderSide(
+                          color: AppColors.secondary,
+                          width: 1,
+                        ),
                       ),
-                      focusedBorder: OutlineInputBorder(
+                      disabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide:
-                            BorderSide(color: AppColors.secondary, width: 1),
+                        borderSide: BorderSide(
+                          color: AppColors.borderLight,
+                          width: 1,
+                        ),
                       ),
                     ),
-                    initialValue: stateVal,
-                    items: const [
-                      DropdownMenuItem(value: 'AC', child: Text('AC')),
-                      DropdownMenuItem(value: 'AL', child: Text('AL')),
-                      DropdownMenuItem(value: 'AP', child: Text('AP')),
-                      DropdownMenuItem(value: 'AM', child: Text('AM')),
-                      DropdownMenuItem(value: 'BA', child: Text('BA')),
-                      DropdownMenuItem(value: 'CE', child: Text('CE')),
-                      DropdownMenuItem(value: 'DF', child: Text('DF')),
-                      DropdownMenuItem(value: 'ES', child: Text('ES')),
-                      DropdownMenuItem(value: 'GO', child: Text('GO')),
-                      DropdownMenuItem(value: 'MA', child: Text('MA')),
-                      DropdownMenuItem(value: 'MT', child: Text('MT')),
-                      DropdownMenuItem(value: 'MS', child: Text('MS')),
-                      DropdownMenuItem(value: 'MG', child: Text('MG')),
-                      DropdownMenuItem(value: 'PA', child: Text('PA')),
-                      DropdownMenuItem(value: 'PB', child: Text('PB')),
-                      DropdownMenuItem(value: 'PR', child: Text('PR')),
-                      DropdownMenuItem(value: 'PE', child: Text('PE')),
-                      DropdownMenuItem(value: 'PI', child: Text('PI')),
-                      DropdownMenuItem(value: 'RJ', child: Text('RJ')),
-                      DropdownMenuItem(value: 'RN', child: Text('RN')),
-                      DropdownMenuItem(value: 'RS', child: Text('RS')),
-                      DropdownMenuItem(value: 'RO', child: Text('RO')),
-                      DropdownMenuItem(value: 'RR', child: Text('RR')),
-                      DropdownMenuItem(value: 'SC', child: Text('SC')),
-                      DropdownMenuItem(value: 'SP', child: Text('SP')),
-                      DropdownMenuItem(value: 'SE', child: Text('SE')),
-                      DropdownMenuItem(value: 'TO', child: Text('TO')),
-                    ],
-                    onChanged: onStateChanged,
+                    child: Text(
+                      stateVal ?? '',
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: AppColors.textSecondaryDark,
+                      ),
+                    ),
                   );
                 },
               ),
@@ -173,13 +256,14 @@ class HousingStep extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        Text(AppI18n.current.housingTitle, style: AppTextStyles.titleLarge),
+
+        // Tipo de área
+        Text(appStrings.housingTitle, style: AppTextStyles.titleLarge),
         const SizedBox(height: 8),
-        Text(AppI18n.current.housingAreaQuestion,
-            style: AppTextStyles.bodyMedium),
+        Text(appStrings.housingAreaQuestion, style: AppTextStyles.bodyMedium),
         const SizedBox(height: 8),
-        ValueListenableBuilder<String>(
-          valueListenable: residenceAreaListenable,
+        ValueListenableBuilder<String?>(
+          valueListenable: widget.residenceAreaListenable,
           builder: (context, residenceVal, _) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,73 +271,80 @@ class HousingStep extends StatelessWidget {
                 RadioGroup<String>(
                   groupValue: residenceVal,
                   onChanged: (value) {
-                    onResidenceAreaChanged(
-                      value ?? AppI18n.current.housingAreaUrban,
-                    );
+                    if (value != null) widget.onResidenceAreaChanged(value);
                   },
                   child: Column(
-                    children: [
-                      RadioListTile<String>(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(AppI18n.current.housingAreaUrban),
-                        value: AppI18n.current.housingAreaUrban,
-                      ),
-                      RadioListTile<String>(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(AppI18n.current.housingAreaRural),
-                        value: AppI18n.current.housingAreaRural,
-                      ),
-                      RadioListTile<String>(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(AppI18n.current.housingAreaVulnerability),
-                        value: AppI18n.current.housingAreaVulnerability,
-                      ),
-                    ],
+                    children: ResidenceAreaType.values.map((type) {
+                      return InkWell(
+                        onTap: () => widget.onResidenceAreaChanged(type.label),
+                        child: Row(
+                          children: [
+                            Radio<String>(
+                              value: type.label,
+                            ),
+                            Text(type.label, style: AppTextStyles.bodyMedium),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
+                if (widget.residenceAreaError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12, top: 4),
+                    child: Text(
+                      widget.residenceAreaError!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
               ],
             );
           },
         ),
         const SizedBox(height: 12),
-        Text(AppI18n.current.housingGroupQuestion,
-            style: AppTextStyles.bodyMedium),
+
+        // Tipo de imóvel
+        Text(appStrings.housingGroupQuestion, style: AppTextStyles.bodyMedium),
         const SizedBox(height: 8),
         ValueListenableBuilder<String?>(
-          valueListenable: housingTypeListenable,
+          valueListenable: widget.housingTypeListenable,
           builder: (context, housingVal, _) {
-            return DropdownButtonFormField<String>(
-              style: AppTextStyles.bodyLarge
-                  .copyWith(color: AppColors.textPrimaryLight),
-              decoration: InputDecoration(
-                hintText: AppI18n.current.housingTypeHint,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
-                enabledBorder: OutlineInputBorder(
+            final appStrings = AppI18n.current;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  onTap: _openHousingTypeSelector,
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: AppColors.secondary, width: 1),
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      hintText: appStrings.housingTypeHint,
+                      errorText: widget.housingTypeError,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 18,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: AppColors.secondary,
+                          width: 1,
+                        ),
+                      ),
+                      suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
+                    ),
+                    child: Text(
+                      housingVal ?? appStrings.housingTypeHint,
+                      style: housingVal == null
+                          ? AppTextStyles.ebolsaBodyLargeOutline
+                          : AppTextStyles.ebolsaBodyLarge,
+                    ),
+                  ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: AppColors.secondary, width: 1),
-                ),
-              ),
-              initialValue: housingVal,
-              items: [
-                DropdownMenuItem(
-                    value: AppI18n.current.housingTypeAlugada,
-                    child: Text(AppI18n.current.housingTypeAlugada)),
-                DropdownMenuItem(
-                    value: AppI18n.current.housingTypeCedida,
-                    child: Text(AppI18n.current.housingTypeCedida)),
-                DropdownMenuItem(
-                    value: AppI18n.current.housingTypeFinanciada,
-                    child: Text(AppI18n.current.housingTypeFinanciada)),
-                DropdownMenuItem(
-                    value: AppI18n.current.housingTypePropria,
-                    child: Text(AppI18n.current.housingTypePropria)),
               ],
-              onChanged: onHousingTypeChanged,
             );
           },
         ),

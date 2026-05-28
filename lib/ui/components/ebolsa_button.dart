@@ -8,6 +8,10 @@ class EbolsaButton extends StatelessWidget {
   final String label;
   final bool isSecondary;
   final bool isOutlined;
+  final double? borderRadius;
+  final double? height;
+  final Color? backgroundColor;
+  final TextStyle? textStyle;
 
   const EbolsaButton({
     super.key,
@@ -15,6 +19,10 @@ class EbolsaButton extends StatelessWidget {
     required this.label,
     this.isSecondary = false,
     this.isOutlined = false,
+    this.borderRadius,
+    this.height,
+    this.backgroundColor,
+    this.textStyle,
   });
 
   @override
@@ -25,13 +33,13 @@ class EbolsaButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(vertical: 18),
           foregroundColor: AppColors.textSecondaryLight,
-          backgroundColor: AppColors.secondary,
-          minimumSize: const Size(double.infinity, 48),
+          backgroundColor: backgroundColor ?? AppColors.secondary,
+          minimumSize: Size(double.infinity, height ?? 48),
           side: BorderSide(width: 0, color: AppColors.secondary),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(borderRadius ?? 30),
           ),
-          textStyle: AppTextStyles.labelLarge,
+          textStyle: textStyle ?? AppTextStyles.labelLarge,
         ),
         child: Text(label),
       );
@@ -46,7 +54,15 @@ class EbolsaButton extends StatelessWidget {
 
     return ElevatedButton(
       onPressed: onPressed,
-      child: Text(label),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        minimumSize: Size(double.infinity, height ?? 48),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(borderRadius ?? 28),
+        ),
+        textStyle: textStyle ?? AppTextStyles.labelLarge,
+      ),
+      child: Text(label, style: textStyle),
     );
   }
 }

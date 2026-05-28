@@ -16,40 +16,38 @@ class SearchableOptionsBottomSheet {
     T? selectedValue,
     String Function(T item)? labelBuilder,
     String Function(T item)? searchTextBuilder,
-  }) {
-    return showModalBottomSheet<T>(
+  }) async {
+    final resolveLabel = labelBuilder ?? (T item) => item.toString();
+    final resolveSearchText = searchTextBuilder ?? resolveLabel;
+
+    final selected = await showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => _SearchableBottomSheetContent<T>(
-        title: title,
-        options: options,
-        searchHint: searchHint,
-        helperText: helperText,
-        emptyStateText: emptyStateText,
-        closeTooltip: closeTooltip,
-        selectedValue: selectedValue,
-        labelBuilder: labelBuilder,
-        searchTextBuilder: searchTextBuilder,
-      ),
+      builder: (context) {
+        return _SearchableOptionsContent<T>(
+          title: title,
+          options: options,
+          searchHint: searchHint,
+          helperText: helperText,
+          emptyStateText: emptyStateText,
+          closeTooltip: closeTooltip,
+          selectedValue: selectedValue,
+          resolveLabel: resolveLabel,
+          resolveSearchText: resolveSearchText,
+        );
+      },
     );
+
+    return selected;
   }
 }
 
-class _SearchableBottomSheetContent<T> extends StatefulWidget {
-  final String title;
-  final List<T> options;
-  final String searchHint;
-  final String helperText;
-  final String emptyStateText;
-  final String closeTooltip;
-  final T? selectedValue;
-  final String Function(T item)? labelBuilder;
-  final String Function(T item)? searchTextBuilder;
-
-  const _SearchableBottomSheetContent({
+class _SearchableOptionsContent<T> extends StatefulWidget {
+  const _SearchableOptionsContent({
+    Key? key,
     required this.title,
     required this.options,
     required this.searchHint,
@@ -57,60 +55,71 @@ class _SearchableBottomSheetContent<T> extends StatefulWidget {
     required this.emptyStateText,
     required this.closeTooltip,
     this.selectedValue,
-    this.labelBuilder,
-    this.searchTextBuilder,
-  });
+    required this.resolveLabel,
+    required this.resolveSearchText,
+  }) : super(key: key);
+
+  final String title;
+  final List<T> options;
+  final String searchHint;
+  final String helperText;
+  final String emptyStateText;
+  final String closeTooltip;
+  final T? selectedValue;
+  final String Function(T) resolveLabel;
+  final String Function(T) resolveSearchText;
 
   @override
-  State<_SearchableBottomSheetContent<T>> createState() =>
-      _SearchableBottomSheetContentState<T>();
+  State<_SearchableOptionsContent<T>> createState() =>
+      _SearchableOptionsContentState<T>();
 }
 
-class _SearchableBottomSheetContentState<T>
-    extends State<_SearchableBottomSheetContent<T>> {
-  late final TextEditingController _searchController;
-  late List<T> _filteredOptions;
-
-  late final String Function(T) _resolveLabel;
-  late final String Function(T) _resolveSearchText;
+class _SearchableOptionsContentState<T>
+    extends State<_SearchableOptionsContent<T>> {
+  late List<T> filteredOptions;
+  late final TextEditingController searchController;
+  late final FocusNode searchFocus;
 
   @override
   void initState() {
     super.initState();
-    _searchController = TextEditingController();
-    _filteredOptions = List<T>.from(widget.options);
-    _resolveLabel = widget.labelBuilder ?? (T item) => item.toString();
-    _resolveSearchText = widget.searchTextBuilder ?? _resolveLabel;
-  }
+    filteredOptions = List<T>.from(widget.options);
+    searchController = TextEditingController();
+    searchFocus = FocusNode();
 
-  @override
-  void dispose() {
-    _searchController.dispose(); // ← dispose no momento certo
-    super.dispose();
-  }
-
-  void _onSearch(String query) {
-    final normalized = query.toLowerCase();
-    setState(() {
-      _filteredOptions = widget.options
-          .where((item) =>
-              _resolveSearchText(item).toLowerCase().contains(normalized))
-          .toList();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      try {
+        FocusScope.of(context).requestFocus(searchFocus);
+      } catch (_) {
+        // ignore any focus errors
+      }
     });
   }
 
   @override
+  void dispose() {
+    searchController.dispose();
+    searchFocus.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    var availableHeight = media.size.height * 0.72 - media.viewInsets.bottom;
+    if (availableHeight < 200) availableHeight = media.size.height * 0.5;
+
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
           left: 16,
           right: 16,
           top: 16,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          bottom: media.viewInsets.bottom + 16,
         ),
         child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.72,
+          height: availableHeight,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -146,12 +155,26 @@ class _SearchableBottomSheetContentState<T>
               const SizedBox(height: 4),
               Text(
                 widget.helperText,
-                style: const TextStyle(fontSize: 13, color: Colors.grey),
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey,
+                ),
               ),
               const SizedBox(height: 12),
               TextField(
-                controller: _searchController,
-                onChanged: _onSearch,
+                controller: searchController,
+                focusNode: searchFocus,
+                onChanged: (query) {
+                  final normalizedQuery = query.toLowerCase();
+                  setState(() {
+                    filteredOptions = widget.options
+                        .where((item) => widget
+                            .resolveSearchText(item)
+                            .toLowerCase()
+                            .contains(normalizedQuery))
+                        .toList();
+                  });
+                },
                 decoration: InputDecoration(
                   hintText: widget.searchHint,
                   prefixIcon: const Icon(Icons.search),
@@ -172,7 +195,7 @@ class _SearchableBottomSheetContentState<T>
               ),
               const SizedBox(height: 12),
               Expanded(
-                child: _filteredOptions.isEmpty
+                child: filteredOptions.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -192,15 +215,14 @@ class _SearchableBottomSheetContentState<T>
                       )
                     : ListView.separated(
                         padding: const EdgeInsets.only(top: 4),
-                        itemCount: _filteredOptions.length,
+                        itemCount: filteredOptions.length,
                         separatorBuilder: (_, __) => const Divider(height: 1),
                         itemBuilder: (context, index) {
-                          final item = _filteredOptions[index];
+                          final item = filteredOptions[index];
                           final isSelected = item == widget.selectedValue;
                           return ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 10),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -208,7 +230,7 @@ class _SearchableBottomSheetContentState<T>
                                 ? AppColors.primary.withValues(alpha: 0.10)
                                 : null,
                             title: Text(
-                              _resolveLabel(item),
+                              widget.resolveLabel(item),
                               style: TextStyle(
                                 fontWeight: isSelected
                                     ? FontWeight.w600

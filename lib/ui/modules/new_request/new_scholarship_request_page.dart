@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 
+import '../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../components/components.dart';
-
-import 'widgets/scholarship_step_indicator.dart';
-import 'steps/housing/housing_step.dart';
-import 'steps/family/family_step.dart';
-import 'steps/family/member_registration_page.dart';
-import 'steps/expenses/expenses_step.dart';
+import 'new_scholarship_request_presenter.dart';
 import 'steps/candidate/candidate_step.dart';
 import 'steps/documents/documents_step.dart';
-import '../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
-import 'new_scholarship_request_presenter.dart';
+import 'steps/expenses/expenses_step.dart';
+import 'steps/family/family_step.dart';
+import 'steps/family/member_registration_page.dart';
+import 'steps/housing/housing_step.dart';
+import 'widgets/scholarship_step_indicator.dart';
 
 class NewScholarshipRequestPage extends StatefulWidget {
   final NewScholarshipRequestPresenter? presenter;
+  final String processPeriodId;
 
-  const NewScholarshipRequestPage({super.key, this.presenter});
+  const NewScholarshipRequestPage({
+    super.key,
+    this.presenter,
+    required this.processPeriodId,
+  });
 
   @override
   State<NewScholarshipRequestPage> createState() =>
@@ -34,7 +38,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   @override
   void initState() {
     super.initState();
-    _presenter = widget.presenter ?? makeNewRequestPresenter();
+    _presenter = widget.presenter ??
+        makeNewRequestPresenter(processPeriodId: widget.processPeriodId);
     _presenter.stepSubSteps;
     _presenter.currentStepStream
         .listen((s) => setState(() => _currentStep = s));
@@ -46,27 +51,38 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     _presenter.goToStep(step);
   }
 
-  void _next() {
-    _presenter.next();
-  }
-
   Widget _buildCurrentStep() {
     switch (_currentStep) {
       case 1:
-        return HousingStep(
-          currentSubStep: _currentSubStep,
-          cepController: _presenter.cepController,
-          numberController: _presenter.numberController,
-          complementController: _presenter.complementController,
-          addressController: _presenter.addressController,
-          neighborhoodController: _presenter.neighborhoodController,
-          cityController: _presenter.cityController,
-          stateListenable: _presenter.stateListenable,
-          residenceAreaListenable: _presenter.residenceAreaListenable,
-          housingTypeListenable: _presenter.housingTypeListenable,
-          onStateChanged: _presenter.updateStateValue,
-          onResidenceAreaChanged: _presenter.updateResidenceArea,
-          onHousingTypeChanged: _presenter.updateHousingType,
+        return ValueListenableBuilder<Map<String, String?>>(
+          valueListenable: _presenter.fieldErrorsListenable,
+          builder: (context, errors, _) {
+            return HousingStep(
+              currentSubStep: _currentSubStep,
+              cepController: _presenter.cepController,
+              numberController: _presenter.numberController,
+              complementController: _presenter.complementController,
+              addressController: _presenter.addressController,
+              neighborhoodController: _presenter.neighborhoodController,
+              cityController: _presenter.cityController,
+              stateListenable: _presenter.stateListenable,
+              residenceAreaListenable: _presenter.residenceAreaListenable,
+              housingTypeListenable: _presenter.housingTypeListenable,
+              onStateChanged: _presenter.updateStateValue,
+              onResidenceAreaChanged: _presenter.updateResidenceArea,
+              onHousingTypeChanged: _presenter.updateHousingType,
+              onZipCodeComplete: _presenter.lookupZipCode,
+              onClearAddressFields: _presenter.clearAddressFields,
+              cepError: errors['cep'],
+              numberError: errors['number'],
+              addressError: errors['address'],
+              neighborhoodError: errors['neighborhood'],
+              cityError: errors['city'],
+              stateError: errors['state'],
+              residenceAreaError: errors['residenceArea'],
+              housingTypeError: errors['housingType'],
+            );
+          },
         );
 
       case 2:
@@ -129,7 +145,13 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: EbolsaButton(
-                  onPressed: _next,
+                  onPressed: () {
+                    if (_currentStep == 1) {
+                      _presenter.submitStep1();
+                    } else {
+                      _presenter.next();
+                    }
+                  },
                   label: _currentStep < _totalSteps ? 'Avançar' : 'Finalizar',
                   isSecondary: false,
                 ),

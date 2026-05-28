@@ -53,6 +53,37 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     'Espanha',
     'Outro'
   ];
+  final List<String> stateOptions = [
+    'AC - Acre',
+    'AL - Alagoas',
+    'AP - Amapá',
+    'AM - Amazonas',
+    'BA - Bahia',
+    'CE - Ceará',
+    'DF - Distrito Federal',
+    'ES - Espírito Santo',
+    'GO - Goiás',
+    'MA - Maranhão',
+    'MT - Mato Grosso',
+    'MS - Mato Grosso do Sul',
+    'MG - Minas Gerais',
+    'PA - Pará',
+    'PB - Paraíba',
+    'PR - Paraná',
+    'PE - Pernambuco',
+    'PI - Piauí',
+    'RJ - Rio de Janeiro',
+    'RN - Rio Grande do Norte',
+    'RS - Rio Grande do Sul',
+    'RO - Rondônia',
+    'RR - Roraima',
+    'SC - Santa Catarina',
+    'SP - São Paulo',
+    'SE - Sergipe',
+    'TO - Tocantins',
+  ];
+
+  String? selectedState;
 
   String? selectedGender;
   MaritalStatus? maritalStatus;
@@ -93,27 +124,32 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   void setMarital(MaritalStatus? m) {
     maritalStatus = m;
     if (m != MaritalStatus.viuvo) recebePensao = null;
+    debugPrint('ViewModel.setMarital -> $m');
     notifyListeners();
   }
 
   void setRecebePensao(int? v) {
     recebePensao = v;
     if (v != 1) aposentado = null;
+    debugPrint('ViewModel.setRecebePensao -> $v');
     notifyListeners();
   }
 
   void setAposentado(int? v) {
     aposentado = v;
+    debugPrint('ViewModel.setAposentado -> $v');
     notifyListeners();
   }
 
   void setSeraCandidato(int? v) {
     seraCandidato = v;
+    debugPrint('ViewModel.setSeraCandidato -> $v');
     notifyListeners();
   }
 
   void setNaturalizado(int? v) {
     naturalizado = v;
+    debugPrint('ViewModel.setNaturalizado -> $v');
     notifyListeners();
   }
 
@@ -132,4 +168,18 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     tipoDoencaController.dispose();
     super.dispose();
   }
+}
+
+enum OccupationType {
+  estudante,
+  assalariado,
+  propietario,
+  autonomo,
+  informal,
+  estagiario,
+  estagioNaoRemunerado,
+  aposentado,
+  beneficiario,
+  desempregado,
+  doLar
 }

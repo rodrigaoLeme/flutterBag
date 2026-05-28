@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../data/cache/cache.dart';
+import '../../data/cache/enrollment_draft_storage.dart';
 import '../../domain/usecases/auth/auth_usecases.dart';
 import '../../infra/cache/storage_adapters.dart';
 import '../../infra/http/dio_adapter.dart';
@@ -61,5 +62,10 @@ void setupInjection() {
     () => RemoteLoadAccountUsecase(
       httpClient: sl<AuthorizeHttpClientDecorator>(),
     ),
+  );
+
+  // Singleton dos Enrollment Storage
+  sl.registerLazySingleton<EnrollmentDraftStorage>(
+    () => EnrollmentDraftStorage(sl<LocalStorage>()),
   );
 }
