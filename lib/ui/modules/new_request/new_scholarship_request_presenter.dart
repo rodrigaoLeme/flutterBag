@@ -39,6 +39,7 @@ abstract class NewScholarshipRequestPresenter {
   ValueListenable<String?> get residenceAreaListenable;
   ValueListenable<ResidenceType?> get housingTypeListenable;
   ValueListenable<Map<String, String?>> get fieldErrorsListenable;
+  ValueListenable<int> get completedStepListenable;
 
   Stream<void> get isLoadingStream;
   Stream<String?> get uiErrorStream;

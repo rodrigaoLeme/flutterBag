@@ -126,10 +126,15 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                 horizontal: 16,
                 vertical: 12,
               ),
-              child: ScholarshipStepIndicator(
-                currentStep: _currentStep,
-                onStepTap: _goToStep,
-              ),
+              child: ValueListenableBuilder<int>(
+                  valueListenable: _presenter.completedStepListenable,
+                  builder: (context, completedStep, _) {
+                    return ScholarshipStepIndicator(
+                      currentStep: _currentStep,
+                      completedStep: completedStep,
+                      onStepTap: _goToStep,
+                    );
+                  }),
             ),
             Expanded(
               child: SingleChildScrollView(

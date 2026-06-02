@@ -11,5 +11,6 @@ NewScholarshipRequestPresenter makeNewRequestPresenter({
       processPeriodId: processPeriodId,
       saveStep1Usecase: makeRemoteSaveStep1(),
       lookupZipCodeUsecase: makeRemoteLookupZipCode(),
+      loadScholarshipFormUsecase: makeRemoteLoadScholarshipForm(),
       draftStorage: sl<EnrollmentDraftStorage>(),
     );

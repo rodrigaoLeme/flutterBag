@@ -7,10 +7,14 @@ import 'package:flutter/widgets.dart';
 import '../../../data/cache/enrollment_draft_storage.dart';
 import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/housing_entity.dart';
+import '../../../domain/entities/scholarship_form_entity.dart';
+import '../../../domain/usecases/enrollment/load_scholarship_form_usecase.dart';
 import '../../../domain/usecases/enrollment/lookup_zip_code_usecase.dart';
 import '../../../domain/usecases/enrollment/save_step_1_usecase.dart';
 import '../../../infra/repositories/enrollment/remote_save_step_1_usecase.dart';
+import '../../../main/di/injection_container.dart';
 import '../../../main/i18n/app_i18n.dart';
+import '../../../share/current_account.dart';
 import '../../../ui/modules/new_request/new_scholarship_request_presenter.dart';
 import '../../mixins/mixins.dart';
 
@@ -20,18 +24,20 @@ class StreamNewScholarshipRequestPresenter
   final String processPeriodId;
   final SaveStep1Usecase saveStep1Usecase;
   final LookupZipCodeUsecase lookupZipCodeUsecase;
+  final LoadScholarshipFormUsecase loadScholarshipFormUsecase;
   final EnrollmentDraftStorage draftStorage;
 
   StreamNewScholarshipRequestPresenter({
     required this.processPeriodId,
     required this.saveStep1Usecase,
     required this.lookupZipCodeUsecase,
+    required this.loadScholarshipFormUsecase,
     required this.draftStorage,
   }) {
     _currentStepController.add(_currentStep);
     _currentStepController.add(_currentSubStep);
     _syncControllersToNotifiers();
-    _loadDraft();
+    _initForm();
   }
 
   // Step/substep state
@@ -74,6 +80,7 @@ class StreamNewScholarshipRequestPresenter
       ValueNotifier(null);
   final ValueNotifier<Map<String, String?>> _fieldErrorsNotifier =
       ValueNotifier({});
+  final ValueNotifier<int> _completedStepNotifier = ValueNotifier(0);
 
   void _syncControllersToNotifiers() {
     // sync controllers to notifiers
@@ -90,34 +97,72 @@ class StreamNewScholarshipRequestPresenter
         .addListener(() => _cityNotifier.value = _cityController.text);
   }
 
-  Future<void> _loadDraft() async {
+  ScholarshipFormEntity _form = ScholarshipFormEntity(processPeriodId: '');
+
+  Future<void> _initForm() async {
+    final userId = sl<CurrentAccount>().userCpf;
+
+    // 1. Tents carregar draft local
+    final localDraft = await draftStorage.load(
+      userId: userId,
+      processPeriodId: processPeriodId,
+    );
+
+    if (localDraft != null) {
+      _form = ScholarshipFormEntity.toJson(localDraft);
+      _completedStepNotifier.value = _form.completedStep;
+      _populateControllersFromForm(_form);
+      _navigateToStep(_form.currentStep);
+      return;
+    }
+
+    // 2. Sem draft local - busca no endpoint
     try {
-      final draft = await draftStorage.loadStep1(processPeriodId);
-      if (draft == null) return;
-      final entity = HousingEntity.fromJson(draft);
-      _cepController.text = entity.zipCode;
-      _numberController.text = entity.number ?? '';
-      _complementController.text = entity.complement ?? '';
-      _addressController.text = entity.street ?? '';
-      _neighborhoodController.text = entity.district ?? '';
-      _cityController.text = entity.city ?? '';
-      _stateValue = entity.state;
-      _stateNotifier.value = entity.state;
-      if (entity.residenceAreaType != null) {
-        _residenceArea = entity.residenceAreaType!.label;
-        _residenceAreaNotifier.value = _residenceArea;
+      final remoteForm = await loadScholarshipFormUsecase.load(processPeriodId);
+
+      if (remoteForm != null) {
+        // tem inscrição no servidor - salva como draft
+        _form = remoteForm;
+        await _saveDraftSilently();
+        _completedStepNotifier.value = _form.completedStep;
+        _populateControllersFromForm(_form);
+        _navigateToStep(_form.currentStep);
+      } else {
+        // 404 - começa do zero
+        _form = ScholarshipFormEntity(processPeriodId: processPeriodId);
       }
-      if (entity.residenceType != null) {
-        _residenceType = entity.residenceType;
-        _housingTypeNotifier.value = _residenceType;
-      }
-    } catch (_) {}
+    } catch (_) {
+      _form = ScholarshipFormEntity(processPeriodId: processPeriodId);
+    }
   }
 
-  void _saveDraftSilently() {
+  void _populateControllersFromForm(ScholarshipFormEntity form) {
+    _cepController.text = form.zipCode ?? '';
+    _numberController.text = form.number ?? '';
+    _complementController.text = form.complement ?? '';
+    _addressController.text = form.street ?? '';
+    _neighborhoodController.text = form.district ?? '';
+    _cityController.text = form.city ?? '';
+    _stateValue = form.state;
+    _stateNotifier.value = form.state;
+    _residenceType = form.residenceType;
+  }
+
+  void _navigateToStep(int step) {
+    _currentStep = step.clamp(1, _stepSubSteps.length);
+    _currentSubStep = 1;
+    _currentStepController.add(_currentStep);
+    _currentSubStepController.add(_currentSubStep);
+  }
+
+  Future<void> _saveDraftSilently() async {
     try {
-      final entity = _buildHousingEntity();
-      draftStorage.saveStep1(processPeriodId, entity.toJson());
+      final userId = sl<CurrentAccount>().userCpf;
+      await draftStorage.save(
+        userId: userId,
+        processPeriodId: processPeriodId,
+        data: _form.toJson(),
+      );
     } catch (_) {}
   }
 
@@ -289,7 +334,6 @@ class StreamNewScholarshipRequestPresenter
   void clearAddressFields() => _clearAddresFields();
 
   // --- Submit step 1 ---
-
   @override
   Future<void> submitStep1() async {
     final errors = <String, String?>{};
@@ -328,7 +372,25 @@ class StreamNewScholarshipRequestPresenter
 
     try {
       final entity = _buildHousingEntity();
-      await saveStep1Usecase.save(entity);
+      final scholarshipId = await saveStep1Usecase.save(entity);
+
+      // Atualiza o form com o scholarshipId e marca o step1 como concluido
+      _form = _form.copyWith(
+        id: scholarshipId,
+        completedStep: 1,
+        currentStep: 2,
+        zipCode: entity.zipCode,
+        street: entity.street,
+        number: entity.number,
+        complement: entity.complement,
+        district: entity.district,
+        city: entity.city,
+        state: entity.state,
+        residenceType: entity.residenceType,
+        residenceAreaType: entity.residenceAreaType,
+      );
+
+      await _saveDraftSilently();
       next();
     } on SaveStep1Exception catch (e) {
       uiError = e.message;
@@ -409,4 +471,7 @@ class StreamNewScholarshipRequestPresenter
     _residenceAreaNotifier.dispose();
     _housingTypeNotifier.dispose();
   }
+
+  @override
+  ValueListenable<int> get completedStepListenable => _completedStepNotifier;
 }

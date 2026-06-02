@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../main/i18n/app_i18n.dart';
-import '../../../../helpers/themes/themes.dart';
-import 'member_registration_view_model.dart';
 import '../../../../components/components.dart';
-import '../ocupation/occupation_page.dart';
+import '../../../../helpers/themes/themes.dart';
 import '../../widgets/scholarship_step_indicator.dart';
+import '../ocupation/occupation_page.dart';
+import 'member_registration_view_model.dart';
 
 class MemberRegistrationPage extends StatefulWidget {
   const MemberRegistrationPage({super.key});
@@ -120,7 +120,11 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              child: ScholarshipStepIndicator(currentStep: 2),
+              child: ScholarshipStepIndicator(
+                currentStep: 2,
+                completedStep: 2,
+                onStepTap: (step) {},
+              ),
             ),
             Expanded(
               child: Scrollbar(
@@ -243,7 +247,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                               child: SizedBox(
                                 height: 56,
                                 child: DropdownButtonFormField<String>(
-                                  value: _vm.selectedGender,
+                                  initialValue: _vm.selectedGender,
                                   style: AppTextStyles.bodyMedium
                                       .copyWith(color: AppColors.onSurface),
                                   icon: const Icon(Icons.keyboard_arrow_down),
@@ -283,7 +287,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                               child: SizedBox(
                                 height: 56,
                                 child: DropdownButtonFormField<String>(
-                                  value: _vm.selectedResponsible,
+                                  initialValue: _vm.selectedResponsible,
                                   style: AppTextStyles.bodyMedium
                                       .copyWith(color: AppColors.onSurface),
                                   icon: const Icon(Icons.keyboard_arrow_down),
@@ -319,7 +323,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                               child: SizedBox(
                                 height: 56,
                                 child: DropdownButtonFormField<MaritalStatus>(
-                                  value: _vm.maritalStatus,
+                                  initialValue: _vm.maritalStatus,
                                   style: AppTextStyles.bodyMedium
                                       .copyWith(color: AppColors.onSurface),
                                   icon: const Icon(Icons.keyboard_arrow_down),

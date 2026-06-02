@@ -1,4 +1,3 @@
-import '../../../data/cache/enrollment_draft_storage.dart';
 import '../../../data/http/http_client.dart';
 import '../../../domain/entities/housing_entity.dart';
 import '../../../domain/usecases/enrollment/save_step_1_usecase.dart';
@@ -7,11 +6,9 @@ import '../../../main/i18n/app_i18n.dart';
 
 class RemoteSaveStep1Usecase implements SaveStep1Usecase {
   final HttpClient httpClient;
-  final EnrollmentDraftStorage draftStorage;
 
   const RemoteSaveStep1Usecase({
     required this.httpClient,
-    required this.draftStorage,
   });
 
   @override
@@ -24,8 +21,6 @@ class RemoteSaveStep1Usecase implements SaveStep1Usecase {
       );
 
       final scholarshipId = response['id'] as String;
-
-      await draftStorage.deleteStep1(housing.processPeriodId);
 
       return scholarshipId;
     } on ApiException catch (e) {

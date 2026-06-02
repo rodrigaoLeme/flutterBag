@@ -6,13 +6,15 @@ typedef StepTapCallback = void Function(int step);
 
 class ScholarshipStepIndicator extends StatelessWidget {
   final int currentStep;
+  final int completedStep;
   final int totalSteps;
   final List<String> labels;
-  final StepTapCallback? onStepTap;
+  final StepTapCallback onStepTap;
 
   const ScholarshipStepIndicator({
     super.key,
     required this.currentStep,
+    required this.completedStep,
     this.totalSteps = 5,
     this.labels = const [
       'Moradia',
@@ -21,7 +23,7 @@ class ScholarshipStepIndicator extends StatelessWidget {
       'Candidato',
       'Docuemntos',
     ],
-    this.onStepTap,
+    required this.onStepTap,
   });
 
   @override
@@ -32,8 +34,9 @@ class ScholarshipStepIndicator extends StatelessWidget {
         children: List.generate(totalSteps, (index) {
           final step = index + 1;
           final label = labels.length > index ? labels[index] : '$step';
-          final isCompleted = step < currentStep;
-          final isActive = step == currentStep;
+          final isCompleted = step <= currentStep;
+          final isCurrent = step == currentStep;
+          final canTap = step <= completedStep;
 
           Widget child;
 
@@ -51,7 +54,7 @@ class ScholarshipStepIndicator extends StatelessWidget {
                 style: AppTextStyles.labelLarge.copyWith(color: Colors.white),
               ),
             );
-          } else if (isActive) {
+          } else if (isCurrent) {
             child = Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
@@ -84,7 +87,7 @@ class ScholarshipStepIndicator extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: GestureDetector(
-              onTap: () => onStepTap?.call(step),
+              onTap: canTap ? () => onStepTap.call(step) : null,
               child: child,
             ),
           );
