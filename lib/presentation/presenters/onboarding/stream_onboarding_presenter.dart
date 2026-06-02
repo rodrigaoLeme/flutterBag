@@ -79,6 +79,11 @@ class StreamOnboardingPresenter implements OnboardingPresenter {
   }
 
   @override
+  void setCurrentPage(int index) {
+    _currentPageIndexController.add(index);
+  }
+
+  @override
   void dispose() {
     _isAuthenticatedController.close();
     _currentPageIndexController.close();

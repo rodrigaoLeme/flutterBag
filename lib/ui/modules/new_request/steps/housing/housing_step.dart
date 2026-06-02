@@ -22,7 +22,7 @@ class HousingStep extends StatefulWidget {
   final ValueListenable<ResidenceType?> housingTypeListenable;
   final ValueChanged<String?> onStateChanged;
   final ValueChanged<String> onResidenceAreaChanged;
-  final ValueChanged<ResidenceType?> onHousingTypeChanged;
+  final ValueChanged<ResidenceType> onHousingTypeChanged;
   final Future<void> Function(String cep)? onZipCodeComplete;
   final VoidCallback? onClearAddressFields;
 

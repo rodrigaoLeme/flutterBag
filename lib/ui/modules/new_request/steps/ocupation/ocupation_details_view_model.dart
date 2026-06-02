@@ -92,18 +92,20 @@ class OccupationDetailsViewModel {
       case OccupationType.propietario:
         fieldHints = ['CNPJ', 'Porte da empresa', 'Situação', 'Função/Atuação'];
         fieldOptions['Porte da empresa'] = [
-          'Micro',
-          'Pequena',
-          'Média',
-          'Grande'
+          'Microempreendedor Individual (MEI)',
+          'Microempresa (ME) ',
+          'Empresa de Pequeno Porte (EPP)',
+          'Empresa de Médio Porte ',
+          'Empresa de Grande Porte',
         ];
-        fieldOptions['Situação'] = ['Ativa', 'Inativa'];
-        fieldOptions['Função/Atuação'] = [
-          'Proprietário',
-          'Sócio',
-          'Diretor',
-          'Outro'
+        fieldOptions['Situação'] = [
+          'Ativa',
+          'Baixada',
+          'Inapta',
+          'Suspensa',
+          'Nula',
         ];
+
         showOptanteSimples = true;
         showMovimentacao = true;
         break;

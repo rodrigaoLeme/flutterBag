@@ -20,4 +20,5 @@ abstract class OnboardingPresenter {
   Future<void> checkSession();
   Future<void> markTutorialAsSeen();
   void dispose();
+  void setCurrentPage(int index);
 }

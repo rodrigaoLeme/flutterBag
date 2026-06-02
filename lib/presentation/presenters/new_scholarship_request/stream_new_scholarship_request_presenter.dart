@@ -108,7 +108,7 @@ class StreamNewScholarshipRequestPresenter
         _residenceAreaNotifier.value = _residenceArea;
       }
       if (entity.residenceType != null) {
-        _housingType = entity.residenceType!.label;
+        _residenceType = entity.residenceType;
         _housingTypeNotifier.value = _residenceType;
       }
     } catch (_) {}
@@ -316,7 +316,9 @@ class StreamNewScholarshipRequestPresenter
       (e) => e.label == _residenceArea,
     );
     if (areaType == null) errors['residenceArea'] = appStrings.fieldRequired;
-    if (_housingType == null) errors['housingType'] = appStrings.fieldRequired;
+    if (_residenceType == null) {
+      errors['housingType'] = appStrings.fieldRequired;
+    }
 
     _fieldErrorsNotifier.value = errors;
 

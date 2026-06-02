@@ -63,10 +63,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
             child: PageView.builder(
               controller: _controller,
               itemCount: items.length,
-              physics: const NeverScrollableScrollPhysics(),
+              onPageChanged: (index) {
+                widget.presenter.setCurrentPage(index);
+              },
               itemBuilder: (_, index) {
                 final item = items[index];
-
                 return Padding(
                   padding: const EdgeInsets.all(24),
                   child: Column(

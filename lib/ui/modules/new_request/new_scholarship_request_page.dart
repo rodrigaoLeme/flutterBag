@@ -70,7 +70,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
               housingTypeListenable: _presenter.housingTypeListenable,
               onStateChanged: _presenter.updateStateValue,
               onResidenceAreaChanged: _presenter.updateResidenceArea,
-              onHousingTypeChanged: _presenter.updateHousingType,
+              onHousingTypeChanged: (v) => _presenter.updateHousingTypeEnum(v),
               onZipCodeComplete: _presenter.lookupZipCode,
               onClearAddressFields: _presenter.clearAddressFields,
               cepError: errors['cep'],
