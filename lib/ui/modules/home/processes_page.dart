@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../domain/entities/scholarship_entity.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
 import 'components/cards/processes_cards_current.dart';
@@ -20,10 +21,13 @@ class ProcessesPage extends StatefulWidget {
 class _ProcessesPageState extends State<ProcessesPage> {
   late StreamSubscription<List<int>> _yearsSubscription;
   late StreamSubscription _loadingSubscription;
+  late StreamSubscription<List<ScholarshipEntity>> _scholarshipsSubscription;
 
   List<int> _years = [];
   int _selectedYear = 0;
   bool _isLoading = false;
+  List<ScholarshipEntity> _scholarships = [];
+  bool _scholarshipsLoaded = false;
 
   @override
   void initState() {
@@ -42,6 +46,15 @@ class _ProcessesPageState extends State<ProcessesPage> {
       setState(() => _isLoading = data?.isLoading ?? false);
     });
 
+    _scholarshipsSubscription =
+        widget.presenter.scholarshipsStream.listen((scholarships) {
+      if (!mounted) return;
+      setState(() {
+        _scholarships = scholarships;
+        _scholarshipsLoaded = true;
+      });
+    });
+
     widget.presenter.loadInitialData();
   }
 
@@ -49,6 +62,7 @@ class _ProcessesPageState extends State<ProcessesPage> {
   void dispose() {
     _yearsSubscription.cancel();
     _loadingSubscription.cancel();
+    _scholarshipsSubscription.cancel();
     widget.presenter.dispose();
     super.dispose();
   }
@@ -93,24 +107,17 @@ class _ProcessesPageState extends State<ProcessesPage> {
   Widget _buildContent() {
     if (_years.isEmpty) return const SizedBox.shrink();
 
-    return StreamBuilder(
-      stream: widget.presenter.scholarshipsStream,
-      builder: (context, snapshot) {
-        final scholarships = snapshot.data ?? [];
-
-        // Sem incrições no ano -> tela vazia
-        if (scholarships.isEmpty) {
-          return ProcessesEmptyPage(
-            yearSelected: _selectedYear,
-          );
-        }
-
-        //TODO: dependendo do retorno exibe telas diferentes
-        return ProcessesCurrentPage(
-          yearSelected: _selectedYear,
-          processesBanner: ProcessesBanner.warning,
-        );
-      },
+    // Sem incrições no ano -> tela vazia
+    if (_scholarships.isEmpty) {
+      return ProcessesEmptyPage(
+        yearSelected: _selectedYear,
+      );
+    }
+    //TODO: dependendo do retorno exibe telas diferentes
+    return ProcessesCurrentPage(
+      yearSelected: _selectedYear,
+      processesBanner: ProcessesBanner.warning,
+      scholarships: _scholarships,
     );
   }
 }

@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 
+import '../../../../domain/entities/scholarship_entity.dart';
+import '../../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
 import '../../../../main/i18n/app_i18n.dart';
 import '../../../components/components.dart';
+import '../../new_request/new_scholarship_request_page.dart';
 import '../components/cards/processes_cards_current.dart';
 
 class ProcessesCurrentPage extends StatefulWidget {
   final int yearSelected;
   final ProcessesBanner processesBanner;
+  final List<ScholarshipEntity> scholarships;
+
   const ProcessesCurrentPage({
     super.key,
     required this.processesBanner,
     required this.yearSelected,
+    required this.scholarships,
   });
 
   @override
@@ -18,6 +24,21 @@ class ProcessesCurrentPage extends StatefulWidget {
 }
 
 class _ProcessesCurrentPageState extends State<ProcessesCurrentPage> {
+  void _onContinue(BuildContext context, ScholarshipEntity scholarship) {
+    if (scholarship.processPeriodId == null) return;
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => NewScholarshipRequestPage(
+          processPeriodId: scholarship.processPeriodId!,
+          presenter: makeNewRequestPresenter(
+            processPeriodId: scholarship.processPeriodId!,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appStrings = AppI18n.current;
@@ -55,6 +76,9 @@ class _ProcessesCurrentPageState extends State<ProcessesCurrentPage> {
             warningMessage: 'Data limite para Inscrição: 30/03/2026',
             onViewProcess: () {
               // abre o detalhes
+            },
+            onContinue: () {
+              // Continua a inscrição
             },
           ),
           const SizedBox(

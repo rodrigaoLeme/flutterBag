@@ -83,6 +83,7 @@ class ProcessCardCurrent extends StatelessWidget {
   final ProcessesBanner processesBanner;
   final String warningMessage;
   final VoidCallback? onViewProcess;
+  final VoidCallback? onContinue;
 
   const ProcessCardCurrent({
     super.key,
@@ -96,6 +97,7 @@ class ProcessCardCurrent extends StatelessWidget {
     required this.processesBanner,
     required this.warningMessage,
     this.onViewProcess,
+    this.onContinue,
   });
 
   @override
@@ -365,6 +367,12 @@ class ProcessCardCurrent extends StatelessWidget {
             child: EbolsaTextButton(
               onPressed: () {},
               label: appStrings.processCardDetaiButton,
+            ),
+          ),
+          Center(
+            child: EbolsaTextButton(
+              onPressed: onContinue,
+              label: 'Continuar I',
             ),
           ),
         ],
