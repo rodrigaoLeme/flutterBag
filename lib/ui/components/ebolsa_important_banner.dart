@@ -19,9 +19,7 @@ class EbolsaImportantBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.symmetric(
-        vertical: 12,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
       decoration: BoxDecoration(
         color:
             backgroundColor ?? Theme.of(context).colorScheme.surfaceContainer,

@@ -145,6 +145,7 @@ abstract class AppI18n {
   String get homeNewScholarshipButton;
   String get homeImportantTitle;
   String get homeImportantMessage;
+  String get homeContinueProcess;
 
   // Process result
   String get approved;
@@ -180,6 +181,7 @@ abstract class AppI18n {
 
   // Process Card Banners
   String get processCardBannerAttention;
+  String get processCardBannerRegisterEnd;
   String get processCardBannerPendindDocumentsSingular;
   String get processCardBannerPendindDocumentsPlural;
 

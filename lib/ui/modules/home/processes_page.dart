@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../domain/entities/process_period_entity.dart';
 import '../../../domain/entities/scholarship_entity.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
@@ -22,11 +23,14 @@ class _ProcessesPageState extends State<ProcessesPage> {
   late StreamSubscription<List<int>> _yearsSubscription;
   late StreamSubscription _loadingSubscription;
   late StreamSubscription<List<ScholarshipEntity>> _scholarshipsSubscription;
+  late StreamSubscription<List<ProcessPeriodAvailableEntity>>
+      _periodsSubscription;
 
   List<int> _years = [];
   int _selectedYear = 0;
   bool _isLoading = false;
   List<ScholarshipEntity> _scholarships = [];
+  List<ProcessPeriodAvailableEntity> _availablePeriods = [];
   bool _scholarshipsLoaded = false;
 
   @override
@@ -55,6 +59,14 @@ class _ProcessesPageState extends State<ProcessesPage> {
       });
     });
 
+    _periodsSubscription =
+        widget.presenter.availablePeriodsStream.listen((periods) {
+      if (!mounted) return;
+      setState(
+        () => _availablePeriods = periods,
+      );
+    });
+
     widget.presenter.loadInitialData();
   }
 
@@ -63,6 +75,7 @@ class _ProcessesPageState extends State<ProcessesPage> {
     _yearsSubscription.cancel();
     _loadingSubscription.cancel();
     _scholarshipsSubscription.cancel();
+    _periodsSubscription.cancel();
     widget.presenter.dispose();
     super.dispose();
   }
@@ -118,6 +131,7 @@ class _ProcessesPageState extends State<ProcessesPage> {
       yearSelected: _selectedYear,
       processesBanner: ProcessesBanner.warning,
       scholarships: _scholarships,
+      availablePeriods: _availablePeriods,
     );
   }
 }

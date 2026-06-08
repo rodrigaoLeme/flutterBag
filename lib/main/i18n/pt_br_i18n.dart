@@ -579,8 +579,10 @@ class PtBrI18n implements AppI18n {
 
   @override
   String get homeImportantMessage => '''
-A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação anual através de seleção. A concessão de bolsa de estudo estará sujeita à disponibilidade de vagas na unidade escolar solicitada e ao perfil socioeconômico compatível às exigências da Lei Complementar nº 187/2021.
-''';
+A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação anual através de seleção. A concessão de bolsa de estudo estará sujeita à disponibilidade de vagas na unidade escolar solicitada e ao perfil socioeconômico compatível às exigências da Lei Complementar nº 187/2021.''';
+
+  @override
+  String get homeContinueProcess => 'Continuar';
 
   /// ------------------- Process Result -------------------
   @override
@@ -667,6 +669,9 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   /// ------------------- Process Card Banners  -------------------
   @override
   String get processCardBannerAttention => 'Atenção';
+
+  @override
+  String get processCardBannerRegisterEnd => 'Data limite para inscrição';
 
   @override
   String get processCardBannerPendindDocumentsSingular => 'Documento Pendente';

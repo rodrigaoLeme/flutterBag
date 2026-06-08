@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../../../helpers/app_assets.dart';
-import '../../../../helpers/themes/app_colors.dart';
+import '../../../../helpers/themes/themes.dart';
+import '../cards/processes_cards_result.dart';
 
 class ProcessesBannerWarning extends StatelessWidget {
   final String message;
+  final VoidCallback? onContinue;
 
-  const ProcessesBannerWarning({super.key, required this.message});
+  const ProcessesBannerWarning({
+    super.key,
+    required this.message,
+    this.onContinue,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +25,46 @@ class ProcessesBannerWarning extends StatelessWidget {
       ),
       child: Row(
         children: [
-          SvgPicture.asset(AppIcons.exclamationIcon),
-          const SizedBox(width: 12),
+          SvgPicture.asset(
+            AppIcons.exclamationIcon,
+            width: 28,
+          ),
+          const SizedBox(width: 16),
           Expanded(
-            child: Text(
-              message,
-              style: Theme.of(context).textTheme.bodyMedium,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  appStrings.processCardBannerRegisterEnd,
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+                Text(
+                  message,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ],
+            ),
+          ),
+          InkWell(
+            onTap: onContinue,
+            child: Container(
+              // height: 35,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: AppColors.onSurface,
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(25),
+                shape: BoxShape.rectangle,
+              ),
+              child: Text(
+                appStrings.homeContinueProcess,
+                style: Theme.of(context)
+                    .textTheme
+                    .labelLarge!
+                    .copyWith(color: AppColors.onSurface),
+              ),
             ),
           ),
         ],

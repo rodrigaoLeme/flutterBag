@@ -115,7 +115,10 @@ class ProcessCardCurrent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (processesBanner == ProcessesBanner.warning)
-            ProcessesBannerWarning(message: warningMessage),
+            ProcessesBannerWarning(
+              message: warningMessage,
+              onContinue: onContinue,
+            ),
           if (processesBanner == ProcessesBanner.pending)
             ProcessesBannerPendingDocumentsWarning(message: warningMessage),
           if (processesBanner == ProcessesBanner.error)
@@ -199,7 +202,7 @@ class ProcessCardCurrent extends StatelessWidget {
                 ],
               ),
               SizedBox(
-                width: 56,
+                width: 76,
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,104 +278,63 @@ class ProcessCardCurrent extends StatelessWidget {
               )
             ],
           ),
-          Container(
-            margin: EdgeInsets.only(top: 16, bottom: 16),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
+          if (candidates.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              decoration: BoxDecoration(
+                color: AppColors.outlineVariant,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Text(
+                      candidates.length == 1
+                          ? appStrings.processCardCandidateSingular
+                          : appStrings.processCardCandidatePlural,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: AppColors.textSecondaryLight,
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  if (candidates.isEmpty)
+                    Center(
+                      child: Text(
+                        '-',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: AppColors.textSecondaryLight,
+                            ),
+                      ),
+                    )
+                  else
+                    ...candidates.map(
+                      (name) => Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Center(
+                          child: Text(
+                            name,
+                            style:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: AppColors.textSecondaryLight,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-            decoration: BoxDecoration(
-              color: AppColors.outlineVariant,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Text(
-                    appStrings.processCardCandidatePlural,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
-                SizedBox(
-                  height: 6,
-                ),
-                Center(
-                  child: Text(
-                    candidates[0],
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
-                SizedBox(
-                  height: 6,
-                ),
-                Center(
-                  child: Text(
-                    candidates[1],
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
-                SizedBox(
-                  height: 6,
-                ),
-                Center(
-                  child: Text(
-                    candidates[2],
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
-                SizedBox(
-                  height: 6,
-                ),
-                Center(
-                  child: Text(
-                    candidates[3],
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
-                SizedBox(
-                  height: 6,
-                ),
-                Center(
-                  child: Text(
-                    candidates[4],
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
-                SizedBox(
-                  height: 6,
-                ),
-              ],
-            ),
-          ),
+          ],
+          const SizedBox(height: 16),
           Center(
             child: EbolsaTextButton(
               onPressed: () {},
               label: appStrings.processCardDetaiButton,
-            ),
-          ),
-          Center(
-            child: EbolsaTextButton(
-              onPressed: onContinue,
-              label: 'Continuar I',
             ),
           ),
         ],
