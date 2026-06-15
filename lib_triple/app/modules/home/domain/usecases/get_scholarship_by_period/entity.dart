@@ -5,11 +5,12 @@ class Entity {
   final ScholarshipStatus scholarshipStatus;
   final bool digitalProcess;
   final int reviewStatus;
+  final int currentStep;
   final int completedStep;
   final String id;
   final ReviewType lastReviewType;
   final List<ScholarshipReview> scholarshipReviews;
-  final String userId;
+  final String responsiblePersonId;
   final String processPeriodId;
   final int declassificationType;
   const Entity({
@@ -17,10 +18,11 @@ class Entity {
     required this.digitalProcess,
     this.reviewStatus = -1,
     required this.completedStep,
+    required this.currentStep,
     required this.id,
     required this.lastReviewType,
     required this.scholarshipReviews,
-    required this.userId,
+    required this.responsiblePersonId,
     required this.processPeriodId,
     required this.declassificationType,
   });
@@ -30,10 +32,11 @@ class Entity {
         digitalProcess: false,
         reviewStatus: -1,
         completedStep: -1,
+        currentStep: -1,
         id: '',
         lastReviewType: ReviewType.attendant,
         scholarshipReviews: [],
-        userId: '',
+        responsiblePersonId: '',
         processPeriodId: '',
         declassificationType: 0,
       );

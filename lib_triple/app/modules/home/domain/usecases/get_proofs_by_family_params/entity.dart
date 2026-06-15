@@ -10,7 +10,7 @@ class Entity {
 class Proof {
   final String id;
   final String scholarshipId;
-  final String? entityProofCategorieId;
+  //final String? entityProofCategorieId;
   final String entityProofConfigId;
   final EntityProofConfig entityProofConfig;
   final List<ScholarshipProofDocument> scholarshipProofDocuments;
@@ -18,7 +18,7 @@ class Proof {
   const Proof({
     required this.id,
     required this.scholarshipId,
-    required this.entityProofCategorieId,
+    //required this.entityProofCategorieId,
     required this.entityProofConfigId,
     required this.entityProofConfig,
     required this.scholarshipProofDocuments,
@@ -35,8 +35,8 @@ class Proof {
     return Proof(
       id: id ?? this.id,
       scholarshipId: scholarshipId ?? this.scholarshipId,
-      entityProofCategorieId:
-          entityProofCategorieId ?? this.entityProofCategorieId,
+      //entityProofCategorieId:
+      //    entityProofCategorieId ?? this.entityProofCategorieId,
       entityProofConfigId: entityProofConfigId ?? this.entityProofConfigId,
       entityProofConfig: entityProofConfig ?? this.entityProofConfig,
       scholarshipProofDocuments:

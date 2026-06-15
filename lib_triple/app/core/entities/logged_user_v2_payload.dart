@@ -19,7 +19,7 @@ class LoggedUserPayload {
   final String dns;
   final String name;
   final String surname;
-  final String nbf;
+  final int nbf;
   final int exp;
 
   factory LoggedUserPayload.fromLoggedUser(LoggedUser user) {
@@ -52,20 +52,28 @@ class LoggedUserPayload {
       dns: '',
       name: '',
       surname: '',
-      nbf: '',
+      nbf: 0,
       exp: -1,
     );
   }
 
   factory LoggedUserPayload.fromJson(Map<String, dynamic> map) {
     return LoggedUserPayload(
-      nameIdentifier: map['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ?? '',
-      emailAddress: map['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ?? '',
+      nameIdentifier:
+          map['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ??
+              '',
+      emailAddress:
+          map['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ??
+              '',
       emailConfirmed: map['emailconfirmed'] ?? '',
-      dns: map['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/dns'] ?? '',
-      name: map['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ?? '',
-      surname: map['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname'] ?? '',
-      nbf: map['nbf'] ?? '',
+      dns: map['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/dns'] ??
+          '',
+      name: map['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ??
+          '',
+      surname:
+          map['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname'] ??
+              '',
+      nbf: map['nbf'] ?? 0,
       exp: map['exp']?.toInt() ?? 0,
     );
   }

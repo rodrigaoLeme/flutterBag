@@ -41,9 +41,10 @@ class ProcessRenewalStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (renewalScholarship.scholarshipStatus) {
       case ScholarshipStatus.notFinished:
-        return const NotFinishedScholarshipStepper();
-      case ScholarshipStatus.applied:
-        if (renewalScholarship.completedStep == 5) {
+        if (renewalScholarship.currentStep < 4) {
+          return const NotFinishedScholarshipStepper();
+        }
+        if (renewalScholarship.completedStep == 4) {
           if (renewalScholarship.digitalProcess) {
             final documentationUploadDeadline =
                 processRenewal.documentationUploadDeadline;
@@ -63,7 +64,7 @@ class ProcessRenewalStepper extends StatelessWidget {
 
             // Chamada da store com os parâmetros
             store.call(authorized.Params(
-              userId: renewalScholarship.userId,
+              responsiblePersonId: renewalScholarship.responsiblePersonId,
               processPeriodId: renewalScholarship.processPeriodId,
             ));
 
@@ -134,7 +135,7 @@ class ProcessRenewalStepper extends StatelessWidget {
 
             // Chamada da store com os parâmetros
             store.call(authorized.Params(
-              userId: renewalScholarship.userId,
+              responsiblePersonId: renewalScholarship.responsiblePersonId,
               processPeriodId: renewalScholarship.processPeriodId,
             ));
 

@@ -9,6 +9,6 @@ final finishSendingDocumentsUsecaseBinds = <Bind>[
   Bind<Store>((i) => Store(i()), onDispose: (value) => value.destroy()),
   Bind((i) => UsecaseImpl(i())),
   Bind((i) => RepositoryImpl(i())),
-  Bind((i) => DatasourceImplV2(i(), i())),
+  Bind((i) => DatasourceImplV2(i(), i(), i())),
   //Bind((i) => const DatasourceImplV2Mock()),
 ];

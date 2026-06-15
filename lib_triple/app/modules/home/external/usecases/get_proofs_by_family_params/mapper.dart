@@ -66,13 +66,13 @@ class Mapper {
       }
 
       // entityProofCategorieId
-      if (!result.keys.contains('entityProofCategorieId')) {
-        throw const MapperException(
-            message:
-                'Não foi possível recuperar os comprovantes: Campo entityProofCategorieId não encontrado');
-      }
+      // if (!result.keys.contains('entityProofCategorieId')) {
+      //   throw const MapperException(
+      //       message:
+      //           'Não foi possível recuperar os comprovantes: Campo entityProofCategorieId não encontrado');
+      // }
 
-      final proofEntityProofCategorieId = result['entityProofCategorieId'];
+      // final proofEntityProofCategorieId = result['entityProofCategorieId'];
 
       // entityProofConfigId
       if (!result.keys.contains('entityProofConfigId')) {
@@ -957,7 +957,7 @@ class Mapper {
         Proof(
           id: proofId,
           scholarshipId: proofScholarshipId,
-          entityProofCategorieId: proofEntityProofCategorieId,
+          //entityProofCategorieId: proofEntityProofCategorieId,
           entityProofConfigId: proofEntityProofConfigId,
           entityProofConfig: EntityProofConfig(
             id: entityProofConfigId,

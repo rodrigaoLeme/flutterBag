@@ -193,6 +193,25 @@ class Mapper {
               'Não foi possível recuperar a bolsa: Campo completedStep tem valor inesperado ($completedStep)');
     }
 
+    if (!result.keys.contains('completedStep')) {
+      throw MapperException(
+          message:
+              'Não foi possível recuperar a bolsa: Campo completedStep não encontrado');
+    }
+
+    final currentStep = result['currentStep'];
+
+    if (currentStep is! int) {
+      throw MapperException(
+          message:
+              'Não foi possível recuperar a bolsa: Campo currentStep é inesperado (${currentStep.runtimeType})');
+    }
+    if (currentStep < 0) {
+      throw MapperException(
+          message:
+              'Não foi possível recuperar a bolsa: Campo currentStep tem valor inesperado ($currentStep)');
+    }
+
     if (!result.keys.contains('id')) {
       throw MapperException(
           message:
@@ -211,20 +230,20 @@ class Mapper {
           message: 'Não foi possível recuperar a bolsa: Campo id é vazio');
     }
 
-    if (!result.keys.contains('userId')) {
+    if (!result.keys.contains('responsiblePersonId')) {
       throw MapperException(
           message:
               'Não foi possível recuperar a bolsa: Campo userId não encontrado');
     }
 
-    final userId = result['userId'];
+    final responsiblePersonId = result['responsiblePersonId'];
 
-    if (userId is! String) {
+    if (responsiblePersonId is! String) {
       throw MapperException(
           message:
-              'Não foi possível recuperar a bolsa: Campo userId é inesperado (${userId.runtimeType})');
+              'Não foi possível recuperar a bolsa: Campo userId é inesperado (${responsiblePersonId.runtimeType})');
     }
-    if (userId.isEmpty) {
+    if (responsiblePersonId.isEmpty) {
       throw MapperException(
           message: 'Não foi possível recuperar a bolsa: Campo userId é vazio');
     }
@@ -266,10 +285,11 @@ class Mapper {
       scholarshipStatus: scholarshipStatus,
       reviewStatus: lastReviewStatus ?? -1,
       completedStep: completedStep,
+      currentStep: currentStep,
       id: id,
       lastReviewType: lastReviewType ?? ReviewType.attendant,
       scholarshipReviews: scholarshipReviews,
-      userId: userId,
+      responsiblePersonId: responsiblePersonId,
       processPeriodId: processPeriodId,
       declassificationType: declassificationType,
     );

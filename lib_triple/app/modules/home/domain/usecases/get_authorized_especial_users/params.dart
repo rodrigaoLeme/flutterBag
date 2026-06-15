@@ -1,9 +1,9 @@
 class Params {
   final String processPeriodId;
-  final String userId;
+  final String responsiblePersonId;
 
   const Params({
     required this.processPeriodId,
-    required this.userId,
+    required this.responsiblePersonId,
   });
 }

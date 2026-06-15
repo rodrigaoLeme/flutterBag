@@ -17,7 +17,8 @@ class DatasourceImplV2 implements Datasource {
   Future<Entity> call(Params params) async {
     try {
       final result = await _client.get(_endpoints.authorizedEspecificUser(
-          periodId: params.processPeriodId, userId: params.userId));
+          periodId: params.processPeriodId,
+          userId: params.responsiblePersonId));
 
       return result.fold(
         (exception) {

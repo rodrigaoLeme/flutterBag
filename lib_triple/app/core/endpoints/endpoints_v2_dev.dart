@@ -15,7 +15,7 @@ class EndpointsV2Dev extends Endpoints {
       '/api/v2/year-processes/$year/process-periods';
   String authorizedEspecificUser(
           {required String periodId, required String userId}) =>
-      '/api/v2/process-periods/$periodId/person-authorizations/$userId';
+      '/api/v2/process-periods/$periodId/person-authorizations/persons/$userId';
   String scholarship({required String periodId}) =>
       '/api/v2/process-periods/$periodId/scholarship';
   String familyMembers({required String scholarshipId}) =>
@@ -29,6 +29,8 @@ class EndpointsV2Dev extends Endpoints {
       '/api/v2/scholarship-proof-documents/$scholarshipProofDocumentId/upload';
   final forgotPassword = '/api/v2/identity/account/forgot-password';
   String file({required String fileId}) => '/api/v2/files/$fileId';
+  String advanceForStepFive({required String scholarshipId}) =>
+      '/api/v2/scholarships/$scholarshipId/step-five';
   String finishSendingDocuments({required String scholarshipId}) =>
       '/api/v2/scholarships/$scholarshipId/step-six';
 
@@ -46,8 +48,7 @@ class EndpointsV2Dev extends Endpoints {
           {required String scholarshipReviewId,
           required String scholarshipProofDocumentId}) =>
       '/api/v2/scholarship-reviews/$scholarshipReviewId/scholarship-proof-documents/$scholarshipProofDocumentId/upload';
-String processResultStudent(
-          {required String scholarshipId}) =>
+  String processResultStudent({required String scholarshipId}) =>
       '/api/v2/scholarships/$scholarshipId/students';
   //Resultado
   final students = '/api/v2/students';
