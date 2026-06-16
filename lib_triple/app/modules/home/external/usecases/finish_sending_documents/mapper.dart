@@ -7,7 +7,7 @@ class Mapper {
     return [
       {
         'ScholarshipId': '$params.scholarshipId',
-        'AcceptTerm': '${params.acceptTerm}',
+        'AcceptTerm': '${params.acceptedTerms}',
         'Password': '$params.password',
       }
     ];

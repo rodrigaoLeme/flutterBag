@@ -1,4 +1,6 @@
 import '../../../domain/usecases/get_family_members_by_scholarship/params.dart';
+import '../acceptance_terms/stores/usecases/advance_to_step_five/store.dart'
+    as advance_to_step_five;
 import '../group_params.dart';
 import '../scholarship_params.dart';
 import '../select_group_document/stores/usecases/get_proofs_by_family_params/store.dart'
@@ -11,13 +13,20 @@ import 'stores/usecases/get_family_members_by_scholarship/store.dart'
 class SelectGroupController {
   final get_family_members_by_scholarship.Store getFamilyMembers;
   final finish_sending_documents.Store finishSendingDocumentsStore;
+  final advance_to_step_five.Store advanceToStepFiveStore;
   final get_proofs_by_family_member.Store getProofs;
   final ScholarshipParams scholarshipParams;
   final GroupParams params;
   String _scholarshipId = '';
 
-  SelectGroupController(this.params, this.getFamilyMembers,
-      this.scholarshipParams, this.getProofs, this.finishSendingDocumentsStore);
+  SelectGroupController(
+    this.params,
+    this.getFamilyMembers,
+    this.scholarshipParams,
+    this.getProofs,
+    this.finishSendingDocumentsStore,
+    this.advanceToStepFiveStore,
+  );
 
   void selectGroup(GroupParams params) {
     this.params.proofParams = params.proofParams;
@@ -55,6 +64,13 @@ class SelectGroupController {
       }
     }
     return true;
+  }
+
+  Future<void> advanceToStepFive() async {
+    if (_scholarshipId.isEmpty) return;
+    await advanceToStepFiveStore(
+      advance_to_step_five.Params(scholarshipId: _scholarshipId),
+    );
   }
 
   void finishSendingDocuments() {

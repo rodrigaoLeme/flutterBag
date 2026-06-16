@@ -2,6 +2,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 
 import '../../review_documents/review_documents_module.dart';
 import 'home_page.dart';
+import 'imports/advance_to_step_five_imports.dart';
 import 'imports/finish_sending_documents_imports.dart';
 import 'imports/get_authorized_especial_users_imports.dart';
 import 'imports/get_family_members_by_scholarship_imports.dart';
@@ -9,6 +10,9 @@ import 'imports/get_process_periods_imports.dart';
 import 'imports/get_processes_years_imports.dart';
 import 'imports/get_scholarship_by_period_imports.dart';
 import 'imports/set_device_code_imports.dart';
+import 'imports/set_scholarship_step_imports.dart';
+import 'pages/acceptance_terms/acceptance_terms_controller.dart';
+import 'pages/acceptance_terms/acceptance_terms_page.dart';
 import 'pages/group_document_params.dart';
 import 'pages/group_params.dart';
 import 'pages/required_accepted_documents/controller.dart'
@@ -51,12 +55,15 @@ class HomeModule extends Module {
     ...finishSendingDocumentsUsecaseBinds,
     ...setDeviceCodeBinds,
     ...getAuthorizedEspecialUserUsecaseBinds,
-    Bind((i) => SelectGroupController(i(), i(), i(), i(), i())),
+    ...advanceToStepFiveUsecaseBinds,
+    ...setScholarshipStepUsecaseBinds,
+    Bind((i) => SelectGroupController(i(), i(), i(), i(), i(), i())),
     Bind<Controller>((i) => Controller(i(), i(), i(), i(), i(), i()),
         onDispose: (store) => store.destroy()),
     Bind((i) => ScholarshipParams()),
     Bind((i) => GroupParams.empty()),
     Bind((i) => GroupDocumentParams.empty()),
+    Bind((i) => AcceptanceTermsController(i(), i(), i(), i())),
     Bind.factory((i) => camera.Controller()),
     Bind<required_accepted_documents.Controller>(
         (i) => required_accepted_documents.Controller(
@@ -69,6 +76,8 @@ class HomeModule extends Module {
     ChildRoute(Modular.initialRoute, child: (_, args) => const HomePage()),
     ChildRoute('/select_group', child: (_, args) => const SelectGroupPage()),
     ChildRoute('/select_group_document', child: (_, args) => const Page()),
+    ChildRoute('/acceptance_terms',
+        child: (_, __) => const AcceptanceTermsPage()),
     ChildRoute('/camera', child: (_, args) => const camera.Page()),
     ChildRoute('/required_accepted_documents',
         child: (_, args) => const required_accepted_documents.Page()),

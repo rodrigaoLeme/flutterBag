@@ -1,11 +1,11 @@
 class Params {
   final String scholarshipId;
-  final bool acceptTerm;
+  final bool acceptedTerms;
   final String password;
 
   const Params({
     required this.scholarshipId,
-    this.acceptTerm = false,
+    this.acceptedTerms = false,
     required this.password,
   });
 }

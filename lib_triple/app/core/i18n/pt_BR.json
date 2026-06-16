@@ -61,5 +61,16 @@
     "login_with_id_usecase_invalid_id_exception": "CPF inválido",
 
     "global_mapper_unexpected_result_data_format": "Não foi possível receber %s. Formato da resposta inesperado.",
-    "processes_years_unexpected_result_data_format": "os anos de processo"
+    "processes_years_unexpected_result_data_format": "os anos de processo",
+
+    "acceptance_terms_title": "Termos de Aceite",
+    "acceptance_terms_content": "Ao finalizar o envio dos documentos, você declara que todas as informações fornecidas são verdadeiras e que está ciente das condições do processo seletivo de bolsas...",
+    "acceptance_terms_checkbox_label": "Li e aceito os termos acima",
+    "acceptance_terms_back_button": "Voltar",
+    "acceptance_terms_finalize_button": "Finalizar",
+    "acceptance_terms_password_modal_title": "Confirmação",
+    "acceptance_terms_password_modal_description": "Digite sua senha para confirmar o envio dos documentos.",
+    "acceptance_terms_password_label": "Senha",
+    "acceptance_terms_password_cancel": "Cancelar",
+    "acceptance_terms_password_confirm": "Confirmar"
 }
