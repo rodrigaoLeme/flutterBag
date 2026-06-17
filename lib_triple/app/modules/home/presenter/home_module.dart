@@ -57,7 +57,7 @@ class HomeModule extends Module {
     ...getAuthorizedEspecialUserUsecaseBinds,
     ...advanceToStepFiveUsecaseBinds,
     ...setScholarshipStepUsecaseBinds,
-    Bind((i) => SelectGroupController(i(), i(), i(), i(), i(), i())),
+    Bind((i) => SelectGroupController(i(), i(), i(), i(), i())),
     Bind<Controller>((i) => Controller(i(), i(), i(), i(), i(), i()),
         onDispose: (store) => store.destroy()),
     Bind((i) => ScholarshipParams()),

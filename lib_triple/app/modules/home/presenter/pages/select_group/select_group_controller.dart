@@ -5,14 +5,11 @@ import '../group_params.dart';
 import '../scholarship_params.dart';
 import '../select_group_document/stores/usecases/get_proofs_by_family_params/store.dart'
     as get_proofs_by_family_member;
-import 'stores/usecases/finish_sending_documents/store.dart'
-    as finish_sending_documents;
 import 'stores/usecases/get_family_members_by_scholarship/store.dart'
     as get_family_members_by_scholarship;
 
 class SelectGroupController {
   final get_family_members_by_scholarship.Store getFamilyMembers;
-  final finish_sending_documents.Store finishSendingDocumentsStore;
   final advance_to_step_five.Store advanceToStepFiveStore;
   final get_proofs_by_family_member.Store getProofs;
   final ScholarshipParams scholarshipParams;
@@ -24,7 +21,6 @@ class SelectGroupController {
     this.getFamilyMembers,
     this.scholarshipParams,
     this.getProofs,
-    this.finishSendingDocumentsStore,
     this.advanceToStepFiveStore,
   );
 
@@ -71,12 +67,6 @@ class SelectGroupController {
     await advanceToStepFiveStore(
       advance_to_step_five.Params(scholarshipId: _scholarshipId),
     );
-  }
-
-  void finishSendingDocuments() {
-    if (_scholarshipId.isEmpty) return;
-    finishSendingDocumentsStore(
-        finish_sending_documents.Params(scholarshipId: _scholarshipId));
   }
 
   Future<bool> isGroupComplete({

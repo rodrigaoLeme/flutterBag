@@ -705,8 +705,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     renewalScholarship: renewalScholarship,
                                     processRenewal: chosenProcessRenewal,
                                     onTapSendDocuments: () {
-                                      store.setScholarshipIdForSelectGroupPage(
-                                          renewalScholarship.id);
+                                      store
+                                          .setScholarshipIdAndProcessPeriodIdForSelectGroupPage(
+                                        renewalScholarship.id,
+                                        renewalScholarship.processPeriodId,
+                                      );
                                       Modular.to
                                           .pushNamed('select_group')
                                           .then((response) {
@@ -882,8 +885,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         processNewScholarship,
                                     processNew: chosenProcessNew,
                                     onTapSendDocuments: () {
-                                      store.setScholarshipIdForSelectGroupPage(
-                                          processNewScholarship.id);
+                                      store
+                                          .setScholarshipIdAndProcessPeriodIdForSelectGroupPage(
+                                        processNewScholarship.id,
+                                        processNewScholarship.processPeriodId,
+                                      );
                                       Modular.to
                                           .pushNamed('select_group')
                                           .then((response) {

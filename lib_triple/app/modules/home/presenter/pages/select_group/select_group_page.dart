@@ -11,10 +11,10 @@ import '../../../../../core/widgets/custom_app_bar.dart';
 import '../../../../../core/widgets/custom_scaffold.dart';
 import '../../../../../core/widgets/group_card.dart';
 import '../../../domain/usecases/get_proofs_by_family_params/params.dart';
+import '../acceptance_terms/stores/usecases/advance_to_step_five/store.dart'
+    as advance_to_step_five;
 import '../group_params.dart';
 import 'select_group_controller.dart';
-import 'stores/usecases/finish_sending_documents/store.dart'
-    as finish_sending_documents;
 import 'stores/usecases/get_family_members_by_scholarship/store.dart'
     as get_family_members_by_scholarship;
 
@@ -27,7 +27,7 @@ class SelectGroupPage extends StatefulWidget {
 
 class _SelectGroupPageState extends State<SelectGroupPage> {
   final controller = Modular.get<SelectGroupController>();
-  triple.Disposer? finishSendingDocumentsStatesObserver;
+  triple.Disposer? _advanceObserver;
 
   @override
   void initState() {
@@ -38,19 +38,19 @@ class _SelectGroupPageState extends State<SelectGroupPage> {
       checkFinishButton();
     });
     initLocalizedStrings();
-    startObservingFinishSendingDocumentsStore();
+    _startObservingAdvance();
   }
 
-  void startObservingFinishSendingDocumentsStore() {
-    finishSendingDocumentsStatesObserver =
-        controller.finishSendingDocumentsStore.observer(
-      onError: (error) {
-        showSnackBar(error.toString());
-      },
+  void _startObservingAdvance() {
+    _advanceObserver = controller.advanceToStepFiveStore.observer(
+      onError: (error) => showSnackBar(error.toString()),
       onState: (state) {
-        final requestHasWorked = state.response;
-        if (requestHasWorked) {
-          Modular.to.pop(requestHasWorked);
+        if (state.response) {
+          Modular.to.pushNamed('acceptance_terms').then((result) {
+            if (result == true) {
+              Modular.to.pop(true);
+            }
+          });
         }
       },
     );
@@ -58,7 +58,7 @@ class _SelectGroupPageState extends State<SelectGroupPage> {
 
   @override
   void dispose() {
-    finishSendingDocumentsStatesObserver?.call();
+    _advanceObserver?.call();
     super.dispose();
   }
 
@@ -93,11 +93,9 @@ class _SelectGroupPageState extends State<SelectGroupPage> {
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
-    return TripleBuilder<
-            finish_sending_documents.Store,
-            finish_sending_documents.UsecaseException,
-            finish_sending_documents.Entity>(
-        store: controller.finishSendingDocumentsStore,
+    return TripleBuilder<advance_to_step_five.Store,
+            advance_to_step_five.UsecaseException, advance_to_step_five.Entity>(
+        store: controller.advanceToStepFiveStore,
         builder: (context, state) {
           if (state.isLoading) {
             return const CustomScaffold(
@@ -243,15 +241,17 @@ class _SelectGroupPageState extends State<SelectGroupPage> {
                                     builder: (context, snapshot) {
                                       if (snapshot.data == true) {
                                         return AlternativeRoundedButton(
-                                          label: 'Finalizar',
-                                          onTap:
-                                              controller.finishSendingDocuments,
+                                          label: getLocalization(
+                                              'advance_button'), // 'Avançar'
+                                          onTap: controller.advanceToStepFive,
                                         );
                                       }
-                                      return const AlternativeRoundedButton(
-                                          label: 'Finalizar',
-                                          onTap: null,
-                                          labelColor: Colors.grey);
+                                      return AlternativeRoundedButton(
+                                        label:
+                                            getLocalization('advance_button'),
+                                        onTap: null,
+                                        labelColor: Colors.grey,
+                                      );
                                     },
                                   );
                                 }

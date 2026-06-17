@@ -99,8 +99,10 @@ class _AcceptanceTermsPageState extends State<AcceptanceTermsPage> {
               },
               child: Text('acceptance_terms_password_cancel'.i18n()),
             ),
-            triple.ScopedBuilder<finish_sending_documents.Store, String,
-                finish_sending_documents.StoreState>(
+            triple.ScopedBuilder<
+                finish_sending_documents.Store,
+                finish_sending_documents.UsecaseException,
+                finish_sending_documents.Entity>(
               store: controller.finishSendingDocumentsStore,
               onLoading: (_) => const CircularProgressIndicator(),
               onState: (context, state) => TextButton(
