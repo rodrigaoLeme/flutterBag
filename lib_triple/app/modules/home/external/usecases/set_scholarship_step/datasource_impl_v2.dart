@@ -20,7 +20,7 @@ class DatasourceImplV2 implements Datasource {
         processPeriodId: params.processPeriodId,
         scholarshipId: params.scholarshipId,
       ),
-      data: {'step': params.step},
+      data: '${params.step}',
     );
     return result.fold(
       (exception) {

@@ -39,7 +39,6 @@ class ProcessNewStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (processNewScholarship.scholarshipStatus) {
       case ScholarshipStatus.notFinished:
-      case ScholarshipStatus.applied:
         if (processNewScholarship.currentStep < 4) {
           return const NotFinishedScholarshipStepper();
         }
@@ -95,6 +94,68 @@ class ProcessNewStepper extends StatelessWidget {
             return ManualSendDocumentationStepper(
               declassification: processNewScholarship.declassificationType,
             );
+          }
+        } else {
+          if (processNewScholarship.currentStep == 5) {
+            if (processNewScholarship.digitalProcess) {
+              final documentationUploadDeadline =
+                  processNew.documentationUploadDeadline;
+              if (documentationUploadDeadline == null ||
+                  documentationUploadDeadline.isEmpty) {
+                onDateTimeError();
+                return const SizedBox();
+              }
+
+              final DateTime? deadline =
+                  DateTime.tryParse(documentationUploadDeadline);
+              if (deadline == null) {
+                onDateTimeError();
+                return const SizedBox();
+              }
+
+              final store = Modular.get<authorized.Store>();
+
+              // Chamada da store com os parâmetros
+              store.call(authorized.Params(
+                responsiblePersonId: processNewScholarship.responsiblePersonId,
+                processPeriodId: processNewScholarship.processPeriodId,
+              ));
+
+              return ScopedBuilder<authorized.Store,
+                  authorized.UsecaseException, authorized_user.Entity>(
+                store: store,
+                onLoading: (_) =>
+                    const Center(child: CircularProgressIndicator()),
+                onError: (_, error) {
+                  return SendDocumentationScholarshipStepper(
+                    documentationUploadDeadline: deadline,
+                    onTapSendDocuments: onTapSendDocuments,
+                    isAuthorizedToSendAfterDeadline: false, // fallback se erro
+                    declassification:
+                        processNewScholarship.declassificationType,
+                  );
+                },
+                onState: (_, entity) {
+                  final isAuthorized = entity.id.isNotEmpty;
+                  return SendDocumentationScholarshipStepper(
+                    documentationUploadDeadline: deadline,
+                    onTapSendDocuments: () {
+                      Modular.to.pushNamed('acceptance_terms', arguments: {
+                        'userName': processNewScholarship.responsiblePersonName
+                      });
+                    },
+                    isAuthorizedToSendAfterDeadline: isAuthorized,
+                    declassification:
+                        processNewScholarship.declassificationType,
+                    buttonLabel: 'Finalizar Envio',
+                  );
+                },
+              );
+            } else {
+              return ManualSendDocumentationStepper(
+                declassification: processNewScholarship.declassificationType,
+              );
+            }
           }
         }
         return const WaitingForCompletionStepper();

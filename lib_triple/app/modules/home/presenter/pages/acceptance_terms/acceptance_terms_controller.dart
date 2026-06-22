@@ -1,3 +1,4 @@
+import '../../stores/home_store.dart';
 import '../scholarship_params.dart';
 import '../select_group/stores/usecases/finish_sending_documents/store.dart'
     as finish_sending_documents;
@@ -11,16 +12,21 @@ class AcceptanceTermsController {
   final set_scholarship_step.Store setScholarshipStepStore;
   final finish_sending_documents.Store finishSendingDocumentsStore;
   final ScholarshipParams scholarshipParams;
+  final HomeStore homeStore;
 
   AcceptanceTermsController(
     this.advanceToStepFiveStore,
     this.setScholarshipStepStore,
     this.finishSendingDocumentsStore,
     this.scholarshipParams,
+    this.homeStore,
   );
 
   String get scholarshipId => scholarshipParams.id;
   String get processPeriodId => scholarshipParams.processPeriodId;
+
+  String get userName => homeStore.params.responsibleName;
+  int get academicYear => homeStore.state.year;
 
   Future<void> advanceToStepFive() async {
     await advanceToStepFiveStore(

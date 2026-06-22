@@ -230,6 +230,46 @@ class Mapper {
           message: 'Não foi possível recuperar a bolsa: Campo id é vazio');
     }
 
+    if (!result.keys.contains('responsiblePerson')) {
+      throw MapperException(
+          message:
+              'Não foi possível recuperar a bolsa: Campo responsiblePerson não encontrado');
+    }
+
+    final responsiblePerson = result['responsiblePerson'];
+
+    if (responsiblePerson is! Map) {
+      throw MapperException(
+          message:
+              'Não foi possível recuperar a bolsa: Campo responsiblePerson é inesperado (${responsiblePerson.runtimeType})');
+    }
+
+    if (responsiblePerson.isEmpty) {
+      throw MapperException(
+          message:
+              'Não foi possível recuperar a bolsa: Campo responsiblePerson é vazio');
+    }
+
+    // entityProofConfig - id
+    if (!responsiblePerson.keys.contains('name')) {
+      throw MapperException(
+          message:
+              'Não foi possível recuperar a bolsa: Campo responsiblePerson.name não encontrado');
+    }
+
+    final responsiblePersonName = responsiblePerson['name'];
+
+    if (responsiblePersonName is! String) {
+      throw MapperException(
+          message:
+              'Não foi possível recuperar a bolsa: Campo responsiblePersonName é inesperado (${responsiblePersonName.runtimeType})');
+    }
+    if (responsiblePersonName.isEmpty) {
+      throw MapperException(
+          message:
+              'Não foi possível recuperar a bolsa: Campo responsiblePersonName é vazio');
+    }
+
     if (!result.keys.contains('responsiblePersonId')) {
       throw MapperException(
           message:
@@ -290,6 +330,7 @@ class Mapper {
       lastReviewType: lastReviewType ?? ReviewType.attendant,
       scholarshipReviews: scholarshipReviews,
       responsiblePersonId: responsiblePersonId,
+      responsiblePersonName: responsiblePersonName,
       processPeriodId: processPeriodId,
       declassificationType: declassificationType,
     );

@@ -3,13 +3,11 @@ import '../../../domain/usecases/finish_sending_documents/params.dart';
 class Mapper {
   const Mapper();
 
-  List<Map<String, String>> getDataFromParams(Params params) {
-    return [
-      {
-        'ScholarshipId': '$params.scholarshipId',
-        'AcceptTerm': '${params.acceptedTerms}',
-        'Password': '$params.password',
-      }
-    ];
+  Map<String, dynamic> getDataFromParams(Params params) {
+    return {
+      'scholarshipId': params.scholarshipId,
+      'acceptTerm': params.acceptedTerms,
+      'password': params.password,
+    };
   }
 }

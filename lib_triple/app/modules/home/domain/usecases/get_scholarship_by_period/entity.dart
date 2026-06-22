@@ -11,6 +11,7 @@ class Entity {
   final ReviewType lastReviewType;
   final List<ScholarshipReview> scholarshipReviews;
   final String responsiblePersonId;
+  final String responsiblePersonName;
   final String processPeriodId;
   final int declassificationType;
   const Entity({
@@ -23,6 +24,7 @@ class Entity {
     required this.lastReviewType,
     required this.scholarshipReviews,
     required this.responsiblePersonId,
+    required this.responsiblePersonName,
     required this.processPeriodId,
     required this.declassificationType,
   });
@@ -37,6 +39,7 @@ class Entity {
         lastReviewType: ReviewType.attendant,
         scholarshipReviews: [],
         responsiblePersonId: '',
+        responsiblePersonName: '',
         processPeriodId: '',
         declassificationType: 0,
       );

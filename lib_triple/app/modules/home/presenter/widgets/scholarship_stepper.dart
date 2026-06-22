@@ -104,12 +104,14 @@ class SendDocumentationScholarshipStepper extends StatelessWidget {
   final bool isAuthorizedToSendAfterDeadline;
   final int declassification;
   final void Function() onTapSendDocuments;
+  final String buttonLabel;
   const SendDocumentationScholarshipStepper({
     Key? key,
     required this.onTapSendDocuments,
     required this.documentationUploadDeadline,
     required this.isAuthorizedToSendAfterDeadline,
     required this.declassification,
+    this.buttonLabel = 'Iniciar Envio',
   }) : super(key: key);
 
   @override
@@ -134,7 +136,7 @@ class SendDocumentationScholarshipStepper extends StatelessWidget {
           style: (declassification > 0) ? _errorTextStyle : _successTextStyle);
     } else if (isInsideDeadline || isAuthorizedToSendAfterDeadline) {
       child = AlternativeRoundedButton(
-        label: 'Iniciar Envio',
+        label: buttonLabel,
         onTap: onTapSendDocuments,
         backgroundColor: const Color(0xFFDFF2FC),
       );

@@ -27,12 +27,21 @@ class DatasourceImplV2 implements Datasource {
         if (exception.message.contains('500')) {
           return const Left(ServerException());
         }
-        return const Left(UnknownUsecaseException());
+        return Left(UnknownUsecaseException(message: exception.message));
       },
       (response) {
-        return response.statusCode.toString().startsWith('2')
-            ? const Right(Entity(response: true))
-            : const Left(UnknownUsecaseException());
+        if (response.statusCode.toString().startsWith('2')) {
+          return const Right(Entity(response: true));
+        }
+
+        // Captura a mensagem específica do backend quando disponível
+        String? errorMessage;
+        if (response.data is Map) {
+          final data = response.data as Map<String, dynamic>;
+          errorMessage = data['title'] ?? data['detail'] ?? data['message'];
+        }
+
+        return Left(UnknownUsecaseException(message: errorMessage));
       },
     );
   }

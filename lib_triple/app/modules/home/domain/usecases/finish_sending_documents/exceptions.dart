@@ -8,7 +8,10 @@ abstract class UsecaseException {
 }
 
 class UnknownUsecaseException extends UsecaseException {
-  const UnknownUsecaseException({String? message}) : super(message: 'Não foi possível finalizar o envio de documentos');
+  const UnknownUsecaseException({String? message})
+      : super(
+            message:
+                message ?? 'Não foi possível finalizar o envio de documentos');
 }
 
 class MapperException extends UsecaseException {
@@ -16,9 +19,13 @@ class MapperException extends UsecaseException {
 }
 
 class ServerException extends UsecaseException {
-  const ServerException({String? message}) : super(message: message ?? 'Não foi possível estabelecer conexão');
+  const ServerException({String? message})
+      : super(message: message ?? 'Não foi possível estabelecer conexão');
 }
 
 class ResponseException extends UsecaseException {
-  const ResponseException({String? message}) : super(message: message ?? 'Não foi possível finalizar o envio de documentos');
+  const ResponseException({String? message})
+      : super(
+            message:
+                message ?? 'Não foi possível finalizar o envio de documentos');
 }

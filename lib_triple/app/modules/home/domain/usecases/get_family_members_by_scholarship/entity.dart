@@ -9,9 +9,11 @@ class Entity {
 class FamilyMember {
   final String id;
   final String name;
+  final bool? isResponsible;
 
   const FamilyMember({
     required this.id,
     required this.name,
+    this.isResponsible = false,
   });
 }

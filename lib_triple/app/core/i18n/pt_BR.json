@@ -38,6 +38,7 @@
     "select_group_document_accepted_documents_exception": "Não foi possível apresentar os tipos de documentos aceitos",
     "select_group_document_empty_accepted_documents_list": "Não foi possível recuperar os tipos de documentos aceitos.",
     "select_group_document_accept_term_label": "Estou ciente",
+    "select_group_advance_button": "Avançar",
     
     "select_group_description": "O envio de documento é realizado por grupos.\nSelecione o grupo e envie os documentos.",
     "select_group_unable_to_find_family_members": "Não foi possível recuperar os dados dos familares",
@@ -64,9 +65,9 @@
     "processes_years_unexpected_result_data_format": "os anos de processo",
 
     "acceptance_terms_title": "Termos de Aceite",
-    "acceptance_terms_content": "Ao finalizar o envio dos documentos, você declara que todas as informações fornecidas são verdadeiras e que está ciente das condições do processo seletivo de bolsas...",
-    "acceptance_terms_checkbox_label": "Li e aceito os termos acima",
-    "acceptance_terms_back_button": "Voltar",
+    "acceptance_terms_content": "Eu, %s, declaro sob as penas da lei (artigo 299 do Código Penal Brasileiro) a veracidade e autenticidade dos documentos anexados e informações que aqui prestei, estando ciente que a omissão ou a declaração inverídica é considerada crime, sob as penas da lei.\n\nDeclaro ainda, que estou ciente de que a Entidade poderá solicitar outros documentos, se julgar necessário, para a análise documental e enquadramento do perfil socioeconômico estabelecido em lei, e que o benefício concedido com base neste formulário terá validade somente para as parcelas/mensalidades referentes ao ano de %s. Os percentuais de bolsas de estudos serão determinados de acordo com os critérios previstos pela Lei Complementar nº 187/2021.\n\nAo dar aceite nesta declaração, concordo de que a qualquer tempo poderá ser averiguada a veracidade das informações prestadas, por um(a) assistente social, mediante visita domiciliar e/ou entrevista, para que possa ser verificado o perfil socioeconômico do grupo familiar, com a finalidade de obter a continuidade/manutenção ou concessão do benefício da bolsa de estudo. Estou ciente dos motivos elencados na Lei Complementar nº 187/2021, que podem resultar no cancelamento da bolsa, bem como, que não haverá recurso de revisão neste processo seletivo, conforme estabelecido no Edital.\n\nAutorizo o tratamento dos dados pessoais aqui prestados, inclusive os dados sensíveis, nos termos da LGPD Lei nº 13.709/2018, inclusive a transmissão destes aos órgãos públicos de todas as esferas.",
+    "acceptance_terms_checkbox_label": "Declaro sob as penas da lei, que aceito e concordo com os termos desta declaração, deste Processo Seletivo e com o Edital de Bolsas de Estudos.",
+    "acceptance_terms_back_button": "Anterior",
     "acceptance_terms_finalize_button": "Finalizar",
     "acceptance_terms_password_modal_title": "Confirmação",
     "acceptance_terms_password_modal_description": "Digite sua senha para confirmar o envio dos documentos.",

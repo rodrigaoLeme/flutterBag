@@ -31,6 +31,9 @@ class EndpointsV2Dev extends Endpoints {
   String file({required String fileId}) => '/api/v2/files/$fileId';
   String advanceForStepFive({required String scholarshipId}) =>
       '/api/v2/scholarships/$scholarshipId/step-five';
+  String setScholarshipStep(
+          {required String processPeriodId, required String scholarshipId}) =>
+      '/api/v2/process-periods/$processPeriodId/scholarships/$scholarshipId/step';
   String finishSendingDocuments({required String scholarshipId}) =>
       '/api/v2/scholarships/$scholarshipId/step-six';
 

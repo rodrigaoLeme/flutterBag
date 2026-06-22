@@ -57,13 +57,13 @@ class HomeModule extends Module {
     ...getAuthorizedEspecialUserUsecaseBinds,
     ...advanceToStepFiveUsecaseBinds,
     ...setScholarshipStepUsecaseBinds,
+    Bind((i) => AcceptanceTermsController(i(), i(), i(), i(), i())),
     Bind((i) => SelectGroupController(i(), i(), i(), i(), i())),
     Bind<Controller>((i) => Controller(i(), i(), i(), i(), i(), i()),
         onDispose: (store) => store.destroy()),
     Bind((i) => ScholarshipParams()),
     Bind((i) => GroupParams.empty()),
     Bind((i) => GroupDocumentParams.empty()),
-    Bind((i) => AcceptanceTermsController(i(), i(), i(), i())),
     Bind.factory((i) => camera.Controller()),
     Bind<required_accepted_documents.Controller>(
         (i) => required_accepted_documents.Controller(
@@ -77,7 +77,7 @@ class HomeModule extends Module {
     ChildRoute('/select_group', child: (_, args) => const SelectGroupPage()),
     ChildRoute('/select_group_document', child: (_, args) => const Page()),
     ChildRoute('/acceptance_terms',
-        child: (_, __) => const AcceptanceTermsPage()),
+        child: (context, args) => const AcceptanceTermsPage()),
     ChildRoute('/camera', child: (_, args) => const camera.Page()),
     ChildRoute('/required_accepted_documents',
         child: (_, args) => const required_accepted_documents.Page()),

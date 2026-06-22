@@ -184,10 +184,11 @@ class HomeStore extends triple.StreamStore<String, HomeStoreState> {
     setLoading(false, force: true);
   }
 
-  void setScholarshipIdAndProcessPeriodIdForSelectGroupPage(
-      String id, String processPeriodId) {
+  void setScholarshipIdProcessPeriodIdAndResponsibleNameForSelectGroupPage(
+      String id, String processPeriodId, String responsibleName) {
     params.id = id;
     params.processPeriodId = processPeriodId;
+    params.responsibleName = responsibleName;
   }
 
   void setException(String message) {
