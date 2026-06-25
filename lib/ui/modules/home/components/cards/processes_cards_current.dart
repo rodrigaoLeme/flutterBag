@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../domain/entities/process_enums.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/ebolsa_text_button.dart';
 import '../../../../helpers/themes/themes.dart';
@@ -8,69 +9,6 @@ import '../banners/processes_banner_pending_documents_warning.dart';
 import '../banners/processes_banner_warning.dart';
 
 final appStrings = AppI18n.current;
-
-enum ProcessSteps {
-  initial,
-  second,
-  third,
-  verification,
-  fifth,
-  completed;
-
-  String get label {
-    switch (this) {
-      case initial:
-        return appStrings.processStepsInitial;
-      case second:
-        return appStrings.processStepsSecond;
-      case third:
-        return appStrings.processStepsThird;
-      case verification:
-        return appStrings.processStepsVerification;
-      case fifth:
-        return appStrings.processStepsFifth;
-      case completed:
-        return appStrings.processStepsCompleted;
-    }
-  }
-
-  Color get color {
-    switch (this) {
-      case initial:
-        return const Color(0xFF45EEFF);
-      case second:
-        return const Color(0xFFFF9950);
-      case third:
-        return const Color(0xFFFF9950);
-      case verification:
-        return const Color(0xFFFF63D8);
-      case fifth:
-        return const Color(0xFFFF9950);
-      case completed:
-        return const Color(0xFF7DD6A1);
-    }
-  }
-}
-
-enum ProcessesType {
-  renewProcess,
-  newProcess;
-
-  String get label {
-    switch (this) {
-      case renewProcess:
-        return appStrings.renewProcess;
-      case newProcess:
-        return appStrings.newProcess;
-    }
-  }
-}
-
-enum ProcessesBanner {
-  warning,
-  pending,
-  error,
-}
 
 class ProcessCardCurrent extends StatelessWidget {
   final String administrativeRegion;
@@ -82,7 +20,7 @@ class ProcessCardCurrent extends StatelessWidget {
   final List<String> candidates;
   final ProcessesBanner processesBanner;
   final String warningMessage;
-  final VoidCallback? onViewProcess;
+  final VoidCallback? onDetail;
   final VoidCallback? onContinue;
 
   const ProcessCardCurrent({
@@ -96,7 +34,7 @@ class ProcessCardCurrent extends StatelessWidget {
     required this.candidates,
     required this.processesBanner,
     required this.warningMessage,
-    this.onViewProcess,
+    this.onDetail,
     this.onContinue,
   });
 
@@ -333,7 +271,7 @@ class ProcessCardCurrent extends StatelessWidget {
           const SizedBox(height: 16),
           Center(
             child: EbolsaTextButton(
-              onPressed: () {},
+              onPressed: onDetail,
               label: appStrings.processCardDetaiButton,
             ),
           ),

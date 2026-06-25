@@ -24,4 +24,9 @@ class AppIcons {
   static const noneIcon = 'lib/ui/assets/icons/none-icon.svg';
   static const exclamationIcon = 'lib/ui/assets/icons/exclamation-icon.svg';
   static const arrowRightIcon = 'lib/ui/assets/icons/arrow-right-icon.svg';
+  static const arrowRightIconFill =
+      'lib/ui/assets/icons/arrow-right-icon-fill.svg';
+  static const clock = 'lib/ui/assets/icons/clock.svg';
+  static const fileLines = 'lib/ui/assets/icons/file-lines.svg';
+  static const graduationCap = 'lib/ui/assets/icons/graduation-cap.svg';
 }

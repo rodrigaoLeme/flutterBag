@@ -681,22 +681,22 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
 
   /// ------------------- Process Steps  -------------------
   @override
-  String get processStepsInitial => '1/6 Iniciado';
+  String get processStepsInitial => 'Iniciado';
 
   @override
-  String get processStepsSecond => '2/6 Segundo';
+  String get processStepsSecond => 'Cadastro';
 
   @override
-  String get processStepsThird => '3/6 Third';
+  String get processStepsThird => 'Documentação';
 
   @override
-  String get processStepsVerification => '4/6 Conferência';
+  String get processStepsVerification => 'Conferência';
 
   @override
-  String get processStepsFifth => '5/6 Fifth';
+  String get processStepsFifth => 'Em Análise';
 
   @override
-  String get processStepsCompleted => '6/6 Concluído';
+  String get processStepsCompleted => 'Concluído';
 
   /// ------------------- Processes Type -------------------
   @override

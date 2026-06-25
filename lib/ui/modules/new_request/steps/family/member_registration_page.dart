@@ -423,7 +423,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                                   style: _vm.nacionalityController.text.isEmpty
                                       ? AppTextStyles.bodyMedium.copyWith(
                                           color: AppColors.onSurface
-                                              .withOpacity(0.6))
+                                              .withValues(alpha: 0.6))
                                       : AppTextStyles.bodyMedium,
                                 ),
                               ),
@@ -565,7 +565,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                                 style: _vm.selectedPcd == null
                                     ? AppTextStyles.bodyMedium.copyWith(
                                         color: AppColors.onSurface
-                                            .withOpacity(0.6))
+                                            .withValues(alpha: 0.6))
                                     : AppTextStyles.bodyMedium,
                               ),
                             ),

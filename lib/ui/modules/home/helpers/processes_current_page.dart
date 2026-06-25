@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
 import '../../../../domain/entities/announcement_enums.dart';
+import '../../../../domain/entities/process_enums.dart';
 import '../../../../domain/entities/process_period_entity.dart';
 import '../../../../domain/entities/scholarship_entity.dart';
 import '../../../../main/factories/pages/new_scholarship/new_scholarship_page_factory.dart';
 import '../../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
+import '../../../../main/i18n/app_i18n.dart';
 import '../../../components/components.dart';
 import '../../new_request/new_scholarship_request_page.dart';
 import '../components/cards/processes_cards_current.dart';
+import '../process_detail_page.dart';
 
 class ProcessesCurrentPage extends StatelessWidget {
   final int yearSelected;
@@ -34,6 +37,8 @@ class ProcessesCurrentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appStrings = AppI18n.current;
+
     return Padding(
       padding: const EdgeInsets.only(left: 12, top: 20, right: 12),
       child: Column(
@@ -68,6 +73,7 @@ class ProcessesCurrentPage extends StatelessWidget {
                 onContinue: scholarship.processPeriodId != null
                     ? () => _onContinue(context, scholarship)
                     : null,
+                onDetail: () => _onDetail(context, scholarship, period),
               ),
             );
           }),
@@ -119,6 +125,25 @@ class ProcessesCurrentPage extends StatelessWidget {
     );
     // O _initForm do presenter já verifica draft local e endpoint automaticamente
     // pra carregar os dados.
+  }
+
+  void _onDetail(BuildContext context, ScholarshipEntity scholarship,
+      ProcessPeriodAvailableEntity? period) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ProcessDetailPage(
+          scholarship: scholarship,
+          period: period,
+          step: _mapStep(scholarship.currentStep),
+          onContinue: scholarship.processPeriodId != null
+              ? () {
+                  Navigator.of(context).pop(); // fecha o detail
+                  _onContinue(context, scholarship);
+                }
+              : null,
+        ),
+      ),
+    );
   }
 
   ProcessSteps _mapStep(int? step) {

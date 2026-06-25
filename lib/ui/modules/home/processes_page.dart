@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../domain/entities/process_enums.dart';
 import '../../../domain/entities/process_period_entity.dart';
 import '../../../domain/entities/scholarship_entity.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
-import 'components/cards/processes_cards_current.dart';
 import 'helpers/processes_cards_page.dart';
 import 'home_presenter.dart';
 
@@ -31,7 +31,6 @@ class _ProcessesPageState extends State<ProcessesPage> {
   bool _isLoading = false;
   List<ScholarshipEntity> _scholarships = [];
   List<ProcessPeriodAvailableEntity> _availablePeriods = [];
-  bool _scholarshipsLoaded = false;
 
   @override
   void initState() {
@@ -55,7 +54,6 @@ class _ProcessesPageState extends State<ProcessesPage> {
       if (!mounted) return;
       setState(() {
         _scholarships = scholarships;
-        _scholarshipsLoaded = true;
       });
     });
 
