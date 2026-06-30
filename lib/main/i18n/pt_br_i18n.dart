@@ -751,6 +751,53 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   @override
   String get renewProcess => 'Renovação';
 
+  /// ------------------- Result Status -------------------
+  @override
+  String get resultStatusAnalysis => 'Em análise';
+
+  @override
+  String get resultStatusApproved50 => 'Deferido 50%';
+
+  @override
+  String get resultStatusApproved100 => 'Deferido 100%';
+
+  @override
+  String get resultStatusRejected => 'Indeferido';
+
+  @override
+  String get resultStatusDisqualified => 'Desclassificado';
+
+  @override
+  String get resultStatusWaitingList => 'Lista de Espera';
+
+  /// ------------------- Registration Status -------------------
+  @override
+  String get registrationStatusNoRegistration => 'Sem Matrícula';
+
+  @override
+  String get registrationStatusReserveSpot => 'Reserva de Vaga';
+
+  @override
+  String get registrationStatusRegistered => 'Matriculado';
+
+  @override
+  String get registrationStatusCompleted => 'Finalizado';
+
+  @override
+  String get registrationStatusLocked => 'Trancado';
+
+  @override
+  String get registrationStatusWithdrawal => 'Desistência';
+
+  @override
+  String get registrationStatusCanceled => 'Cancelado';
+
+  @override
+  String get registrationStatusAwaitingApproval => 'Aguardando Aprovação';
+
+  @override
+  String get registrationStatusTransferred => 'Transferido';
+
   /// ------------------- End Drawer -------------------
   @override
   String get endDrawerTitle => 'Navegação';

@@ -30,4 +30,8 @@ class AppIcons {
   static const fileLines = 'lib/ui/assets/icons/file-lines.svg';
   static const graduationCap = 'lib/ui/assets/icons/graduation-cap.svg';
   static const banIcon = 'lib/ui/assets/icons/ban-icon.svg';
+  static const blockedIcon = 'lib/ui/assets/icons/blocked-icon.svg';
+  static const checkIcon = 'lib/ui/assets/icons/check-icon.svg';
+  static const hourGlassIcon = 'lib/ui/assets/icons/hour-glass-icon.svg';
+  static const transferIcon = 'lib/ui/assets/icons/transfer-icon.svg';
 }

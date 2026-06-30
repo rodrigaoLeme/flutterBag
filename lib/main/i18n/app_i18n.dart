@@ -214,6 +214,25 @@ abstract class AppI18n {
   String get newProcess;
   String get renewProcess;
 
+  // Result Status
+  String get resultStatusAnalysis;
+  String get resultStatusApproved50;
+  String get resultStatusApproved100;
+  String get resultStatusRejected;
+  String get resultStatusDisqualified;
+  String get resultStatusWaitingList;
+
+  // Registration Status
+  String get registrationStatusNoRegistration;
+  String get registrationStatusReserveSpot;
+  String get registrationStatusRegistered;
+  String get registrationStatusCompleted;
+  String get registrationStatusLocked;
+  String get registrationStatusWithdrawal;
+  String get registrationStatusCanceled;
+  String get registrationStatusAwaitingApproval;
+  String get registrationStatusTransferred;
+
   // End Drawer
   String get endDrawerTitle;
   String get endDrawerHomeLabel;
