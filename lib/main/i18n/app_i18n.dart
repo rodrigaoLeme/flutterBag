@@ -193,6 +193,15 @@ abstract class AppI18n {
   String get processDetailDeclarationModels;
   String get processDetailCancelSubscription;
 
+  // Process Deadlines
+  String get processDeadLinesTitle;
+  String get processDeadlinesSubtitle;
+  String get processDeadlinesRegisterStart;
+  String get processDeadlinesRegisterEnd;
+  String get processDeadlinesDocumentationUpload;
+  String get processDeadlinesDocumentationReturn;
+  String get processDeadlinesResultRelease;
+
   // Process Steps
   String get processStepsInitial;
   String get processStepsSecond;

@@ -8,6 +8,7 @@ import '../../../main/i18n/app_i18n.dart';
 import '../../helpers/themes/themes.dart';
 import 'components/banners/processes_banner_warning.dart';
 import 'helpers/info_table_view_helper.dart';
+import 'process_deadlines_page.dart';
 
 class ProcessDetailPage extends StatelessWidget {
   final ScholarshipEntity scholarship;
@@ -178,12 +179,13 @@ class ProcessDetailPage extends StatelessWidget {
 
             // Lista de botões de navegação
             DetailNavItem(
-              icon: AppIcons.clock,
-              label: appStrings.processDetailDeadlines,
-              onTap: () {
-                // TODO: navegar para tela de prazos
-              },
-            ),
+                icon: AppIcons.clock,
+                label: appStrings.processDetailDeadlines,
+                onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ProcessDeadlinesPage(period: period),
+                      ),
+                    )),
             const Divider(height: 1),
             DetailNavItem(
               icon: AppIcons.graduationCap,
