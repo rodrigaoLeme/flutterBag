@@ -679,6 +679,25 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   @override
   String get processCardBannerPendindDocumentsPlural => 'Documentos Pendentes';
 
+  /// ------------------- Process Detail  -------------------
+  @override
+  String get processDetailTitle => 'Detalhe';
+
+  @override
+  String get processDetailDeadlines => 'Prazos';
+
+  @override
+  String get processDetailCandidates => 'Candidatos';
+
+  @override
+  String get processDetailNoticesAndTerms => 'Editais e Termos Aditivos';
+
+  @override
+  String get processDetailDeclarationModels => 'Modelos de declaração';
+
+  @override
+  String get processDetailCancelSubscription => 'Cancelar solicitação de bolsa';
+
   /// ------------------- Process Steps  -------------------
   @override
   String get processStepsInitial => 'Iniciado';

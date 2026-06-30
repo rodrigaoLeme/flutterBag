@@ -66,7 +66,7 @@ class ProcessesCurrentPage extends StatelessWidget {
                 processType: scholarship.processType == ProcessType.renewal
                     ? ProcessesType.renewProcess
                     : ProcessesType.newProcess,
-                step: _mapStep(scholarship.currentStep),
+                step: ProcessSteps.fromValue(scholarship.currentStep),
                 candidates: const [],
                 processesBanner: processesBanner,
                 warningMessage: period?.registerPeriodLabel ?? '-',
@@ -134,7 +134,7 @@ class ProcessesCurrentPage extends StatelessWidget {
         builder: (_) => ProcessDetailPage(
           scholarship: scholarship,
           period: period,
-          step: _mapStep(scholarship.currentStep),
+          step: ProcessSteps.fromValue(scholarship.currentStep),
           onContinue: scholarship.processPeriodId != null
               ? () {
                   Navigator.of(context).pop(); // fecha o detail
@@ -144,24 +144,5 @@ class ProcessesCurrentPage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  ProcessSteps _mapStep(int? step) {
-    switch (step) {
-      case 1:
-        return ProcessSteps.initial;
-      case 2:
-        return ProcessSteps.second;
-      case 3:
-        return ProcessSteps.third;
-      case 4:
-        return ProcessSteps.verification;
-      case 5:
-        return ProcessSteps.fifth;
-      case 6:
-        return ProcessSteps.completed;
-      default:
-        return ProcessSteps.initial;
-    }
   }
 }

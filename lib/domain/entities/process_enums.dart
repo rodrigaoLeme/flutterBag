@@ -5,24 +5,35 @@ import '../../main/i18n/app_i18n.dart';
 final appStrings = AppI18n.current;
 
 enum ProcessSteps {
-  initial,
-  second,
-  third,
-  verification,
-  fifth,
-  completed;
+  initial(1),
+  register(2),
+  documentation(3),
+  verification(4),
+  analysis(5),
+  completed(6);
+
+  const ProcessSteps(this.value);
+  final int value;
+
+  static ProcessSteps fromValue(int? value) {
+    try {
+      return ProcessSteps.values.firstWhere((e) => e.value == value);
+    } catch (_) {
+      return initial;
+    }
+  }
 
   String get label {
     switch (this) {
       case initial:
         return appStrings.processStepsInitial;
-      case second:
+      case register:
         return appStrings.processStepsSecond;
-      case third:
+      case documentation:
         return appStrings.processStepsThird;
       case verification:
         return appStrings.processStepsVerification;
-      case fifth:
+      case analysis:
         return appStrings.processStepsFifth;
       case completed:
         return appStrings.processStepsCompleted;
@@ -33,13 +44,13 @@ enum ProcessSteps {
     switch (this) {
       case initial:
         return const Color(0xFF45EEFF);
-      case second:
+      case register:
         return const Color(0xFFF9AB73);
-      case third:
+      case documentation:
         return const Color(0xFFFFC421);
       case verification:
         return const Color(0xFFFF63D8);
-      case fifth:
+      case analysis:
         return const Color(0xFFA496FF);
       case completed:
         return const Color(0xFF7DD6A1);

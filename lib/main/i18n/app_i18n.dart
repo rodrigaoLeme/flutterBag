@@ -185,6 +185,14 @@ abstract class AppI18n {
   String get processCardBannerPendindDocumentsSingular;
   String get processCardBannerPendindDocumentsPlural;
 
+  // Process Detail
+  String get processDetailTitle;
+  String get processDetailDeadlines;
+  String get processDetailCandidates;
+  String get processDetailNoticesAndTerms;
+  String get processDetailDeclarationModels;
+  String get processDetailCancelSubscription;
+
   // Process Steps
   String get processStepsInitial;
   String get processStepsSecond;

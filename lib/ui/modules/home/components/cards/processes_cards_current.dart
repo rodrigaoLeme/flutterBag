@@ -4,6 +4,7 @@ import '../../../../../domain/entities/process_enums.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/ebolsa_text_button.dart';
 import '../../../../helpers/themes/themes.dart';
+import '../../helpers/info_table_view_helper.dart';
 import '../banners/processes_banner_error.dart';
 import '../banners/processes_banner_pending_documents_warning.dart';
 import '../banners/processes_banner_warning.dart';
@@ -61,161 +62,67 @@ class ProcessCardCurrent extends StatelessWidget {
             ProcessesBannerPendingDocumentsWarning(message: warningMessage),
           if (processesBanner == ProcessesBanner.error)
             ProcessesBannerError(message: warningMessage),
+
+          // Região administrativa + Edital
+          InfoRow2Col(
+            label1: appStrings.administrativeRegion,
+            value1: 'Aqui era pra ter UCB-AP',
+            label2: appStrings.processCardNotice,
+            value2: administrativeRegion,
+          ),
+          const SizedBox(height: 12),
+
+          // Nível + Tipo de bolsa
+          InfoRow2Col(
+            label1: appStrings.processCardLevel,
+            value1: level,
+            label2: appStrings.processCardScholarshipType,
+            value2: scholarshipType,
+          ),
+          const SizedBox(height: 12),
+
+          // Tipo de inscrição + Etapa
           Row(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    appStrings.administrativeRegion,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    administrativeRegion,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  )
-                ],
-              ),
-              SizedBox(
-                width: 56,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    appStrings.processCardNotice,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    notice,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ],
-              )
-            ],
-          ),
-          SizedBox(
-            height: 16,
-          ),
-          Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    appStrings.processCardLevel,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    level,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  )
-                ],
-              ),
-              SizedBox(
-                width: 76,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    appStrings.processCardScholarshipType,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    scholarshipType,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ],
-              )
-            ],
-          ),
-          SizedBox(
-            height: 16,
-          ),
-          Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    appStrings.processCardProcessType,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Text(
+              Expanded(
+                child: InfoCol(
+                  label: appStrings.processCardProcessType,
+                  child: Text(
                     processType.label,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: AppColors.textSecondaryLight,
                           fontWeight: FontWeight.w500,
                         ),
-                  )
-                ],
-              ),
-              SizedBox(
-                width: 56,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    appStrings.processCardStep,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
                   ),
-                  SizedBox(
-                    height: 5,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: InfoCol(
+                  label: appStrings.processCardStep,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: step.color,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      step.label,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.onSurface,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                  _ResultLevel(
-                    step: step,
-                  )
-                ],
-              )
+                ),
+              ),
             ],
           ),
+          const SizedBox(height: 12),
+
+          // Candidatos
           if (candidates.isNotEmpty) ...[
             const SizedBox(height: 16),
             Container(
@@ -268,6 +175,8 @@ class ProcessCardCurrent extends StatelessWidget {
               ),
             ),
           ],
+
+          // Botão de Detalhes
           const SizedBox(height: 16),
           Center(
             child: EbolsaTextButton(
@@ -276,29 +185,6 @@ class ProcessCardCurrent extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ResultLevel extends StatelessWidget {
-  final ProcessSteps step;
-
-  const _ResultLevel({required this.step});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: step.color,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        step.label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
       ),
     );
   }

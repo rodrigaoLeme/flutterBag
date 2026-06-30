@@ -137,7 +137,10 @@ class StreamNewScholarshipRequestPresenter
   }
 
   void _populateControllersFromForm(ScholarshipFormEntity form) {
-    _cepController.text = form.zipCode ?? '';
+    final rawCep = form.zipCode?.replaceAll(RegExp(r'\D'), '') ?? '';
+    _cepController.text = rawCep.length == 8
+        ? '${rawCep.substring(0, 5)}-${rawCep.substring(5)}'
+        : rawCep;
     _numberController.text = form.number ?? '';
     _complementController.text = form.complement ?? '';
     _addressController.text = form.street ?? '';
@@ -146,6 +149,9 @@ class StreamNewScholarshipRequestPresenter
     _stateValue = form.state;
     _stateNotifier.value = form.state;
     _residenceType = form.residenceType;
+    _residenceArea = form.residenceAreaType?.label;
+    _residenceAreaNotifier.value = form.residenceAreaType?.label;
+    _housingTypeNotifier.value = form.residenceType;
   }
 
   void _navigateToStep(int step) {

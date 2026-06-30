@@ -29,4 +29,5 @@ class AppIcons {
   static const clock = 'lib/ui/assets/icons/clock.svg';
   static const fileLines = 'lib/ui/assets/icons/file-lines.svg';
   static const graduationCap = 'lib/ui/assets/icons/graduation-cap.svg';
+  static const banIcon = 'lib/ui/assets/icons/ban-icon.svg';
 }

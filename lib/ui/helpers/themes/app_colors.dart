@@ -16,6 +16,7 @@ class AppColors {
 
   // Erro e status
   static const Color error = Color(0xFFD32F2F);
+  static const Color errorContainer = Color(0xFF93000A);
   static const Color success = Color(0xFF388E3C);
   static const Color warning = Color(0xFFFFC21A);
   static const Color info = Color(0xFF0288D1);
