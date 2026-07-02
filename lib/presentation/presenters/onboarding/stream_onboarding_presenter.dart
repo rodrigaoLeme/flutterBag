@@ -15,7 +15,7 @@ class StreamOnboardingPresenter implements OnboardingPresenter {
     final strings = AppI18n.current;
     _items = [
       OnboardingItem(
-        title: strings.onboardingItem1Title,
+        title: strings.appTitle,
         description: strings.onboardingItem1Description,
         image: AppImages.mapBrasil,
       ),

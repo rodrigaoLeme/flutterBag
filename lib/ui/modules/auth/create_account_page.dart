@@ -90,7 +90,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           children: [
             Expanded(
               child: Text(
-                appStrings.createAccountDialogTitle,
+                appStrings.familyConfirmDialogTitle,
                 style: AppTextStyles.titleLarge,
               ),
             ),

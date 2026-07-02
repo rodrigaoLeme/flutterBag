@@ -68,4 +68,5 @@ class AppColors {
   static const Color alerta = Color(0xFFEDAE00);
   static const Color surfaceCl = Color(0xFF64748B);
   static const Color surfaceContainer = Color(0xFF0C78DE);
+  static const Color lightSurface = Color(0xFFF9F9FF);
 }

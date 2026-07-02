@@ -1,103 +1,120 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
-class PersonCard extends StatelessWidget {
-  final String name;
-  final String cpf;
+import '../helpers/themes/themes.dart';
 
+class EbolsaMemberCard extends StatelessWidget {
   final String? tag;
-  final DateTime? birthDate;
-  final int? age;
-  final String? maritalStatus;
-  final String? relationship;
-  final double? income;
+  final String? headerTitle;
+  final String title;
+  final String? subtitle;
+  final List<Widget> content;
 
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
-  const PersonCard({
+  const EbolsaMemberCard({
     super.key,
-    required this.name,
-    required this.cpf,
     this.tag,
-    this.birthDate,
-    this.age,
-    this.maritalStatus,
-    this.relationship,
-    this.income,
-    this.onEdit,
-    this.onDelete,
+    this.headerTitle,
+    required this.title,
+    this.subtitle,
+    required this.content,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (tag != null) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 4,
-              ),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(tag!),
-            ),
-            const SizedBox(height: 12),
-          ],
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text('CPF: $cpf'),
-                    if (birthDate != null)
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        'Dt. Nascimento: ${birthDate!.day}/${birthDate!.month}/${birthDate!.year}',
+                        headerTitle ?? '',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    if (age != null) Text('Idade: $age'),
-                    if (maritalStatus != null)
-                      Text('Estado Civil: $maritalStatus'),
-                    if (relationship != null) Text('Parentesco: $relationship'),
-                    if (income != null)
+                      if (tag != null) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: const Color(0xFFB9BDC6),
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            tag!,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                       Text(
-                        'Renda Bruta: R\$ ${income!.toStringAsFixed(2)}',
+                        title,
+                        style: AppTextStyles.bodyLarge,
                       ),
-                  ],
+                      if (subtitle != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            subtitle!,
+                            style: AppTextStyles.bodyMedium,
+                          ),
+                        ),
+                      const SizedBox(height: 8),
+                      ...content,
+                    ],
+                  ),
                 ),
-              ),
-              Column(
-                children: [
-                  if (onEdit != null)
-                    IconButton(
-                      onPressed: onEdit,
-                      icon: const Icon(Icons.edit_outlined),
-                    ),
-                  if (onDelete != null)
-                    IconButton(
-                      onPressed: onDelete,
-                      icon: const Icon(Icons.delete_outline),
-                    ),
-                ],
-              ),
-            ],
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        onTap: onEdit,
+                        child: SvgPicture.asset(
+                          'lib/ui/assets/icons/edit.svg',
+                          width: 20,
+                          color: AppColors.onSurfaceVariant,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: onDelete,
+                        child: SvgPicture.asset(
+                          'lib/ui/assets/icons/delete_icon.svg',
+                          width: 20,
+                          color: AppColors.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 8),
+          Divider(
+            color: Color(0xFFB9BDC6),
+            thickness: 1,
           ),
         ],
       ),

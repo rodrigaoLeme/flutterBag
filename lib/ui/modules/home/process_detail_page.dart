@@ -5,10 +5,14 @@ import '../../../domain/entities/process_enums.dart';
 import '../../../domain/entities/process_period_entity.dart';
 import '../../../domain/entities/scholarship_entity.dart';
 import '../../../main/i18n/app_i18n.dart';
+import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
 import 'components/banners/processes_banner_warning.dart';
 import 'helpers/info_table_view_helper.dart';
+import 'process_candidates_page.dart';
 import 'process_deadlines_page.dart';
+import 'process_declaration_models_page.dart';
+import 'process_terms_page.dart';
 
 class ProcessDetailPage extends StatelessWidget {
   final ScholarshipEntity scholarship;
@@ -23,6 +27,35 @@ class ProcessDetailPage extends StatelessWidget {
     this.period,
     this.onContinue,
   });
+
+  void _showCancelDialog(BuildContext context) {
+    EbolsaDialogWithCancel.show(
+      context: context,
+      title: AppI18n.current.processCancelDialogTitle,
+      description: AppI18n.current.processCancelDialogDescription,
+      actions: [
+        EbolsaDialogAction(
+          label: AppI18n.current.processCancelDialogConfirm,
+          isPrimary: false,
+          isDanger: true,
+          onPressed: () => _showCancelReasonDialog(context),
+        ),
+        EbolsaDialogAction(
+          label: AppI18n.current.processCancelDialogDeny,
+          isPrimary: true,
+          onPressed: () {},
+        ),
+      ],
+    );
+  }
+
+  void _showCancelReasonDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const _CancelReasonDialog(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -179,49 +212,131 @@ class ProcessDetailPage extends StatelessWidget {
 
             // Lista de botões de navegação
             DetailNavItem(
-                icon: AppIcons.clock,
-                label: appStrings.processDetailDeadlines,
-                onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => ProcessDeadlinesPage(period: period),
-                      ),
-                    )),
+              icon: AppIcons.clock,
+              label: appStrings.processDetailDeadlines,
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ProcessDeadlinesPage(period: period),
+                ),
+              ),
+            ),
             const Divider(height: 1),
             DetailNavItem(
               icon: AppIcons.graduationCap,
               label: appStrings.processDetailCandidates,
-              onTap: () {
-                // TODO: navegar para tela de candidatos
-              },
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ProcessCandidatesPage(),
+                ),
+              ),
             ),
             const Divider(height: 1),
             DetailNavItem(
               icon: AppIcons.pdfFileIcon,
               label: appStrings.processDetailNoticesAndTerms,
-              onTap: () {
-                // TODO: navegar para tela de editais e termos
-              },
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const ProcessTermsPage(),
+                ),
+              ),
             ),
             const Divider(height: 1),
             DetailNavItem(
               icon: AppIcons.fileLines,
               label: appStrings.processDetailDeclarationModels,
-              onTap: () {
-                // TODO: navegar para tela de modelos de declaração
-              },
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const ProcessDeclarationModelsPage(),
+                ),
+              ),
             ),
             const Divider(height: 1),
             DetailNavItem(
               icon: AppIcons.banIcon,
               label: appStrings.processDetailCancelSubscription,
               dangerZone: true,
-              onTap: () {
-                // TODO: Chamar modal de confirmação
-              },
+              onTap: () => _showCancelDialog(context),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _CancelReasonDialog extends StatefulWidget {
+  const _CancelReasonDialog();
+
+  @override
+  State<_CancelReasonDialog> createState() => _CancelReasonDialogState();
+}
+
+class _CancelReasonDialogState extends State<_CancelReasonDialog> {
+  final _reasonController = TextEditingController();
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final appStrings = AppI18n.current;
+
+    return AlertDialog(
+      title: Text(
+        appStrings.processCancelReasonDialogTitle,
+        style: AppTextStyles.titleLarge,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          TextField(
+            controller: _reasonController,
+            maxLines: 4,
+            maxLength: 500,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              hintText: appStrings.processCancelReasonDialogHint,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              alignLabelWithHint: true,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: _reasonController.text.trim().isEmpty
+              ? null
+              : () {
+                  Navigator.of(context).pop();
+                  // TODO: chamar endpoint com _reasonController.text
+                },
+          child: Text(
+            appStrings.processCancelReasonDialogConfirm,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: _reasonController.text.trim().isEmpty
+                  ? AppColors.textSecondaryLight
+                  : AppColors.errorContainer,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(
+            appStrings.processCancelDialogDeny,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.primary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

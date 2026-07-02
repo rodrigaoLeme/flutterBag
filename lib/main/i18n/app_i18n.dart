@@ -6,7 +6,6 @@ abstract class AppI18n {
   // App
   String get appTitle;
   String get appNameDev;
-  String get appNameProd;
 
   // Common errors
   String get errorNoInternet;
@@ -15,6 +14,25 @@ abstract class AppI18n {
 
   // Common Messages
   String get tryAgain;
+
+  // Shared labels (deduplicated)
+  String get typeLabel;
+  String get attentionLabel;
+  String get confirmAction;
+  String get continueAction;
+  String get noticesLabel;
+  String get noticeLabel;
+  String get homeLabel;
+  String get housingLabel;
+  String get occupationTitle;
+  String get profileLabel;
+  String get scholarshipApplicationTitle;
+  String get scholarshipTypeLabel;
+  String get enrollmentTypeLabel;
+  String get installmentValueLabel;
+  String get assetValueLabel;
+  String get valueDisplayLabel;
+  String get okAction;
 
   // Auth common
   String get authCpfLabel;
@@ -33,7 +51,6 @@ abstract class AppI18n {
   String get accountNotConfirmedResendEmailButton;
   String get accountNotConfirmedDialogTitle;
   String get accountNotConfirmedDialogDescription;
-  String get accountNotConfirmedDialogDoneButton;
 
   // Create account
   String get createAccountPageTitle;
@@ -50,12 +67,10 @@ abstract class AppI18n {
   String get termsContent;
   String get termsReadAndAccept;
   String get termsAgreeUse;
-  String get termsConfirm;
   String get createdAccountPageTitle;
   String get createdAccountSuccessTitle;
   String get createdAccountSuccessDescription;
   String get createdAccountDoneButton;
-  String get createAccountDialogTitle;
   String get createAccountDialogDescription;
   String get createAccountDialogDoneButton;
 
@@ -63,13 +78,11 @@ abstract class AppI18n {
   String get forgotPasswordHeader;
   String get forgotPasswordDescription;
   String get forgotPasswordHelpText;
-  String get forgotPasswordConfirmAction;
   String get forgotPasswordSuccessTitle;
   String get forgotPasswordSuccessDescription;
   String get forgotPasswordBackToLoginAction;
   String get forgotPasswordDialogTitle;
   String get forgotPasswordDialogDescription;
-  String get forgotPasswordDialogDoneButton;
 
   // Account validation messages
   String get invalidCredentials;
@@ -110,11 +123,8 @@ abstract class AppI18n {
   String get noticesTermsPublishedAtLabel;
   String get noticesTermsLevelLabel;
   String get noticesTermsModalityLabel;
-  String get noticesTermsModalityLabel2;
-  String get noticesTermsEnrollmentTypeLabel;
   String get noticesTermsViewNoticeAction;
   String get noticesTermsViewAdditiveTermAction;
-  String get noticesTermsScholarshipApplication;
   String get noticesTermsScholarshipApplicationDescription;
   String get noticesTermsDocumentTitle;
   String get noticesTermsDocumentNoticeDescription;
@@ -123,7 +133,6 @@ abstract class AppI18n {
   String get noticesStreamError;
 
   // Onboarding
-  String get onboardingItem1Title;
   String get onboardingItem1Description;
   String get onboardingItem2Title;
   String get onboardingItem2Description;
@@ -133,7 +142,6 @@ abstract class AppI18n {
   String get onboardingItem4Description;
   String get onboardingViewNoticesAction;
   String get onboardingNextAction;
-  String get onboardingEnterAction;
 
   // Home
   String get homeWelcome;
@@ -142,10 +150,8 @@ abstract class AppI18n {
   String get homeSubtitleProcessInProgress;
   String get homeSubtitleProcessCompleted;
   String get homeRenewScholarshipButton;
-  String get homeNewScholarshipButton;
   String get homeImportantTitle;
   String get homeImportantMessage;
-  String get homeContinueProcess;
 
   // Process result
   String get approved;
@@ -167,20 +173,17 @@ abstract class AppI18n {
   String get enrollmentStatus;
   String get administrativeRegion;
   String get processCardNotice;
-  String get processCardNoticeSentence;
   String get processCardAddendumSentence;
   String get processCardLevel;
   String get processCardScholarshipType;
   String get processCardProcessType;
   String get processCardStep;
-  String get processCardCandidateSingular;
   String get processCardCandidatePlural;
   String get processCardParticipatingEducationalUnits;
   String get processCardDetaiButton;
   String get processCardApplyForAScholarshipButton;
 
   // Process Card Banners
-  String get processCardBannerAttention;
   String get processCardBannerRegisterEnd;
   String get processCardBannerPendindDocumentsSingular;
   String get processCardBannerPendindDocumentsPlural;
@@ -233,17 +236,32 @@ abstract class AppI18n {
   String get registrationStatusAwaitingApproval;
   String get registrationStatusTransferred;
 
+  // Process Candidates
+  String get processCandidatesTitle;
+  String get processCandidatesSubtitle;
+
+  // Process Notices and Terms
+  String get processTermsAndNoticesTitle;
+  String get processTermsAndNoticesSubtitle;
+
+  // Templates (declaration models)
+  String get processDeclarationModelsTitle;
+  String get processDeclarationModelsSubtitle;
+
+  // Danger Zone - Cancel Subscription
+  String get processCancelDialogTitle;
+  String get processCancelDialogDescription;
+  String get processCancelDialogConfirm;
+  String get processCancelDialogDeny;
+  String get processCancelReasonDialogTitle;
+  String get processCancelReasonDialogHint;
+  String get processCancelReasonDialogConfirm;
+
   // End Drawer
   String get endDrawerTitle;
-  String get endDrawerHomeLabel;
-  String get endDrawerNoticesLabel;
-  String get endDrawerProfileLabel;
   String get endDrawerLogoutLabel;
 
   // Nav Bar
-  String get navBarHomeLabel;
-  String get navBarNoticesLabel;
-  String get navBarProfileLabel;
 
   // PDF Viewer
   String get pdfViewerErrorToLoadArchive;
@@ -252,13 +270,10 @@ abstract class AppI18n {
   String get profileMyDataTitle;
   String get profileMyDataSubtitle;
   String get profileMyDataName;
-  String get profileMyDataEmail;
   String get profileMyDataPhone;
   String get profileMyDataSaveButton;
   String get profileSaveSuccessTitle;
   String get profileSaveSuccessDescription;
-  String get profileSaveSuccessDoneButton;
-  String get profileEmailChangedTitle;
   String get profileEmailChangedDescription;
   String get profileEmailChangedDoneButton;
   String get profileSaveSuccess;
@@ -266,17 +281,13 @@ abstract class AppI18n {
   String get profileChangePasswordSubtitle;
   String get profileChangePasswordNewPassword;
   String get profileChangePasswordConfirmNewPassword;
-  String get profileChangePasswordButton;
 
   // New Request (Nova Solicitação) strings
-  String get newScholarshipTitle;
   String get newScholarshipSubtitle;
   String get newScholarshipDescription;
   String get newScholarshipShowExpired;
-  String get newScholarshipDialogTitle;
   String get newScholarshipDialogDescription;
   String get newScholarshipDialogCancel;
-  String get newScholarshipDialogContinue;
   String get finishAction;
 
   // Steps - Erros de domínio
@@ -294,13 +305,11 @@ abstract class AppI18n {
   String get addressNeighborhoodLabel;
   String get addressCityLabel;
   String get addressStateLabel;
-  String get housingTitle;
   String get housingAreaQuestion;
   String get housingAreaUrban;
   String get housingAreaRural;
   String get housingAreaVulnerability;
   String get housingGroupQuestion;
-  String get housingTypeHint;
   String get housingTypeAlugada;
   String get housingTypeCedida;
   String get housingTypeFinanciada;
@@ -310,6 +319,25 @@ abstract class AppI18n {
   String get familyStepDescriptionPrefix;
   String get familyStepDescriptionEmphasis;
   String get familyStepDescriptionSuffix;
+  String get candidateStepTitle;
+  String get candidateStepDescriptionPrefix;
+  String get candidateStepDescriptionEmphasis;
+  String get candidateStepDescriptionSuffix;
+  String get addCandidate;
+  String get noCandidatesRegistered;
+  String get selectCandidateLabel;
+  String get guardianRelationshipLabel;
+  String get unitOfInterestLabel;
+  String intendedCourseLabel(int year);
+  String get guardianRelationshipFather;
+  String get guardianRelationshipMother;
+  String get guardianRelationshipGuardianship;
+  String get addCandidateAction;
+  String get candidateDeleteDialogTitle;
+  String candidateDeleteDialogMessage(String name);
+  String get candidateMissingDialogIntro;
+  String get candidateAwareDialogBullet1;
+  String get candidateAwareDialogBullet2;
   String get zipCodeNotFound;
   String get zipCodeInvalid;
   String get enrollmentStep1ValidationError;
@@ -321,13 +349,128 @@ abstract class AppI18n {
   String get familyInfoIncomeDescription;
   String get familyInfoKinshipTitle;
   String get familyInfoKinshipDescription;
-  String get familyInfoCloseButton;
 
   // Member registration (family) step
   String get memberRegistrationAppBarTitle;
   String get memberRegistrationTitle;
   String get memberRegistrationDescription;
   String get personalDataTitle;
+  String get occupationStepDescription;
+  String get familyMembersSubStepNavTitle;
+  String get otherIncomeSubStepNavTitle;
+  String get otherIncomeStepTitle;
+  String get otherIncomeStepDescription;
+  String get rentedPropertyIncomeQuestion;
+  String get financialHelpQuestion;
+  String get financialHelpNone;
+  String get financialHelpFamily;
+  String get financialHelpOther;
+  String get governmentProgramQuestion;
+  String get informValueInReaisLabel;
+  String get financialHelpFromWhomLabel;
+  String get informGovernmentProgramLabel;
+  String get assetsRelationSubStepNavTitle;
+  String get ownsPropertyQuestion;
+  String get ownsFinancialInvestmentQuestion;
+  String get ownsVehicleQuestion;
+  String get ownsVehicleSubtitle;
+  String get addPropertyAction;
+  String get ownPropertyPageTitle;
+  String get ownPropertyPageDescription;
+  String get savePropertyAction;
+  String get propertyFinancingValueLabel;
+  String get propertyAssetValueDisplayLabel;
+  String get addInvestmentAction;
+  String get financialInvestmentPageTitle;
+  String get financialInvestmentPageDescription;
+  String get saveInvestmentAction;
+  String get addVehicleAction;
+  String get vehiclePageTitle;
+  String get vehiclePageDescription;
+  String get vehicleBrandLabel;
+  String get vehicleModelLabel;
+  String get vehicleYearLabel;
+  String get vehicleFinancingInstallmentLabel;
+  String get saveVehicleAction;
+  String get vehicleYearDisplayLabel;
+  String get vehicleInstallmentDisplayLabel;
+  String get summarySubStepNavTitle;
+  String get summaryStepDescription;
+  String get grossFamilyIncomeLabel;
+  String get incomeDependentsLabel;
+  String get perCapitaIncomeLabel;
+  String get minimumWageLabel;
+  String get perCapitaTimesMinimumWageLabel;
+  String get salaryRatioSuffix;
+  String get summaryAdvanceDialogBody1;
+  String get summaryAdvanceDialogBody2;
+  String get summaryAdvanceDialogQuestion;
+  String get summaryAdvanceDialogConfirm;
+  String get expensesStepTitle;
+  String get expensesStepDescription;
+  String get expensesFoodSubStepNavTitle;
+  String get expenseFoodValueLabel;
+  String get expenseFoodHelper;
+  String get expensesHealthSubStepNavTitle;
+  String get expenseHealthPlanValueLabel;
+  String get expenseHealthPlanHelper;
+  String get expenseChronicDiseaseValueLabel;
+  String get expenseChronicDiseaseHelper;
+  String get expenseChronicDiseaseDialogBody;
+  String get expenseOtherHealthServicesValueLabel;
+  String get expenseOtherHealthServicesSpecifyLabel;
+  String get expensesEducationSubStepNavTitle;
+  String get expenseHasEducationCostsQuestion;
+  String get expenseSchoolTransportQuestion;
+  String get expenseSchoolTransportNaoUtiliza;
+  String get expenseSchoolTransportPagoFretado;
+  String get expenseSchoolTransportProprioCombustivel;
+  String get expenseSchoolTransportPublico;
+  String get expenseEducationValueLabel;
+  String get addEducationExpenseAction;
+  String get educationExpensePageDescription;
+  String get expenseEducationTypeBasic;
+  String get expenseEducationTypeHigher;
+  String get expenseEducationTypeLanguage;
+  String get expenseEducationTypeOther;
+  String get expenseEducationForWhomLabel;
+  String get expenseEducationInstitutionLabel;
+  String get expenseEducationMonthlyValueLabel;
+  String get saveEducationExpenseAction;
+  String get expenseEducationForWhomDisplayLabel;
+  String get expenseEducationWhereDisplayLabel;
+  String get expenseEducationCostsRequiredError;
+  String get expenseSchoolTransportRequiredError;
+  String get expensesAutomobileSubStepNavTitle;
+  String get expenseIpvaLabel;
+  String get expenseCarInsuranceLabel;
+  String get expenseVehicleFinancingLabel;
+  String get expensesLoansSubStepNavTitle;
+  String get expenseBankLoansLabel;
+  String get expenseBankLoansHelper;
+  String get expenseLoansOtherServicesLabel;
+  String get expenseLoansOtherServicesHelper;
+  String get expenseLoansOtherServicesDescribeLabel;
+  String get expenseRentValueLabel;
+  String get expenseFinancingValueLabel;
+  String get expenseIptuValueLabel;
+  String get expenseIptuHelper;
+  String get expenseCondoValueLabel;
+  String get expenseElectricityValueLabel;
+  String get expenseWaterValueLabel;
+  String get expenseGasValueLabel;
+  String get expensePhoneInternetValueLabel;
+  String get expensePhoneInternetHelper;
+  String get familyConfirmDialogTitle;
+  String get familyConfirmDialogBodyEmphasis1;
+  String get familyConfirmDialogBodyMiddle;
+  String get familyConfirmDialogBodyEmphasis2;
+  String get familyConfirmDialogBodySuffix;
+  String get familyConfirmDialogMembersIntro;
+  String get familyConfirmDialogQuestion;
+  String get familyConfirmDialogReview;
+  String get familyConfirmDialogContinue;
+  String get scholarshipCandidateTag;
   String get dobLabel;
   String get genderLabel;
   String get responsibleLabel;
@@ -357,6 +500,11 @@ abstract class AppI18n {
   String get complementFieldsPlaceholder;
   String get documentsTitle;
   String get documentsPlaceholder;
+  String get documentsStepTitle;
+  String get documentsStepDescription;
+  String documentsDeadlineLabel(String date);
+  String documentsProgressLabel(int uploaded, int total);
+  String get documentsSendAllAction;
   String get concludeAction;
   String get answerYes;
   String get answerNo;

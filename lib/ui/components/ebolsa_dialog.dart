@@ -7,11 +7,13 @@ class EbolsaDialogAction {
   final String label;
   final VoidCallback onPressed;
   final bool isPrimary;
+  final bool isDanger;
 
   const EbolsaDialogAction({
     required this.label,
     required this.onPressed,
     this.isPrimary = false,
+    this.isDanger = false,
   });
 }
 
@@ -75,6 +77,7 @@ class EbolsaDialog extends StatelessWidget {
                       action.onPressed();
                     },
                     label: action.label,
+                    isDanger: action.isDanger,
                   ),
           )
           .toList(),
@@ -143,6 +146,7 @@ class EbolsaDialogWithCancel extends StatelessWidget {
                     },
                     label: action.label,
                     isSecondary: true,
+                    isDanger: action.isDanger,
                   ),
           )
           .toList(),

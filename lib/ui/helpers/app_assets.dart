@@ -34,4 +34,5 @@ class AppIcons {
   static const checkIcon = 'lib/ui/assets/icons/check-icon.svg';
   static const hourGlassIcon = 'lib/ui/assets/icons/hour-glass-icon.svg';
   static const transferIcon = 'lib/ui/assets/icons/transfer-icon.svg';
+  static const downloadIcon = 'lib/ui/assets/icons/download-icon.svg';
 }

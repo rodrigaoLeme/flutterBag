@@ -59,7 +59,7 @@ class ProcessesBannerWarning extends StatelessWidget {
                 shape: BoxShape.rectangle,
               ),
               child: Text(
-                appStrings.homeContinueProcess,
+                appStrings.continueAction,
                 style: Theme.of(context)
                     .textTheme
                     .labelLarge!

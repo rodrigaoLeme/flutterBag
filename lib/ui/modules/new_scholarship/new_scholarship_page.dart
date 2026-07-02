@@ -193,7 +193,7 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
     EbolsaDialogWithCancel.show(
       context: context,
       barrierDismissible: true,
-      title: AppI18n.current.noticesTermsScholarshipApplication,
+      title: AppI18n.current.scholarshipApplicationTitle,
       description:
           AppI18n.current.noticesTermsScholarshipApplicationDescription,
       actions: [
@@ -202,13 +202,16 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
           onPressed: () {},
         ),
         EbolsaDialogAction(
-          label: AppI18n.current.newScholarshipDialogContinue,
+          label: AppI18n.current.continueAction,
           isPrimary: true,
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (_) => NewScholarshipRequestPage(
-                    processPeriodId: announcement.processPeriod!.id),
+                  processPeriodId: announcement.processPeriod!.id,
+                  announcementSchools: announcement.schools,
+                  processYear: widget.lockedYear,
+                ),
               ),
             );
           },
@@ -266,7 +269,7 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(appStrings.newScholarshipTitle),
+        title: Text(appStrings.newProcess),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

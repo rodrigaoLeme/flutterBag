@@ -36,19 +36,19 @@ class EbolsaNavBar extends StatelessWidget {
         children: [
           _NavBarItem(
             iconPath: AppIcons.noticeIcon,
-            label: appStrings.navBarNoticesLabel,
+            label: appStrings.noticesLabel,
             isSelected: currentTab == HomeTab.notices,
             onTap: () => onTabSelected(HomeTab.notices),
           ),
           _NavBarItem(
             iconPath: AppIcons.homeIcon,
-            label: appStrings.navBarHomeLabel,
+            label: appStrings.homeLabel,
             isSelected: currentTab == HomeTab.process,
             onTap: () => onTabSelected(HomeTab.process),
           ),
           _NavBarItem(
             iconPath: AppIcons.profileIcon,
-            label: appStrings.navBarProfileLabel,
+            label: appStrings.profileLabel,
             isSelected: currentTab == HomeTab.profile,
             onTap: () => onTabSelected(HomeTab.profile),
           ),

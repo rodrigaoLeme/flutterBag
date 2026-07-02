@@ -141,7 +141,7 @@ class _TermsPageState extends State<TermsPage> {
                         EbolsaLoadingButton(
                           onPressed: _canConfirm ? _onConfirm : null,
                           isLoading: vm.isLoading,
-                          label: appStrings.termsConfirm,
+                          label: appStrings.confirmAction,
                         ),
                       ],
                     ),

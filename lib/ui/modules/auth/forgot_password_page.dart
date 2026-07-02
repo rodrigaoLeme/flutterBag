@@ -94,7 +94,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               Navigator.pop(context);
               Modular.to.navigate(AuthRoutes.login);
             },
-            label: appStrings.forgotPasswordDialogDoneButton,
+            label: appStrings.okAction,
           ),
         ],
       ),
@@ -156,7 +156,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   ),
                   EbolsaLoadingButton(
                     onPressed: _onSubmit,
-                    label: appStrings.forgotPasswordConfirmAction,
+                    label: appStrings.confirmAction,
                     isLoading: vm.isLoading,
                   ),
                 ],

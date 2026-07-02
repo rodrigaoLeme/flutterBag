@@ -48,7 +48,7 @@ class FamilyStep extends StatelessWidget {
                               AppI18n.current.familyInfoKinshipDescription,
                         ),
                       ],
-                      closeLabel: AppI18n.current.familyInfoCloseButton,
+                      closeLabel: AppI18n.current.noticesTermsCloseAction,
                     ),
                     child: Center(
                       child: Icon(

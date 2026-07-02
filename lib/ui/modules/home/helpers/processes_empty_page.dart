@@ -44,7 +44,7 @@ class _ProcessesEmptyPageState extends State<ProcessesEmptyPage> {
                     makeNewScholarshipPage(lockedYear: widget.yearSelected),
               ),
             ),
-            label: appStrings.homeNewScholarshipButton,
+            label: appStrings.newProcess,
             isOutlined: true,
           ),
           const SizedBox(height: 40),

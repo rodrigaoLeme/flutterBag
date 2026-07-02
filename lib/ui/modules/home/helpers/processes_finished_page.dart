@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../domain/entities/process_enums.dart';
 import '../../../../main/i18n/app_i18n.dart';
 import '../components/cards/processes_cards_result.dart';
 
@@ -36,8 +37,8 @@ class _ProcessesFinishedPageState extends State<ProcessesFinishedPage> {
             schoolUnit: 'Colégio Adventista de Hortolândia',
             course: '6º Ano - Ensino Fundamental',
             processCode: '12345ABCDE',
-            result: ProcessResult.disqualified,
-            enrollmentStatus: EnrollmentStatus.withoutRegistration,
+            result: ResultStatus.waitingList,
+            enrollmentStatus: RegistrationStatus.noRegistration,
             onViewProcess: () {
               // abre o PDF do processo
             },

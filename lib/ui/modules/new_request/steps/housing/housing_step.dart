@@ -258,7 +258,7 @@ class _HousingStepState extends State<HousingStep> {
         const SizedBox(height: 16),
 
         // Tipo de área
-        Text(appStrings.housingTitle, style: AppTextStyles.titleLarge),
+        Text(appStrings.housingLabel, style: AppTextStyles.titleLarge),
         const SizedBox(height: 8),
         Text(appStrings.housingAreaQuestion, style: AppTextStyles.bodyMedium),
         const SizedBox(height: 8),
@@ -321,7 +321,7 @@ class _HousingStepState extends State<HousingStep> {
                   borderRadius: BorderRadius.circular(16),
                   child: InputDecorator(
                     decoration: InputDecoration(
-                      hintText: appStrings.housingTypeHint,
+                      hintText: appStrings.typeLabel,
                       errorText: widget.housingTypeError,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12,
@@ -337,7 +337,7 @@ class _HousingStepState extends State<HousingStep> {
                       suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
                     ),
                     child: Text(
-                      housingVal?.label ?? appStrings.housingTypeHint,
+                      housingVal?.label ?? appStrings.typeLabel,
                       style: housingVal == null
                           ? AppTextStyles.ebolsaBodyLargeOutline
                           : AppTextStyles.ebolsaBodyLarge,

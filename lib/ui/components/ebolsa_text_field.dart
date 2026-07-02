@@ -36,7 +36,7 @@ class EbolsaTextField extends StatelessWidget {
     this.onSubmitted,
     this.borderColor,
     this.borderWidth = 1.0,
-    this.borderRadius = 8.0,
+    this.borderRadius = 16.0,
   });
 
   @override

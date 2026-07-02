@@ -12,6 +12,8 @@ class EbolsaRadioGroup<T> extends StatelessWidget {
   const EbolsaRadioGroup({
     Key? key,
     required this.question,
+    this.subtitle,
+    this.errorText,
     required this.options,
     required this.groupValue,
     required this.onChanged,
@@ -19,6 +21,8 @@ class EbolsaRadioGroup<T> extends StatelessWidget {
   }) : super(key: key);
 
   final String question;
+  final String? subtitle;
+  final String? errorText;
   final List<RadioOption<T>> options;
   final T? groupValue;
   final ValueChanged<T?> onChanged;
@@ -31,7 +35,15 @@ class EbolsaRadioGroup<T> extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(question, style: AppTextStyles.bodyMedium),
-        const SizedBox(height: 8),
+        if (errorText != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            errorText!,
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
+          ),
+        ],
+        if (subtitle != null && subtitle!.isNotEmpty)
+          Text(subtitle!, style: AppTextStyles.bodySmall),
         isVertical
             ? Column(
                 children: options

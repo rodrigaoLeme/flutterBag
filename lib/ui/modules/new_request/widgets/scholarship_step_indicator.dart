@@ -21,7 +21,7 @@ class ScholarshipStepIndicator extends StatelessWidget {
       'Família',
       'Despesas',
       'Candidato',
-      'Docuemntos',
+      'Documentos',
     ],
     required this.onStepTap,
   });
@@ -34,13 +34,26 @@ class ScholarshipStepIndicator extends StatelessWidget {
         children: List.generate(totalSteps, (index) {
           final step = index + 1;
           final label = labels.length > index ? labels[index] : '$step';
-          final isCompleted = step <= currentStep;
           final isCurrent = step == currentStep;
+          final isCompleted = step < currentStep;
           final canTap = step <= completedStep;
 
           Widget child;
 
-          if (isCompleted) {
+          if (isCurrent) {
+            child = Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.secondaryContainer,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Text(
+                '$step - $label',
+                style: AppTextStyles.labelLarge
+                    .copyWith(color: AppColors.textPrimaryLight),
+              ),
+            );
+          } else if (isCompleted) {
             child = Container(
               width: 36,
               height: 36,
@@ -52,19 +65,6 @@ class ScholarshipStepIndicator extends StatelessWidget {
               child: Text(
                 '$step',
                 style: AppTextStyles.labelLarge.copyWith(color: Colors.white),
-              ),
-            );
-          } else if (isCurrent) {
-            child = Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppColors.secondaryContainer,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Text(
-                '$step - $label',
-                style: AppTextStyles.labelLarge
-                    .copyWith(color: AppColors.textPrimaryLight),
               ),
             );
           } else {

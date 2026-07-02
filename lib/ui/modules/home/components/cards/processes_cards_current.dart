@@ -137,7 +137,7 @@ class ProcessCardCurrent extends StatelessWidget {
                   Center(
                     child: Text(
                       candidates.length == 1
-                          ? appStrings.processCardCandidateSingular
+                          ? appStrings.candidateStepTitle
                           : appStrings.processCardCandidatePlural,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: AppColors.textSecondaryLight,

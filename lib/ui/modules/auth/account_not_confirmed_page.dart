@@ -116,7 +116,7 @@ class _AccountNotConfirmedPageState extends State<AccountNotConfirmedPage> {
               Navigator.pop(context);
               Modular.to.navigate(Routes.splash);
             },
-            label: appStrings.accountNotConfirmedDialogDoneButton,
+            label: appStrings.okAction,
           ),
         ],
       ),

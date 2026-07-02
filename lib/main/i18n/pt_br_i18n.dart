@@ -10,13 +10,7 @@ class PtBrI18n implements AppI18n {
   @override
   String get appNameDev => 'e-BolsaDev';
 
-  @override
-  String get appNameProd => 'e-Bolsa';
-
   // New Request (Nova Solicitação) strings
-
-  @override
-  String get newScholarshipTitle => 'Nova Solicitação';
 
   @override
   String get newScholarshipSubtitle => 'Editais Disponíveis';
@@ -29,17 +23,11 @@ class PtBrI18n implements AppI18n {
   String get newScholarshipShowExpired => 'Exibir encerrados';
 
   @override
-  String get newScholarshipDialogTitle => 'Solicitação de bolsa';
-
-  @override
   String get newScholarshipDialogDescription =>
       'Você está iniciando o formulário...';
 
   @override
   String get newScholarshipDialogCancel => 'Cancelar';
-
-  @override
-  String get newScholarshipDialogContinue => 'Continuar';
 
   @override
   String get finishAction => 'Finalizar';
@@ -85,9 +73,6 @@ class PtBrI18n implements AppI18n {
   String get addressStateLabel => 'Estado';
 
   @override
-  String get housingTitle => 'Moradia';
-
-  @override
   String get housingAreaQuestion =>
       'O imóvel em que família reside localiza-se em área:';
 
@@ -102,9 +87,6 @@ class PtBrI18n implements AppI18n {
 
   @override
   String get housingGroupQuestion => 'A moradia do grupo familiar é:';
-
-  @override
-  String get housingTypeHint => 'Tipo';
 
   @override
   String get housingTypeAlugada => 'Alugada';
@@ -131,6 +113,42 @@ class PtBrI18n implements AppI18n {
   /// Common Messages
   @override
   String get tryAgain => 'Tente novamente';
+
+  /// Shared labels (deduplicated)
+  @override
+  String get typeLabel => 'Tipo';
+  @override
+  String get attentionLabel => 'Atenção';
+  @override
+  String get confirmAction => 'Confirmar';
+  @override
+  String get continueAction => 'Continuar';
+  @override
+  String get noticesLabel => 'Editais';
+  @override
+  String get noticeLabel => 'Edital';
+  @override
+  String get homeLabel => 'Home';
+  @override
+  String get housingLabel => 'Moradia';
+  @override
+  String get occupationTitle => 'Ocupação';
+  @override
+  String get profileLabel => 'Perfil';
+  @override
+  String get scholarshipApplicationTitle => 'Solicitação de bolsa';
+  @override
+  String get scholarshipTypeLabel => 'Tipo de Bolsa';
+  @override
+  String get enrollmentTypeLabel => 'Tipo de Inscrição';
+  @override
+  String get installmentValueLabel => 'Valor da parcela';
+  @override
+  String get assetValueLabel => 'Valor do bem';
+  @override
+  String get valueDisplayLabel => 'Valor:';
+  @override
+  String get okAction => 'Ok';
 
   /// ------------------- Auth common -------------------
   @override
@@ -272,9 +290,6 @@ class PtBrI18n implements AppI18n {
   String get termsAgreeUse => 'Concordo com os termos de uso do e-Bolsa';
 
   @override
-  String get termsConfirm => 'Confirmar';
-
-  @override
   String get createdAccountPageTitle => 'Conta Criada';
 
   @override
@@ -291,9 +306,6 @@ class PtBrI18n implements AppI18n {
 
   @override
   String get createdAccountDoneButton => 'Ok, Entendi';
-
-  @override
-  String get createAccountDialogTitle => 'Atenção!';
 
   @override
   String get createAccountDialogDescription =>
@@ -316,9 +328,6 @@ class PtBrI18n implements AppI18n {
       'possa redefinir sua senha. Esse link irá expirar em três horas.';
 
   @override
-  String get forgotPasswordConfirmAction => 'Confirmar';
-
-  @override
   String get forgotPasswordSuccessTitle => 'E-mail enviado!';
 
   @override
@@ -335,9 +344,6 @@ class PtBrI18n implements AppI18n {
   @override
   String get forgotPasswordDialogDescription =>
       '''Enviamos um link de recuperação para o e-mail cadastrado neste CPF. Acesse sua caixa de entrada para criar uma nova senha.\n\nPara sua segurança, ele expira em 3 horas.\n''';
-
-  @override
-  String get forgotPasswordDialogDoneButton => 'Ok';
 
   /// ------------------- Domain and validation messages -------------------
   @override
@@ -405,9 +411,6 @@ class PtBrI18n implements AppI18n {
   @override
   String get accountNotConfirmedDialogDescription =>
       'Enviamos um e-mail de confirmação para você. Acesse sua caixa de entrada e clique no link para ativar sua conta e começar a usar o sistema.';
-
-  @override
-  String get accountNotConfirmedDialogDoneButton => 'Ok';
 
   /// ------------------- JWT -------------------
   @override
@@ -478,19 +481,10 @@ class PtBrI18n implements AppI18n {
   String get noticesTermsModalityLabel => 'Modalidade';
 
   @override
-  String get noticesTermsModalityLabel2 => 'Tipo de Bolsa';
-
-  @override
-  String get noticesTermsEnrollmentTypeLabel => 'Tipo de Inscrição';
-
-  @override
   String get noticesTermsViewNoticeAction => 'Ver Edital';
 
   @override
   String get noticesTermsViewAdditiveTermAction => 'Ver Termo Aditivo';
-
-  @override
-  String get noticesTermsScholarshipApplication => 'Solicitação de bolsa';
 
   @override
   String get noticesTermsScholarshipApplicationDescription =>
@@ -513,8 +507,6 @@ class PtBrI18n implements AppI18n {
   String get noticesStreamError => 'Erro inesperado. Tente novamente';
 
   /// ------------------- Onboarding -------------------
-  @override
-  String get onboardingItem1Title => 'e-Bolsa';
 
   @override
   String get onboardingItem1Description =>
@@ -546,9 +538,6 @@ class PtBrI18n implements AppI18n {
   @override
   String get onboardingNextAction => 'Próximo';
 
-  @override
-  String get onboardingEnterAction => 'Entrar';
-
   /// ------------------- Home -------------------
   @override
   String get homeWelcome => 'Olá,';
@@ -572,17 +561,11 @@ class PtBrI18n implements AppI18n {
   String get homeRenewScholarshipButton => 'Renovar Bolsa';
 
   @override
-  String get homeNewScholarshipButton => 'Nova Solicitação';
-
-  @override
   String get homeImportantTitle => 'Importante';
 
   @override
   String get homeImportantMessage => '''
 A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação anual através de seleção. A concessão de bolsa de estudo estará sujeita à disponibilidade de vagas na unidade escolar solicitada e ao perfil socioeconômico compatível às exigências da Lei Complementar nº 187/2021.''';
-
-  @override
-  String get homeContinueProcess => 'Continuar';
 
   /// ------------------- Process Result -------------------
   @override
@@ -633,9 +616,6 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get processCardNotice => 'Edital';
 
   @override
-  String get processCardNoticeSentence => 'Edital';
-
-  @override
   String get processCardAddendumSentence => 'Termo Aditivo';
 
   @override
@@ -651,9 +631,6 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get processCardStep => 'Etapa';
 
   @override
-  String get processCardCandidateSingular => 'Candidato';
-
-  @override
   String get processCardCandidatePlural => 'Candidatos';
 
   @override
@@ -667,8 +644,6 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get processCardApplyForAScholarshipButton => 'Solicitar Bolsa';
 
   /// ------------------- Process Card Banners  -------------------
-  @override
-  String get processCardBannerAttention => 'Atenção';
 
   @override
   String get processCardBannerRegisterEnd => 'Data limite para inscrição';
@@ -798,31 +773,62 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   @override
   String get registrationStatusTransferred => 'Transferido';
 
+  /// ------------------- Process Candidates -------------------
+  @override
+  String get processCandidatesTitle => 'Candidatos';
+
+  @override
+  String get processCandidatesSubtitle =>
+      'Confira abaixo os candidatos à bolsa';
+
+  /// ------------------- Process Notices and Terms -------------------
+  @override
+  String get processTermsAndNoticesTitle => 'Editais e Termos Aditivos';
+
+  @override
+  String get processTermsAndNoticesSubtitle =>
+      'Fique atento aos editais e termos aditivos referentes ao seu Processo de Bolsa';
+
+  /// ------------------- Templates (declaration models) -------------------
+  @override
+  String get processDeclarationModelsTitle => 'Modelos de Declaração';
+
+  @override
+  String get processDeclarationModelsSubtitle =>
+      'Seguem abaixo as declarações necessárias de acordo com o preenchimento do seu cadastro.';
+
+  /// ------------------- Danger Zone - Cancel Subscription -------------------
+  @override
+  String get processCancelDialogTitle => 'Cancelar pedido de bolsa?';
+
+  @override
+  String get processCancelDialogDescription =>
+      'Se você cancelar agora, todos os dados preenchidos serão perdidos e este processo será fechado. Para tentar novamente no futuro, será necessário começar uma nova solicitação.';
+
+  @override
+  String get processCancelDialogConfirm => 'Sim, cancelar';
+
+  @override
+  String get processCancelDialogDeny => 'Não';
+
+  @override
+  String get processCancelReasonDialogTitle => 'Motivo do Cancelamento';
+
+  @override
+  String get processCancelReasonDialogHint => 'Motivo do Cancelamento';
+
+  @override
+  String get processCancelReasonDialogConfirm => 'Confirmar';
+
   /// ------------------- End Drawer -------------------
   @override
   String get endDrawerTitle => 'Navegação';
 
   @override
-  String get endDrawerHomeLabel => 'Home';
-
-  @override
-  String get endDrawerNoticesLabel => 'Editais';
-
-  @override
-  String get endDrawerProfileLabel => 'Perfil';
-
-  @override
   String get endDrawerLogoutLabel => 'Sair';
 
   /// ------------------- Nav Bar -------------------
-  @override
-  String get navBarHomeLabel => 'Home';
 
-  @override
-  String get navBarNoticesLabel => 'Editais';
-
-  @override
-  String get navBarProfileLabel => 'Perfil';
   @override
   String get addFamilyMember => 'Adicionar membro familiar';
   @override
@@ -836,6 +842,69 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   @override
   String get familyStepDescriptionSuffix =>
       ' É importante listar todos os membros da família.';
+
+  @override
+  String get candidateStepTitle => 'Candidato';
+
+  @override
+  String get candidateStepDescriptionPrefix => 'Nesta etapa, adicione ';
+
+  @override
+  String get candidateStepDescriptionEmphasis => 'todos';
+
+  @override
+  String get candidateStepDescriptionSuffix =>
+      ' os candidatos que você deseja que participe do processo seletivo. Lembrando que os mesmos precisam compor o grupo familiar.';
+
+  @override
+  String get addCandidate => 'Adicionar candidato';
+
+  @override
+  String get noCandidatesRegistered => 'Nenhum candidato registrado ainda.';
+
+  @override
+  String get selectCandidateLabel => 'Selecione o candidato';
+
+  @override
+  String get guardianRelationshipLabel =>
+      'Relação do responsável com candidato';
+
+  @override
+  String get unitOfInterestLabel => 'Unidade de interesse';
+
+  @override
+  String intendedCourseLabel(int year) => 'Curso/Série pretendido em $year';
+
+  @override
+  String get guardianRelationshipFather => 'Sou pai';
+
+  @override
+  String get guardianRelationshipMother => 'Sou mãe';
+
+  @override
+  String get guardianRelationshipGuardianship => 'Tenho guarda judicial';
+
+  @override
+  String get addCandidateAction => 'Adicionar';
+
+  @override
+  String get candidateDeleteDialogTitle => 'Confirmação';
+
+  @override
+  String candidateDeleteDialogMessage(String name) =>
+      'Tem certeza que deseja excluir "$name" como candidato?';
+
+  @override
+  String get candidateMissingDialogIntro =>
+      'Todos os candidatos devem estar devidamente cadastrados nessa etapa. Os seguintes candidatos abaixo não foram cadastrados:';
+
+  @override
+  String get candidateAwareDialogBullet1 =>
+      'As informações prestadas poderão ser cruzadas pela Receita Federal do Brasil.';
+
+  @override
+  String get candidateAwareDialogBullet2 =>
+      'A bolsa não será cumulativa com nenhum outro benefício.';
 
   @override
   String get zipCodeNotFound => 'CEP não encontrado';
@@ -867,8 +936,6 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   @override
   String get familyInfoKinshipDescription =>
       'Indique o que cada pessoa da casa é para você (exemplo: filho, esposa, irmão ou neto).';
-  @override
-  String get familyInfoCloseButton => 'Fechar';
 
   // Member registration (family) step
   @override
@@ -883,6 +950,385 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
 
   @override
   String get personalDataTitle => 'Dados Pessoais';
+
+  @override
+  String get occupationStepDescription =>
+      'Agora nos informe algumas informações referente a ocupação e renda do membro familiar';
+
+  @override
+  String get familyMembersSubStepNavTitle => 'Membro familiar';
+
+  @override
+  String get otherIncomeSubStepNavTitle => 'Outras rendas';
+
+  @override
+  String get otherIncomeStepTitle => 'Outros informações familiares';
+
+  @override
+  String get otherIncomeStepDescription =>
+      'Além do salário, informe outros recebimentos da família e o valor médio de mercado dos seus bens e propriedades.';
+
+  @override
+  String get rentedPropertyIncomeQuestion =>
+      'Recebe valor de imóvel alugado ou arrendado?';
+
+  @override
+  String get financialHelpQuestion => 'Recebe ajuda financeira?';
+
+  @override
+  String get financialHelpNone => 'Nenhum';
+
+  @override
+  String get financialHelpFamily => 'Familiar';
+
+  @override
+  String get financialHelpOther => 'Outro';
+
+  @override
+  String get governmentProgramQuestion =>
+      'A família é beneficiária de algum programa do Governo?';
+
+  @override
+  String get informValueInReaisLabel => 'Informe o valor em R\$';
+
+  @override
+  String get financialHelpFromWhomLabel => 'De quem?';
+
+  @override
+  String get informGovernmentProgramLabel =>
+      'Qual programa (Informe todos os programas)';
+
+  @override
+  String get assetsRelationSubStepNavTitle => 'Relação de bens';
+
+  @override
+  String get ownsPropertyQuestion => 'Possui imóvel próprio?';
+
+  @override
+  String get ownsFinancialInvestmentQuestion =>
+      'Possui investimento financeiro?';
+
+  @override
+  String get ownsVehicleQuestion => 'Possui veículo?';
+
+  @override
+  String get ownsVehicleSubtitle =>
+      '(Carro - Caminhonete/caminhoneta - Caminhão/carreta - Motocicleta - Embarcação - Aeronave)';
+
+  @override
+  String get addPropertyAction => '+ Adicionar imóvel';
+
+  @override
+  String get ownPropertyPageTitle => 'Imóvel próprio';
+
+  @override
+  String get ownPropertyPageDescription =>
+      'Informe alguns dados referente ao imóvel próprio';
+
+  @override
+  String get savePropertyAction => 'Salvar imóvel';
+
+  @override
+  String get propertyFinancingValueLabel => 'Valor do financiamento:';
+
+  @override
+  String get propertyAssetValueDisplayLabel => 'Valor do bem:';
+
+  @override
+  String get addInvestmentAction => '+ Adicionar investimento';
+
+  @override
+  String get financialInvestmentPageTitle => 'Investimento';
+
+  @override
+  String get financialInvestmentPageDescription =>
+      'Informe alguns dados referente ao investimento';
+
+  @override
+  String get saveInvestmentAction => 'Salvar investimento';
+
+  @override
+  String get addVehicleAction => '+ Adicionar veículo';
+
+  @override
+  String get vehiclePageTitle => 'Veículo';
+
+  @override
+  String get vehiclePageDescription =>
+      'Informe alguns dados referente ao veículo';
+
+  @override
+  String get vehicleBrandLabel => 'Marca';
+
+  @override
+  String get vehicleModelLabel => 'Modelo';
+
+  @override
+  String get vehicleYearLabel => 'Ano de fabricação';
+
+  @override
+  String get vehicleFinancingInstallmentLabel =>
+      'Financiamento - Valor parcela';
+
+  @override
+  String get saveVehicleAction => 'Salvar veículo';
+
+  @override
+  String get vehicleYearDisplayLabel => 'Ano de Fabricação:';
+
+  @override
+  String get vehicleInstallmentDisplayLabel => 'Valor da parcela:';
+
+  @override
+  String get summarySubStepNavTitle => 'Resumo';
+
+  @override
+  String get summaryStepDescription =>
+      'Abaixo você consegue ver como é feito o calculo de renda per capita da sua família a partir da renda informada.';
+
+  @override
+  String get grossFamilyIncomeLabel => 'Renda Bruta Familiar';
+
+  @override
+  String get incomeDependentsLabel => 'Dependentes da renda';
+
+  @override
+  String get perCapitaIncomeLabel => 'Renda per capita';
+
+  @override
+  String get minimumWageLabel => 'Salário mínimo';
+
+  @override
+  String get perCapitaTimesMinimumWageLabel =>
+      'Renda per capita X Salário Mínimo';
+
+  @override
+  String get salaryRatioSuffix => 'salários';
+
+  @override
+  String get summaryAdvanceDialogBody1 =>
+      'Ao voltar para a etapa anterior, seus documentos enviados não serão salvos.';
+
+  @override
+  String get summaryAdvanceDialogBody2 =>
+      'Lembre-se que o prazo final é "Data". Sem a conclusão do envio completo dos documentos na etapa 6, poderá ser desclassificado.';
+
+  @override
+  String get summaryAdvanceDialogQuestion => 'Tem certeza que deseja voltar?';
+
+  @override
+  String get summaryAdvanceDialogConfirm => 'Estou ciente, voltar';
+
+  @override
+  String get expensesStepTitle => 'Gastos mensais da família';
+
+  @override
+  String get expensesStepDescription =>
+      'Para conhecermos melhor a sua realidade, informe os gastos mensais da família.';
+
+  @override
+  String get expensesFoodSubStepNavTitle => 'Alimentação';
+
+  @override
+  String get expenseFoodValueLabel => 'Valor alimentação média mensal';
+
+  @override
+  String get expenseFoodHelper => '(Supermercado, feira, padaria...)';
+
+  @override
+  String get expensesHealthSubStepNavTitle => 'Saúde';
+
+  @override
+  String get expenseHealthPlanValueLabel =>
+      'Valor convênio médico/plano de saúde';
+
+  @override
+  String get expenseHealthPlanHelper =>
+      'Total de todos os integrantes da família';
+
+  @override
+  String get expenseChronicDiseaseValueLabel => 'Valor doença crônica';
+
+  @override
+  String get expenseChronicDiseaseHelper =>
+      'Total das despesas gastas com doenças crônica';
+
+  @override
+  String get expenseChronicDiseaseDialogBody =>
+      'Será necessário apresentar cópia do laudo e/ou parecer médico, de até 180 dias, onde descreva a enfermidade e mencione que é uma doença crônica, e cópia das Notas Fiscais dos medicamentos do último mês.';
+
+  @override
+  String get expenseOtherHealthServicesValueLabel => 'Valor outros serviços';
+
+  @override
+  String get expenseOtherHealthServicesSpecifyLabel =>
+      'Especifique o valor a cima';
+
+  @override
+  String get expensesEducationSubStepNavTitle => 'Educação';
+
+  @override
+  String get expenseHasEducationCostsQuestion =>
+      'Possui gastos com educação básica, superior, cursos de idiomas ou outros? *';
+
+  @override
+  String get expenseSchoolTransportQuestion =>
+      'Despesas com Transporte Escolar: *';
+
+  @override
+  String get expenseSchoolTransportNaoUtiliza => 'Não Utiliza';
+
+  @override
+  String get expenseSchoolTransportPagoFretado => 'Pago/Fretado';
+
+  @override
+  String get expenseSchoolTransportProprioCombustivel =>
+      'Próprio (Combustível)';
+
+  @override
+  String get expenseSchoolTransportPublico => 'Público';
+
+  @override
+  String get expenseEducationValueLabel => 'Valor gasto R\$';
+
+  @override
+  String get addEducationExpenseAction => '+ Adicionar gasto';
+
+  @override
+  String get educationExpensePageDescription =>
+      'Informe alguns dados referente ao educação.';
+
+  @override
+  String get expenseEducationTypeBasic => 'Mensalidade Educação Básica';
+
+  @override
+  String get expenseEducationTypeHigher => 'Mensalidade Ensino Superior';
+
+  @override
+  String get expenseEducationTypeLanguage => 'Cursos de Idiomas';
+
+  @override
+  String get expenseEducationTypeOther => 'Outras despesas';
+
+  @override
+  String get expenseEducationForWhomLabel => 'Para quem?';
+
+  @override
+  String get expenseEducationInstitutionLabel => 'Onde? (Instituição)';
+
+  @override
+  String get expenseEducationMonthlyValueLabel => 'Valor mensal';
+
+  @override
+  String get saveEducationExpenseAction => 'Salvar';
+
+  @override
+  String get expenseEducationForWhomDisplayLabel => 'Para quem:';
+
+  @override
+  String get expenseEducationWhereDisplayLabel => 'Onde:';
+
+  @override
+  String get expenseEducationCostsRequiredError => 'Este campo é obrigatório';
+
+  @override
+  String get expenseSchoolTransportRequiredError =>
+      'Informe o tipo do despesa com transporte escolar';
+
+  @override
+  String get expensesAutomobileSubStepNavTitle => 'Automóvel';
+
+  @override
+  String get expenseIpvaLabel => 'IPVA';
+
+  @override
+  String get expenseCarInsuranceLabel => 'Seguro do carro';
+
+  @override
+  String get expenseVehicleFinancingLabel => 'Financiamento veiculo';
+
+  @override
+  String get expensesLoansSubStepNavTitle => 'Empréstimos';
+
+  @override
+  String get expenseBankLoansLabel => 'Financiamentos bancários / Empréstimos';
+
+  @override
+  String get expenseBankLoansHelper => 'Valor pago mensalmente';
+
+  @override
+  String get expenseLoansOtherServicesLabel => 'Outros serviços';
+
+  @override
+  String get expenseLoansOtherServicesHelper => 'Especificar';
+
+  @override
+  String get expenseLoansOtherServicesDescribeLabel =>
+      'Descreva o tipo de gasto';
+
+  @override
+  String get expenseRentValueLabel => 'Valor aluguel do imóvel';
+
+  @override
+  String get expenseFinancingValueLabel => 'Valor financiamento imóvel';
+
+  @override
+  String get expenseIptuValueLabel => 'Valor IPTU';
+
+  @override
+  String get expenseIptuHelper => 'Informar o valor total dividido por doze';
+
+  @override
+  String get expenseCondoValueLabel => 'Valor do condomínio';
+
+  @override
+  String get expenseElectricityValueLabel => 'Valor energia elétrica';
+
+  @override
+  String get expenseWaterValueLabel => 'Valor água';
+
+  @override
+  String get expenseGasValueLabel => 'Valor gás encanado';
+
+  @override
+  String get expensePhoneInternetValueLabel =>
+      'Valor telefone + internet + celulares';
+
+  @override
+  String get expensePhoneInternetHelper => 'Informe o valor total';
+
+  @override
+  String get familyConfirmDialogTitle => 'Atenção!';
+
+  @override
+  String get familyConfirmDialogBodyEmphasis1 => 'Todos os membros';
+
+  @override
+  String get familyConfirmDialogBodyMiddle => ' do grupo familiar ';
+
+  @override
+  String get familyConfirmDialogBodyEmphasis2 =>
+      'devem estar devidamente cadastrados';
+
+  @override
+  String get familyConfirmDialogBodySuffix =>
+      ', pois apenas membros do grupo familiar estarão aptos para serem candidatos.';
+
+  @override
+  String get familyConfirmDialogMembersIntro =>
+      'Os seguintes membros familiares foram adicionados:';
+
+  @override
+  String get familyConfirmDialogQuestion => 'Deseja continuar com cadastro?';
+
+  @override
+  String get familyConfirmDialogReview => 'Revisar informações';
+
+  @override
+  String get familyConfirmDialogContinue => 'Sim, continuar';
+
+  @override
+  String get scholarshipCandidateTag => 'Candidato a Bolsa';
 
   @override
   String get dobLabel => 'Dt. de Nascimento';
@@ -974,6 +1420,23 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get documentsPlaceholder => 'Campos para anexar documentos...';
 
   @override
+  String get documentsStepTitle => 'Envio de Documentos';
+
+  @override
+  String get documentsStepDescription =>
+      'Envie os documentos gerais da família e os documentos específicos de cada membro individualmente';
+
+  @override
+  String documentsDeadlineLabel(String date) => 'Prazo para envio: $date';
+
+  @override
+  String documentsProgressLabel(int uploaded, int total) =>
+      '$uploaded de $total';
+
+  @override
+  String get documentsSendAllAction => 'Enviar todos os documentos';
+
+  @override
   String get concludeAction => 'Concluir';
 
   @override
@@ -994,9 +1457,6 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get profileMyDataName => 'Nome';
 
   @override
-  String get profileMyDataEmail => 'E-mail';
-
-  @override
   String get profileMyDataPhone => 'Telefone';
 
   @override
@@ -1008,12 +1468,6 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   @override
   String get profileSaveSuccessDescription =>
       'O telefone foi alterado com sucesso.';
-
-  @override
-  String get profileSaveSuccessDoneButton => 'Ok';
-
-  @override
-  String get profileEmailChangedTitle => 'Atenção';
 
   @override
   String get profileEmailChangedDescription =>
@@ -1037,7 +1491,4 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
 
   @override
   String get profileChangePasswordConfirmNewPassword => 'Confirme nova senha';
-
-  @override
-  String get profileChangePasswordButton => 'Alterar senha';
 }

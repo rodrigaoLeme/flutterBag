@@ -92,7 +92,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void _showEmailChangedDialog() {
     EbolsaDialog.show(
       context: context,
-      title: appStrings.profileEmailChangedTitle,
+      title: appStrings.attentionLabel,
       description: appStrings.profileEmailChangedDescription,
       actions: [
         EbolsaDialogAction(
@@ -175,7 +175,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               const SizedBox(height: 16),
                               EbolsaTextField(
                                 controller: _emailController,
-                                label: appStrings.profileMyDataEmail,
+                                label: appStrings.authEmailLabel,
                                 keyboardType: TextInputType.emailAddress,
                                 enabled: !isLoading,
                                 borderWidth: 1,
@@ -274,7 +274,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               const SizedBox(height: 20),
                               EbolsaButton(
                                 onPressed: () {},
-                                label: appStrings.profileChangePasswordButton,
+                                label: appStrings.profileChangePasswordTitle,
                                 isSecondary: true,
                               ),
                               const SizedBox(height: 48),

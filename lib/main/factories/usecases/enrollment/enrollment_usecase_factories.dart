@@ -16,5 +16,5 @@ LoadScholarshipFormUsecase makeRemoteLoadScholarshipForm() =>
     );
 
 LookupZipCodeUsecase makeRemoteLookupZipCode() => RemoteLookupZipCodeUsecase(
-      httpClient: makeDioAdapter(),
+      httpClient: makeAuthorizeHttpClientDecorator(),
     );

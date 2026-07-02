@@ -26,7 +26,7 @@ class Flavor {
       case FlavorType.dev:
         return appStrings.appNameDev;
       case FlavorType.prod:
-        return appStrings.appNameProd;
+        return appStrings.appTitle;
     }
   }
 }

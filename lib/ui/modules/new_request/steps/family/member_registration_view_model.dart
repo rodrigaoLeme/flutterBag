@@ -100,6 +100,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   int? declarouEsseAno;
   int? temCarteira;
   int? trabalhadorRural;
+  int? superdotacao;
+  int? espectro;
 
   MemberRegistrationViewModel() {
     cpfController.text = '';

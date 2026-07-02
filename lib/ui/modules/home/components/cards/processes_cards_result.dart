@@ -1,69 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../../domain/entities/process_enums.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/themes/themes.dart';
 
 final appStrings = AppI18n.current;
 
-enum ProcessResult {
-  approved,
-  disqualified,
-  underReview,
-  pending;
-
-  String get label {
-    switch (this) {
-      case approved:
-        return appStrings.approved;
-      case disqualified:
-        return appStrings.disqualified;
-      case underReview:
-        return appStrings.underReview;
-      case pending:
-        return appStrings.pending;
-    }
-  }
-
-  Color get color {
-    switch (this) {
-      case approved:
-        return const Color(0xFF4CAF50);
-      case disqualified:
-        return const Color(0xFFFF9950);
-      case underReview:
-        return const Color(0xFF2196F3);
-      case pending:
-        return const Color(0xFF9E9E9E);
-    }
-  }
-}
-
-enum EnrollmentStatus {
-  withoutRegistration,
-  registered,
-  inProcess;
-
-  String get label {
-    switch (this) {
-      case withoutRegistration:
-        return appStrings.withoutRegistration;
-      case registered:
-        return appStrings.registered;
-      case inProcess:
-        return appStrings.inProcess;
-    }
-  }
-}
-
 class ProcessCardResult extends StatelessWidget {
   final String studentName;
   final String schoolUnit;
   final String course;
   final String processCode;
-  final ProcessResult result;
-  final EnrollmentStatus enrollmentStatus;
+  final ResultStatus result;
+  final RegistrationStatus enrollmentStatus;
   final VoidCallback? onViewProcess;
 
   const ProcessCardResult({
@@ -174,10 +125,12 @@ class ProcessCardResult extends StatelessWidget {
             indent: 16,
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.only(bottom: 16, top: 16),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Expanded(
+                Flexible(
+                  fit: FlexFit.loose,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -192,7 +145,8 @@ class ProcessCardResult extends StatelessWidget {
                     ],
                   ),
                 ),
-                Expanded(
+                Flexible(
+                  fit: FlexFit.loose,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -246,12 +200,15 @@ class _InfoRow extends StatelessWidget {
 }
 
 class _ResultBadge extends StatelessWidget {
-  final ProcessResult result;
+  final ResultStatus result;
 
   const _ResultBadge({required this.result});
 
   @override
   Widget build(BuildContext context) {
+    final Color colorText = (result.value == 4)
+        ? Theme.of(context).colorScheme.surface
+        : Theme.of(context).colorScheme.onSurface;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
@@ -262,45 +219,74 @@ class _ResultBadge extends StatelessWidget {
         result.label,
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
               fontWeight: FontWeight.w600,
+              color: colorText,
             ),
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
 }
 
 class _EnrollmentBadge extends StatelessWidget {
-  final EnrollmentStatus status;
+  final RegistrationStatus status;
 
   const _EnrollmentBadge({required this.status});
 
   @override
   Widget build(BuildContext context) {
+    final String statusIcon = _getIcon(status);
+    final Color colorText = (status.value < 5)
+        ? Theme.of(context).colorScheme.onSurface
+        : Theme.of(context).colorScheme.surface;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Color(0xFFE0E2EC),
+        color: status.color,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.borderLight),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (status == EnrollmentStatus.withoutRegistration)
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: SvgPicture.asset(
-                AppIcons.noneIcon,
-              ),
+          Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: SvgPicture.asset(
+              statusIcon,
+              color: colorText,
+              width: 14,
             ),
+          ),
           Text(
             status.label,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: AppColors.textSecondaryLight,
+                  color: colorText,
                   fontWeight: FontWeight.w500,
                 ),
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
+  }
+
+  String _getIcon(RegistrationStatus status) {
+    switch (status) {
+      case RegistrationStatus.noRegistration:
+        return AppIcons.noneIcon;
+      case RegistrationStatus.reserveSpot:
+        return AppIcons.exclamationIcon;
+      case RegistrationStatus.completed:
+      case RegistrationStatus.registered:
+        return AppIcons.checkIcon;
+      case RegistrationStatus.locked:
+      case RegistrationStatus.withdrawal:
+      case RegistrationStatus.canceled:
+        return AppIcons.blockedIcon;
+      case RegistrationStatus.awaitingApproval:
+        return AppIcons.hourGlassIcon;
+      case RegistrationStatus.transferred:
+        return AppIcons.transferIcon;
+    }
   }
 }

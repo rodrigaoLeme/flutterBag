@@ -53,7 +53,7 @@ class _AvailableAnnouncementCardState extends State<AvailableAnnouncementCard> {
             child: Column(
               children: [
                 Text(
-                  '${isEdital ? appStrings.processCardNoticeSentence : appStrings.processCardAddendumSentence} Nº ${a.editalNumber ?? '-'}',
+                  '${isEdital ? appStrings.noticeLabel : appStrings.processCardAddendumSentence} Nº ${a.editalNumber ?? '-'}',
                   style: AppTextStyles.titleMedium
                       .copyWith(fontWeight: FontWeight.w600),
                   textAlign: TextAlign.center,
@@ -101,7 +101,7 @@ class _AvailableAnnouncementCardState extends State<AvailableAnnouncementCard> {
                     ),
                     Expanded(
                       child: _InfoRow(
-                        label: appStrings.noticesTermsModalityLabel2,
+                        label: appStrings.scholarshipTypeLabel,
                         value: a.scholarshipType?.label ?? '-',
                       ),
                     ),

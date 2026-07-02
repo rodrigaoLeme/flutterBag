@@ -39,3 +39,22 @@ enum ResidenceType {
     }
   }
 }
+
+enum GuardianRelationshipType {
+  father(1, 'Sou pai'),
+  mother(2, 'Sou mãe'),
+  legalGuardian(3, 'Tenho guarda judicial');
+
+  const GuardianRelationshipType(this.value, this.label);
+  final int value;
+  final String label;
+
+  static GuardianRelationshipType? fromValue(int? value) {
+    if (value == null) return null;
+    try {
+      return GuardianRelationshipType.values.firstWhere((e) => e.value == value);
+    } catch (_) {
+      return null;
+    }
+  }
+}

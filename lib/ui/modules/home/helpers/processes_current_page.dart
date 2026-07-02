@@ -88,7 +88,7 @@ class ProcessesCurrentPage extends StatelessWidget {
                           makeNewScholarshipPage(lockedYear: yearSelected),
                     ),
                   ),
-                  label: appStrings.homeNewScholarshipButton,
+                  label: appStrings.newProcess,
                   isOutlined: true,
                 ),
               ),

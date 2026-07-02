@@ -146,7 +146,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         onPressed: () => _nextPage(currentIndex),
                         child: Text(
                           isLast
-                              ? appStrings.onboardingEnterAction
+                              ? appStrings.authLoginAction
                               : appStrings.onboardingNextAction,
                         ),
                       ),

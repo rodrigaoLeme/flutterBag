@@ -39,7 +39,7 @@ class EbolsaEndDrawer extends StatelessWidget {
             ),
             _DrawerItem(
               iconPaht: AppIcons.homeIcon,
-              label: appsString.endDrawerHomeLabel,
+              label: appsString.homeLabel,
               isSelected: currentTab == HomeTab.process,
               onTap: () {
                 onTabSelected(HomeTab.process);
@@ -48,7 +48,7 @@ class EbolsaEndDrawer extends StatelessWidget {
             ),
             _DrawerItem(
               iconPaht: AppIcons.noticeIcon,
-              label: appsString.endDrawerNoticesLabel,
+              label: appsString.noticesLabel,
               isSelected: currentTab == HomeTab.notices,
               onTap: () {
                 onTabSelected(HomeTab.notices);
@@ -57,7 +57,7 @@ class EbolsaEndDrawer extends StatelessWidget {
             ),
             _DrawerItem(
               iconPaht: AppIcons.profileIcon,
-              label: appsString.endDrawerProfileLabel,
+              label: appsString.profileLabel,
               isSelected: currentTab == HomeTab.profile,
               onTap: () {
                 onTabSelected(HomeTab.profile);

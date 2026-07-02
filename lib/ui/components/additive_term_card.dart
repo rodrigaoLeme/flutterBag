@@ -51,7 +51,7 @@ class AdditiveTermCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _buildInfoRow(
-            appStrings.noticesTermsEnrollmentTypeLabel,
+            appStrings.enrollmentTypeLabel,
             additiveTerm.processTypeDescription!,
           ),
           const SizedBox(height: 16),

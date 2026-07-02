@@ -32,7 +32,7 @@ class ProcessesBannerError extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  appStrings.processCardBannerAttention,
+                  appStrings.attentionLabel,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: Theme.of(context).colorScheme.onErrorContainer,
                       fontWeight: FontWeight.w500),

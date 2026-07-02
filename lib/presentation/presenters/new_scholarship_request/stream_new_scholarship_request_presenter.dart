@@ -41,7 +41,7 @@ class StreamNewScholarshipRequestPresenter
   }
 
   // Step/substep state
-  final Map<int, int> _stepSubSteps = {1: 1, 2: 5, 3: 3, 4: 2, 5: 1, 6: 1};
+  final Map<int, int> _stepSubSteps = {1: 1, 2: 5, 3: 6, 4: 1, 5: 1, 6: 1};
 
   final _navigationController = StreamController<String?>.broadcast();
   final _currentStepController = StreamController<int>.broadcast();
@@ -267,6 +267,12 @@ class StreamNewScholarshipRequestPresenter
       _fieldErrorsNotifier;
 
   @override
+  ValueListenable<int> get completedStepListenable => _completedStepNotifier;
+
+  @override
+  List<ScholarshipFamilyMemberEntity> get familyMembers => _form.familyMembers;
+
+  @override
   void updateStateValue(String? v) {
     _stateValue = v;
     _stateNotifier.value = v;
@@ -477,7 +483,4 @@ class StreamNewScholarshipRequestPresenter
     _residenceAreaNotifier.dispose();
     _housingTypeNotifier.dispose();
   }
-
-  @override
-  ValueListenable<int> get completedStepListenable => _completedStepNotifier;
 }

@@ -49,7 +49,7 @@ class NoticeCard extends StatelessWidget {
               notice.scholarshipTypeLabel),
           const SizedBox(height: 12),
           _buildInfoRow(
-            appStrings.noticesTermsEnrollmentTypeLabel,
+            appStrings.enrollmentTypeLabel,
             notice.processTypeDescription ?? '',
           ),
           const SizedBox(height: 16),
