@@ -10,18 +10,32 @@ class ExpensesLoansSubStep extends StatefulWidget {
     required this.bankLoansController,
     required this.otherServicesController,
     required this.otherServicesDescribeController,
+    this.onFormChanged,
   });
 
   final TextEditingController bankLoansController;
   final TextEditingController otherServicesController;
   final TextEditingController otherServicesDescribeController;
+  final VoidCallback? onFormChanged;
 
   @override
-  State<ExpensesLoansSubStep> createState() => _ExpensesLoansSubStepState();
+  State<ExpensesLoansSubStep> createState() => ExpensesLoansSubStepState();
 }
 
-class _ExpensesLoansSubStepState extends State<ExpensesLoansSubStep> {
+class ExpensesLoansSubStepState extends State<ExpensesLoansSubStep> {
   bool _showOtherServicesDescribeField = false;
+
+  bool get isComplete {
+    final bankLoansFilled = widget.bankLoansController.text.trim().isNotEmpty;
+    final otherServicesFilled =
+        widget.otherServicesController.text.trim().isNotEmpty;
+    final describeFilled = !_showOtherServicesDescribeField ||
+        widget.otherServicesDescribeController.text.trim().isNotEmpty;
+
+    return bankLoansFilled && otherServicesFilled && describeFilled;
+  }
+
+  void _notifyFormChanged() => widget.onFormChanged?.call();
 
   @override
   void initState() {
@@ -39,7 +53,10 @@ class _ExpensesLoansSubStepState extends State<ExpensesLoansSubStep> {
 
   void _onOtherServicesChanged() {
     final hasValue = widget.otherServicesController.text.trim().isNotEmpty;
-    if (hasValue == _showOtherServicesDescribeField) return;
+    if (hasValue == _showOtherServicesDescribeField) {
+      _notifyFormChanged();
+      return;
+    }
 
     setState(() {
       _showOtherServicesDescribeField = hasValue;
@@ -47,6 +64,7 @@ class _ExpensesLoansSubStepState extends State<ExpensesLoansSubStep> {
         widget.otherServicesDescribeController.clear();
       }
     });
+    _notifyFormChanged();
   }
 
   @override

@@ -11,20 +11,40 @@ class ExpensesHealthSubStep extends StatefulWidget {
     required this.chronicDiseaseController,
     required this.otherServicesController,
     required this.otherServicesSpecifyController,
+    this.onFormChanged,
   });
 
   final TextEditingController healthPlanController;
   final TextEditingController chronicDiseaseController;
   final TextEditingController otherServicesController;
   final TextEditingController otherServicesSpecifyController;
+  final VoidCallback? onFormChanged;
 
   @override
-  State<ExpensesHealthSubStep> createState() => _ExpensesHealthSubStepState();
+  State<ExpensesHealthSubStep> createState() => ExpensesHealthSubStepState();
 }
 
-class _ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
+class ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
   bool _chronicDiseaseAcknowledged = false;
   bool _showOtherServicesSpecifyField = false;
+
+  bool get isComplete {
+    final healthPlanFilled = widget.healthPlanController.text.trim().isNotEmpty;
+    final chronicFilled = _chronicDiseaseAcknowledged &&
+        widget.chronicDiseaseController.text.trim().isNotEmpty;
+    final otherServicesFilled =
+        widget.otherServicesController.text.trim().isNotEmpty;
+    final otherServicesSpecifyFilled =
+        !_showOtherServicesSpecifyField ||
+        widget.otherServicesSpecifyController.text.trim().isNotEmpty;
+
+    return healthPlanFilled &&
+        chronicFilled &&
+        otherServicesFilled &&
+        otherServicesSpecifyFilled;
+  }
+
+  void _notifyFormChanged() => widget.onFormChanged?.call();
 
   @override
   void initState() {
@@ -42,7 +62,10 @@ class _ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
 
   void _onOtherServicesChanged() {
     final hasValue = widget.otherServicesController.text.trim().isNotEmpty;
-    if (hasValue == _showOtherServicesSpecifyField) return;
+    if (hasValue == _showOtherServicesSpecifyField) {
+      _notifyFormChanged();
+      return;
+    }
 
     setState(() {
       _showOtherServicesSpecifyField = hasValue;
@@ -50,6 +73,7 @@ class _ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
         widget.otherServicesSpecifyController.clear();
       }
     });
+    _notifyFormChanged();
   }
 
   Future<void> _showChronicDiseaseDialog() {
@@ -74,6 +98,7 @@ class _ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
           TextButton(
             onPressed: () {
               setState(() => _chronicDiseaseAcknowledged = true);
+              _notifyFormChanged();
               Navigator.of(context).pop();
             },
             child: Text(

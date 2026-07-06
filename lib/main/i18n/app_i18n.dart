@@ -356,6 +356,15 @@ abstract class AppI18n {
   String get memberRegistrationDescription;
   String get personalDataTitle;
   String get occupationStepDescription;
+  String get childSupportIncomeQuestion;
+  String get privatePensionQuestion;
+  String get inssBenefitQuestion;
+  String get childSupportInfoDialogBody1;
+  String get childSupportInfoDialogBody2;
+  String get childSupportInfoDialogBody3;
+  String get childSupportInfoDialogBody4;
+  String get inssBenefitInfoDialogBody1;
+  String get inssBenefitInfoDialogBody2;
   String get familyMembersSubStepNavTitle;
   String get otherIncomeSubStepNavTitle;
   String get otherIncomeStepTitle;

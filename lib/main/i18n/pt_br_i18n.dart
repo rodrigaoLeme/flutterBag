@@ -956,6 +956,41 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
       'Agora nos informe algumas informações referente a ocupação e renda do membro familiar';
 
   @override
+  String get childSupportIncomeQuestion =>
+      'Recebe pensão alimentícia? (Sendo judicial ou não, informar quanto recebe)';
+
+  @override
+  String get privatePensionQuestion => 'Recebe Previdência Privada?';
+
+  @override
+  String get inssBenefitQuestion =>
+      'Recebe outro beneficio/auxilio do INSS?';
+
+  @override
+  String get childSupportInfoDialogBody1 =>
+      'Caso você receba a pensão em seu nome, mas esse benefício seja para outro(s) integrante(s) do grupo familiar, gentileza informar esse valor no cadastro dele(s).';
+
+  @override
+  String get childSupportInfoDialogBody2 =>
+      'Caso receba um único valor de pensão para mais de um integrante do grupo familiar, divida essa quantia pelo número de pessoas beneficiadas por ela, e informe a parte (valor) correspondente no cadastro de cada um deles. (Ex.: Recebe R\$ 900,00 reais de pensão para 3 filhos, informe R\$ 300,00 reais no cadastro de cada um deles.)';
+
+  @override
+  String get childSupportInfoDialogBody3 =>
+      'Insira o valor da pensão apenas para os membros da família que recebem este benefício.';
+
+  @override
+  String get childSupportInfoDialogBody4 =>
+      'O comprovante de recebimento da pensão será gerado individualmente para todos aqueles que selecionarem a opção “sim”. Caso você possua um único comprovante ou única declaração deste valor, insira o mesmo documento para todos os beneficiários.';
+
+  @override
+  String get inssBenefitInfoDialogBody1 =>
+      'Em caso de “Aposentado e/ou Pensionista” ou “Beneficiário(a) de Prestação Continuada (BPC)”, insira o valor recebido em ocupações.';
+
+  @override
+  String get inssBenefitInfoDialogBody2 =>
+      'Caso contrário, poderá ser adicionado aqui o valor correspondente à: Auxílio-Doença, Auxílio-Acidente, Auxílio-Reclusão, Auxílio-Doença da Aeronauta Gestante, Benefício ao Trabalhador Portuário Avulso, Salário-Maternidade, Salário Família, Seguro-Defeso Pescador Artesanal ou outro.';
+
+  @override
   String get familyMembersSubStepNavTitle => 'Membro familiar';
 
   @override

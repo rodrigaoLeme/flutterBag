@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../family/member_registration_view_model.dart';
+import 'occupation_type.dart';
 
 class OccupationDetailsViewModel {
   OccupationDetailsViewModel({required this.type}) {

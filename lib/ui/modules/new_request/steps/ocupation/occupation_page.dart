@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/themes/themes.dart';
-import '../family/member_registration_view_model.dart';
+import 'occupation_type.dart';
 import 'ocupation_details_view_model.dart';
 
 class OccupationPage extends StatefulWidget {

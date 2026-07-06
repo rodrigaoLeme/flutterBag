@@ -34,8 +34,6 @@ class StreamNewScholarshipRequestPresenter
     required this.loadScholarshipFormUsecase,
     required this.draftStorage,
   }) {
-    _currentStepController.add(_currentStep);
-    _currentStepController.add(_currentSubStep);
     _syncControllersToNotifiers();
     _initForm();
   }
@@ -112,7 +110,18 @@ class StreamNewScholarshipRequestPresenter
       _form = ScholarshipFormEntity.toJson(localDraft);
       _completedStepNotifier.value = _form.completedStep;
       _populateControllersFromForm(_form);
-      _navigateToStep(_form.currentStep);
+
+      try {
+        final remoteForm =
+            await loadScholarshipFormUsecase.load(processPeriodId);
+        final stepToNavigate = remoteForm?.currentStep ?? _form.currentStep;
+        _currentStep = stepToNavigate.clamp(1, _stepSubSteps.length);
+      } catch (_) {
+        _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
+      }
+
+      _currentStepController.add(_currentStep);
+      _currentSubStepController.add(_currentSubStep);
       return;
     }
 
@@ -126,14 +135,19 @@ class StreamNewScholarshipRequestPresenter
         await _saveDraftSilently();
         _completedStepNotifier.value = _form.completedStep;
         _populateControllersFromForm(_form);
-        _navigateToStep(_form.currentStep);
+        _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
       } else {
         // 404 - começa do zero
         _form = ScholarshipFormEntity(processPeriodId: processPeriodId);
+        _currentStep = 1;
       }
     } catch (_) {
       _form = ScholarshipFormEntity(processPeriodId: processPeriodId);
+      _currentStep = 1;
     }
+
+    _currentStepController.add(_currentStep);
+    _currentSubStepController.add(_currentSubStep);
   }
 
   void _populateControllersFromForm(ScholarshipFormEntity form) {
@@ -345,9 +359,7 @@ class StreamNewScholarshipRequestPresenter
   @override
   void clearAddressFields() => _clearAddresFields();
 
-  // --- Submit step 1 ---
-  @override
-  Future<void> submitStep1() async {
+  Map<String, String?> _validateStep1Fields() {
     final errors = <String, String?>{};
     final appStrings = AppI18n.current;
 
@@ -375,6 +387,17 @@ class StreamNewScholarshipRequestPresenter
     if (_residenceType == null) {
       errors['housingType'] = appStrings.fieldRequired;
     }
+
+    return errors;
+  }
+
+  @override
+  bool isStep1Complete() => _validateStep1Fields().isEmpty;
+
+  // --- Submit step 1 ---
+  @override
+  Future<void> submitStep1() async {
+    final errors = _validateStep1Fields();
 
     _fieldErrorsNotifier.value = errors;
 
@@ -420,6 +443,9 @@ class StreamNewScholarshipRequestPresenter
     _currentSubStep = 1;
     _currentStepController.add(_currentStep);
     _currentSubStepController.add(_currentSubStep);
+
+    _form = _form.copyWith(currentStep: newStep);
+    _saveDraftSilently();
   }
 
   @override
@@ -436,6 +462,8 @@ class StreamNewScholarshipRequestPresenter
       _currentSubStep = 1;
       _currentStepController.add(_currentStep);
       _currentSubStepController.add(_currentSubStep);
+      _form = _form.copyWith(currentStep: _currentStep);
+      _saveDraftSilently();
     } else {
       // finished flow - emit navigation or finish event
       _navigationController.add(null);
@@ -455,6 +483,8 @@ class StreamNewScholarshipRequestPresenter
       _currentSubStep = _stepSubSteps[_currentStep] ?? 1;
       _currentStepController.add(_currentStep);
       _currentSubStepController.add(_currentSubStep);
+      _form = _form.copyWith(currentStep: _currentStep);
+      _saveDraftSilently();
     }
   }
 

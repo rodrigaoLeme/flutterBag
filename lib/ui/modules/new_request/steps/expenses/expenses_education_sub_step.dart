@@ -21,10 +21,12 @@ class ExpensesEducationSubStep extends StatefulWidget {
     super.key,
     required this.educationValueController,
     this.familyMemberNames = const [],
+    this.onFormChanged,
   });
 
   final TextEditingController educationValueController;
   final List<String> familyMemberNames;
+  final VoidCallback? onFormChanged;
 
   @override
   State<ExpensesEducationSubStep> createState() =>
@@ -37,6 +39,18 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
   final List<Map<String, dynamic>> _addedEducationExpenses = [];
   String? _hasEducationCostsError;
   String? _schoolTransportError;
+
+  void _notifyFormChanged() => widget.onFormChanged?.call();
+
+  bool get canAdvance {
+    if (_hasEducationCosts == null || _schoolTransportType == null) {
+      return false;
+    }
+    if (_hasEducationCosts == 1 && _addedEducationExpenses.isEmpty) {
+      return false;
+    }
+    return widget.educationValueController.text.trim().isNotEmpty;
+  }
 
   bool validate() {
     final i18n = AppI18n.current;
@@ -63,6 +77,7 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
         _addedEducationExpenses.clear();
       }
     });
+    _notifyFormChanged();
   }
 
   void _onSchoolTransportChanged(SchoolTransportType? value) {
@@ -70,6 +85,7 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
       _schoolTransportType = value;
       _schoolTransportError = null;
     });
+    _notifyFormChanged();
   }
 
   String _formatCurrency(dynamic value) {
@@ -121,6 +137,7 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
         _addedEducationExpenses.add(result);
       }
     });
+    _notifyFormChanged();
   }
 
   @override

@@ -1,28 +1,15 @@
-import 'package:flutter/foundation.dart';
 import 'member_registration_view_model.dart';
 
-class MemberRegistrationPresenter extends ChangeNotifier {
-  MaritalStatus? maritalStatus;
-  int? recebePensao;
+abstract class MemberRegistrationPresenter {
+  MemberRegistrationViewModel get viewModel;
+  int get currentSubStep;
+  int get totalSubSteps;
+  bool get canAdvance;
 
-  MemberRegistrationPresenter();
+  void goToSubStep(int subStep);
+  void decrementSubStep();
+  void incrementSubStep();
+  void commitMemberAndAdvance();
 
-  List<MaritalStatus> get maritalOptions => MaritalStatus.values;
-
-  String maritalDisplay(MaritalStatus m) {
-    return m.toKey();
-  }
-
-  bool get showReceivesPension => maritalStatus == MaritalStatus.viuvo;
-
-  void setMarital(MaritalStatus? m) {
-    maritalStatus = m;
-    if (m != MaritalStatus.viuvo) recebePensao = null;
-    notifyListeners();
-  }
-
-  void setRecebePensao(int? v) {
-    recebePensao = v;
-    notifyListeners();
-  }
+  void dispose();
 }

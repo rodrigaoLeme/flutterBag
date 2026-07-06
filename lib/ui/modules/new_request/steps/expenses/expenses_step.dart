@@ -13,12 +13,14 @@ class ExpensesStep extends StatefulWidget {
   final int currentSubStep;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
+  final VoidCallback? onFormChanged;
 
   const ExpensesStep({
     super.key,
     required this.currentSubStep,
     this.onPrevious,
     this.onNext,
+    this.onFormChanged,
   });
 
   @override
@@ -28,17 +30,65 @@ class ExpensesStep extends StatefulWidget {
 class ExpensesStepState extends State<ExpensesStep> {
   final GlobalKey<ExpensesEducationSubStepState> _educationSubStepKey =
       GlobalKey<ExpensesEducationSubStepState>();
+  final GlobalKey<ExpensesHealthSubStepState> _healthSubStepKey =
+      GlobalKey<ExpensesHealthSubStepState>();
+  final GlobalKey<ExpensesLoansSubStepState> _loansSubStepKey =
+      GlobalKey<ExpensesLoansSubStepState>();
+
+  bool _isFilled(TextEditingController controller) =>
+      controller.text.trim().isNotEmpty;
+
+  bool _areFilled(List<TextEditingController> controllers) =>
+      controllers.every(_isFilled);
+
+  bool canAdvanceCurrentSubStep() {
+    switch (widget.currentSubStep) {
+      case 1:
+        return _areFilled([
+          _rentController,
+          _financingController,
+          _iptuController,
+          _condoController,
+          _electricityController,
+          _waterController,
+          _gasController,
+          _phoneInternetController,
+        ]);
+      case 2:
+        return _isFilled(_foodValueController);
+      case 3:
+        return _healthSubStepKey.currentState?.isComplete ?? false;
+      case 4:
+        return _educationSubStepKey.currentState?.canAdvance ?? false;
+      case 5:
+        return _areFilled([
+          _ipvaController,
+          _carInsuranceController,
+          _vehicleFinancingController,
+        ]);
+      case 6:
+        return _loansSubStepKey.currentState?.isComplete ?? false;
+      default:
+        return false;
+    }
+  }
 
   bool validateCurrentSubStep() {
     if (widget.currentSubStep == 4) {
       return _educationSubStepKey.currentState?.validate() ?? false;
     }
-    return true;
+    return canAdvanceCurrentSubStep();
   }
 
   void _handleNext() {
     if (!validateCurrentSubStep()) return;
     widget.onNext?.call();
+  }
+
+  void _notifyFormChanged() => widget.onFormChanged?.call();
+
+  void _attachFormListeners(TextEditingController controller) {
+    controller.addListener(_notifyFormChanged);
   }
   late final TextEditingController _rentController;
   late final TextEditingController _financingController;
@@ -84,6 +134,31 @@ class ExpensesStepState extends State<ExpensesStep> {
     _bankLoansController = TextEditingController();
     _loansOtherServicesController = TextEditingController();
     _loansOtherServicesDescribeController = TextEditingController();
+
+    for (final controller in [
+      _rentController,
+      _financingController,
+      _iptuController,
+      _condoController,
+      _electricityController,
+      _waterController,
+      _gasController,
+      _phoneInternetController,
+      _foodValueController,
+      _healthPlanController,
+      _chronicDiseaseController,
+      _otherHealthServicesController,
+      _otherHealthServicesSpecifyController,
+      _educationValueController,
+      _ipvaController,
+      _carInsuranceController,
+      _vehicleFinancingController,
+      _bankLoansController,
+      _loansOtherServicesController,
+      _loansOtherServicesDescribeController,
+    ]) {
+      _attachFormListeners(controller);
+    }
   }
 
   @override
@@ -165,7 +240,8 @@ class ExpensesStepState extends State<ExpensesStep> {
               const SizedBox(width: 12),
               _buildSubStepNavArrow(
                 icon: Icons.arrow_forward,
-                isEnabled: widget.currentSubStep < expensesSubStepCount,
+                isEnabled: widget.currentSubStep < expensesSubStepCount &&
+                    canAdvanceCurrentSubStep(),
                 onTap: _handleNext,
               ),
             ],
@@ -186,16 +262,19 @@ class ExpensesStepState extends State<ExpensesStep> {
           ExpensesFoodSubStep(foodValueController: _foodValueController)
         else if (widget.currentSubStep == 3)
           ExpensesHealthSubStep(
+            key: _healthSubStepKey,
             healthPlanController: _healthPlanController,
             chronicDiseaseController: _chronicDiseaseController,
             otherServicesController: _otherHealthServicesController,
             otherServicesSpecifyController:
                 _otherHealthServicesSpecifyController,
+            onFormChanged: _notifyFormChanged,
           )
         else if (widget.currentSubStep == 4)
           ExpensesEducationSubStep(
             key: _educationSubStepKey,
             educationValueController: _educationValueController,
+            onFormChanged: _notifyFormChanged,
           )
         else if (widget.currentSubStep == 5)
           ExpensesAutomobileSubStep(
@@ -205,10 +284,12 @@ class ExpensesStepState extends State<ExpensesStep> {
           )
         else if (widget.currentSubStep == 6)
           ExpensesLoansSubStep(
+            key: _loansSubStepKey,
             bankLoansController: _bankLoansController,
             otherServicesController: _loansOtherServicesController,
             otherServicesDescribeController:
                 _loansOtherServicesDescribeController,
+            onFormChanged: _notifyFormChanged,
           )
         else
           Center(

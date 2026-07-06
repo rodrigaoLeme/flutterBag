@@ -41,6 +41,7 @@ class NewScholarshipRequestPage extends StatefulWidget {
 class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   int _currentStep = 1;
   int _currentSubStep = 0;
+  bool _isInitializing = true;
 
   late final NewScholarshipRequestPresenter _presenter;
   final GlobalKey<ExpensesStepState> _expensesStepKey =
@@ -60,8 +61,10 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     _presenter = widget.presenter ??
         makeNewRequestPresenter(processPeriodId: widget.processPeriodId);
     _presenter.stepSubSteps;
-    _presenter.currentStepStream
-        .listen((s) => setState(() => _currentStep = s));
+    _presenter.currentStepStream.listen((s) => setState(() {
+          _currentStep = s;
+          _isInitializing = false;
+        }));
     _presenter.currentSubStepStream
         .listen((s) => setState(() => _currentSubStep = s));
   }
@@ -246,8 +249,9 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     final candidateIds = <String>{};
 
     for (final candidate in candidates) {
-      final id =
-          candidate['familyMemberId']?.toString() ?? candidate['name']?.toString() ?? '';
+      final id = candidate['familyMemberId']?.toString() ??
+          candidate['name']?.toString() ??
+          '';
       candidateIds.add(id);
       groups.add(
         DocumentGroupItem(
@@ -325,7 +329,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     // TODO: integrar envio de documentos com API
   }
 
-  Future<void> _openCandidateAddPage({Map<String, dynamic>? initialData}) async {
+  Future<void> _openCandidateAddPage(
+      {Map<String, dynamic>? initialData}) async {
     final result = await Navigator.of(context).push<Map<String, dynamic>?>(
       MaterialPageRoute(
         builder: (_) => CandidateAddPage(
@@ -333,8 +338,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           announcementSchools: widget.announcementSchools,
           processYear: _processYear,
           loadSchoolGradesUsecase: makeRemoteLoadSchoolGrades(),
-          excludedMemberIds: _candidateStepKey.currentState
-                  ?.addedMemberIds
+          excludedMemberIds: _candidateStepKey.currentState?.addedMemberIds
                   .where(
                     (id) => id != initialData?['familyMemberId']?.toString(),
                   )
@@ -356,9 +360,42 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     setState(() {});
   }
 
+  bool _canAdvanceCurrentStep() {
+    switch (_currentStep) {
+      case 1:
+        return _presenter.isStep1Complete();
+      case 3:
+        return _expensesStepKey.currentState?.canAdvanceCurrentSubStep() ??
+            false;
+      default:
+        return true;
+    }
+  }
+
+  Widget _buildReactiveStepFooter() {
+    if (_currentStep == 1) {
+      return ListenableBuilder(
+        listenable: Listenable.merge([
+          _presenter.cepListenable,
+          _presenter.numberListenable,
+          _presenter.addressListenable,
+          _presenter.neighborhoodListenable,
+          _presenter.cityListenable,
+          _presenter.stateListenable,
+          _presenter.residenceAreaListenable,
+          _presenter.housingTypeListenable,
+        ]),
+        builder: (context, _) => _buildStepFooter(),
+      );
+    }
+
+    return _buildStepFooter();
+  }
+
   Widget _buildStepFooter() {
     if (_currentStep == 5) {
-      final canSend = _documentsStepKey.currentState?.canSendAllDocuments ?? false;
+      final canSend =
+          _documentsStepKey.currentState?.canSendAllDocuments ?? false;
 
       return Padding(
         padding: const EdgeInsets.all(16),
@@ -395,7 +432,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
             const SizedBox(width: 12),
             Expanded(
               child: EbolsaButton(
-                onPressed: _handleNext,
+                onPressed: _canAdvanceCurrentStep() ? _handleNext : null,
                 label: 'Avançar',
               ),
             ),
@@ -407,13 +444,15 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: EbolsaButton(
-        onPressed: () {
-          if (_currentStep == 1) {
-            _presenter.submitStep1();
-          } else {
-            _presenter.next();
-          }
-        },
+        onPressed: _canAdvanceCurrentStep()
+            ? () {
+                if (_currentStep == 1) {
+                  _presenter.submitStep1();
+                } else {
+                  _presenter.next();
+                }
+              }
+            : null,
         label: _currentStep < _totalSteps ? 'Avançar' : 'Finalizar',
         isSecondary: false,
       ),
@@ -476,6 +515,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           currentSubStep: _currentSubStep,
           onPrevious: _presenter.previous,
           onNext: _handleNext,
+          onFormChanged: () => setState(() {}),
         );
 
       case 4:
@@ -513,52 +553,54 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         title: Text(AppI18n.current.newProcess),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
+      body: _isInitializing
+          ? const Center(child: CircularProgressIndicator())
+          : SafeArea(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    child: ValueListenableBuilder<int>(
+                        valueListenable: _presenter.completedStepListenable,
+                        builder: (context, completedStep, _) {
+                          return ScholarshipStepIndicator(
+                            currentStep: _currentStep,
+                            completedStep: completedStep,
+                            onStepTap: _goToStep,
+                          );
+                        }),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: _buildCurrentStep(),
+                    ),
+                  ),
+                  StreamBuilder<String?>(
+                    stream: _presenter.uiErrorStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.data != null) {
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                          child: EbolsaErrorBanner(message: snapshot.data!),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                  Visibility(
+                    visible: !(_currentStep == 2 && _currentSubStep == 1),
+                    child: _buildStepFooter(),
+                  ),
+                ],
               ),
-              child: ValueListenableBuilder<int>(
-                  valueListenable: _presenter.completedStepListenable,
-                  builder: (context, completedStep, _) {
-                    return ScholarshipStepIndicator(
-                      currentStep: _currentStep,
-                      completedStep: completedStep,
-                      onStepTap: _goToStep,
-                    );
-                  }),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: _buildCurrentStep(),
-              ),
-            ),
-            StreamBuilder<String?>(
-              stream: _presenter.uiErrorStream,
-              builder: (context, snapshot) {
-                if (snapshot.data != null) {
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                    child: EbolsaErrorBanner(message: snapshot.data!),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-            Visibility(
-              visible: !(_currentStep == 2 && _currentSubStep == 1),
-              child: _buildStepFooter(),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

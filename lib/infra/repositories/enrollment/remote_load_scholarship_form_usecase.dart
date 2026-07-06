@@ -23,7 +23,8 @@ class RemoteLoadScholarshipFormUsecase implements LoadScholarshipFormUsecase {
       return ScholarshipFormEntity(
         id: json['id'] as String?,
         processPeriodId: json['processPeriodId'],
-        currentStep: json['currentStep'] as int? ?? 1,
+        // lógica para adaptar currentStep null em 0 e add + 1
+        currentStep: (json['currentStep'] as int? ?? 0) + 1,
         completedStep: json['completedStep'] as int? ?? 0,
         zipCode: json['zipCode'] as String?,
         street: json['street'] as String?,

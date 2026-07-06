@@ -37,6 +37,11 @@ class StreamLoginPresenter with SessionManager implements LoginPresenter {
 
       final account = await loadAccountUsecase.load();
 
+      await secureStorage.save(
+        key: StorageKeys.userCpf,
+        value: params.identifier,
+      );
+
       final accountWithCpf = AccountEntity(
         name: account.name,
         email: account.email,
@@ -51,11 +56,6 @@ class StreamLoginPresenter with SessionManager implements LoginPresenter {
         await secureStorage.save(
           key: StorageKeys.emailConfirmationPending,
           value: 'true',
-        );
-
-        await secureStorage.save(
-          key: StorageKeys.userCpf,
-          value: params.identifier,
         );
 
         _emit(AuthViewModel().withEmailNotConfirmed());
