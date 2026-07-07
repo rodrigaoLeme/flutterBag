@@ -407,7 +407,10 @@ class StreamNewScholarshipRequestPresenter
 
     try {
       final entity = _buildHousingEntity();
-      final scholarshipId = await saveStep1Usecase.save(entity);
+      final scholarshipId = await saveStep1Usecase.save(
+        entity,
+        scholarshipId: _form.id,
+      );
 
       // Atualiza o form com o scholarshipId e marca o step1 como concluido
       _form = _form.copyWith(
