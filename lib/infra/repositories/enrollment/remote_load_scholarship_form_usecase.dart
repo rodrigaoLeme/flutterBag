@@ -1,5 +1,6 @@
 import '../../../data/http/http_client.dart';
 import '../../../domain/entities/enrollment_enums.dart';
+import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/entities/scholarship_form_entity.dart';
 import '../../../domain/usecases/enrollment/load_scholarship_form_usecase.dart';
 import '../../../main/flavors.dart';
@@ -37,7 +38,7 @@ class RemoteLoadScholarshipFormUsecase implements LoadScholarshipFormUsecase {
         residenceAreaType:
             ResidenceAreaType.fromValue(json['residenceAreaType'] as int?),
         familyMembers: (json['familyMembers'] as List?)
-                ?.map((e) => ScholarshipFamilyMemberEntity.fromJson(
+                ?.map((e) => FamilyMemberEntity.fromJson(
                     Map<String, dynamic>.from(e as Map)))
                 .toList() ??
             [],

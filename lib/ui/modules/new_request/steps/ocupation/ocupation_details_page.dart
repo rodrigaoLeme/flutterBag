@@ -83,6 +83,7 @@ class _OccupationDetailsPageState extends State<OccupationDetailsPage> {
           child: ElevatedButton(
             onPressed: () async {
               final saved = await widget.viewModel.save();
+              // ignore: use_build_context_synchronously
               Navigator.pop(context, saved);
             },
             child: const Text('Adicionar ocupação'),

@@ -1,9 +1,19 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../data/cache/enrollment_draft_storage.dart';
+import '../../../../../domain/entities/scholarship_form_entity.dart';
+import '../../../../../domain/usecases/enrollment/save_family_member_usecase.dart';
+import '../../../../../domain/usecases/enrollment/save_step_2_usecase.dart';
+import '../../../../../infra/repositories/enrollment/remote_save_family_member_usecase.dart';
+import '../../../../../infra/repositories/enrollment/remote_save_step_2_usecase.dart';
+import '../../../../../main/di/injection_container.dart';
+import '../../../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../../presentation/presenters/member_registration/stream_member_registration_presenter.dart';
+import '../../../../../share/current_account.dart';
 import '../../../../components/components.dart';
 import '../../../../components/ebolsa_step_header.dart';
 import '../../../../helpers/themes/themes.dart';
@@ -28,9 +38,16 @@ import 'widgets/member_registration_sub_step_nav.dart';
 const String kAdvanceToExpensesResult = 'advanceToExpenses';
 
 class MemberRegistrationPage extends StatefulWidget {
-  const MemberRegistrationPage({super.key, this.presenter});
+  const MemberRegistrationPage({
+    super.key,
+    this.presenter,
+    required this.scholarshipId,
+    required this.processPeriodId,
+  });
 
   final MemberRegistrationPresenter? presenter;
+  final String scholarshipId;
+  final String processPeriodId;
 
   @override
   State<MemberRegistrationPage> createState() => _MemberRegistrationPageState();
@@ -43,6 +60,8 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
   int _currentSubStep = 1;
 
   MemberRegistrationViewModel get _vm => _presenter.viewModel;
+
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -84,6 +103,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
       initialEntryMode: DatePickerEntryMode.calendar,
+      locale: const Locale('pt', 'BR'),
     );
 
     if (picked != null) _vm.setDob(picked);
@@ -269,8 +289,71 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       return;
     }
 
+    // envia oara o backend e salva o draft
     if (!mounted) return;
-    Navigator.of(context).pop(kAdvanceToExpensesResult);
+    _submitStep2;
+  }
+
+  Future<void> _submitStep2() async {
+    setState(() => _isSubmitting = true);
+
+    try {
+      final saveFamilyMember = makeRemoteSaveFamilyMember();
+      final saveStep2 = makeRemoteSaveStep2();
+      final draftStorage = sl<EnrollmentDraftStorage>();
+      final userId = sl<CurrentAccount>().userCpf;
+
+      // 1 - Envcia cada membro Familiar
+      for (final member in _vm.familyMemberEntities) {
+        await saveFamilyMember.save(SaveFamilyMemberParams(
+          scholarshipId: widget.scholarshipId,
+          member: member,
+        ));
+      }
+
+      // 2 - Envia os dados do grupo (rendas e patrimônios)
+      await saveStep2.save(SaveStep2Params(
+        scholarshipId: widget.scholarshipId,
+        groupIncome: _vm.toGroupIncomeEntity(),
+      ));
+
+      // 3 - Atualiza o draft local com os membros
+      final draft = await draftStorage.load(
+        userId: userId,
+        processPeriodId: widget.processPeriodId,
+      );
+      if (draft != null) {
+        final form = ScholarshipFormEntity.fromJson(draft);
+        final updated = form.copyWith(
+          familyMembers: _vm.familyMemberEntities,
+          groupIncome: _vm.toGroupIncomeEntity(),
+          completedStep: 2,
+          currentStep: 3,
+        );
+        await draftStorage.save(
+          userId: userId,
+          processPeriodId: widget.processPeriodId,
+          data: updated.toJson(),
+        );
+      }
+
+      if (!mounted) return;
+      Navigator.of(context).pop(kAdvanceToExpensesResult);
+    } on SaveFamilyMemberException catch (e) {
+      _showError(e.message);
+    } on SaveStep2Exception catch (e) {
+      _showError(e.message);
+    } catch (_) {
+      _showError(AppI18n.current.errorUnexpected);
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppColors.error),
+    );
   }
 
   Future<void> _onNavForward() async {
@@ -367,45 +450,53 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                  child: ScholarshipStepIndicator(
-                    currentStep: 2,
-                    completedStep: 2,
-                    onStepTap: (_) {},
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 24),
+                    child: ScholarshipStepIndicator(
+                      currentStep: 2,
+                      completedStep: 2,
+                      onStepTap: (_) {},
+                    ),
                   ),
                 ),
                 Expanded(
-                  child: Scrollbar(
-                    controller: _scrollController,
-                    thumbVisibility: true,
-                    thickness: 2,
-                    radius: const Radius.circular(8),
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _buildStepHeader(),
-                          MemberRegistrationSubStepNav(
-                            navTitle: memberRegistrationSubStepConfig(
-                              _currentSubStep,
-                            ).navTitle,
-                            canGoBack: _currentSubStep > 1,
-                            canGoForward:
-                                _currentSubStep < _presenter.totalSubSteps &&
-                                    _presenter.canAdvance,
-                            onBack: _onFooterBack,
-                            onForward: _onNavForward,
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                      platform: TargetPlatform.android,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 2.0),
+                      child: Scrollbar(
+                        controller: _scrollController,
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
                           ),
-                          _buildCurrentSubStep(),
-                          const SizedBox(height: 24),
-                        ],
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildStepHeader(),
+                              MemberRegistrationSubStepNav(
+                                navTitle: memberRegistrationSubStepConfig(
+                                  _currentSubStep,
+                                ).navTitle,
+                                canGoBack: _currentSubStep > 1,
+                                canGoForward: _currentSubStep <
+                                        _presenter.totalSubSteps &&
+                                    _presenter.canAdvance,
+                                onBack: _onFooterBack,
+                                onForward: _onNavForward,
+                              ),
+                              _buildCurrentSubStep(),
+                              const SizedBox(height: 24),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),

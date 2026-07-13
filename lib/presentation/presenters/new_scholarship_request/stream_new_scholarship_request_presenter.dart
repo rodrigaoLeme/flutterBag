@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../../data/cache/enrollment_draft_storage.dart';
 import '../../../domain/entities/enrollment_enums.dart';
+import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/entities/housing_entity.dart';
 import '../../../domain/entities/scholarship_form_entity.dart';
 import '../../../domain/usecases/enrollment/load_scholarship_form_usecase.dart';
@@ -168,6 +169,7 @@ class StreamNewScholarshipRequestPresenter
     _housingTypeNotifier.value = form.residenceType;
   }
 
+  // ignore: unused_element
   void _navigateToStep(int step) {
     _currentStep = step.clamp(1, _stepSubSteps.length);
     _currentSubStep = 1;
@@ -284,7 +286,7 @@ class StreamNewScholarshipRequestPresenter
   ValueListenable<int> get completedStepListenable => _completedStepNotifier;
 
   @override
-  List<ScholarshipFamilyMemberEntity> get familyMembers => _form.familyMembers;
+  List<FamilyMemberEntity> get familyMembers => _form.familyMembers;
 
   @override
   void updateStateValue(String? v) {

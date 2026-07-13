@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../../domain/entities/enrollment_enums.dart';
-import '../../../domain/entities/scholarship_form_entity.dart';
+import '../../../domain/entities/family_member_entity.dart';
 
 abstract class NewScholarshipRequestPresenter {
   Stream<String?> get navigationRouteStream;
@@ -42,7 +42,7 @@ abstract class NewScholarshipRequestPresenter {
   ValueListenable<Map<String, String?>> get fieldErrorsListenable;
   ValueListenable<int> get completedStepListenable;
 
-  List<ScholarshipFamilyMemberEntity> get familyMembers;
+  List<FamilyMemberEntity> get familyMembers;
 
   Stream<void> get isLoadingStream;
   Stream<String?> get uiErrorStream;

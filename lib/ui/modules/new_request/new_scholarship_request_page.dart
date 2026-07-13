@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/available_announcement_entity.dart';
-import '../../../domain/entities/scholarship_form_entity.dart';
+import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/helpers/app_constants.dart';
 import '../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
 import '../../../main/factories/usecases/schools/load_school_grades_factory.dart';
@@ -85,13 +85,13 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     _presenter.next();
   }
 
-  String _familyMemberId(ScholarshipFamilyMemberEntity member) =>
-      member.id ?? member.personId ?? member.personCpf ?? member.name ?? '';
+  String _familyMemberId(FamilyMemberEntity member) =>
+      member.id ?? member.id ?? member.personCpf ?? member.name ?? '';
 
-  List<ScholarshipFamilyMemberEntity> _requiredScholarshipCandidates() =>
+  List<FamilyMemberEntity> _requiredScholarshipCandidates() =>
       _presenter.familyMembers.where((m) => m.isCandidate == true).toList();
 
-  List<ScholarshipFamilyMemberEntity> _missingScholarshipCandidates() {
+  List<FamilyMemberEntity> _missingScholarshipCandidates() {
     final addedIds =
         _candidateStepKey.currentState?.addedMemberIds.toSet() ?? {};
     return _requiredScholarshipCandidates()
@@ -121,7 +121,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   }
 
   Future<void> _showMissingCandidatesDialog(
-    List<ScholarshipFamilyMemberEntity> missing,
+    List<FamilyMemberEntity> missing,
   ) async {
     final i18n = AppI18n.current;
 
@@ -372,6 +372,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     }
   }
 
+  // ignore: unused_element
   Widget _buildReactiveStepFooter() {
     if (_currentStep == 1) {
       return ListenableBuilder(
@@ -497,11 +498,20 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         return FamilyStep(
           currentSubStep: _currentSubStep,
           onAddMember: () async {
-            final result = await Navigator.of(context).push<Object?>(
+            final result = await Navigator.of(context)
+                .push(
               MaterialPageRoute(
-                builder: (_) => const MemberRegistrationPage(),
+                builder: (_) => MemberRegistrationPage(
+                  scholarshipId: _presenter.form.id ?? '',
+                  processPeriodId: widget.processPeriodId,
+                ),
               ),
-            );
+            )
+                .then((result) {
+              if (result == kAdvanceToExpensesResult) {
+                _presenter.next();
+              }
+            });
             if (!mounted) return;
             if (result == kAdvanceToExpensesResult) {
               _presenter.goToStep(3);
