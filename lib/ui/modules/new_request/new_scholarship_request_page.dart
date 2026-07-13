@@ -504,6 +504,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                 builder: (_) => MemberRegistrationPage(
                   scholarshipId: _presenter.form.id ?? '',
                   processPeriodId: widget.processPeriodId,
+                  initialFamilyMembers: _presenter.form.familyMembers,
                 ),
               ),
             )

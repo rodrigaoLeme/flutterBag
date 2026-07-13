@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../data/cache/enrollment_draft_storage.dart';
+import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../domain/entities/scholarship_form_entity.dart';
 import '../../../../../domain/usecases/enrollment/save_family_member_usecase.dart';
 import '../../../../../domain/usecases/enrollment/save_step_2_usecase.dart';
@@ -43,11 +44,13 @@ class MemberRegistrationPage extends StatefulWidget {
     this.presenter,
     required this.scholarshipId,
     required this.processPeriodId,
+    required this.initialFamilyMembers,
   });
 
   final MemberRegistrationPresenter? presenter;
   final String scholarshipId;
   final String processPeriodId;
+  final List<FamilyMemberEntity> initialFamilyMembers;
 
   @override
   State<MemberRegistrationPage> createState() => _MemberRegistrationPageState();
@@ -72,6 +75,20 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     if (_presenter is StreamMemberRegistrationPresenter) {
       _subStepSubscription = (_presenter).currentSubStepStream.listen((step) {
         if (mounted) setState(() => _currentSubStep = step);
+      });
+    }
+
+    for (final member in widget.initialFamilyMembers) {
+      _vm.familyMemberEntities.add(member);
+      _vm.addedFamilyMembers.add({
+        'cpf': member.personCpf ?? '',
+        'name': member.name ?? '',
+        'dob': member.personBirthDate != null
+            ? DateFormat('dd/MM/yyyy').format(member.personBirthDate!)
+            : '',
+        'maritalStatus': _maritalStatusLabel(member.maritalStatus),
+        'isScholarshipCandidate': member.isCandidate ?? false,
+        'occupations': member.ocupations.map((o) => o.toJson()).toList(),
       });
     }
   }
