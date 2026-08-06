@@ -64,6 +64,21 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
   MemberRegistrationViewModel get _vm => _presenter.viewModel;
 
+  String _maritalStatusLabel(int maritalStatus) {
+    switch (maritalStatus) {
+      case 1:
+        return 'Solteiro(a)';
+      case 2:
+        return 'Casado(a)';
+      case 3:
+        return 'Divorciado(a)';
+      case 4:
+        return 'Viúvo(a)';
+      default:
+        return '';
+    }
+  }
+
   bool _isSubmitting = false;
 
   @override
@@ -88,7 +103,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
             : '',
         'maritalStatus': _maritalStatusLabel(member.maritalStatus),
         'isScholarshipCandidate': member.isCandidate ?? false,
-        'occupations': member.ocupations.map((o) => o.toJson()).toList(),
+        'occupations': member.occupations.map((o) => o.toJson()).toList(),
       });
     }
   }
@@ -308,7 +323,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
     // envia oara o backend e salva o draft
     if (!mounted) return;
-    _submitStep2;
+    await _submitStep2();
   }
 
   Future<void> _submitStep2() async {

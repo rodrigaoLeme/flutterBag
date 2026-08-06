@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/family_member_entity.dart';
+import '../../../domain/entities/scholarship_form_entity.dart';
 
 abstract class NewScholarshipRequestPresenter {
   Stream<String?> get navigationRouteStream;
@@ -47,6 +48,8 @@ abstract class NewScholarshipRequestPresenter {
   Stream<void> get isLoadingStream;
   Stream<String?> get uiErrorStream;
   Stream<bool> get zipCodeLoadingStream;
+
+  ScholarshipFormEntity get form;
 
   Future<void> lookupZipCode(String cep);
   Future<void> submitStep1();

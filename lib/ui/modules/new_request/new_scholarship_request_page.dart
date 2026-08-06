@@ -86,7 +86,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   }
 
   String _familyMemberId(FamilyMemberEntity member) =>
-      member.id ?? member.id ?? member.personCpf ?? member.name ?? '';
+      member.id ?? member.personCpf ?? '';
 
   List<FamilyMemberEntity> _requiredScholarshipCandidates() =>
       _presenter.familyMembers.where((m) => m.isCandidate == true).toList();
