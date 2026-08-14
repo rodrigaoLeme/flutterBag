@@ -247,40 +247,36 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
       ),
     ];
 
-    return RadioGroup<SchoolTransportType>(
-      groupValue: _schoolTransportType,
-      onChanged: _onSchoolTransportChanged,
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(child: _buildTransportOption(options[0])),
-              Expanded(child: _buildTransportOption(options[1])),
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(child: _buildTransportOption(options[2])),
-              Expanded(child: _buildTransportOption(options[3])),
-            ],
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: _buildTransportOption(options[0])),
+            Expanded(child: _buildTransportOption(options[1])),
+          ],
+        ),
+        Row(
+          children: [
+            Expanded(child: _buildTransportOption(options[2])),
+            Expanded(child: _buildTransportOption(options[3])),
+          ],
+        ),
+      ],
     );
   }
 
   Widget _buildTransportOption(RadioOption<SchoolTransportType> option) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => _onSchoolTransportChanged(option.value),
-      child: Row(
-        children: [
-          Radio<SchoolTransportType>(value: option.value),
-          Expanded(
-            child: Text(option.label, style: AppTextStyles.bodyMedium),
-          ),
-        ],
-      ),
+    return Row(
+      children: [
+        Radio<SchoolTransportType>(
+          value: option.value,
+          groupValue: _schoolTransportType,
+          onChanged: _onSchoolTransportChanged,
+        ),
+        Expanded(
+          child: Text(option.label, style: AppTextStyles.bodyMedium),
+        ),
+      ],
     );
   }
 }

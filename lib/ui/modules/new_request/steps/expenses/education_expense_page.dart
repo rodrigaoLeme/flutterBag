@@ -156,7 +156,7 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
             value ?? hint,
             style: value == null
                 ? AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.onSurface.withValues(alpha: 0.6),
+                    color: AppColors.onSurface.withOpacity(0.6),
                   )
                 : AppTextStyles.bodyMedium,
           ),

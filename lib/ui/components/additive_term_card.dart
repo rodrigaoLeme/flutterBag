@@ -25,7 +25,7 @@ class AdditiveTermCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: AppColors.secondary,
+        color: AppColors.surfaceContainerLow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

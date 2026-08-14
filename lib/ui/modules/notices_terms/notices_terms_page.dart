@@ -6,11 +6,13 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/notice_entity.dart';
 import '../../../domain/entities/school_entity.dart';
+import '../../../domain/helpers/app_constants.dart';
 import '../../../main/factories/pages/notices_terms/notice_document_page_factory.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../components/additive_term_card.dart';
 import '../../components/components.dart';
 import '../../components/notice_card.dart';
+import '../../helpers/app_assets.dart';
 import '../../helpers/themes/app_colors.dart';
 import '../../helpers/themes/app_text_styles.dart';
 import 'notice_document_page.dart';
@@ -74,6 +76,8 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
       _selectedYear != null && _selectedCity != null && _selectedUnit != null;
 
   EducationLevel? _selectedEducationLevel;
+  bool _isEad = false;
+  int _eadSearchToken = 0;
 
   List<SchoolEntity> _currentUnits = [];
 
@@ -94,7 +98,7 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
     });
 
     _noticesSubscription = widget.presenter.noticesStream.listen((notices) {
-      if (!mounted) return;
+      if (!mounted || _isEad) return;
       setState(() {
         _notices = notices;
         _isLoading = false;
@@ -113,22 +117,143 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
     super.dispose();
   }
 
+  String _normalize(String value) => value
+      .toLowerCase()
+      .replaceAll('–', '-')
+      .replaceAll('—', '-')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+
+  bool _matchesEadCity(SchoolEntity school) {
+    final city = _normalize(school.city ?? '');
+    final cityState = _normalize(school.cityState);
+    return city.contains('engenheiro coelho') ||
+        cityState.contains('engenheiro coelho');
+  }
+
+  bool _matchesEadUnit(SchoolEntity school) {
+    final name = _normalize(school.name ?? '');
+    if (name.contains(_normalize(AppConstants.eadUnitLabel))) return true;
+    if (name.contains(_normalize(AppConstants.eadUnitDisplayLabel))) {
+      return true;
+    }
+    if (!name.contains('unasp')) return false;
+    return name.contains('ead') ||
+        RegExp(r'(^|[^a-z])ec([^a-z]|$)').hasMatch(name);
+  }
+
+  ({_NoticeFilterOption city, _NoticeFilterOption unit})? _findEadSchool() {
+    final schools = widget.presenter.allSchools;
+    if (schools.isEmpty) return null;
+
+    final preferred =
+        schools.where((s) => _matchesEadCity(s) && _matchesEadUnit(s)).toList();
+    final matched = preferred.isNotEmpty
+        ? preferred
+        : schools.where(_matchesEadUnit).toList();
+    if (matched.isEmpty) return null;
+
+    final school = matched.first;
+    return (
+      city: _NoticeFilterOption(
+        id: school.cityState,
+        label: school.cityState,
+      ),
+      unit: _NoticeFilterOption(
+        id: school.id,
+        label: school.name ?? AppConstants.eadUnitDisplayLabel,
+      ),
+    );
+  }
+
+  Future<void> _runEadSearch() async {
+    final year = _selectedYear;
+    if (year == null) return;
+
+    final token = ++_eadSearchToken;
+    setState(() {
+      _isLoading = true;
+      _hasAppliedFilters = false;
+      _notices = [];
+      _selectedEducationLevel = EducationLevel.higher;
+    });
+
+    await widget.presenter.loadSchools(year.id);
+    if (!mounted || !_isEad || token != _eadSearchToken) return;
+
+    final match = _findEadSchool();
+    if (match == null) {
+      setState(() {
+        _isLoading = false;
+        _hasAppliedFilters = true;
+        _notices = [];
+      });
+      return;
+    }
+
+    setState(() {
+      _selectedCity = match.city;
+      _selectedUnit = match.unit;
+      _currentUnits = widget.presenter.getUnitsForCity(match.city.id);
+      _units = _currentUnits
+          .map((s) => _NoticeFilterOption(id: s.id, label: s.name ?? ''))
+          .toList();
+    });
+
+    final notices = await widget.presenter.fetchNotices(
+      year: year.id,
+      city: match.city.id.split(' - ').first,
+      schoolId: match.unit.id,
+      educationLevel: EducationLevel.higher,
+    );
+
+    if (!mounted || !_isEad || token != _eadSearchToken) return;
+
+    setState(() {
+      _notices = notices;
+      _isLoading = false;
+      _hasAppliedFilters = true;
+    });
+  }
+
   void _onYearChanged(_NoticeFilterOption? value) {
     setState(() {
       _selectedYear = value;
-      _selectedCity = null;
-      _selectedUnit = null;
+      _schoolsError = null;
       _cities = [];
       _units = [];
-      _schoolsError = null;
+      _currentUnits = [];
+
+      if (_isEad) {
+        _selectedCity = const _NoticeFilterOption(
+          id: AppConstants.eadCityLabel,
+          label: AppConstants.eadCityDisplayLabel,
+        );
+        _selectedUnit = const _NoticeFilterOption(
+          id: AppConstants.eadUnitLabel,
+          label: AppConstants.eadUnitDisplayLabel,
+        );
+        _selectedEducationLevel = EducationLevel.higher;
+      } else {
+        _selectedCity = null;
+        _selectedUnit = null;
+        _selectedEducationLevel = null;
+      }
     });
     _clearResults();
-    if (value != null) {
+
+    if (value == null) return;
+
+    if (_isEad) {
+      _runEadSearch();
+    } else {
       widget.presenter.loadSchools(value.id);
     }
   }
 
   void _onCityChanged(_NoticeFilterOption? value) {
+    if (_isEad) return;
+
     setState(() {
       _selectedCity = value;
       _selectedUnit = null;
@@ -148,7 +273,8 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
   }
 
   void _onUnitChanged(_NoticeFilterOption? value) {
-    print('ID - ${value!.id}');
+    if (_isEad || value == null) return;
+
     setState(() {
       _selectedUnit = value;
       final school = _currentUnits.firstWhere(
@@ -161,19 +287,52 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
     _applyFiltersIfComplete();
   }
 
-  void _applyFilters() {
-    if (_areFiltersComplete) {
+  void _onEadChanged(bool value) {
+    if (value) {
       setState(() {
-        _hasAppliedFilters = true;
-        _isLoading = true;
+        _isEad = true;
+        _selectedEducationLevel = EducationLevel.higher;
+        _selectedCity = const _NoticeFilterOption(
+          id: AppConstants.eadCityLabel,
+          label: AppConstants.eadCityDisplayLabel,
+        );
+        _selectedUnit = const _NoticeFilterOption(
+          id: AppConstants.eadUnitLabel,
+          label: AppConstants.eadUnitDisplayLabel,
+        );
       });
-      widget.presenter.fetchNotices(
-        year: _selectedYear!.id,
-        city: _selectedCity!.id.split(' - ').first,
-        schoolId: _selectedUnit!.id,
-        educationLevel: _selectedEducationLevel,
-      );
+      _clearResults();
+      if (_selectedYear != null) {
+        _runEadSearch();
+      }
+      return;
     }
+
+    _eadSearchToken++;
+    setState(() {
+      _isEad = false;
+      _selectedCity = null;
+      _selectedUnit = null;
+      _selectedEducationLevel = null;
+      _units = [];
+      _currentUnits = [];
+    });
+    _clearResults();
+  }
+
+  void _applyFilters() {
+    if (!_areFiltersComplete || _isEad) return;
+
+    setState(() {
+      _hasAppliedFilters = true;
+      _isLoading = true;
+    });
+    widget.presenter.fetchNotices(
+      year: _selectedYear!.id,
+      city: _selectedCity!.id.split(' - ').first,
+      schoolId: _selectedUnit!.id,
+      educationLevel: _selectedEducationLevel,
+    );
   }
 
   Future<void> _requestLocationPermission() async {
@@ -239,7 +398,7 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
   }
 
   Future<void> _openCitySelector() async {
-    if (_selectedYear == null) return;
+    if (_isEad || _selectedYear == null) return;
     final appStrings = AppI18n.current;
     final selected =
         await SearchableOptionsBottomSheet.show<_NoticeFilterOption>(
@@ -258,7 +417,7 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
   }
 
   Future<void> _openUnitSelector() async {
-    if (_selectedCity == null) return;
+    if (_isEad || _selectedCity == null) return;
     final appStrings = AppI18n.current;
     final selected =
         await SearchableOptionsBottomSheet.show<_NoticeFilterOption>(
@@ -294,7 +453,8 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          enabled: enabled,
+          // Mantém o texto legível quando o campo está bloqueado com valor (EAD).
+          enabled: enabled || value != null,
           suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
         ),
         child: Text(
@@ -367,27 +527,67 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
                 const SizedBox(height: 8),
               ],
 
-              /// CITY FILTER
-              _buildSelectorField(
-                hint: appStrings.noticesTermsSelectCity,
-                value: _selectedCity,
-                enabled: _selectedYear != null &&
-                    _availableCities.isNotEmpty &&
-                    !_isLoadingSchools,
-                onTap: _openCitySelector,
-              ),
+              if (_isEad) ...[
+                OptionCardEAD(
+                  icon: AppIcons.escola,
+                  title: AppConstants.eadCityDisplayLabel,
+                ),
+                const SizedBox(height: 16),
+                OptionCardEAD(
+                  icon: AppIcons.capelo,
+                  title: AppConstants.eadUnitDisplayLabel,
+                ),
+              ] else ...[
+                /// CITY FILTER
+                _buildSelectorField(
+                  hint: appStrings.noticesTermsSelectCity,
+                  value: _selectedCity,
+                  enabled: _selectedYear != null &&
+                      _availableCities.isNotEmpty &&
+                      !_isLoadingSchools,
+                  onTap: _openCitySelector,
+                ),
+                const SizedBox(height: 16),
+
+                /// UNIT FILTER
+                _buildSelectorField(
+                  hint: appStrings.noticesTermsSelectUnit,
+                  value: _selectedUnit,
+                  enabled: _selectedCity != null && _availableUnits.isNotEmpty,
+                  onTap: _openUnitSelector,
+                ),
+              ],
               const SizedBox(height: 16),
 
-              /// UNIT FILTER
-              _buildSelectorField(
-                hint: appStrings.noticesTermsSelectUnit,
-                value: _selectedUnit,
-                enabled: _selectedCity != null && _availableUnits.isNotEmpty,
-                onTap: _openUnitSelector,
+              /// EAD TOGGLE
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      appStrings.noticesTermsEadLabel,
+                      style: AppTextStyles.ebolsaBodyLarge,
+                    ),
+                  ),
+                  Switch(
+                    value: _isEad,
+                    onChanged: _onEadChanged,
+                    activeTrackColor: AppColors.primary,
+                    activeThumbColor: Colors.white,
+                  ),
+                ],
               ),
               const SizedBox(height: 32),
 
-              if (!_areFiltersComplete)
+              if (_isEad && _selectedYear == null)
+                Text(
+                  appStrings.noticesTermsIncompleteFiltersMessage,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w500,
+                  ),
+                )
+              else if (!_areFiltersComplete && !_isEad)
                 Text(
                   appStrings.noticesTermsIncompleteFiltersMessage,
                   style: TextStyle(
@@ -404,13 +604,9 @@ class _NoticesTermsPageState extends State<NoticesTermsPage> {
                   ),
                 )
               else if (_hasAppliedFilters && _notices.isEmpty)
-                Text(
-                  appStrings.noticesTermsNoResultsMessage,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
+                EBolsaWarningBanner(
+                  title: appStrings.noticesTermsNoResultsTitle,
+                  message: appStrings.noticesTermsNoResultsMessage,
                 )
               else if (_hasAppliedFilters)
                 ListView.builder(

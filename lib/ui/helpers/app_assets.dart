@@ -17,6 +17,7 @@ class AppIcons {
   AppIcons._();
 
   static const homeIcon = 'lib/ui/assets/icons/home-icon.svg';
+  static const houseIcon = 'lib/ui/assets/icons/house.svg';
   static const noticeIcon = 'lib/ui/assets/icons/notice-icon.svg';
   static const profileIcon = 'lib/ui/assets/icons/profile-icon.svg';
   static const logoutIcon = 'lib/ui/assets/icons/logout-icon.svg';
@@ -27,8 +28,11 @@ class AppIcons {
   static const arrowRightIconFill =
       'lib/ui/assets/icons/arrow-right-icon-fill.svg';
   static const clock = 'lib/ui/assets/icons/clock.svg';
+  static const calendar = 'lib/ui/assets/icons/calendar.svg';
   static const fileLines = 'lib/ui/assets/icons/file-lines.svg';
   static const graduationCap = 'lib/ui/assets/icons/graduation-cap.svg';
+  static const escola = 'lib/ui/assets/icons/escola.svg';
+  static const capelo = 'lib/ui/assets/icons/capelo.svg';
   static const banIcon = 'lib/ui/assets/icons/ban-icon.svg';
   static const blockedIcon = 'lib/ui/assets/icons/blocked-icon.svg';
   static const checkIcon = 'lib/ui/assets/icons/check-icon.svg';

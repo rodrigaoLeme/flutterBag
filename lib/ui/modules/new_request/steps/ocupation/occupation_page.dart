@@ -127,9 +127,8 @@ class _OccupationPageState extends State<OccupationPage> {
         _incomeController!.text = widget.initialMonthlyIncome!;
       }
       // ensure listeners are attached for pre-populated controllers
-      if (_incomeController != null) {
+      if (_incomeController != null)
         _incomeController!.addListener(() => setState(() {}));
-      }
       if (_detailsViewModel != null) {
         for (final c in _detailsViewModel!.controllers.values) {
           c.addListener(() => setState(() {}));
@@ -153,8 +152,7 @@ class _OccupationPageState extends State<OccupationPage> {
           _detailsViewModel!.controllers.map((k, v) => MapEntry(k, v.text));
       if (_movimentacaoValueController != null &&
           _movimentacaoValueController!.text.trim().isNotEmpty) {
-        details[_movimentacaoValueKey] =
-            _movimentacaoValueController!.text.trim();
+        details[_movimentacaoValueKey] = _movimentacaoValueController!.text.trim();
       }
       result['occupationDetails'] = details;
       result['monthlyIncome'] = _incomeController?.text;
@@ -246,7 +244,7 @@ class _OccupationPageState extends State<OccupationPage> {
                   selectedValue ?? placeholder,
                   style: selectedValue == null
                       ? AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.onSurface.withValues(alpha: 0.6),
+                          color: AppColors.onSurface.withOpacity(0.6),
                         )
                       : AppTextStyles.bodyMedium,
                 ),
@@ -389,42 +387,30 @@ class _OccupationPageState extends State<OccupationPage> {
     required TextEditingController controller,
     ValueChanged<String>? onAnswerChanged,
   }) {
-    final currentValue = controller.text.isEmpty ? null : controller.text;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
         Text(question, style: AppTextStyles.titleSmall),
-        RadioGroup<String>(
-          groupValue: currentValue,
-          onChanged: (v) {
-            setState(() {
-              controller.text = v ?? '';
-              onAnswerChanged?.call(v ?? '');
-            });
-          },
-          child: Row(
-            children: ['Não', 'Sim'].map((label) {
-              return Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
+        Row(
+          children: ['Não', 'Sim'].map((label) {
+            return Expanded(
+              child: ListTile(
+                title: Text(label),
+                leading: Radio<String>(
+                  value: label,
+                  groupValue:
+                      controller.text.isEmpty ? null : controller.text,
+                  onChanged: (v) {
                     setState(() {
-                      controller.text = label;
-                      onAnswerChanged?.call(label);
+                      controller.text = v ?? '';
+                      onAnswerChanged?.call(v ?? '');
                     });
                   },
-                  child: Row(
-                    children: [
-                      Radio<String>(value: label),
-                      Text(label, style: AppTextStyles.bodyMedium),
-                    ],
-                  ),
                 ),
-              );
-            }).toList(),
-          ),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );
@@ -436,9 +422,8 @@ class _OccupationPageState extends State<OccupationPage> {
     if (_selectedOccupation == 'Nenhum') return false;
 
     // if occupation is estudante, require the user to acknowledge the info dialog
-    if (_selectedOccupation == 'Estudante' && !_studentAcknowledged) {
+    if (_selectedOccupation == 'Estudante' && !_studentAcknowledged)
       return false;
-    }
 
     // if there is a detailed view model, require its controllers (fieldHints) to be filled
     if (_detailsViewModel != null) {
@@ -536,8 +521,7 @@ class _OccupationPageState extends State<OccupationPage> {
                           _selectedOccupation ?? 'Selecione o tipo de ocupação',
                           style: _selectedOccupation == null
                               ? AppTextStyles.bodyMedium.copyWith(
-                                  color: AppColors.onSurface
-                                      .withValues(alpha: 0.6),
+                                  color: AppColors.onSurface.withOpacity(0.6),
                                 )
                               : AppTextStyles.bodyMedium,
                         ),
@@ -556,8 +540,9 @@ class _OccupationPageState extends State<OccupationPage> {
                       if (options != null && options.isNotEmpty) {
                         final controller =
                             _detailsViewModel!.controllers[hint]!;
-                        final selectedValue =
-                            controller.text.isNotEmpty ? controller.text : null;
+                        final selectedValue = controller.text.isNotEmpty
+                            ? controller.text
+                            : null;
                         return _buildSearchableSelectorField(
                           label: hint,
                           selectedValue: selectedValue,

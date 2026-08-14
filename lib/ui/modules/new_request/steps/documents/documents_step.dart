@@ -97,7 +97,7 @@ class DocumentsStepState extends State<DocumentsStep> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.warning,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
@@ -113,7 +113,7 @@ class DocumentsStepState extends State<DocumentsStep> {
           GestureDetector(
             onTap: () => setState(() => _showDeadlineBanner = false),
             child: const Icon(
-              Icons.close,
+              Icons.cancel_outlined,
               size: 20,
               color: AppColors.onSurface,
             ),

@@ -5,9 +5,12 @@ import 'package:flutter/material.dart';
 import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/available_announcement_entity.dart';
 import '../../../domain/entities/school_entity.dart';
+import '../../../domain/helpers/app_constants.dart';
 import '../../../main/factories/pages/notices_terms/notice_document_page_factory.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../components/components.dart';
+import '../../helpers/app_assets.dart';
+import '../../helpers/themes/app_colors.dart';
 import '../../helpers/themes/app_text_styles.dart';
 import '../new_request/new_scholarship_request_page.dart';
 import '../notices_terms/notice_document_page.dart';
@@ -57,9 +60,12 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
   List<AvailableAnnouncementEntity> _expiredAnnouncements = [];
 
   bool _isLoadingSchools = false;
+  bool _isLoadingAnnouncements = false;
   String? _schoolsError;
+  bool _isEad = false;
   bool _showExpired = false;
   bool _hasAppliedFilters = false;
+  int _eadSearchToken = 0;
 
   bool get _areFiltersComplete =>
       _selectedCity != null && _selectedUnit != null;
@@ -79,11 +85,12 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
 
     _announcementsSubscription =
         widget.presenter.announcementsStream.listen((announcements) {
-      if (!mounted) return;
+      if (!mounted || _isEad) return;
       setState(() {
         _activeAnnouncements = announcements.where((a) => a.isActive).toList();
         _expiredAnnouncements =
             announcements.where((a) => !a.isActive).toList();
+        _isLoadingAnnouncements = false;
       });
     });
 
@@ -98,7 +105,131 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
     super.dispose();
   }
 
+  String _normalize(String value) => value
+      .toLowerCase()
+      .replaceAll('–', '-')
+      .replaceAll('—', '-')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+
+  bool _matchesEadCity(SchoolEntity school) {
+    final city = _normalize(school.city ?? '');
+    final cityState = _normalize(school.cityState);
+    return city.contains('engenheiro coelho') ||
+        cityState.contains('engenheiro coelho');
+  }
+
+  bool _matchesEadUnit(SchoolEntity school) {
+    final name = _normalize(school.name ?? '');
+    if (name.contains(_normalize(AppConstants.eadUnitLabel))) return true;
+    if (name.contains(_normalize(AppConstants.eadUnitDisplayLabel))) {
+      return true;
+    }
+    if (!name.contains('unasp')) return false;
+    return name.contains('ead') ||
+        RegExp(r'(^|[^a-z])ec([^a-z]|$)').hasMatch(name);
+  }
+
+  ({_FilterOption city, _FilterOption unit})? _findEadSchool() {
+    final schools = widget.presenter.allSchools;
+    if (schools.isEmpty) return null;
+
+    final preferred =
+        schools.where((s) => _matchesEadCity(s) && _matchesEadUnit(s)).toList();
+    final matched = preferred.isNotEmpty
+        ? preferred
+        : schools.where(_matchesEadUnit).toList();
+    if (matched.isEmpty) return null;
+
+    final school = matched.first;
+    return (
+      city: _FilterOption(id: school.cityState, label: school.cityState),
+      unit: _FilterOption(
+        id: school.id,
+        label: school.name ?? AppConstants.eadUnitDisplayLabel,
+      ),
+    );
+  }
+
+  Future<void> _runEadSearch() async {
+    final token = ++_eadSearchToken;
+    setState(() {
+      _isLoadingAnnouncements = true;
+      _hasAppliedFilters = false;
+      _activeAnnouncements = [];
+      _expiredAnnouncements = [];
+      _selectedEducationLevel = EducationLevel.higher;
+    });
+
+    if (widget.presenter.allSchools.isEmpty) {
+      await widget.presenter.loadSchools(widget.lockedYear.toString());
+    }
+    if (!mounted || !_isEad || token != _eadSearchToken) return;
+
+    final match = _findEadSchool();
+    if (match == null) {
+      setState(() {
+        _isLoadingAnnouncements = false;
+        _hasAppliedFilters = true;
+        _activeAnnouncements = [];
+        _expiredAnnouncements = [];
+      });
+      return;
+    }
+
+    setState(() {
+      _selectedCity = match.city;
+      _selectedUnit = match.unit;
+      _currentUnits = widget.presenter.getUnitsForCity(match.city.id);
+      _units = _currentUnits
+          .map((s) => _FilterOption(id: s.id, label: s.name ?? ''))
+          .toList();
+    });
+
+    final announcements = await widget.presenter.fetchAnnouncements(
+      year: widget.lockedYear.toString(),
+      city: match.city.id.split(' - ').first,
+      schoolId: match.unit.id,
+      educationLevel: EducationLevel.higher,
+    );
+
+    if (!mounted || !_isEad || token != _eadSearchToken) return;
+
+    setState(() {
+      _activeAnnouncements = announcements.where((a) => a.isActive).toList();
+      _expiredAnnouncements = announcements.where((a) => !a.isActive).toList();
+      _isLoadingAnnouncements = false;
+      _hasAppliedFilters = true;
+    });
+  }
+
+  void _onEadChanged(bool value) {
+    if (value) {
+      setState(() {
+        _isEad = true;
+        _selectedEducationLevel = EducationLevel.higher;
+      });
+      _clearResults();
+      _runEadSearch();
+      return;
+    }
+
+    _eadSearchToken++;
+    setState(() {
+      _isEad = false;
+      _selectedCity = null;
+      _selectedUnit = null;
+      _selectedEducationLevel = null;
+      _units = [];
+      _currentUnits = [];
+      _isLoadingAnnouncements = false;
+    });
+    _clearResults();
+  }
+
   void _onCityChange(_FilterOption? value) {
+    if (_isEad) return;
+
     setState(() {
       _selectedCity = value;
       _selectedUnit = null;
@@ -119,15 +250,15 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
   }
 
   void _onUnitChanged(_FilterOption? value) {
+    if (_isEad || value == null) return;
+
     setState(() {
       _selectedUnit = value;
-      if (value != null) {
-        final school = _currentUnits.firstWhere(
-          (s) => s.id == value.id,
-          orElse: () => _currentUnits.first,
-        );
-        _selectedEducationLevel = school.educationLevel;
-      }
+      final school = _currentUnits.firstWhere(
+        (s) => s.id == value.id,
+        orElse: () => _currentUnits.first,
+      );
+      _selectedEducationLevel = school.educationLevel;
     });
     _clearResults();
     _applyIfComplete();
@@ -143,18 +274,22 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
   }
 
   void _applyIfComplete() {
-    if (_areFiltersComplete) {
+    if (!_areFiltersComplete || _isEad) return;
+
+    setState(() {
       _hasAppliedFilters = true;
-      widget.presenter.fetchAnnouncements(
-        year: widget.lockedYear.toString(),
-        city: _selectedCity!.id.split(' - ').first,
-        schoolId: _selectedUnit!.id,
-        educationLevel: _selectedEducationLevel,
-      );
-    }
+      _isLoadingAnnouncements = true;
+    });
+    widget.presenter.fetchAnnouncements(
+      year: widget.lockedYear.toString(),
+      city: _selectedCity!.id.split(' - ').first,
+      schoolId: _selectedUnit!.id,
+      educationLevel: _selectedEducationLevel,
+    );
   }
 
   Future<void> _openCitySelector() async {
+    if (_isEad) return;
     final appStrings = AppI18n.current;
     final selected = await SearchableOptionsBottomSheet.show<_FilterOption>(
       context: context,
@@ -172,7 +307,7 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
   }
 
   Future<void> _openUnitSelector() async {
-    if (_selectedCity == null) return;
+    if (_isEad || _selectedCity == null) return;
     final appStrings = AppI18n.current;
     final selected = await SearchableOptionsBottomSheet.show<_FilterOption>(
       context: context,
@@ -277,36 +412,20 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              appStrings.newScholarshipSubtitle,
+              appStrings.noticesTermsTitle,
               style: AppTextStyles.ebolsaHeadlineSmall,
             ),
-            const SizedBox(
-              height: 8,
-            ),
+            const SizedBox(height: 8),
             Text(
-              appStrings.newScholarshipDescription,
+              appStrings.noticesTermsDescription,
               style: AppTextStyles.ebolsaBodyMedium,
             ),
-            const SizedBox(
-              height: 40,
+            const SizedBox(height: 24),
+            OptionCardEAD(
+              icon: AppIcons.calendar,
+              title: widget.lockedYear.toString(),
             ),
-
-            // Ano
-            InputDecorator(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                enabled: false,
-              ),
-              child: Text(
-                widget.lockedYear.toString(),
-                style: AppTextStyles.ebolsaBodyLarge,
-              ),
-            ),
-            const SizedBox(
-              height: 24,
-            ),
+            const SizedBox(height: 16),
 
             if (_schoolsError != null)
               Padding(
@@ -314,57 +433,90 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
                 child: EbolsaErrorBanner(message: _schoolsError!),
               ),
 
-            // Cidade
-            _buildSelectorField(
-              hint: appStrings.noticesTermsSelectCity,
-              value: _selectedCity,
-              enabled: _cities.isNotEmpty && !_isLoadingSchools,
-              onTap: _openCitySelector,
-            ),
-            const SizedBox(
-              height: 24,
-            ),
-
-            // Unidade Escolar
-            _buildSelectorField(
-              hint: appStrings.noticesTermsSelectUnit,
-              value: _selectedUnit,
-              enabled: _units.isNotEmpty,
-              onTap: _openUnitSelector,
-            ),
-            const SizedBox(
-              height: 8,
-            ),
-
-            // Switch para exibir expirados
-            if (_hasAppliedFilters && _expiredAnnouncements.isNotEmpty)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    appStrings.newScholarshipShowExpired,
-                    style: AppTextStyles.ebolsaBodyMedium,
-                  ),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  Switch(
-                    value: _showExpired,
-                    onChanged: (v) => setState(() => _showExpired = v),
-                  ),
-                ],
+            if (_isEad) ...[
+              OptionCardEAD(
+                icon: AppIcons.escola,
+                title: AppConstants.eadCityDisplayLabel,
               ),
-            const SizedBox(
-              height: 8,
+              const SizedBox(height: 16),
+              OptionCardEAD(
+                icon: AppIcons.capelo,
+                title: AppConstants.eadUnitDisplayLabel,
+              ),
+            ] else ...[
+              _buildSelectorField(
+                hint: appStrings.noticesTermsSelectCity,
+                value: _selectedCity,
+                enabled: _cities.isNotEmpty && !_isLoadingSchools,
+                onTap: _openCitySelector,
+              ),
+              const SizedBox(height: 16),
+              _buildSelectorField(
+                hint: appStrings.noticesTermsSelectUnit,
+                value: _selectedUnit,
+                enabled: _units.isNotEmpty,
+                onTap: _openUnitSelector,
+              ),
+            ],
+            const SizedBox(height: 16),
+
+            /// EAD TOGGLE
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    appStrings.noticesTermsEadLabel,
+                    style: AppTextStyles.ebolsaBodyLarge,
+                  ),
+                ),
+                Switch(
+                  value: _isEad,
+                  onChanged: _onEadChanged,
+                  activeTrackColor: AppColors.primary,
+                  activeThumbColor: Colors.white,
+                ),
+              ],
             ),
+
+            /// EXIBIR ENCERRADOS TOGGLE
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    appStrings.newScholarshipShowExpired,
+                    style: AppTextStyles.ebolsaBodyLarge,
+                  ),
+                ),
+                Switch(
+                  value: _showExpired,
+                  onChanged: (v) => setState(() => _showExpired = v),
+                  activeTrackColor: AppColors.primary,
+                  activeThumbColor: Colors.white,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
 
             // Cards
-            if (_hasAppliedFilters && displayList.isEmpty)
+            if (_isLoadingAnnouncements)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else if (_hasAppliedFilters && displayList.isEmpty)
               EBolsaWarningBanner(
                 title: appStrings.noticesTermsNoResultsTitle,
-                message: appStrings.noticesTermsNoResultsMessage,
+                message: _isEad
+                    ? appStrings.newScholarshipEadNoResultsMessage(
+                        year: widget.lockedYear.toString(),
+                        city: AppConstants.eadCityDisplayLabel,
+                        unit: AppConstants.eadUnitDisplayLabel,
+                      )
+                    : appStrings.noticesTermsNoResultsMessage,
               )
-            else
+            else if (_hasAppliedFilters)
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),

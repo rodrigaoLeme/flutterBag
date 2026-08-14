@@ -10,7 +10,8 @@ abstract class NewScholarshipPresenter {
   void loadInitialData(int lockedYear);
   Future<void> loadSchools(String year);
   List<SchoolEntity> getUnitsForCity(String cityState);
-  Future<void> fetchAnnouncements({
+  List<SchoolEntity> get allSchools;
+  Future<List<AvailableAnnouncementEntity>> fetchAnnouncements({
     required String year,
     required String city,
     required String schoolId,

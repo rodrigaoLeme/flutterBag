@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import '../share/session_events.dart';
@@ -47,14 +46,6 @@ class _AppState extends State<App> {
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
       routerConfig: Modular.routerConfig,
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: [
-        const Locale('pt', 'BR'),
-      ],
     );
   }
 }

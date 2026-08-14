@@ -1,16 +1,23 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../domain/entities/available_announcement_entity.dart';
-import '../../../domain/entities/family_member_entity.dart';
+import '../../../domain/entities/scholarship_form_entity.dart';
 import '../../../domain/helpers/app_constants.dart';
 import '../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
 import '../../../main/factories/usecases/schools/load_school_grades_factory.dart';
 import '../../../main/i18n/app_i18n.dart';
+import '../../../main/routes/routes.dart';
 import '../../components/components.dart';
+import '../../helpers/app_assets.dart';
 import '../../helpers/themes/themes.dart';
+import 'dev_navigation_overrides.dart';
 import 'new_scholarship_request_presenter.dart';
 import 'steps/candidate/candidate_add_page.dart';
 import 'steps/candidate/candidate_step.dart';
+import 'steps/documents/document_group_detail_page.dart';
 import 'steps/documents/document_group_item.dart';
 import 'steps/documents/documents_step.dart';
 import 'steps/expenses/expenses_step.dart';
@@ -41,7 +48,6 @@ class NewScholarshipRequestPage extends StatefulWidget {
 class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   int _currentStep = 1;
   int _currentSubStep = 0;
-  bool _isInitializing = true;
 
   late final NewScholarshipRequestPresenter _presenter;
   final GlobalKey<ExpensesStepState> _expensesStepKey =
@@ -55,18 +61,32 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
 
   static const int _totalSteps = 5;
 
+  // ---------------------------------------------------------------------------
+  // TODO(dev): ATALHO TEMPORÁRIO — documente/remova ao finalizar a tela Documentos
+  // true  => no hot restart, abre direto na etapa 5 (Documentos)
+  // false => fluxo normal (começar na etapa 1)
+  // Só vale em debug (kDebugMode); release/prod ignoram.
+  // ---------------------------------------------------------------------------
+  static const bool _kDebugJumpToDocumentsStep = true;
+
   @override
   void initState() {
     super.initState();
     _presenter = widget.presenter ??
         makeNewRequestPresenter(processPeriodId: widget.processPeriodId);
     _presenter.stepSubSteps;
-    _presenter.currentStepStream.listen((s) => setState(() {
-          _currentStep = s;
-          _isInitializing = false;
-        }));
+    _presenter.currentStepStream
+        .listen((s) => setState(() => _currentStep = s));
     _presenter.currentSubStepStream
         .listen((s) => setState(() => _currentSubStep = s));
+
+    // TODO(dev): remover junto com `_kDebugJumpToDocumentsStep` acima
+    if (kDebugMode && _kDebugJumpToDocumentsStep) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _presenter.goToStep(5);
+      });
+    }
   }
 
   void _goToStep(int step) {
@@ -74,6 +94,11 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   }
 
   void _handleNext() {
+    if (DevNavigationOverrides.allowAdvanceWithoutFill) {
+      _presenter.next();
+      return;
+    }
+
     if (_currentStep == 3 &&
         !_expensesStepKey.currentState!.validateCurrentSubStep()) {
       return;
@@ -85,13 +110,13 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     _presenter.next();
   }
 
-  String _familyMemberId(FamilyMemberEntity member) =>
-      member.id ?? member.personCpf ?? '';
+  String _familyMemberId(ScholarshipFamilyMemberEntity member) =>
+      member.id ?? member.personId ?? member.personCpf ?? member.name ?? '';
 
-  List<FamilyMemberEntity> _requiredScholarshipCandidates() =>
+  List<ScholarshipFamilyMemberEntity> _requiredScholarshipCandidates() =>
       _presenter.familyMembers.where((m) => m.isCandidate == true).toList();
 
-  List<FamilyMemberEntity> _missingScholarshipCandidates() {
+  List<ScholarshipFamilyMemberEntity> _missingScholarshipCandidates() {
     final addedIds =
         _candidateStepKey.currentState?.addedMemberIds.toSet() ?? {};
     return _requiredScholarshipCandidates()
@@ -121,7 +146,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   }
 
   Future<void> _showMissingCandidatesDialog(
-    List<FamilyMemberEntity> missing,
+    List<ScholarshipFamilyMemberEntity> missing,
   ) async {
     final i18n = AppI18n.current;
 
@@ -249,9 +274,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     final candidateIds = <String>{};
 
     for (final candidate in candidates) {
-      final id = candidate['familyMemberId']?.toString() ??
-          candidate['name']?.toString() ??
-          '';
+      final id =
+          candidate['familyMemberId']?.toString() ?? candidate['name']?.toString() ?? '';
       candidateIds.add(id);
       groups.add(
         DocumentGroupItem(
@@ -325,12 +349,112 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
 
   DateTime? get _submissionDeadline => DateTime(2026, 4, 1);
 
+  String? get _formattedSubmissionDeadline {
+    final deadline = _submissionDeadline;
+    if (deadline == null) return null;
+
+    final day = deadline.day.toString().padLeft(2, '0');
+    final month = deadline.month.toString().padLeft(2, '0');
+    return '$day/$month/${deadline.year}';
+  }
+
   void _sendAllDocuments() {
     // TODO: integrar envio de documentos com API
   }
 
-  Future<void> _openCandidateAddPage(
-      {Map<String, dynamic>? initialData}) async {
+  Future<void> _confirmDocumentsBack() async {
+    final i18n = AppI18n.current;
+
+    await EbolsaDialogWithCancel.show(
+      context: context,
+      title: i18n.familyConfirmDialogTitle,
+      description:
+          '${i18n.documentsBackDialogBody}\n\n${i18n.documentsBackDialogQuestion}',
+      actions: [
+        EbolsaDialogAction(
+          label: i18n.answerNo,
+          onPressed: () {},
+        ),
+        EbolsaDialogAction(
+          label: i18n.documentsBackDialogConfirm,
+          isDanger: true,
+          onPressed: _presenter.previous,
+        ),
+      ],
+    );
+  }
+
+  Future<void> _confirmDocumentsGoHome() async {
+    final i18n = AppI18n.current;
+    final deadline = _formattedSubmissionDeadline;
+    if (deadline == null) return;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.backgroundLight,
+        title: Text(
+          i18n.familyConfirmDialogTitle,
+          style: AppTextStyles.titleLarge,
+        ),
+        content: Text.rich(
+          TextSpan(
+            style: AppTextStyles.bodyMedium,
+            children: [
+              TextSpan(text: i18n.documentsHomeDialogBodyPrefix),
+              TextSpan(
+                text: deadline,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              TextSpan(text: i18n.documentsHomeDialogBodySuffix),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Modular.to.navigate(Routes.home);
+            },
+            child: Text(
+              i18n.documentsHomeDialogConfirm,
+              style: AppTextStyles.m3LabelLarge.copyWith(
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onAppBarBackPressed() {
+    if (_currentStep == 5) {
+      _confirmDocumentsBack();
+      return;
+    }
+    Navigator.of(context).pop();
+  }
+
+  Future<void> _openDocumentGroupDetail(DocumentGroupItem group) async {
+    final groups = _buildDocumentGroups();
+    final index = groups.indexWhere((item) => item.id == group.id);
+    if (index < 0) return;
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => DocumentGroupDetailPage(
+          groups: groups,
+          initialIndex: index,
+          submissionDeadline: _submissionDeadline,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openCandidateAddPage({Map<String, dynamic>? initialData}) async {
     final result = await Navigator.of(context).push<Map<String, dynamic>?>(
       MaterialPageRoute(
         builder: (_) => CandidateAddPage(
@@ -338,7 +462,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           announcementSchools: widget.announcementSchools,
           processYear: _processYear,
           loadSchoolGradesUsecase: makeRemoteLoadSchoolGrades(),
-          excludedMemberIds: _candidateStepKey.currentState?.addedMemberIds
+          excludedMemberIds: _candidateStepKey.currentState
+                  ?.addedMemberIds
                   .where(
                     (id) => id != initialData?['familyMemberId']?.toString(),
                   )
@@ -361,18 +486,18 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   }
 
   bool _canAdvanceCurrentStep() {
+    if (DevNavigationOverrides.allowAdvanceWithoutFill) return true;
+
     switch (_currentStep) {
       case 1:
         return _presenter.isStep1Complete();
       case 3:
-        return _expensesStepKey.currentState?.canAdvanceCurrentSubStep() ??
-            false;
+        return _expensesStepKey.currentState?.canAdvanceCurrentSubStep() ?? false;
       default:
         return true;
     }
   }
 
-  // ignore: unused_element
   Widget _buildReactiveStepFooter() {
     if (_currentStep == 1) {
       return ListenableBuilder(
@@ -400,9 +525,34 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
 
       return Padding(
         padding: const EdgeInsets.all(16),
-        child: EbolsaButton(
-          onPressed: canSend ? _sendAllDocuments : null,
-          label: AppI18n.current.documentsSendAllAction,
+        child: Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: _confirmDocumentsBack,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 48),
+                  side: const BorderSide(color: Color(0xFFB9BDC6)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                ),
+                child: Text(
+                  'Voltar',
+                  style: AppTextStyles.labelLarge.copyWith(
+                    color: AppColors.onSurface,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: EbolsaButton(
+                onPressed: canSend ? _sendAllDocuments : null,
+                label: AppI18n.current.documentsSendAllAction,
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -498,21 +648,11 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         return FamilyStep(
           currentSubStep: _currentSubStep,
           onAddMember: () async {
-            final result = await Navigator.of(context)
-                .push(
+            final result = await Navigator.of(context).push<Object?>(
               MaterialPageRoute(
-                builder: (_) => MemberRegistrationPage(
-                  scholarshipId: _presenter.form.id ?? '',
-                  processPeriodId: widget.processPeriodId,
-                  initialFamilyMembers: _presenter.form.familyMembers,
-                ),
+                builder: (_) => const MemberRegistrationPage(),
               ),
-            )
-                .then((result) {
-              if (result == kAdvanceToExpensesResult) {
-                _presenter.next();
-              }
-            });
+            );
             if (!mounted) return;
             if (result == kAdvanceToExpensesResult) {
               _presenter.goToStep(3);
@@ -546,6 +686,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           key: _documentsStepKey,
           groups: _buildDocumentGroups(),
           submissionDeadline: _submissionDeadline,
+          onGroupTap: _openDocumentGroupDetail,
         );
 
       default:
@@ -555,63 +696,79 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDocumentsStep = _currentStep == 5;
+
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
           color: Colors.white,
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: _onAppBarBackPressed,
         ),
-        title: Text(AppI18n.current.newProcess),
+        title: Text(
+          isDocumentsStep
+              ? AppI18n.current.documentsStepTitle
+              : AppI18n.current.newProcess,
+        ),
         centerTitle: true,
-      ),
-      body: _isInitializing
-          ? const Center(child: CircularProgressIndicator())
-          : SafeArea(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    child: ValueListenableBuilder<int>(
-                        valueListenable: _presenter.completedStepListenable,
-                        builder: (context, completedStep, _) {
-                          return ScholarshipStepIndicator(
-                            currentStep: _currentStep,
-                            completedStep: completedStep,
-                            onStepTap: _goToStep,
-                          );
-                        }),
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: _buildCurrentStep(),
-                    ),
-                  ),
-                  StreamBuilder<String?>(
-                    stream: _presenter.uiErrorStream,
-                    builder: (context, snapshot) {
-                      if (snapshot.data != null) {
-                        return Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                          child: EbolsaErrorBanner(message: snapshot.data!),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                  Visibility(
-                    visible: !(_currentStep == 2 && _currentSubStep == 1),
-                    child: _buildStepFooter(),
-                  ),
-                ],
+        actions: [
+          if (isDocumentsStep)
+            IconButton(
+              onPressed: _confirmDocumentsGoHome,
+              icon: SvgPicture.asset(
+                AppIcons.houseIcon,
+                width: 24,
+                height: 24,
+                color: Colors.white,
               ),
             ),
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+              child: ValueListenableBuilder<int>(
+                  valueListenable: _presenter.completedStepListenable,
+                  builder: (context, completedStep, _) {
+                    return ScholarshipStepIndicator(
+                      currentStep: _currentStep,
+                      completedStep: completedStep,
+                      onStepTap: _goToStep,
+                    );
+                  }),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: _buildCurrentStep(),
+              ),
+            ),
+            StreamBuilder<String?>(
+              stream: _presenter.uiErrorStream,
+              builder: (context, snapshot) {
+                if (snapshot.data != null) {
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    child: EbolsaErrorBanner(message: snapshot.data!),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+            Visibility(
+              visible: !(_currentStep == 2 && _currentSubStep == 1),
+              child: _buildReactiveStepFooter(),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

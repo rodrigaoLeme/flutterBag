@@ -30,8 +30,7 @@ class RemoteScholarshipModel {
       RemoteScholarshipModel(
         id: json['id'] as String,
         academicYear: json['academicYear'] as int,
-        // lógica para adaptar currentStep null em 0 e add + 1
-        currentStep: (json['currentStep'] as int? ?? 0) + 1,
+        currentStep: json['currentStep'] as int?,
         completedStep: json['completedStep'] as int?,
         finisheOnUtc: json['finisheOnUtc'] != null
             ? DateTime.tryParse(json['finisheOnUtc'] as String)

@@ -69,4 +69,5 @@ class AppColors {
   static const Color surfaceCl = Color(0xFF64748B);
   static const Color surfaceContainer = Color(0xFF0C78DE);
   static const Color lightSurface = Color(0xFFF9F9FF);
+  static const Color onSurfaceLight = Color(0xFFF0F0F7);
 }

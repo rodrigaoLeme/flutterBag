@@ -21,7 +21,7 @@ class EBolsaWarningBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.warning,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         children: [
@@ -42,7 +42,7 @@ class EBolsaWarningBanner extends StatelessWidget {
                 ),
                 Text(
                   message,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.onErrorContainer),
                 ),
               ],

@@ -89,7 +89,10 @@ class StreamNewScholarshipPresenter implements NewScholarshipPresenter {
   }
 
   @override
-  Future<void> fetchAnnouncements({
+  List<SchoolEntity> get allSchools => List.unmodifiable(_cachedSchools);
+
+  @override
+  Future<List<AvailableAnnouncementEntity>> fetchAnnouncements({
     required String year,
     required String city,
     required String schoolId,
@@ -108,10 +111,12 @@ class StreamNewScholarshipPresenter implements NewScholarshipPresenter {
       if (!_announcementsController.isClosed) {
         _announcementsController.add(announcements);
       }
+      return announcements;
     } on LoadAvailableAnnouncementsException catch (_) {
       if (!_announcementsController.isClosed) {
         _announcementsController.add([]);
       }
+      return [];
     }
   }
 

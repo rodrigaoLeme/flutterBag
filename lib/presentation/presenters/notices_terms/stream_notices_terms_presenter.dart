@@ -102,7 +102,10 @@ class StreamNoticesTermsPresenter implements NoticesTermsPresenter {
   }
 
   @override
-  Future<void> fetchNotices({
+  List<SchoolEntity> get allSchools => List.unmodifiable(_cachedSchools);
+
+  @override
+  Future<List<NoticeEntity>> fetchNotices({
     required String year,
     required String city,
     required String schoolId,
@@ -120,10 +123,12 @@ class StreamNoticesTermsPresenter implements NoticesTermsPresenter {
       if (!_noticesController.isClosed) {
         _noticesController.add(notices);
       }
+      return notices;
     } on LoadAnnouncementsException catch (_) {
       if (!_noticesController.isClosed) {
         _noticesController.add([]);
       }
+      return [];
     }
   }
 

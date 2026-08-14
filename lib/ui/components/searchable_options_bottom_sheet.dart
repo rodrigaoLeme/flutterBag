@@ -23,6 +23,7 @@ class SearchableOptionsBottomSheet {
     final selected = await showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -47,7 +48,7 @@ class SearchableOptionsBottomSheet {
 
 class _SearchableOptionsContent<T> extends StatefulWidget {
   const _SearchableOptionsContent({
-    super.key,
+    Key? key,
     required this.title,
     required this.options,
     required this.searchHint,
@@ -57,7 +58,7 @@ class _SearchableOptionsContent<T> extends StatefulWidget {
     this.selectedValue,
     required this.resolveLabel,
     required this.resolveSearchText,
-  });
+  }) : super(key: key);
 
   final String title;
   final List<T> options;
@@ -107,7 +108,7 @@ class _SearchableOptionsContentState<T>
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
-    var availableHeight = media.size.height * 0.72 - media.viewInsets.bottom;
+    var availableHeight = media.size.height * 0.65 - media.viewInsets.bottom;
     if (availableHeight < 200) availableHeight = media.size.height * 0.5;
 
     return SafeArea(
@@ -179,15 +180,15 @@ class _SearchableOptionsContentState<T>
                   hintText: widget.searchHint,
                   prefixIcon: const Icon(Icons.search),
                   filled: true,
-                  fillColor: Colors.grey.shade100,
+                  fillColor: AppColors.backgroundLight,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(50),
                     borderSide: const BorderSide(
-                      color: AppColors.primary,
+                      color: Color.fromARGB(255, 208, 209, 214),
                       width: 1.2,
                     ),
                   ),
@@ -216,7 +217,10 @@ class _SearchableOptionsContentState<T>
                     : ListView.separated(
                         padding: const EdgeInsets.only(top: 4),
                         itemCount: filteredOptions.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
+                        separatorBuilder: (_, __) => const Divider(
+                          height: 1,
+                          color: Color.fromARGB(255, 208, 209, 214),
+                        ),
                         itemBuilder: (context, index) {
                           final item = filteredOptions[index];
                           final isSelected = item == widget.selectedValue;

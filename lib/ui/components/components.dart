@@ -18,4 +18,5 @@ export 'ebolsa_text_button.dart';
 export 'ebolsa_text_field.dart';
 export 'ebolsa_warning_banner.dart';
 export 'ebolsa_year_selector.dart';
+export 'option_card_ead.dart';
 export 'searchable_options_bottom_sheet.dart';

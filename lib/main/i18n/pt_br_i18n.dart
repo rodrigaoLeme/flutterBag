@@ -30,6 +30,14 @@ class PtBrI18n implements AppI18n {
   String get newScholarshipDialogCancel => 'Cancelar';
 
   @override
+  String newScholarshipEadNoResultsMessage({
+    required String year,
+    required String city,
+    required String unit,
+  }) =>
+      'Não existem editais e/ou períodos de inscrições abertos para o ano letivo de $year para a cidade de $city e unidade $unit.';
+
+  @override
   String get finishAction => 'Finalizar';
 
   // Steps - Erros de domínio
@@ -456,6 +464,9 @@ class PtBrI18n implements AppI18n {
 
   @override
   String get noticesTermsSelectUnit => 'Selecione a unidade';
+
+  @override
+  String get noticesTermsEadLabel => 'EAD - Ensino Superior';
 
   @override
   String get noticesTermsIncompleteFiltersMessage =>
@@ -1469,7 +1480,100 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
       '$uploaded de $total';
 
   @override
-  String get documentsSendAllAction => 'Enviar todos os documentos';
+  String get documentsSendAllAction => 'Enviar Documentos';
+
+  @override
+  String get documentsBackDialogBody =>
+      'Existem documentos enviados, caso opte por voltar, todos os documentos já enviados até o momento serão removidos, sendo necessário reenviá-los.';
+
+  @override
+  String get documentsBackDialogQuestion => 'Tem certeza que deseja voltar?';
+
+  @override
+  String get documentsBackDialogConfirm => 'Sim, estou ciente.';
+
+  @override
+  String get documentsHomeDialogBodyPrefix =>
+      'É crucial que você finalize seu processo até o dia ';
+
+  @override
+  String get documentsHomeDialogBodySuffix =>
+      ', caso contrário seu processo será desclassificado.';
+
+  @override
+  String get documentsHomeDialogConfirm => 'Ok, estou ciente.';
+
+  @override
+  String get documentSendAction => 'Enviar';
+
+  @override
+  String get documentsBackToDocumentsAction => 'Voltar para Tela de Documentos';
+
+  @override
+  String get documentAddressProofLabel => 'Comprovante de Endereço';
+
+  @override
+  String get documentPhoneInternetProofLabel =>
+      'Comprovante de Telefone, Internet ou Celular';
+
+  @override
+  String get documentPublicTransportProofLabel =>
+      'Comprovante de Transporte Público';
+
+  @override
+  String get documentWaterBillLabel => 'Conta de Água';
+
+  @override
+  String get documentElectricityBillLabel => 'Conta de Energia Elétrica';
+
+  @override
+  String get documentRentedPropertyDeclarationLabel =>
+      'Declaração Imóvel Alugado';
+
+  @override
+  String get documentProofSubmitAppBarTitle => 'Envio de Comprovante';
+
+  @override
+  String get documentAddressProofDescription =>
+      'Envie um dos documentos abaixo que esteja em nome de algum membro do grupo familiar referente ao último mês.';
+
+  @override
+  String get documentTypeSelectorPlaceholder =>
+      'Selecione um tipo de documento';
+
+  @override
+  String get documentTypeSelectorTitle => 'Tipo de documento';
+
+  @override
+  String get documentTypeInternet => 'Internet';
+
+  @override
+  String get documentTypeElectricity => 'Energia Elétrica';
+
+  @override
+  String get documentTypeCableTv => 'TV a Cabo';
+
+  @override
+  String get documentTypePipedGas => 'Gás Encanado';
+
+  @override
+  String get documentTypeWaterLastMonth => 'Água do último mês';
+
+  @override
+  String get documentTypeLandline => 'Telefone Fixo';
+
+  @override
+  String get documentProofElectricityValueLabel => 'Valor energia elétrica';
+
+  @override
+  String get documentProofValueLabel => 'Valor';
+
+  @override
+  String get documentProofPermissionDialogBody =>
+      'Para enviar o comprovante, permita o acesso à câmera e aos arquivos do dispositivo.';
+
+  @override
+  String get documentProofPermissionSettingsAction => 'Abrir configurações';
 
   @override
   String get concludeAction => 'Concluir';

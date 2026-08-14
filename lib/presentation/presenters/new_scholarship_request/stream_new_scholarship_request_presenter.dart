@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../../data/cache/enrollment_draft_storage.dart';
 import '../../../domain/entities/enrollment_enums.dart';
-import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/entities/housing_entity.dart';
 import '../../../domain/entities/scholarship_form_entity.dart';
 import '../../../domain/usecases/enrollment/load_scholarship_form_usecase.dart';
@@ -35,6 +34,8 @@ class StreamNewScholarshipRequestPresenter
     required this.loadScholarshipFormUsecase,
     required this.draftStorage,
   }) {
+    _currentStepController.add(_currentStep);
+    _currentStepController.add(_currentSubStep);
     _syncControllersToNotifiers();
     _initForm();
   }
@@ -111,18 +112,7 @@ class StreamNewScholarshipRequestPresenter
       _form = ScholarshipFormEntity.toJson(localDraft);
       _completedStepNotifier.value = _form.completedStep;
       _populateControllersFromForm(_form);
-
-      try {
-        final remoteForm =
-            await loadScholarshipFormUsecase.load(processPeriodId);
-        final stepToNavigate = remoteForm?.currentStep ?? _form.currentStep;
-        _currentStep = stepToNavigate.clamp(1, _stepSubSteps.length);
-      } catch (_) {
-        _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
-      }
-
-      _currentStepController.add(_currentStep);
-      _currentSubStepController.add(_currentSubStep);
+      _navigateToStep(_form.currentStep);
       return;
     }
 
@@ -136,19 +126,14 @@ class StreamNewScholarshipRequestPresenter
         await _saveDraftSilently();
         _completedStepNotifier.value = _form.completedStep;
         _populateControllersFromForm(_form);
-        _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
+        _navigateToStep(_form.currentStep);
       } else {
         // 404 - começa do zero
         _form = ScholarshipFormEntity(processPeriodId: processPeriodId);
-        _currentStep = 1;
       }
     } catch (_) {
       _form = ScholarshipFormEntity(processPeriodId: processPeriodId);
-      _currentStep = 1;
     }
-
-    _currentStepController.add(_currentStep);
-    _currentSubStepController.add(_currentSubStep);
   }
 
   void _populateControllersFromForm(ScholarshipFormEntity form) {
@@ -169,7 +154,6 @@ class StreamNewScholarshipRequestPresenter
     _housingTypeNotifier.value = form.residenceType;
   }
 
-  // ignore: unused_element
   void _navigateToStep(int step) {
     _currentStep = step.clamp(1, _stepSubSteps.length);
     _currentSubStep = 1;
@@ -286,7 +270,7 @@ class StreamNewScholarshipRequestPresenter
   ValueListenable<int> get completedStepListenable => _completedStepNotifier;
 
   @override
-  List<FamilyMemberEntity> get familyMembers => _form.familyMembers;
+  List<ScholarshipFamilyMemberEntity> get familyMembers => _form.familyMembers;
 
   @override
   void updateStateValue(String? v) {
@@ -409,10 +393,7 @@ class StreamNewScholarshipRequestPresenter
 
     try {
       final entity = _buildHousingEntity();
-      final scholarshipId = await saveStep1Usecase.save(
-        entity,
-        scholarshipId: _form.id,
-      );
+      final scholarshipId = await saveStep1Usecase.save(entity);
 
       // Atualiza o form com o scholarshipId e marca o step1 como concluido
       _form = _form.copyWith(
@@ -448,9 +429,6 @@ class StreamNewScholarshipRequestPresenter
     _currentSubStep = 1;
     _currentStepController.add(_currentStep);
     _currentSubStepController.add(_currentSubStep);
-
-    _form = _form.copyWith(currentStep: newStep);
-    _saveDraftSilently();
   }
 
   @override
@@ -467,8 +445,6 @@ class StreamNewScholarshipRequestPresenter
       _currentSubStep = 1;
       _currentStepController.add(_currentStep);
       _currentSubStepController.add(_currentSubStep);
-      _form = _form.copyWith(currentStep: _currentStep);
-      _saveDraftSilently();
     } else {
       // finished flow - emit navigation or finish event
       _navigationController.add(null);
@@ -488,8 +464,6 @@ class StreamNewScholarshipRequestPresenter
       _currentSubStep = _stepSubSteps[_currentStep] ?? 1;
       _currentStepController.add(_currentStep);
       _currentSubStepController.add(_currentSubStep);
-      _form = _form.copyWith(currentStep: _currentStep);
-      _saveDraftSilently();
     }
   }
 

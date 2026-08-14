@@ -140,7 +140,7 @@ class _OwnPropertyPageState extends State<OwnPropertyPage> {
                     _selectedType ?? i18n.typeLabel,
                     style: _selectedType == null
                         ? AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.onSurface.withValues(alpha: 0.6),
+                            color: AppColors.onSurface.withOpacity(0.6),
                           )
                         : AppTextStyles.bodyMedium,
                   ),

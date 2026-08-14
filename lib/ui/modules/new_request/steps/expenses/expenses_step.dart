@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../helpers/themes/themes.dart';
+import '../../dev_navigation_overrides.dart';
 import 'expenses_automobile_sub_step.dart';
 import 'expenses_education_sub_step.dart';
 import 'expenses_food_sub_step.dart';
@@ -81,7 +82,10 @@ class ExpensesStepState extends State<ExpensesStep> {
   }
 
   void _handleNext() {
-    if (!validateCurrentSubStep()) return;
+    if (!DevNavigationOverrides.allowAdvanceWithoutFill &&
+        !validateCurrentSubStep()) {
+      return;
+    }
     widget.onNext?.call();
   }
 
@@ -241,7 +245,8 @@ class ExpensesStepState extends State<ExpensesStep> {
               _buildSubStepNavArrow(
                 icon: Icons.arrow_forward,
                 isEnabled: widget.currentSubStep < expensesSubStepCount &&
-                    canAdvanceCurrentSubStep(),
+                    (DevNavigationOverrides.allowAdvanceWithoutFill ||
+                        canAdvanceCurrentSubStep()),
                 onTap: _handleNext,
               ),
             ],

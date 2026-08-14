@@ -116,6 +116,7 @@ abstract class AppI18n {
   String get noticesTermsSelectYear;
   String get noticesTermsSelectCity;
   String get noticesTermsSelectUnit;
+  String get noticesTermsEadLabel;
   String get noticesTermsIncompleteFiltersMessage;
   String get noticesTermsNoResultsTitle;
   String get noticesTermsNoResultsMessage;
@@ -288,6 +289,11 @@ abstract class AppI18n {
   String get newScholarshipShowExpired;
   String get newScholarshipDialogDescription;
   String get newScholarshipDialogCancel;
+  String newScholarshipEadNoResultsMessage({
+    required String year,
+    required String city,
+    required String unit,
+  });
   String get finishAction;
 
   // Steps - Erros de domínio
@@ -514,6 +520,34 @@ abstract class AppI18n {
   String documentsDeadlineLabel(String date);
   String documentsProgressLabel(int uploaded, int total);
   String get documentsSendAllAction;
+  String get documentsBackDialogBody;
+  String get documentsBackDialogQuestion;
+  String get documentsBackDialogConfirm;
+  String get documentsHomeDialogBodyPrefix;
+  String get documentsHomeDialogBodySuffix;
+  String get documentsHomeDialogConfirm;
+  String get documentSendAction;
+  String get documentsBackToDocumentsAction;
+  String get documentAddressProofLabel;
+  String get documentPhoneInternetProofLabel;
+  String get documentPublicTransportProofLabel;
+  String get documentWaterBillLabel;
+  String get documentElectricityBillLabel;
+  String get documentRentedPropertyDeclarationLabel;
+  String get documentProofSubmitAppBarTitle;
+  String get documentAddressProofDescription;
+  String get documentTypeSelectorPlaceholder;
+  String get documentTypeSelectorTitle;
+  String get documentTypeInternet;
+  String get documentTypeElectricity;
+  String get documentTypeCableTv;
+  String get documentTypePipedGas;
+  String get documentTypeWaterLastMonth;
+  String get documentTypeLandline;
+  String get documentProofElectricityValueLabel;
+  String get documentProofValueLabel;
+  String get documentProofPermissionDialogBody;
+  String get documentProofPermissionSettingsAction;
   String get concludeAction;
   String get answerYes;
   String get answerNo;

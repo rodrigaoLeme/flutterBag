@@ -10,7 +10,8 @@ abstract class NoticesTermsPresenter {
   void loadInitialData();
   Future<void> loadSchools(String year);
   List<SchoolEntity> getUnitsForCity(String city);
-  Future<void> fetchNotices({
+  List<SchoolEntity> get allSchools;
+  Future<List<NoticeEntity>> fetchNotices({
     required String year,
     required String city,
     required String schoolId,
