@@ -95,6 +95,15 @@ class AppTheme {
         dividerTheme: DividerThemeData(
           color: Colors.grey.shade400,
         ),
+        dialogTheme: const DialogThemeData(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+        ),
+        datePickerTheme: const DatePickerThemeData(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          headerBackgroundColor: Colors.white,
+        ),
       );
 
   static ThemeData get dark => ThemeData(

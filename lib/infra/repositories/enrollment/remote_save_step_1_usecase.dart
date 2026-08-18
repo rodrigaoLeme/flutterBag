@@ -12,17 +12,23 @@ class RemoteSaveStep1Usecase implements SaveStep1Usecase {
   });
 
   @override
-  Future<String> save(HousingEntity housing) async {
+  Future<String> save(HousingEntity housing, {String? scholarshipId}) async {
     try {
+      if (scholarshipId != null) {
+        await httpClient.request(
+          url: '${Flavor.apiBaseUrl}/scholarships/$scholarshipId/step-1',
+          method: HttpMethod.put,
+          body: housing.toUpdateJson(),
+        );
+        return scholarshipId;
+      }
+
       final response = await httpClient.request(
         url: '${Flavor.apiBaseUrl}/scholarships/step-1',
         method: HttpMethod.post,
         body: housing.toJson(),
       );
-
-      final scholarshipId = response['id'] as String;
-
-      return scholarshipId;
+      return response['id'] as String;
     } on ApiException catch (e) {
       switch (e.code) {
         case 'Person.NotFound':

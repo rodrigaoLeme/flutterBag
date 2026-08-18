@@ -198,6 +198,38 @@ class MemberRegistrationDialogs {
     );
   }
 
+  static Future<bool?> showOtherIncomeDeleteDialog(
+    BuildContext context,
+    String incomeType,
+  ) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.backgroundLight,
+        title: Text('Confirmação', style: AppTextStyles.titleLarge),
+        content: Text(
+          'Tem certeza que deseja excluir "$incomeType"?',
+          style: AppTextStyles.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('Não', style: AppTextStyles.bodyMedium),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(
+              'Sim',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   static Future<bool?> showChildSupportInfoDialog(BuildContext context) {
     final i18n = AppI18n.current;
 

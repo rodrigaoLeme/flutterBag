@@ -6,7 +6,6 @@ import '../../../../../components/ebolsa_member_card.dart';
 import '../../../../../helpers/money_formatter.dart';
 import '../../../../../helpers/themes/themes.dart';
 import '../member_registration_view_model.dart';
-import '../widgets/member_registration_dialogs.dart';
 
 class MemberRegistrationOccupationSubStep extends StatelessWidget {
   const MemberRegistrationOccupationSubStep({
@@ -22,52 +21,13 @@ class MemberRegistrationOccupationSubStep extends StatelessWidget {
   final Future<void> Function(int index) onEditOccupation;
   final Future<void> Function(int index) onDeleteOccupation;
 
-  Future<void> _onChildSupportChanged(BuildContext context, int? value) async {
-    if (value == null) return;
-    if (value == 0) {
-      vm.setRecebePensaoAlimenticia(0);
-      return;
-    }
-    vm.setRecebePensaoAlimenticia(1);
-    if (vm.pensionIncomeAcknowledged) {
-      vm.acknowledgePensionIncome();
-      return;
-    }
-    final acknowledged =
-        await MemberRegistrationDialogs.showChildSupportInfoDialog(context);
-    if (acknowledged == true) {
-      vm.acknowledgePensionIncome();
-    } else {
-      vm.resetRecebePensaoAlimenticia();
-    }
-  }
-
-  Future<void> _onInssBenefitChanged(BuildContext context, int? value) async {
-    if (value == null) return;
-    if (value == 0) {
-      vm.setRecebeOutroBeneficioINss(0);
-      return;
-    }
-    vm.setRecebeOutroBeneficioINss(1);
-    if (vm.inssBenefitAcknowledged) {
-      vm.acknowledgeInssBenefit();
-      return;
-    }
-    final acknowledged =
-        await MemberRegistrationDialogs.showInssBenefitInfoDialog(context);
-    if (acknowledged == true) {
-      vm.acknowledgeInssBenefit();
-    } else {
-      vm.resetRecebeOutroBeneficioINss();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Icon(
               Icons.info_outline_rounded,
@@ -75,19 +35,25 @@ class MemberRegistrationOccupationSubStep extends StatelessWidget {
               size: 24,
             ),
             const SizedBox(width: 12),
-            Text(
-              AppI18n.current.dataComplementTitle,
-              style: AppTextStyles.ebolsaTitleMedium,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppI18n.current.dataComplementTitle,
+                    style: AppTextStyles.ebolsaTitleMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    AppI18n.current.complementFieldsPlaceholder,
+                    style: AppTextStyles.bodySmall,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 12, bottom: 22),
-          child: Text(
-            AppI18n.current.complementFieldsPlaceholder,
-            style: AppTextStyles.bodySmall,
-          ),
-        ),
+        const SizedBox(height: 22),
         EbolsaButton(
           height: 48,
           borderRadius: 8,
@@ -117,95 +83,6 @@ class MemberRegistrationOccupationSubStep extends StatelessWidget {
               onEdit: () => onEditOccupation(i),
               onDelete: () => onDeleteOccupation(i),
             ),
-        const SizedBox(height: 16),
-        EbolsaRadioGroup<int>(
-          question: AppI18n.current.childSupportIncomeQuestion,
-          options: [
-            RadioOption(
-              label: AppI18n.current.answerNo,
-              value: 0,
-            ),
-            RadioOption(
-              label: AppI18n.current.answerYes,
-              value: 1,
-            ),
-          ],
-          groupValue: vm.recebePensaoAlimenticia,
-          onChanged: (v) => _onChildSupportChanged(context, v),
-        ),
-        if (vm.showPensionValueField) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 56,
-            child: EbolsaTextField(
-              controller: vm.pensionValueController,
-              label: AppI18n.current.informValueInReaisLabel,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-            ),
-          ),
-        ],
-        const SizedBox(height: 16),
-        EbolsaRadioGroup<int>(
-          question: AppI18n.current.privatePensionQuestion,
-          options: [
-            RadioOption(
-              label: AppI18n.current.answerNo,
-              value: 0,
-            ),
-            RadioOption(
-              label: AppI18n.current.answerYes,
-              value: 1,
-            ),
-          ],
-          groupValue: vm.recebePrevidenciaPrivada,
-          onChanged: (v) {
-            if (v != null) vm.setRecebePrevidenciaPrivada(v);
-          },
-        ),
-        if (vm.showPrevidenciaValueField) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 56,
-            child: EbolsaTextField(
-              controller: vm.previdenciaValueController,
-              label: AppI18n.current.informValueInReaisLabel,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-            ),
-          ),
-        ],
-        const SizedBox(height: 16),
-        EbolsaRadioGroup<int>(
-          question: AppI18n.current.inssBenefitQuestion,
-          options: [
-            RadioOption(
-              label: AppI18n.current.answerNo,
-              value: 0,
-            ),
-            RadioOption(
-              label: AppI18n.current.answerYes,
-              value: 1,
-            ),
-          ],
-          groupValue: vm.recebeOutroBeneficioINSS,
-          onChanged: (v) => _onInssBenefitChanged(context, v),
-        ),
-        if (vm.showInssValueField) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 56,
-            child: EbolsaTextField(
-              controller: vm.beneficioValueController,
-              label: AppI18n.current.informValueInReaisLabel,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-            ),
-          ),
-        ],
         const SizedBox(height: 16),
       ],
     );

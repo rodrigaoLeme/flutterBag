@@ -11,6 +11,7 @@ import '../../../components/components.dart';
 import '../../new_request/new_scholarship_request_page.dart';
 import '../components/cards/processes_cards_current.dart';
 import '../process_detail_page.dart';
+import '../renewal/renewal_scholarship_page.dart';
 
 class ProcessesCurrentPage extends StatelessWidget {
   final int yearSelected;
@@ -95,7 +96,11 @@ class ProcessesCurrentPage extends StatelessWidget {
               const SizedBox(width: 16),
               Flexible(
                 child: EbolsaButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const RenewalScholarshipPage(),
+                    ),
+                  ),
                   label: appStrings.homeRenewScholarshipButton,
                 ),
               ),

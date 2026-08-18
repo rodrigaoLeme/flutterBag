@@ -51,6 +51,44 @@ class PtBrI18n implements AppI18n {
   @override
   String get fieldRequired => 'Campo obrigatório';
 
+  // Renewal strings
+
+  @override
+  String get renewalScholarshipTitle => 'Renovação de Bolsa';
+
+  @override
+  String get renewalScholarshipSubtitle => 'Processos para renovação';
+
+  @override
+  String get renewalScholarshipDescription =>
+      'Abaixo estão os processos disponíveis para renovação';
+
+  @override
+  String get renewalScholarshipDetails => 'Detalhes do processo';
+
+  @override
+  String get renewalDetailDeadlinesTitle => 'Etapas e Prazos';
+
+  @override
+  String get renewalDetailDeadlinesSubtitle =>
+      'Atente-se aos prazos para o processo seletivo de';
+
+  @override
+  String get renewalDetailCandidatesTitle => 'Candidatos';
+
+  @override
+  String get renewalDetailCandidatesSubtitle =>
+      'Estes são os candidatos disponíveis para renovação';
+
+  @override
+  String get renewalDetailViewNotice => 'Ver edital';
+
+  @override
+  String get renewalDetailStartButton => 'Iniciar Renovação';
+
+  @override
+  String get processCardSchoolUnit => 'Unidade Escolar';
+
   // Housing step
   @override
   String get housingStepResidenceTitle => 'Local da sua residência';
@@ -974,8 +1012,7 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get privatePensionQuestion => 'Recebe Previdência Privada?';
 
   @override
-  String get inssBenefitQuestion =>
-      'Recebe outro beneficio/auxilio do INSS?';
+  String get inssBenefitQuestion => 'Recebe outro beneficio/auxilio do INSS?';
 
   @override
   String get childSupportInfoDialogBody1 =>
@@ -1005,7 +1042,7 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get familyMembersSubStepNavTitle => 'Membro familiar';
 
   @override
-  String get otherIncomeSubStepNavTitle => 'Outras rendas';
+  String get otherIncomeSubStepNavTitle => 'Outras Rendas';
 
   @override
   String get otherIncomeStepTitle => 'Outros informações familiares';
@@ -1013,6 +1050,88 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   @override
   String get otherIncomeStepDescription =>
       'Além do salário, informe outros recebimentos da família e o valor médio de mercado dos seus bens e propriedades.';
+
+  @override
+  String get otherIncomeMemberStepDescription =>
+      'Agora, forneça algumas informações sobre outras fontes de renda do membro familiar.';
+
+  @override
+  String get otherIncomeSourcesInfoTitle => 'Outras fontes de renda';
+
+  @override
+  String get otherIncomeSourcesInfoDescription =>
+      'Informe se possui outras fontes de renda além do salário, como: renda de aluguel, pensão alimentícia, previdência privada, investimentos bancários, entre outros. Informe o valor mensal de cada uma ou selecione a opção “Nenhuma”, caso não possua.';
+
+  @override
+  String otherIncomeHasOtherSourceQuestion(String name) =>
+      '$name possui alguma outra fonte de renda?';
+
+  @override
+  String get saveMemberAction => 'Salvar Membro';
+
+  @override
+  String get otherIncomeSourcePageAppBarTitle => 'Outras Fontes de Renda';
+
+  @override
+  String get selectIncomeTypeLabel => 'Selecione o tipo de renda';
+
+  @override
+  String get addIncomeSourceAction => 'Adicionar fonte de renda';
+  @override
+  String get addOtherIncomeSource => 'Adicionar outra fonte de renda';
+
+  @override
+  String get otherIncomeAverageAlertDescription =>
+      'Se essa renda não é recebida todos os meses, informe a média mensal, dividindo o valor total recebido pela quantidade de meses correspondente.';
+
+  @override
+  String get otherIncomeSelectedDetailsPrefix =>
+      'Detalhes da renda extra selecionada: ';
+
+  @override
+  String get otherIncomeMonthlyAverageLabel => 'Média mensal da renda em R\$';
+
+  @override
+  String get otherIncomeValueLabel => 'Valor da renda em R\$';
+
+  @override
+  String get descriptionLabel => 'Descrição';
+
+  @override
+  String get otherIncomeNoneConfirmationAppBarTitle => 'Informação de renda';
+
+  @override
+  String get otherIncomeNoneConfirmationTitle =>
+      'Confirme que não possui outras fontes de renda';
+
+  @override
+  String get otherIncomeNoneConfirmationDescriptionPrefix =>
+      'Confirme que este membro familiar não recebe nenhuma das fontes de renda listadas abaixo. Se este membro possuir alguma dessas rendas, clique em ';
+
+  @override
+  String get otherIncomeNoneConfirmationCancelHighlight => 'Cancelar';
+
+  @override
+  String get otherIncomeNoneConfirmationDescriptionMiddle =>
+      ' para retornar e marcar ';
+
+  @override
+  String get otherIncomeNoneConfirmationYesHighlight => '‘Sim’';
+
+  @override
+  String get otherIncomeNoneConfirmationDescriptionSuffix =>
+      ' na pergunta de renda extra da tela anterior.';
+
+  @override
+  String get otherIncomeNoneDeclarationLabel =>
+      'Declaro que não possuo outras fontes de renda';
+
+  @override
+  String get otherIncomeNoSourcesDeclaredMessage =>
+      'Declaro que este membro familiar não possui outras fontes de renda';
+
+  @override
+  String get undoAction => 'Desfazer';
 
   @override
   String get rentedPropertyIncomeQuestion =>
@@ -1507,6 +1626,9 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get documentSendAction => 'Enviar';
 
   @override
+  String get documentEditAction => 'Editar';
+
+  @override
   String get documentsBackToDocumentsAction => 'Voltar para Tela de Documentos';
 
   @override
@@ -1574,6 +1696,15 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
 
   @override
   String get documentProofPermissionSettingsAction => 'Abrir configurações';
+
+  @override
+  String get documentProofPickSourceTitle => 'Como deseja enviar o comprovante?';
+
+  @override
+  String get documentProofPickFromFiles => 'Documentos';
+
+  @override
+  String get documentProofPickFromGallery => 'Fototeca';
 
   @override
   String get concludeAction => 'Concluir';

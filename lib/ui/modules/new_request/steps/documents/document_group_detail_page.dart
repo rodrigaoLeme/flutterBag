@@ -18,12 +18,14 @@ class DocumentGroupDetailPage extends StatefulWidget {
   final List<DocumentGroupItem> groups;
   final int initialIndex;
   final DateTime? submissionDeadline;
+  final Map<String, Set<String>> uploadedIdsByGroup;
 
   const DocumentGroupDetailPage({
     super.key,
     required this.groups,
     required this.initialIndex,
     this.submissionDeadline,
+    this.uploadedIdsByGroup = const {},
   });
 
   @override
@@ -34,6 +36,7 @@ class DocumentGroupDetailPage extends StatefulWidget {
 class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
   late int _currentIndex;
   late List<DocumentRequirementItem> _requirements;
+  late final Map<String, Set<String>> _uploadedIdsByGroup;
 
   DocumentGroupItem get _currentGroup => widget.groups[_currentIndex];
 
@@ -41,11 +44,30 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex.clamp(0, widget.groups.length - 1);
+    _uploadedIdsByGroup = {
+      for (final entry in widget.uploadedIdsByGroup.entries)
+        entry.key: Set<String>.from(entry.value),
+    };
     _loadRequirements();
   }
 
   void _loadRequirements() {
-    _requirements = documentRequirementsForGroup(_currentGroup);
+    final uploaded = _uploadedIdsByGroup[_currentGroup.id] ?? {};
+    _requirements = [
+      for (final item in documentRequirementsForGroup(_currentGroup))
+        item.copyWith(isUploaded: uploaded.contains(item.id)),
+    ];
+  }
+
+  void _markUploaded(String requirementId) {
+    _uploadedIdsByGroup
+        .putIfAbsent(_currentGroup.id, () => <String>{})
+        .add(requirementId);
+    setState(_loadRequirements);
+  }
+
+  void _popToDocuments() {
+    Navigator.of(context).pop(_uploadedIdsByGroup);
   }
 
   String? get _formattedDeadline {
@@ -131,29 +153,12 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
       );
 
       if (submitted == true && mounted) {
-        setState(() {
-          _requirements = [
-            for (final requirement in _requirements)
-              if (requirement.id == item.id)
-                requirement.copyWith(isUploaded: true)
-              else
-                requirement,
-          ];
-        });
+        _markUploaded(item.id);
       }
       return;
     }
 
-    // TODO: integrar picker/envio dos demais documentos
-    setState(() {
-      _requirements = [
-        for (final requirement in _requirements)
-          if (requirement.id == item.id)
-            requirement.copyWith(isUploaded: true)
-          else
-            requirement,
-      ];
-    });
+    _markUploaded(item.id);
   }
 
   @override
@@ -162,11 +167,17 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
     final canGoBack = _currentIndex > 0;
     final canGoForward = _currentIndex < widget.groups.length - 1;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        _popToDocuments();
+      },
+      child: Scaffold(
       appBar: AppBar(
         leading: BackButton(
           color: Colors.white,
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: _popToDocuments,
         ),
         title: Text(_currentGroup.title),
         centerTitle: true,
@@ -209,7 +220,10 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
                   for (var i = 0; i < _requirements.length; i++) ...[
                     _DocumentRequirementRow(
                       title: _requirements[i].title,
-                      sendLabel: i18n.documentSendAction,
+                      isUploaded: _requirements[i].isUploaded,
+                      actionLabel: _requirements[i].isUploaded
+                          ? i18n.documentEditAction
+                          : i18n.documentSendAction,
                       onSend: () => _onSendDocument(_requirements[i]),
                     ),
                     // if (i < _requirements.length - 0)
@@ -227,12 +241,13 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
             Padding(
               padding: const EdgeInsets.all(16),
               child: EbolsaButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: _popToDocuments,
                 label: i18n.documentsBackToDocumentsAction,
               ),
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -240,12 +255,14 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
 
 class _DocumentRequirementRow extends StatelessWidget {
   final String title;
-  final String sendLabel;
+  final bool isUploaded;
+  final String actionLabel;
   final VoidCallback onSend;
 
   const _DocumentRequirementRow({
     required this.title,
-    required this.sendLabel,
+    required this.isUploaded,
+    required this.actionLabel,
     required this.onSend,
   });
 
@@ -255,6 +272,14 @@ class _DocumentRequirementRow extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
       child: Row(
         children: [
+          if (isUploaded) ...[
+            const Icon(
+              Icons.check_circle,
+              color: AppColors.success,
+              size: 22,
+            ),
+            const SizedBox(width: 8),
+          ],
           Expanded(
             child: Text(
               title,
@@ -275,7 +300,7 @@ class _DocumentRequirementRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             ),
             child: Text(
-              sendLabel,
+              actionLabel,
               style: AppTextStyles.titleSmall.copyWith(
                 color: AppColors.onSurface,
               ),

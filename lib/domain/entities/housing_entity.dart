@@ -38,6 +38,19 @@ class HousingEntity {
         'residenceType': residenceType?.value,
       };
 
+  // Usado para o PUT
+  Map<String, dynamic> toUpdateJson() => {
+        'zipCode': zipCode.replaceAll(RegExp(r'\D'), ''),
+        'street': street,
+        'number': number,
+        'complement': complement,
+        'district': district,
+        'city': city,
+        'state': state,
+        'residenceAreaType': residenceAreaType?.value,
+        'residenceType': residenceType?.value,
+      };
+
   factory HousingEntity.fromJson(Map<String, dynamic> json) => HousingEntity(
         processPeriodId: json['processPeriodId'] as String,
         zipCode: json['zipCode'] as String? ?? '',

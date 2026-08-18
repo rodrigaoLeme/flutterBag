@@ -48,7 +48,7 @@ class SearchableOptionsBottomSheet {
 
 class _SearchableOptionsContent<T> extends StatefulWidget {
   const _SearchableOptionsContent({
-    Key? key,
+    super.key,
     required this.title,
     required this.options,
     required this.searchHint,
@@ -58,7 +58,7 @@ class _SearchableOptionsContent<T> extends StatefulWidget {
     this.selectedValue,
     required this.resolveLabel,
     required this.resolveSearchText,
-  }) : super(key: key);
+  });
 
   final String title;
   final List<T> options;

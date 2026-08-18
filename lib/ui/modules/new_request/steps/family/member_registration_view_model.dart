@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../domain/entities/family_member_entity.dart';
+import '../../../../../domain/entities/group_income_entity.dart';
+import '../../../../../domain/entities/occupation_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../helpers/money_formatter.dart';
 
@@ -35,7 +38,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   final TextEditingController pensionValueController = TextEditingController();
   final TextEditingController previdenciaValueController =
       TextEditingController();
-  final TextEditingController beneficioValueController = TextEditingController();
+  final TextEditingController beneficioValueController =
+      TextEditingController();
   final TextEditingController imovelAlugadoValueController =
       TextEditingController();
   final TextEditingController ajudaFamiliarValueController =
@@ -75,10 +79,12 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   ];
 
   final List<Map<String, dynamic>> addedOccupations = [];
+  final List<Map<String, dynamic>> addedOtherIncomes = [];
   final List<Map<String, dynamic>> addedFamilyMembers = [];
   final List<Map<String, dynamic>> addedProperties = [];
   final List<Map<String, dynamic>> addedInvestments = [];
   final List<Map<String, dynamic>> addedVehicles = [];
+  final List<FamilyMemberEntity> familyMemberEntities = [];
 
   String? selectedGender;
   MaritalStatus? maritalStatus;
@@ -108,6 +114,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   bool pensionIncomeAcknowledged = false;
   bool inssBenefitAcknowledged = false;
 
+  int? possuiOutraFonteRenda;
   int? recebeValorImovelAlugado;
   int? ajudaFinanceira;
   int? beneficiarioProgramaGoverno;
@@ -146,6 +153,12 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   bool get showCINFields => possuiCIN == 1;
   bool get showNisField => cadunicoValue == 1;
   bool get showDiseaseType => possuiDoenca == 1;
+
+  String get memberFirstName {
+    final name = nameController.text.trim();
+    if (name.isEmpty) return 'O membro';
+    return name.split(RegExp(r'\s+')).first;
+  }
 
   List<MaritalStatus> get maritalOptions => MaritalStatus.values;
   String maritalDisplay(MaritalStatus m) => m.toKey();
@@ -318,6 +331,36 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setPossuiOutraFonteRenda(int value) {
+    possuiOutraFonteRenda = value;
+    if (value != 1) addedOtherIncomes.clear();
+    notifyListeners();
+  }
+
+  void clearOtherIncomeSelection() {
+    possuiOutraFonteRenda = null;
+    addedOtherIncomes.clear();
+    notifyListeners();
+  }
+
+  void addOtherIncome(Map<dynamic, dynamic> result) {
+    addedOtherIncomes.add(Map<String, dynamic>.from(result));
+    possuiOutraFonteRenda = 1;
+    notifyListeners();
+  }
+
+  void updateOtherIncomeAt(int index, Map<dynamic, dynamic> result) {
+    if (index < 0 || index >= addedOtherIncomes.length) return;
+    addedOtherIncomes[index] = Map<String, dynamic>.from(result);
+    notifyListeners();
+  }
+
+  void removeOtherIncomeAt(int index) {
+    if (index < 0 || index >= addedOtherIncomes.length) return;
+    addedOtherIncomes.removeAt(index);
+    notifyListeners();
+  }
+
   void setRecebeValorImovelAlugado(int value) {
     recebeValorImovelAlugado = value;
     if (value != 1) imovelAlugadoValueController.clear();
@@ -468,6 +511,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   void removeFamilyMemberAt(int index) {
     addedFamilyMembers.removeAt(index);
+    familyMemberEntities.removeAt(index);
     notifyListeners();
   }
 
@@ -507,51 +551,11 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     return true;
   }
 
-  bool isOccupationSubStepComplete() {
-    if (!hasOccupation) return false;
-    if (recebePensaoAlimenticia == null ||
-        recebePrevidenciaPrivada == null ||
-        recebeOutroBeneficioINSS == null) {
-      return false;
-    }
-    if (recebePensaoAlimenticia == 1 &&
-        (!pensionIncomeAcknowledged ||
-            !_isFieldFilled(pensionValueController))) {
-      return false;
-    }
-    if (recebePrevidenciaPrivada == 1 &&
-        !_isFieldFilled(previdenciaValueController)) {
-      return false;
-    }
-    if (recebeOutroBeneficioINSS == 1 &&
-        (!inssBenefitAcknowledged ||
-            !_isFieldFilled(beneficioValueController))) {
-      return false;
-    }
-    return true;
-  }
+  bool isOccupationSubStepComplete() => hasOccupation;
 
   bool isOtherIncomeSubStepComplete() {
-    if (recebeValorImovelAlugado == null ||
-        ajudaFinanceira == null ||
-        beneficiarioProgramaGoverno == null) {
-      return false;
-    }
-    if (recebeValorImovelAlugado == 1 &&
-        !_isFieldFilled(imovelAlugadoValueController)) {
-      return false;
-    }
-    if (ajudaFinanceira == 1 && !_isFieldFilled(ajudaFamiliarValueController)) {
-      return false;
-    }
-    if (ajudaFinanceira == 2) {
-      if (!_isFieldFilled(ajudaOutroDeQuemController)) return false;
-      if (!_isFieldFilled(ajudaOutroValueController)) return false;
-    }
-    if (beneficiarioProgramaGoverno == 1) {
-      if (!_isFieldFilled(programaGovernoController)) return false;
-      if (!_isFieldFilled(programaGovernoValueController)) return false;
-    }
+    if (possuiOutraFonteRenda == null) return false;
+    if (possuiOutraFonteRenda == 1 && addedOtherIncomes.isEmpty) return false;
     return true;
   }
 
@@ -576,9 +580,9 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       case 2:
         return isOccupationSubStepComplete();
       case 3:
-        return addedFamilyMembers.isNotEmpty;
-      case 4:
         return isOtherIncomeSubStepComplete();
+      case 4:
+        return addedFamilyMembers.isNotEmpty;
       case 5:
         return isAssetsSubStepComplete();
       case 6:
@@ -627,6 +631,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     pensionValueController.clear();
     previdenciaValueController.clear();
     beneficioValueController.clear();
+    possuiOutraFonteRenda = null;
+    addedOtherIncomes.clear();
     recebeValorImovelAlugado = null;
     ajudaFinanceira = null;
     beneficiarioProgramaGoverno = null;
@@ -645,6 +651,13 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool get hasCurrentMemberToCommit =>
+      nameController.text.trim().isNotEmpty ||
+      cpfController.text.trim().isNotEmpty ||
+      hasOccupation ||
+      addedOtherIncomes.isNotEmpty ||
+      possuiOutraFonteRenda != null;
+
   void commitCurrentMemberToList() {
     addedFamilyMembers.add({
       'cpf': cpfController.text.trim(),
@@ -653,7 +666,12 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       'maritalStatus': maritalStatus?.toKey(),
       'isScholarshipCandidate': seraCandidato == 1,
       'occupations': List<Map<String, dynamic>>.from(addedOccupations),
+      'hasOtherIncome': possuiOutraFonteRenda == 1,
+      'otherIncomes': List<Map<String, dynamic>>.from(addedOtherIncomes),
     });
+
+    familyMemberEntities.add(toFamilyMemberEntity());
+
     resetMemberForm();
   }
 
@@ -707,6 +725,184 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       perCapitaIncome: perCapita,
       minimumWage: minimumWage,
       salaryRatioLabel: formatSalaryRatio(perCapita),
+    );
+  }
+
+  FamilyMemberEntity toFamilyMemberEntity({String? existingId}) {
+    return FamilyMemberEntity(
+      id: existingId,
+      name: nameController.text.trim(),
+      personCpf: cpfController.text.trim(),
+      personBirthDate: _parseDob(),
+      personGender: _parseGender(),
+      kinshipType: _parseKinshipType(),
+      maritalStatus: _parseMaritalStatus(),
+      nationalityId: nacionalityController.text.trim().isEmpty
+          ? null
+          : nacionalityController.text.trim(),
+      naturalized: naturalizado == 1,
+      isCandidate: seraCandidato == 1,
+      isRetired: aposentado == 1,
+      hasWorkBooklet: temCarteira == 1,
+      ruralWorker: trabalhadorRural == 1,
+      declarationType: irpfCondition,
+      declared: declarouEsseAno == 1,
+      personHasCin: possuiCIN == 1,
+      personRg:
+          rgController.text.trim().isEmpty ? null : rgController.text.trim(),
+      personRgIssuingAuthority: orgaoController.text.trim().isEmpty
+          ? null
+          : orgaoController.text.trim(),
+      hasChronicDisease: possuiDoenca == 1,
+      chronicDiseaseName:
+          possuiDoenca == 1 ? tipoDoencaController.text.trim() : null,
+      hasHighAbilityGiftedness: superdotacao == 1,
+      hasAutismSpectrumDisorder: espectro == 1,
+      specialNeedsId: selectedPcd == 'Nenhuma' ? null : selectedPcd,
+      hasCadUnico: cadunicoValue == 1,
+      governmentBeneficiaryNis:
+          cadunicoValue == 1 ? nisController.text.trim() : null,
+      hasAlimony: recebePensaoAlimenticia == 1,
+      alimonyAmount: recebePensaoAlimenticia == 1
+          ? MoneyFormatter.parse(pensionValueController.text)
+          : null,
+      hasInssAssistance: recebeOutroBeneficioINSS == 1,
+      inssAssistanceAmount: recebeOutroBeneficioINSS == 1
+          ? MoneyFormatter.parse(beneficioValueController.text)
+          : null,
+      hasPrivatePension: recebePrevidenciaPrivada == 1,
+      privatePensionAmount: recebePrevidenciaPrivada == 1
+          ? MoneyFormatter.parse(previdenciaValueController.text)
+          : null,
+      receivePension: recebePensao == 1,
+      occupations: _parseOccupations(),
+    );
+  }
+
+  DateTime? _parseDob() {
+    try {
+      return DateFormat('dd/MM/yyyy').parse(dobController.text.trim());
+    } catch (_) {
+      return null;
+    }
+  }
+
+  int _parseGender() {
+    switch (selectedGender) {
+      case 'Masculino':
+        return 1;
+      case 'Feminino':
+        return 2;
+      default:
+        return 3;
+    }
+  }
+
+  int _parseKinshipType() {
+    switch (selectedResponsible) {
+      case 'Pai':
+        return 2;
+      case 'Mãe':
+        return 3;
+      default:
+        return 4;
+    }
+  }
+
+  int _parseMaritalStatus() {
+    switch (maritalStatus) {
+      case MaritalStatus.solteiro:
+        return 1;
+      case MaritalStatus.casado:
+        return 2;
+      case MaritalStatus.divorciado:
+        return 3;
+      case MaritalStatus.viuvo:
+        return 4;
+      default:
+        return 1;
+    }
+  }
+
+  List<OccupationEntity> _parseOccupations() {
+    return addedOccupations.map((o) {
+      return OccupationEntity(
+        id: o['id'] as String?,
+        occupationTypeId: o['occupationTypeId'] as String? ?? '',
+        monthlyIncome: MoneyFormatter.parse(
+          o['monthlyIncome']?.toString() ?? o['headerTitle']?.toString() ?? '0',
+        ),
+        companyName: o['companyName'] as String?,
+        companyType: o['companyType'] as int?,
+        cnpj: o['cnpj'] as String?,
+        function: o['function'] as String?,
+        situation: o['situation'] as int?,
+        hadActivityLastYear: o['hadActivityLastYear'] as bool?,
+        simplesNacionalTax: o['simplesNacionalTax'] as bool?,
+        unemploymentInsurance: o['unemploymentInsurance'] as bool?,
+      );
+    }).toList();
+  }
+
+  GroupIncomeEntity toGroupIncomeEntity() {
+    return GroupIncomeEntity(
+      hasRentalPropertyValues: recebeValorImovelAlugado == 1,
+      propertysAmount: recebeValorImovelAlugado == 1
+          ? MoneyFormatter.parse(imovelAlugadoValueController.text)
+          : null,
+      financialHelpType: ajudaFinanceira,
+      financialHelpAmount: ajudaFinanceira == 1
+          ? MoneyFormatter.parse(ajudaFamiliarValueController.text)
+          : ajudaFinanceira == 2
+              ? MoneyFormatter.parse(ajudaOutroValueController.text)
+              : null,
+      financialHelper: ajudaFinanceira == 1
+          ? null
+          : ajudaFinanceira == 2
+              ? ajudaOutroDeQuemController.text.trim()
+              : null,
+      isGovernmentBeneficiary: beneficiarioProgramaGoverno == 1,
+      governmentProgramDescription: beneficiarioProgramaGoverno == 1
+          ? programaGovernoController.text.trim()
+          : null,
+      governmentProgramAmount: beneficiarioProgramaGoverno == 1
+          ? MoneyFormatter.parse(programaGovernoValueController.text)
+          : null,
+      hasProprietys: possuiImovelProprio == 1,
+      hasFinancing: possuiInvestimentoFinanceiro == 1,
+      hasVehicles: possuiVeiculo == 1,
+      properties: addedProperties
+          .map((p) => PropertyEntity(
+                id: p['id'] as String?,
+                assetTypeId: p['assetTypeId'] as int?,
+                assetAmount:
+                    MoneyFormatter.parse(p['assetAmount']?.toString() ?? '0'),
+                installmentAmount: p['installmentAmount'] != null
+                    ? MoneyFormatter.parse(p['installmentAmount'].toString())
+                    : null,
+              ))
+          .toList(),
+      financings: addedInvestments
+          .map((f) => FinancingEntity(
+                id: f['id'] as String?,
+                assetTypeId: f['assetTypeId'] as int?,
+                assetAmount:
+                    MoneyFormatter.parse(f['assetAmount']?.toString() ?? '0'),
+              ))
+          .toList(),
+      vehicles: addedVehicles
+          .map((v) => VehicleEntity(
+                id: v['id'] as String?,
+                vehicleBrand: v['brand'] as String?,
+                vehicleModel: v['model'] as String?,
+                vehicleYear: v['year'] as String?,
+                assetAmount:
+                    MoneyFormatter.parse(v['assetValue']?.toString() ?? '0'),
+                installmentAmount: v['installmentValue'] != null
+                    ? MoneyFormatter.parse(v['installmentValue'].toString())
+                    : null,
+              ))
+          .toList(),
     );
   }
 

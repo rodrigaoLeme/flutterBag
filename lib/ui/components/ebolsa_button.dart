@@ -12,6 +12,7 @@ class EbolsaButton extends StatelessWidget {
   final double? height;
   final Color? backgroundColor;
   final TextStyle? textStyle;
+  final IconData? icon;
 
   const EbolsaButton({
     super.key,
@@ -23,7 +24,27 @@ class EbolsaButton extends StatelessWidget {
     this.height,
     this.backgroundColor,
     this.textStyle,
+    this.icon,
   });
+
+  Widget _buildChild({TextStyle? style}) {
+    final text = Text(label, style: style);
+    if (icon == null) return text;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          icon,
+          size: 24,
+          color: AppColors.textSecondaryLight,
+        ),
+        const SizedBox(width: 8),
+        text,
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,14 +62,14 @@ class EbolsaButton extends StatelessWidget {
           ),
           textStyle: textStyle ?? AppTextStyles.labelLarge,
         ),
-        child: Text(label),
+        child: _buildChild(),
       );
     }
 
     if (isOutlined) {
       return OutlinedButton(
         onPressed: onPressed,
-        child: Text(label),
+        child: _buildChild(),
       );
     }
 
@@ -62,7 +83,7 @@ class EbolsaButton extends StatelessWidget {
         ),
         textStyle: textStyle ?? AppTextStyles.labelLarge,
       ),
-      child: Text(label, style: textStyle),
+      child: _buildChild(style: textStyle),
     );
   }
 }

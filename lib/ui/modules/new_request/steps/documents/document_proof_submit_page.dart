@@ -73,28 +73,93 @@ class _DocumentProofSubmitPageState extends State<DocumentProofSubmitPage> {
   }
 
   Future<void> _onUploadPressed() async {
-    final cameraStatus = await Permission.camera.request();
-    final photosStatus = await Permission.photos.request();
+    final source = await _showPickSourceSheet();
+    if (source == null || !mounted) return;
 
-    final hasAccess = cameraStatus.isGranted ||
-        cameraStatus.isLimited ||
-        photosStatus.isGranted ||
-        photosStatus.isLimited;
-
-    if (!hasAccess) {
-      if (!mounted) return;
-      await _showPermissionDialog();
-      return;
+    if (source == _ProofPickSource.gallery) {
+      final photosStatus = await Permission.photos.request();
+      final hasAccess = photosStatus.isGranted || photosStatus.isLimited;
+      if (!hasAccess) {
+        if (!mounted) return;
+        await _showPermissionDialog();
+        return;
+      }
     }
 
-    final result = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png'],
-    );
+    final result = source == _ProofPickSource.gallery
+        ? await FilePicker.pickFiles(type: FileType.image)
+        : await FilePicker.pickFiles(
+            type: FileType.custom,
+            allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png'],
+          );
 
     if (result == null || result.files.isEmpty || !mounted) return;
-
     setState(() => _pickedFileName = result.files.single.name);
+  }
+
+  Future<_ProofPickSource?> _showPickSourceSheet() {
+    final i18n = AppI18n.current;
+
+    return showModalBottomSheet<_ProofPickSource>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 44,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.outline,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  i18n.documentProofPickSourceTitle,
+                  style: AppTextStyles.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: const Icon(
+                    Icons.insert_drive_file_outlined,
+                    color: AppColors.primary,
+                  ),
+                  title: Text(
+                    i18n.documentProofPickFromFiles,
+                    style: AppTextStyles.bodyLarge,
+                  ),
+                  onTap: () =>
+                      Navigator.of(ctx).pop(_ProofPickSource.documents),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.photo_library_outlined,
+                    color: AppColors.primary,
+                  ),
+                  title: Text(
+                    i18n.documentProofPickFromGallery,
+                    style: AppTextStyles.bodyLarge,
+                  ),
+                  onTap: () => Navigator.of(ctx).pop(_ProofPickSource.gallery),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _showPermissionDialog() async {
@@ -150,7 +215,10 @@ class _DocumentProofSubmitPageState extends State<DocumentProofSubmitPage> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: const BackButton(color: Colors.white),
+        leading: BackButton(
+          color: Colors.white,
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
         title: Text(i18n.documentProofSubmitAppBarTitle),
         centerTitle: true,
       ),
@@ -172,10 +240,11 @@ class _DocumentProofSubmitPageState extends State<DocumentProofSubmitPage> {
                       i18n.documentAddressProofDescription,
                       style: AppTextStyles.bodyMedium,
                     ),
-                    Spacer(),
+                    const SizedBox(height: 24),
                     _buildDocumentTypeSelector(i18n),
-                    Spacer(),
+                    const SizedBox(height: 16),
                     _buildUploadButton(i18n),
+                    const SizedBox(height: 16),
                     EbolsaTextField(
                       controller: _valueController,
                       label: _valueFieldLabel,
@@ -264,10 +333,14 @@ class _DocumentProofSubmitPageState extends State<DocumentProofSubmitPage> {
               color: AppColors.onPrimaryContainer,
             ),
             const SizedBox(width: 8),
-            Text(
-              label,
-              style: AppTextStyles.labelLarge.copyWith(
-                color: AppColors.onPrimaryContainer,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: AppColors.onPrimaryContainer,
+                ),
               ),
             ),
           ],
@@ -276,3 +349,5 @@ class _DocumentProofSubmitPageState extends State<DocumentProofSubmitPage> {
     );
   }
 }
+
+enum _ProofPickSource { documents, gallery }

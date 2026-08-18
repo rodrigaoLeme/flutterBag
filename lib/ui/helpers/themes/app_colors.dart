@@ -18,6 +18,8 @@ class AppColors {
   static const Color error = Color(0xFFD32F2F);
   static const Color errorContainer = Color(0xFF93000A);
   static const Color success = Color(0xFF388E3C);
+  static const Color successDark = Color(0xFF0D4726);
+  static const Color successLight = Color(0xFFF2FBF5);
   static const Color warning = Color(0xFFFFC21A);
   static const Color info = Color(0xFF0288D1);
 
@@ -60,6 +62,7 @@ class AppColors {
   static const Color surface = Color(0xFFEDEDF4);
   static const Color surfaceColor = Color(0xFF64748B);
   static const Color surfaceContainerLow = Color(0xFFF3F3FA);
+  static const Color sysLightPrimary = Color(0xFF3E5F90);
 
   // Container
   static const Color secondaryContainer = Color(0xFFD9E3F8);
@@ -70,4 +73,5 @@ class AppColors {
   static const Color surfaceContainer = Color(0xFF0C78DE);
   static const Color lightSurface = Color(0xFFF9F9FF);
   static const Color onSurfaceLight = Color(0xFFF0F0F7);
+  static const Color warningLight = Color(0xFFCC9600);
 }

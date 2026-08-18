@@ -296,6 +296,19 @@ abstract class AppI18n {
   });
   String get finishAction;
 
+  // Renewal strings
+  String get renewalScholarshipTitle;
+  String get renewalScholarshipSubtitle;
+  String get renewalScholarshipDescription;
+  String get renewalScholarshipDetails;
+  String get renewalDetailDeadlinesTitle;
+  String get renewalDetailDeadlinesSubtitle;
+  String get renewalDetailCandidatesTitle;
+  String get renewalDetailCandidatesSubtitle;
+  String get renewalDetailViewNotice;
+  String get renewalDetailStartButton;
+  String get processCardSchoolUnit;
+
   // Steps - Erros de domínio
   String get errorPersonNotFound;
   String get errorProcessPeriodInvalid;
@@ -375,6 +388,30 @@ abstract class AppI18n {
   String get otherIncomeSubStepNavTitle;
   String get otherIncomeStepTitle;
   String get otherIncomeStepDescription;
+  String get otherIncomeMemberStepDescription;
+  String get otherIncomeSourcesInfoTitle;
+  String get otherIncomeSourcesInfoDescription;
+  String otherIncomeHasOtherSourceQuestion(String name);
+  String get saveMemberAction;
+  String get otherIncomeSourcePageAppBarTitle;
+  String get selectIncomeTypeLabel;
+  String get addIncomeSourceAction;
+  String get addOtherIncomeSource;
+  String get otherIncomeAverageAlertDescription;
+  String get otherIncomeSelectedDetailsPrefix;
+  String get otherIncomeMonthlyAverageLabel;
+  String get otherIncomeValueLabel;
+  String get descriptionLabel;
+  String get otherIncomeNoneConfirmationAppBarTitle;
+  String get otherIncomeNoneConfirmationTitle;
+  String get otherIncomeNoneConfirmationDescriptionPrefix;
+  String get otherIncomeNoneConfirmationCancelHighlight;
+  String get otherIncomeNoneConfirmationDescriptionMiddle;
+  String get otherIncomeNoneConfirmationYesHighlight;
+  String get otherIncomeNoneConfirmationDescriptionSuffix;
+  String get otherIncomeNoneDeclarationLabel;
+  String get otherIncomeNoSourcesDeclaredMessage;
+  String get undoAction;
   String get rentedPropertyIncomeQuestion;
   String get financialHelpQuestion;
   String get financialHelpNone;
@@ -527,6 +564,7 @@ abstract class AppI18n {
   String get documentsHomeDialogBodySuffix;
   String get documentsHomeDialogConfirm;
   String get documentSendAction;
+  String get documentEditAction;
   String get documentsBackToDocumentsAction;
   String get documentAddressProofLabel;
   String get documentPhoneInternetProofLabel;
@@ -548,6 +586,9 @@ abstract class AppI18n {
   String get documentProofValueLabel;
   String get documentProofPermissionDialogBody;
   String get documentProofPermissionSettingsAction;
+  String get documentProofPickSourceTitle;
+  String get documentProofPickFromFiles;
+  String get documentProofPickFromGallery;
   String get concludeAction;
   String get answerYes;
   String get answerNo;

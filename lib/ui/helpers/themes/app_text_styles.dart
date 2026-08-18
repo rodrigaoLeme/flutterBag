@@ -28,7 +28,7 @@ class AppTextStyles {
 
   static const TextStyle headlineSmall = TextStyle(
     fontSize: 24,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w400,
   );
 
   static const TextStyle titleLarge = TextStyle(

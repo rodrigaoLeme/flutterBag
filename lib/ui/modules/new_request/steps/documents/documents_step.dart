@@ -134,19 +134,27 @@ class DocumentsStepState extends State<DocumentsStep> {
               children: [
                 Icon(
                   _iconForType(_groups[i].type),
-                  color: AppColors.onSurfaceVariant,
+                  color: _groups[i].isComplete
+                      ? AppColors.success
+                      : AppColors.onSurfaceVariant,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     _groups[i].title,
-                    style: AppTextStyles.bodyLarge,
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      color: _groups[i].isComplete
+                          ? AppColors.success
+                          : AppColors.onSurface,
+                    ),
                   ),
                 ),
                 Text(
                   _progressLabel(_groups[i]),
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.onSurfaceVariant,
+                    color: _groups[i].isComplete
+                        ? AppColors.success
+                        : AppColors.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(width: 8),

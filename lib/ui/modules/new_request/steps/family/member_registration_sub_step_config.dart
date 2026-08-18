@@ -39,6 +39,12 @@ MemberRegistrationSubStepConfig memberRegistrationSubStepConfig(int subStep) {
       );
     case 3:
       return MemberRegistrationSubStepConfig(
+        navTitle: i18n.otherIncomeSubStepNavTitle,
+        headerTitle: i18n.memberRegistrationTitle,
+        headerDescription: i18n.otherIncomeMemberStepDescription,
+      );
+    case 4:
+      return MemberRegistrationSubStepConfig(
         navTitle: i18n.familyMembersSubStepNavTitle,
         headerTitle: i18n.peopleHomeLabel,
         headerDescriptionWidget: Text.rich(
@@ -56,12 +62,6 @@ MemberRegistrationSubStepConfig memberRegistrationSubStepConfig(int subStep) {
           ),
         ),
         showFamilyInfoIcon: true,
-      );
-    case 4:
-      return MemberRegistrationSubStepConfig(
-        navTitle: i18n.otherIncomeSubStepNavTitle,
-        headerTitle: i18n.otherIncomeStepTitle,
-        headerDescription: i18n.otherIncomeStepDescription,
       );
     case 5:
       return MemberRegistrationSubStepConfig(

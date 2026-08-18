@@ -14,6 +14,8 @@ import 'financial_investment_page.dart';
 import 'member_registration_presenter.dart';
 import 'member_registration_sub_step_config.dart';
 import 'member_registration_view_model.dart';
+import 'other_income_none_confirmation_page.dart';
+import 'other_income_source_page.dart';
 import 'own_property_page.dart';
 import 'sub_steps/member_registration_assets_sub_step.dart';
 import 'sub_steps/member_registration_family_members_sub_step.dart';
@@ -81,6 +83,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
     final picked = await showDatePicker(
       context: context,
+      locale: const Locale('pt', 'BR'),
       initialDate: initial,
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
@@ -158,6 +161,45 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       name,
     );
     if (confirmed == true) _vm.removeOccupationAt(index);
+  }
+
+  Future<void> _openOtherIncomeSourcePage({Map<String, dynamic>? initial}) async {
+    final res = await Navigator.of(context).push<Map<dynamic, dynamic>>(
+      MaterialPageRoute(
+        builder: (_) => OtherIncomeSourcePage(
+          initialType: initial?['type'] as String?,
+          initialMonthlyIncome: initial?['monthlyIncome']?.toString(),
+          initialDescription: initial?['description']?.toString(),
+        ),
+      ),
+    );
+    if (res == null || !mounted) return;
+    if (initial != null) {
+      final index = _vm.addedOtherIncomes.indexOf(initial);
+      if (index >= 0) _vm.updateOtherIncomeAt(index, res);
+    } else {
+      _vm.addOtherIncome(res);
+    }
+  }
+
+  Future<void> _deleteOtherIncome(int index) async {
+    final name = _vm.addedOtherIncomes[index]['type']?.toString() ??
+        'fonte de renda';
+    final confirmed =
+        await MemberRegistrationDialogs.showOtherIncomeDeleteDialog(
+      context,
+      name,
+    );
+    if (confirmed == true) _vm.removeOtherIncomeAt(index);
+  }
+
+  Future<bool> _confirmNoOtherIncome() async {
+    final confirmed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => const OtherIncomeNoneConfirmationPage(),
+      ),
+    );
+    return confirmed == true;
   }
 
   Future<void> _openOwnPropertyForm({int? editIndex}) async {
@@ -249,7 +291,20 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     _presenter.decrementSubStep();
   }
 
+  void _advanceFromOtherIncome() {
+    if (_vm.hasCurrentMemberToCommit) {
+      _presenter.commitMemberAndAdvance();
+      return;
+    }
+    _presenter.incrementSubStep();
+  }
+
   Future<void> _onFooterAdvance() async {
+    if (_currentSubStep == 3) {
+      _advanceFromOtherIncome();
+      return;
+    }
+
     if (DevNavigationOverrides.allowAdvanceWithoutFill) {
       if (_currentSubStep < _presenter.totalSubSteps) {
         _presenter.incrementSubStep();
@@ -262,12 +317,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
     if (!_presenter.canAdvance) return;
 
-    if (_currentSubStep == 2) {
-      _presenter.commitMemberAndAdvance();
-      return;
-    }
-
-    if (_currentSubStep == 3) {
+    if (_currentSubStep == 4) {
       final confirmed =
           await MemberRegistrationDialogs.showFamilyMembersConfirmDialog(
               context, _vm);
@@ -285,6 +335,11 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
   }
 
   Future<void> _onNavForward() async {
+    if (_currentSubStep == 3) {
+      _advanceFromOtherIncome();
+      return;
+    }
+
     if (DevNavigationOverrides.allowAdvanceWithoutFill) {
       if (_currentSubStep < _presenter.totalSubSteps) {
         _presenter.incrementSubStep();
@@ -292,7 +347,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       return;
     }
 
-    if (_currentSubStep == 3) {
+    if (_currentSubStep == 4) {
       if (!_presenter.canAdvance) return;
       final confirmed =
           await MemberRegistrationDialogs.showFamilyMembersConfirmDialog(
@@ -342,6 +397,15 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
           onDeleteOccupation: _deleteOccupation,
         );
       case 3:
+        return MemberRegistrationOtherIncomeSubStep(
+          vm: _vm,
+          onAddOtherIncome: () => _openOtherIncomeSourcePage(),
+          onEditOtherIncome: (i) =>
+              _openOtherIncomeSourcePage(initial: _vm.addedOtherIncomes[i]),
+          onDeleteOtherIncome: _deleteOtherIncome,
+          onConfirmNoOtherIncome: _confirmNoOtherIncome,
+        );
+      case 4:
         return MemberRegistrationFamilyMembersSubStep(
           vm: _vm,
           onAddMember: () {
@@ -351,8 +415,6 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
           onEditMember: (_) => _presenter.goToSubStep(1),
           onDeleteMember: _vm.removeFamilyMemberAt,
         );
-      case 4:
-        return MemberRegistrationOtherIncomeSubStep(vm: _vm);
       case 5:
         return MemberRegistrationAssetsSubStep(
           vm: _vm,
@@ -433,6 +495,10 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                 MemberRegistrationFooter(
                   canAdvance: DevNavigationOverrides.allowAdvanceWithoutFill ||
                       _presenter.canAdvance,
+                  showBack: _currentSubStep != 3,
+                  advanceLabel: _currentSubStep == 3
+                      ? AppI18n.current.saveMemberAction
+                      : null,
                   onBack: _onFooterBack,
                   onAdvance: _onFooterAdvance,
                 ),

@@ -4,14 +4,13 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../domain/entities/available_announcement_entity.dart';
-import '../../../domain/entities/scholarship_form_entity.dart';
+import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/helpers/app_constants.dart';
 import '../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
 import '../../../main/factories/usecases/schools/load_school_grades_factory.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../../main/routes/routes.dart';
 import '../../components/components.dart';
-import '../../helpers/app_assets.dart';
 import '../../helpers/themes/themes.dart';
 import 'dev_navigation_overrides.dart';
 import 'new_scholarship_request_presenter.dart';
@@ -48,6 +47,7 @@ class NewScholarshipRequestPage extends StatefulWidget {
 class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   int _currentStep = 1;
   int _currentSubStep = 0;
+  final bool _isInitializing = true;
 
   late final NewScholarshipRequestPresenter _presenter;
   final GlobalKey<ExpensesStepState> _expensesStepKey =
@@ -58,6 +58,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       GlobalKey<DocumentsStepState>();
 
   List<Map<String, dynamic>> _registeredCandidates = [];
+  final Map<String, Set<String>> _uploadedDocumentIds = {};
 
   static const int _totalSteps = 5;
 
@@ -67,7 +68,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   // false => fluxo normal (começar na etapa 1)
   // Só vale em debug (kDebugMode); release/prod ignoram.
   // ---------------------------------------------------------------------------
-  static const bool _kDebugJumpToDocumentsStep = true;
+  static const bool _kDebugJumpToDocumentsStep = false;
 
   @override
   void initState() {
@@ -110,13 +111,13 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     _presenter.next();
   }
 
-  String _familyMemberId(ScholarshipFamilyMemberEntity member) =>
-      member.id ?? member.personId ?? member.personCpf ?? member.name ?? '';
+  String _familyMemberId(FamilyMemberEntity member) =>
+      member.id ?? member.personCpf ?? member.name ?? '';
 
-  List<ScholarshipFamilyMemberEntity> _requiredScholarshipCandidates() =>
+  List<FamilyMemberEntity> _requiredScholarshipCandidates() =>
       _presenter.familyMembers.where((m) => m.isCandidate == true).toList();
 
-  List<ScholarshipFamilyMemberEntity> _missingScholarshipCandidates() {
+  List<FamilyMemberEntity> _missingScholarshipCandidates() {
     final addedIds =
         _candidateStepKey.currentState?.addedMemberIds.toSet() ?? {};
     return _requiredScholarshipCandidates()
@@ -146,7 +147,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   }
 
   Future<void> _showMissingCandidatesDialog(
-    List<ScholarshipFamilyMemberEntity> missing,
+    List<FamilyMemberEntity> missing,
   ) async {
     final i18n = AppI18n.current;
 
@@ -274,8 +275,9 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     final candidateIds = <String>{};
 
     for (final candidate in candidates) {
-      final id =
-          candidate['familyMemberId']?.toString() ?? candidate['name']?.toString() ?? '';
+      final id = candidate['familyMemberId']?.toString() ??
+          candidate['name']?.toString() ??
+          '';
       candidateIds.add(id);
       groups.add(
         DocumentGroupItem(
@@ -307,8 +309,14 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       return _mockDocumentGroups();
     }
 
-    return groups;
+    return groups.map(_withUploadProgress).toList();
   }
+
+  int _uploadedCount(String groupId) =>
+      _uploadedDocumentIds[groupId]?.length ?? 0;
+
+  DocumentGroupItem _withUploadProgress(DocumentGroupItem group) =>
+      group.copyWith(uploadedDocuments: _uploadedCount(group.id));
 
   List<DocumentGroupItem> _mockDocumentGroups() {
     final i18n = AppI18n.current;
@@ -344,7 +352,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         type: DocumentGroupType.member,
         totalDocuments: 3,
       ),
-    ];
+    ].map(_withUploadProgress).toList();
   }
 
   DateTime? get _submissionDeadline => DateTime(2026, 4, 1);
@@ -435,6 +443,10 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       _confirmDocumentsBack();
       return;
     }
+    if (_currentStep > 1) {
+      _presenter.previous();
+      return;
+    }
     Navigator.of(context).pop();
   }
 
@@ -443,18 +455,30 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     final index = groups.indexWhere((item) => item.id == group.id);
     if (index < 0) return;
 
-    await Navigator.of(context).push(
+    final result = await Navigator.of(context).push<Map<String, Set<String>>>(
       MaterialPageRoute(
         builder: (_) => DocumentGroupDetailPage(
           groups: groups,
           initialIndex: index,
           submissionDeadline: _submissionDeadline,
+          uploadedIdsByGroup: {
+            for (final entry in _uploadedDocumentIds.entries)
+              entry.key: Set<String>.from(entry.value),
+          },
         ),
       ),
     );
+
+    if (result == null || !mounted) return;
+    setState(() {
+      for (final entry in result.entries) {
+        _uploadedDocumentIds[entry.key] = Set<String>.from(entry.value);
+      }
+    });
   }
 
-  Future<void> _openCandidateAddPage({Map<String, dynamic>? initialData}) async {
+  Future<void> _openCandidateAddPage(
+      {Map<String, dynamic>? initialData}) async {
     final result = await Navigator.of(context).push<Map<String, dynamic>?>(
       MaterialPageRoute(
         builder: (_) => CandidateAddPage(
@@ -462,8 +486,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           announcementSchools: widget.announcementSchools,
           processYear: _processYear,
           loadSchoolGradesUsecase: makeRemoteLoadSchoolGrades(),
-          excludedMemberIds: _candidateStepKey.currentState
-                  ?.addedMemberIds
+          excludedMemberIds: _candidateStepKey.currentState?.addedMemberIds
                   .where(
                     (id) => id != initialData?['familyMemberId']?.toString(),
                   )
@@ -491,8 +514,11 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     switch (_currentStep) {
       case 1:
         return _presenter.isStep1Complete();
+      case 2:
+        return _presenter.familyMembers.isNotEmpty;
       case 3:
-        return _expensesStepKey.currentState?.canAdvanceCurrentSubStep() ?? false;
+        return _expensesStepKey.currentState?.canAdvanceCurrentSubStep() ??
+            false;
       default:
         return true;
     }
@@ -557,7 +583,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       );
     }
 
-    if (_currentStep == 3 || _currentStep == 4) {
+    if (_currentStep == 2 || _currentStep == 3 || _currentStep == 4) {
       return Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -656,7 +682,9 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
             if (!mounted) return;
             if (result == kAdvanceToExpensesResult) {
               _presenter.goToStep(3);
+              return;
             }
+            setState(() {});
           },
         );
 
@@ -762,10 +790,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                 return const SizedBox.shrink();
               },
             ),
-            Visibility(
-              visible: !(_currentStep == 2 && _currentSubStep == 1),
-              child: _buildReactiveStepFooter(),
-            ),
+            _buildReactiveStepFooter(),
           ],
         ),
       ),

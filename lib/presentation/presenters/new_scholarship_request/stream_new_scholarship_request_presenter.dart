@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../../data/cache/enrollment_draft_storage.dart';
 import '../../../domain/entities/enrollment_enums.dart';
+import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/entities/housing_entity.dart';
 import '../../../domain/entities/scholarship_form_entity.dart';
 import '../../../domain/usecases/enrollment/load_scholarship_form_usecase.dart';
@@ -34,14 +35,14 @@ class StreamNewScholarshipRequestPresenter
     required this.loadScholarshipFormUsecase,
     required this.draftStorage,
   }) {
-    _currentStepController.add(_currentStep);
-    _currentStepController.add(_currentSubStep);
     _syncControllersToNotifiers();
     _initForm();
   }
 
   // Step/substep state
-  final Map<int, int> _stepSubSteps = {1: 1, 2: 5, 3: 6, 4: 1, 5: 1, 6: 1};
+  // Step 2 (Família) tem 1 substep na wizard: a lista de membros.
+  // O cadastro de membro roda em MemberRegistrationPage (tela aparte).
+  final Map<int, int> _stepSubSteps = {1: 1, 2: 1, 3: 6, 4: 1, 5: 1, 6: 1};
 
   final _navigationController = StreamController<String?>.broadcast();
   final _currentStepController = StreamController<int>.broadcast();
@@ -109,10 +110,21 @@ class StreamNewScholarshipRequestPresenter
     );
 
     if (localDraft != null) {
-      _form = ScholarshipFormEntity.toJson(localDraft);
+      _form = ScholarshipFormEntity.fromJson(localDraft);
       _completedStepNotifier.value = _form.completedStep;
       _populateControllersFromForm(_form);
-      _navigateToStep(_form.currentStep);
+
+      try {
+        final remoteForm =
+            await loadScholarshipFormUsecase.load(processPeriodId);
+        final stepToNavigate = remoteForm?.currentStep ?? _form.currentStep;
+        _currentStep = stepToNavigate.clamp(1, _stepSubSteps.length);
+      } catch (_) {
+        _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
+      }
+
+      _currentStepController.add(_currentStep);
+      _currentSubStepController.add(_currentSubStep);
       return;
     }
 
@@ -126,14 +138,19 @@ class StreamNewScholarshipRequestPresenter
         await _saveDraftSilently();
         _completedStepNotifier.value = _form.completedStep;
         _populateControllersFromForm(_form);
-        _navigateToStep(_form.currentStep);
+        _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
       } else {
         // 404 - começa do zero
         _form = ScholarshipFormEntity(processPeriodId: processPeriodId);
+        _currentStep = 1;
       }
     } catch (_) {
       _form = ScholarshipFormEntity(processPeriodId: processPeriodId);
+      _currentStep = 1;
     }
+
+    _currentStepController.add(_currentStep);
+    _currentSubStepController.add(_currentSubStep);
   }
 
   void _populateControllersFromForm(ScholarshipFormEntity form) {
@@ -154,6 +171,7 @@ class StreamNewScholarshipRequestPresenter
     _housingTypeNotifier.value = form.residenceType;
   }
 
+  // ignore: unused_element
   void _navigateToStep(int step) {
     _currentStep = step.clamp(1, _stepSubSteps.length);
     _currentSubStep = 1;
@@ -270,7 +288,7 @@ class StreamNewScholarshipRequestPresenter
   ValueListenable<int> get completedStepListenable => _completedStepNotifier;
 
   @override
-  List<ScholarshipFamilyMemberEntity> get familyMembers => _form.familyMembers;
+  List<FamilyMemberEntity> get familyMembers => _form.familyMembers;
 
   @override
   void updateStateValue(String? v) {
@@ -393,7 +411,10 @@ class StreamNewScholarshipRequestPresenter
 
     try {
       final entity = _buildHousingEntity();
-      final scholarshipId = await saveStep1Usecase.save(entity);
+      final scholarshipId = await saveStep1Usecase.save(
+        entity,
+        scholarshipId: _form.id,
+      );
 
       // Atualiza o form com o scholarshipId e marca o step1 como concluido
       _form = _form.copyWith(
@@ -429,6 +450,9 @@ class StreamNewScholarshipRequestPresenter
     _currentSubStep = 1;
     _currentStepController.add(_currentStep);
     _currentSubStepController.add(_currentSubStep);
+
+    _form = _form.copyWith(currentStep: newStep);
+    _saveDraftSilently();
   }
 
   @override
@@ -445,6 +469,8 @@ class StreamNewScholarshipRequestPresenter
       _currentSubStep = 1;
       _currentStepController.add(_currentStep);
       _currentSubStepController.add(_currentSubStep);
+      _form = _form.copyWith(currentStep: _currentStep);
+      _saveDraftSilently();
     } else {
       // finished flow - emit navigation or finish event
       _navigationController.add(null);
@@ -464,6 +490,8 @@ class StreamNewScholarshipRequestPresenter
       _currentSubStep = _stepSubSteps[_currentStep] ?? 1;
       _currentStepController.add(_currentStep);
       _currentSubStepController.add(_currentSubStep);
+      _form = _form.copyWith(currentStep: _currentStep);
+      _saveDraftSilently();
     }
   }
 
@@ -492,4 +520,7 @@ class StreamNewScholarshipRequestPresenter
     _residenceAreaNotifier.dispose();
     _housingTypeNotifier.dispose();
   }
+
+  @override
+  ScholarshipFormEntity get form => _form;
 }
