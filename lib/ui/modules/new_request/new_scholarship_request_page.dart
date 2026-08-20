@@ -668,6 +668,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
               stateError: errors['state'],
               residenceAreaError: errors['residenceArea'],
               housingTypeError: errors['housingType'],
+              isPopulating: _presenter.isPopulating,
             );
           },
         );

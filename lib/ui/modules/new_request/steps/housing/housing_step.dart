@@ -34,6 +34,7 @@ class HousingStep extends StatefulWidget {
   final String? stateError;
   final String? residenceAreaError;
   final String? housingTypeError;
+  final bool isPopulating;
 
   const HousingStep({
     super.key,
@@ -60,6 +61,7 @@ class HousingStep extends StatefulWidget {
     this.stateError,
     this.residenceAreaError,
     this.housingTypeError,
+    this.isPopulating = false,
   });
 
   @override
@@ -85,6 +87,8 @@ class _HousingStepState extends State<HousingStep> {
   }
 
   void _onCepChanged() {
+    if (widget.isPopulating) return;
+
     final clean = widget.cepController.text.replaceAll(RegExp(r'\D'), '');
 
     if (clean.length < 8) {

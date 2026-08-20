@@ -101,7 +101,7 @@ class ScholarshipFormEntity {
 
   factory ScholarshipFormEntity.fromJson(Map<String, dynamic> json) =>
       ScholarshipFormEntity(
-        id: json[''] as String?,
+        id: json['id'] as String?,
         processPeriodId: json['processPeriodId'] as String? ?? '',
         currentStep: json['currentStep'] as int? ?? 1,
         completedStep: json['completedStep'] as int? ?? 0,

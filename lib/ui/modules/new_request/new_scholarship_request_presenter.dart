@@ -54,6 +54,7 @@ abstract class NewScholarshipRequestPresenter {
   Future<void> lookupZipCode(String cep);
   Future<void> submitStep1();
   bool isStep1Complete();
+  bool get isPopulating;
 
   void clearAddressFields();
 

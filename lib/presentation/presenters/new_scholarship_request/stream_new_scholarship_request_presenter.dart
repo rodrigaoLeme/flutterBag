@@ -51,6 +51,7 @@ class StreamNewScholarshipRequestPresenter
 
   int _currentStep = 1;
   int _currentSubStep = 1;
+  bool _isPopulating = false;
 
   // Form controllers for housing step
   final TextEditingController _cepController = TextEditingController();
@@ -154,6 +155,7 @@ class StreamNewScholarshipRequestPresenter
   }
 
   void _populateControllersFromForm(ScholarshipFormEntity form) {
+    _isPopulating = true;
     final rawCep = form.zipCode?.replaceAll(RegExp(r'\D'), '') ?? '';
     _cepController.text = rawCep.length == 8
         ? '${rawCep.substring(0, 5)}-${rawCep.substring(5)}'
@@ -169,6 +171,7 @@ class StreamNewScholarshipRequestPresenter
     _residenceArea = form.residenceAreaType?.label;
     _residenceAreaNotifier.value = form.residenceAreaType?.label;
     _housingTypeNotifier.value = form.residenceType;
+    _isPopulating = false;
   }
 
   // ignore: unused_element
@@ -206,6 +209,8 @@ class StreamNewScholarshipRequestPresenter
         ),
         residenceType: _residenceType,
       );
+
+  bool get isPopulating => _isPopulating;
 
   @override
   Stream<String?> get navigationRouteStream => _navigationController.stream;
