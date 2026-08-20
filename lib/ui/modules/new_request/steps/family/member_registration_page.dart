@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../../presentation/presenters/member_registration/stream_member_registration_presenter.dart';
 import '../../../../components/components.dart';
@@ -31,9 +33,18 @@ import 'widgets/member_registration_sub_step_nav.dart';
 const String kAdvanceToExpensesResult = 'advanceToExpenses';
 
 class MemberRegistrationPage extends StatefulWidget {
-  const MemberRegistrationPage({super.key, this.presenter});
+  const MemberRegistrationPage({
+    super.key,
+    this.presenter,
+    required this.scholarshipId,
+    required this.processPeriodId,
+    required this.initialFamilyMembers,
+  });
 
   final MemberRegistrationPresenter? presenter;
+  final String scholarshipId;
+  final String processPeriodId;
+  final List<FamilyMemberEntity> initialFamilyMembers;
 
   @override
   State<MemberRegistrationPage> createState() => _MemberRegistrationPageState();
@@ -163,7 +174,8 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     if (confirmed == true) _vm.removeOccupationAt(index);
   }
 
-  Future<void> _openOtherIncomeSourcePage({Map<String, dynamic>? initial}) async {
+  Future<void> _openOtherIncomeSourcePage(
+      {Map<String, dynamic>? initial}) async {
     final res = await Navigator.of(context).push<Map<dynamic, dynamic>>(
       MaterialPageRoute(
         builder: (_) => OtherIncomeSourcePage(
@@ -183,8 +195,8 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
   }
 
   Future<void> _deleteOtherIncome(int index) async {
-    final name = _vm.addedOtherIncomes[index]['type']?.toString() ??
-        'fonte de renda';
+    final name =
+        _vm.addedOtherIncomes[index]['type']?.toString() ?? 'fonte de renda';
     final confirmed =
         await MemberRegistrationDialogs.showOtherIncomeDeleteDialog(
       context,

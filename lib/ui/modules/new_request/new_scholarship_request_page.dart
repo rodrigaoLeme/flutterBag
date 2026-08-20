@@ -47,7 +47,7 @@ class NewScholarshipRequestPage extends StatefulWidget {
 class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   int _currentStep = 1;
   int _currentSubStep = 0;
-  final bool _isInitializing = true;
+  bool _isInitializing = true;
 
   late final NewScholarshipRequestPresenter _presenter;
   final GlobalKey<ExpensesStepState> _expensesStepKey =
@@ -76,8 +76,10 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     _presenter = widget.presenter ??
         makeNewRequestPresenter(processPeriodId: widget.processPeriodId);
     _presenter.stepSubSteps;
-    _presenter.currentStepStream
-        .listen((s) => setState(() => _currentStep = s));
+    _presenter.currentStepStream.listen((s) => setState(() {
+          _currentStep = s;
+          _isInitializing = false;
+        }));
     _presenter.currentSubStepStream
         .listen((s) => setState(() => _currentSubStep = s));
 
@@ -676,7 +678,11 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           onAddMember: () async {
             final result = await Navigator.of(context).push<Object?>(
               MaterialPageRoute(
-                builder: (_) => const MemberRegistrationPage(),
+                builder: (_) => MemberRegistrationPage(
+                  scholarshipId: _presenter.form.id ?? '',
+                  processPeriodId: widget.processPeriodId,
+                  initialFamilyMembers: _presenter.form.familyMembers,
+                ),
               ),
             );
             if (!mounted) return;

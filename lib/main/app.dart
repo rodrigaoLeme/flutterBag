@@ -51,7 +51,7 @@ class _AppState extends State<App> {
         GlobalCupertinoLocalizations.delegate,
       ],
       theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
+      darkTheme: AppTheme.light,
       themeMode: ThemeMode.system,
       routerConfig: Modular.routerConfig,
     );
