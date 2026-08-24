@@ -92,7 +92,10 @@ class _HousingStepState extends State<HousingStep> {
     final clean = widget.cepController.text.replaceAll(RegExp(r'\D'), '');
 
     if (clean.length < 8) {
-      widget.onClearAddressFields?.call();
+      if (widget.addressController.text.isNotEmpty) {
+        widget.onClearAddressFields?.call();
+      }
+      return;
     }
 
     if (clean.length == 8) {

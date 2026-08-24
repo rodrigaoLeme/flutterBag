@@ -457,7 +457,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
           ),
           body: SafeArea(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Padding(
                   padding:

@@ -566,7 +566,7 @@ class PtBrI18n implements AppI18n {
 
   @override
   String get onboardingItem2Description =>
-      'Para concorrer a um bolsa cadastre as  informações socioeconômicas da  família e do(s) candidatos.';
+      'Para concorrer a uma bolsa cadastre as  informações socioeconômicas da  família e do(s) candidatos.';
 
   @override
   String get onboardingItem3Title => '2º Passo';
@@ -1698,7 +1698,8 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get documentProofPermissionSettingsAction => 'Abrir configurações';
 
   @override
-  String get documentProofPickSourceTitle => 'Como deseja enviar o comprovante?';
+  String get documentProofPickSourceTitle =>
+      'Como deseja enviar o comprovante?';
 
   @override
   String get documentProofPickFromFiles => 'Documentos';

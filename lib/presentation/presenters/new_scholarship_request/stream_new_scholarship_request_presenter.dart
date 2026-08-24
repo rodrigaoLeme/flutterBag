@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../data/cache/enrollment_draft_storage.dart';
 import '../../../domain/entities/enrollment_enums.dart';
@@ -185,6 +186,12 @@ class StreamNewScholarshipRequestPresenter
   Future<void> _saveDraftSilently() async {
     try {
       final userId = sl<CurrentAccount>().userCpf;
+      final key = 'enrollment_${userId}_$processPeriodId';
+
+      //TODO: Imprime o caminho do arquivo - REMOVER DEPOIS
+      final dir = await getApplicationDocumentsDirectory();
+      print('>>> DRAFT PATH: ${dir.path}/drafts/$key.json');
+
       await draftStorage.save(
         userId: userId,
         processPeriodId: processPeriodId,
@@ -210,6 +217,7 @@ class StreamNewScholarshipRequestPresenter
         residenceType: _residenceType,
       );
 
+  @override
   bool get isPopulating => _isPopulating;
 
   @override
