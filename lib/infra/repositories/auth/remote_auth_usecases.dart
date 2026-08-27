@@ -139,7 +139,7 @@ class RemoteCreateAccountUsecase implements CreateAccountUsecase {
     } on ApiException catch (e) {
       switch (e.code) {
         case 'User.ExistUser':
-          throw InvalidCredentialsException(e.title);
+          throw AccountAlreadyExistsException(e.title);
         case 'User.InvalidCpf':
           throw CreateAccountValidationException(
             field: 'cpf',

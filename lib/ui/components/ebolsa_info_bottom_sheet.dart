@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../helpers/themes/app_colors.dart';
 import '../helpers/themes/app_text_styles.dart';
-import 'ebolsa_button.dart';
+import 'components.dart';
 
 class EbolsaInfoSection {
   final String title;
@@ -20,7 +20,6 @@ class EbolsaInfoBottomSheet {
     IconData iconData = Icons.info_outline,
     Color iconColor = AppColors.alerta,
     String closeLabel = 'Fechar',
-    double heightFactor = 0.66,
   }) async {
     await showModalBottomSheet<void>(
       context: context,
@@ -38,7 +37,7 @@ class EbolsaInfoBottomSheet {
               bottom: MediaQuery.of(ctx).viewInsets.bottom + 8,
             ),
             child: SizedBox(
-              height: MediaQuery.of(ctx).size.height * heightFactor,
+              height: MediaQuery.of(ctx).size.height / 2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -77,10 +76,9 @@ class EbolsaInfoBottomSheet {
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
-                    child: EbolsaButton(
+                    child: EbolsaTextButton(
                       onPressed: () => Navigator.of(ctx).pop(),
                       label: closeLabel,
-                      isSecondary: false,
                     ),
                   ),
                 ],

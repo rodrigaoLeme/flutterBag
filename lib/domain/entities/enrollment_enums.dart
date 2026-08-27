@@ -52,7 +52,30 @@ enum GuardianRelationshipType {
   static GuardianRelationshipType? fromValue(int? value) {
     if (value == null) return null;
     try {
-      return GuardianRelationshipType.values.firstWhere((e) => e.value == value);
+      return GuardianRelationshipType.values
+          .firstWhere((e) => e.value == value);
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+enum MaritalStatus {
+  uniaoEstavel(1, 'União Estável'),
+  viuvo(2, 'Viúvo(a)'),
+  separadoFato(3, 'Separado(a) de fato'),
+  solteiro(4, 'Solteiro(a)'),
+  casado(5, 'Casado(a)'),
+  divorciado(6, 'Divorciado(a)');
+
+  const MaritalStatus(this.value, this.label);
+  final int value;
+  final String label;
+
+  static MaritalStatus? fromValue(int? value) {
+    if (value == null) return null;
+    try {
+      return MaritalStatus.values.firstWhere((e) => e.value == value);
     } catch (_) {
       return null;
     }

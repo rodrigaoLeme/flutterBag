@@ -4,8 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../domain/entities/family_member_entity.dart';
+import '../../../../../domain/usecases/enrollment/lookup_person_usecase.dart';
+import '../../../../../main/di/injection_container.dart';
+import '../../../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../../presentation/presenters/member_registration/stream_member_registration_presenter.dart';
+import '../../../../../share/current_account.dart';
 import '../../../../components/components.dart';
 import '../../../../components/ebolsa_step_header.dart';
 import '../../../../helpers/themes/themes.dart';
@@ -69,6 +73,20 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
         if (mounted) setState(() => _currentSubStep = step);
       });
     }
+
+    if (widget.initialFamilyMembers.isEmpty) {
+      final accout = sl<CurrentAccount>();
+      _vm.cpfController.text = _formatCpf(accout.userCpf);
+      if (accout.userCpf.isNotEmpty) {
+        _onCpfComplete(accout.userCpf);
+      }
+    }
+  }
+
+  String _formatCpf(String cpf) {
+    final clean = cpf.replaceAll(RegExp(r'\D'), '');
+    if (clean.length != 11) return cpf;
+    return '${clean.substring(0, 3)}.${clean.substring(3, 6)}.${clean.substring(6, 9)}-${clean.substring(9)}';
   }
 
   @override
@@ -102,6 +120,28 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     );
 
     if (picked != null) _vm.setDob(picked);
+  }
+
+  final _lookupPerson = makeRemoteLookupPerson();
+
+  Future<void> _onCpfComplete(String cpf) async {
+    if (_vm.isLoadingPerson) return;
+
+    setState(() => _vm.isLoadingPerson = true);
+
+    try {
+      final person = await _lookupPerson.lookup(cpf);
+      if (person != null && mounted) {
+        _vm.populateFromPerson(person);
+      }
+    } on LookupPersonException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
+    } finally {
+      if (mounted) setState(() => _vm.isLoadingPerson = false);
+    }
   }
 
   Future<void> _openNationalitySelector() async {
@@ -399,6 +439,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
           onSelectDate: _selectDate,
           onOpenNationality: _openNationalitySelector,
           onOpenPcd: _openPcdSelector,
+          onCpfComplete: _onCpfComplete,
         );
       case 2:
         return MemberRegistrationOccupationSubStep(

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../domain/entities/group_income_entity.dart';
 import '../../../../../domain/entities/occupation_entity.dart';
+import '../../../../../domain/entities/person_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../helpers/money_formatter.dart';
 
@@ -53,7 +55,12 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   final TextEditingController programaGovernoValueController =
       TextEditingController();
 
-  final List<String> genderOptions = ['Masculino', 'Feminino', 'Outro'];
+  final cpfMask = MaskTextInputFormatter(
+    mask: '###.###.###-##',
+    filter: {'#': RegExp(r'\d')},
+  );
+
+  final List<String> genderOptions = ['Feminino', 'Masculino'];
   final List<String> responsibleOptions = ['Pai', 'Mãe', 'Outro'];
   final List<String> pcdOptions = [
     'Nenhuma',
@@ -85,6 +92,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   final List<Map<String, dynamic>> addedInvestments = [];
   final List<Map<String, dynamic>> addedVehicles = [];
   final List<FamilyMemberEntity> familyMemberEntities = [];
+
+  bool isLoadingPerson = false;
 
   String? selectedGender;
   MaritalStatus? maritalStatus;
@@ -158,6 +167,55 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     final name = nameController.text.trim();
     if (name.isEmpty) return 'O membro';
     return name.split(RegExp(r'\s+')).first;
+  }
+
+  void populateFromPerson(PersonEntity person) {
+    nameController.text = person.name ?? '';
+    if (person.birthDate != null) {
+      dobController.text = DateFormat('dd/MM/yyyy').format(person.birthDate!);
+    }
+    if (person.gender != null) {
+      selectedGender = _genderLabel(person.gender!);
+    }
+    if (person.maritalStatus != null) {
+      maritalStatus = _maritalStatusFromInt(person.maritalStatus!);
+    }
+    if (person.rg != null) {
+      rgController.text = person.rg!;
+    }
+    if (person.rgIssuingAuthority != null) {
+      orgaoController.text = person.rgIssuingAuthority!;
+    }
+    if (person.hasCin != null) {
+      possuiCIN = person.hasCin! ? 1 : 0;
+    }
+    notifyListeners();
+  }
+
+  String _genderLabel(int gender) {
+    switch (gender) {
+      case 1:
+        return 'Feminino';
+      case 2:
+        return 'Masculino';
+      default:
+        return 'Feminino';
+    }
+  }
+
+  MaritalStatus? _maritalStatusFromInt(int value) {
+    switch (value) {
+      case 1:
+        return MaritalStatus.solteiro;
+      case 2:
+        return MaritalStatus.casado;
+      case 3:
+        return MaritalStatus.divorciado;
+      case 4:
+        return MaritalStatus.viuvo;
+      default:
+        return null;
+    }
   }
 
   List<MaritalStatus> get maritalOptions => MaritalStatus.values;
@@ -789,12 +847,12 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   int _parseGender() {
     switch (selectedGender) {
-      case 'Masculino':
-        return 1;
       case 'Feminino':
+        return 1;
+      case 'Masculino':
         return 2;
       default:
-        return 3;
+        return 1;
     }
   }
 
