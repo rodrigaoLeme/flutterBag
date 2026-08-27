@@ -2,29 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
+import '../../../../../domain/entities/enrollment_enums.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../domain/entities/group_income_entity.dart';
 import '../../../../../domain/entities/occupation_entity.dart';
 import '../../../../../domain/entities/person_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../helpers/money_formatter.dart';
-
-enum MaritalStatus { solteiro, casado, divorciado, viuvo }
-
-extension MaritalStatusExtension on MaritalStatus {
-  String toKey() {
-    switch (this) {
-      case MaritalStatus.solteiro:
-        return 'Solteiro(a)';
-      case MaritalStatus.casado:
-        return 'Casado(a)';
-      case MaritalStatus.divorciado:
-        return 'Divorciado(a)';
-      case MaritalStatus.viuvo:
-        return 'Viúvo(a)';
-    }
-  }
-}
 
 class MemberRegistrationViewModel extends ChangeNotifier {
   static const double minimumWage = 1518.0;
@@ -95,6 +79,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   bool isLoadingPerson = false;
 
+  String? cpfError;
   String? selectedGender;
   MaritalStatus? maritalStatus;
   String? selectedResponsible;
@@ -169,6 +154,11 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     return name.split(RegExp(r'\s+')).first;
   }
 
+  void setCpfError(String? error) {
+    cpfError = error;
+    notifyListeners();
+  }
+
   void populateFromPerson(PersonEntity person) {
     nameController.text = person.name ?? '';
     if (person.birthDate != null) {
@@ -204,22 +194,11 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   }
 
   MaritalStatus? _maritalStatusFromInt(int value) {
-    switch (value) {
-      case 1:
-        return MaritalStatus.solteiro;
-      case 2:
-        return MaritalStatus.casado;
-      case 3:
-        return MaritalStatus.divorciado;
-      case 4:
-        return MaritalStatus.viuvo;
-      default:
-        return null;
-    }
+    return MaritalStatus.fromValue(value);
   }
 
   List<MaritalStatus> get maritalOptions => MaritalStatus.values;
-  String maritalDisplay(MaritalStatus m) => m.toKey();
+  String maritalDisplay(MaritalStatus m) => m.label;
 
   void setMarital(MaritalStatus? m) {
     maritalStatus = m;
@@ -721,7 +700,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       'cpf': cpfController.text.trim(),
       'name': nameController.text.trim(),
       'dob': dobController.text.trim(),
-      'maritalStatus': maritalStatus?.toKey(),
+      'maritalStatus': maritalStatus?.label,
       'isScholarshipCandidate': seraCandidato == 1,
       'occupations': List<Map<String, dynamic>>.from(addedOccupations),
       'hasOtherIncome': possuiOutraFonteRenda == 1,
@@ -867,20 +846,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     }
   }
 
-  int _parseMaritalStatus() {
-    switch (maritalStatus) {
-      case MaritalStatus.solteiro:
-        return 1;
-      case MaritalStatus.casado:
-        return 2;
-      case MaritalStatus.divorciado:
-        return 3;
-      case MaritalStatus.viuvo:
-        return 4;
-      default:
-        return 1;
-    }
-  }
+  int _parseMaritalStatus() => maritalStatus?.value ?? 4;
 
   List<OccupationEntity> _parseOccupations() {
     return addedOccupations.map((o) {

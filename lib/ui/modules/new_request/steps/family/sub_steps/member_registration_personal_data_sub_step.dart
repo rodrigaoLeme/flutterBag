@@ -1,5 +1,7 @@
+import 'package:cpf_cnpj_validator/cpf_validator.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../../../domain/entities/enrollment_enums.dart';
 import '../../../../../../main/i18n/app_i18n.dart';
 import '../../../../../components/components.dart';
 import '../../../../../helpers/themes/themes.dart';
@@ -43,7 +45,14 @@ class _MemberRegistrationPersonalDataSubStepState
   void _onCpfChanged() {
     final clean = widget.vm.cpfController.text.replaceAll(RegExp(r'\D'), '');
     if (clean.length == 11) {
+      if (!CPFValidator.isValid(clean)) {
+        widget.vm.setCpfError(AppI18n.current.loginValidationInvalidCpf);
+        return;
+      }
+      widget.vm.setCpfError(null);
       widget.onCpfComplete(clean);
+    } else {
+      widget.vm.setCpfError(null);
     }
   }
 
@@ -60,12 +69,7 @@ class _MemberRegistrationPersonalDataSubStepState
             label: AppI18n.current.authCpfLabel,
             keyboardType: TextInputType.number,
             inputFormatters: [widget.vm.cpfMask],
-            onChanged: (value) {
-              final clean = value.replaceAll(RegExp(r'\D'), '');
-              if (clean.length == 11) {
-                // TODO: chamar endpoint GET /persons/{cpf}
-              }
-            },
+            errorText: widget.vm.cpfError,
           ),
         ),
         const SizedBox(height: 12),

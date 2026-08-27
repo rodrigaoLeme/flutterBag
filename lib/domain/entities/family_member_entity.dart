@@ -113,7 +113,7 @@ class FamilyMemberEntity {
         'personRgIssuingAuthority': personRgIssuingAuthority,
         'personMobileNumber': personMobileNumber,
         'hasChronicDisease': hasChronicDisease,
-        'ichronicDiseaseNamed': chronicDiseaseName,
+        'chronicDiseaseName': chronicDiseaseName,
         'hasHighAbilityGiftedness': hasHighAbilityGiftedness,
         'hasAutismSpectrumDisorder': hasAutismSpectrumDisorder,
         'specialNeedsId': specialNeedsId,
@@ -164,7 +164,7 @@ class FamilyMemberEntity {
         hasInssAssistance: json['hasInssAssistance'] as bool?,
         inssAssistanceAmount:
             (json['inssAssistanceAmount'] as num?)?.toDouble(),
-        hasPrivatePension: json['pershasPrivatePensiononGender'] as bool?,
+        hasPrivatePension: json['hasPrivatePension'] as bool?,
         privatePensionAmount:
             (json['privatePensionAmount'] as num?)?.toDouble(),
         receivePension: json['receivePension'] as bool?,
