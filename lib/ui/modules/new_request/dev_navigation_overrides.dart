@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 abstract final class DevNavigationOverrides {
   /// true => botões Avançar / seta direta ficam habilitados sem preencher
   /// steps e substeps (apenas em debug).
-  static const bool skipAdvanceValidation = true;
+  static const bool skipAdvanceValidation = false;
 
   static bool get allowAdvanceWithoutFill =>
       kDebugMode && skipAdvanceValidation;

@@ -555,8 +555,20 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   bool _isFieldFilled(TextEditingController controller) =>
       controller.text.trim().isNotEmpty;
 
+  bool _isCpfError(String? cpfErro) {
+    if (cpfErro != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   bool isPersonalDataSubStepComplete() {
-    if (!_isFieldFilled(cpfController)) return false;
+    if (!_isFieldFilled(cpfController) ||
+        cpfController.text.length < 14 ||
+        _isCpfError(cpfError)) {
+      return false;
+    }
     if (!_isFieldFilled(nameController)) return false;
     if (!_isFieldFilled(dobController)) return false;
     if (selectedGender == null) return false;
@@ -933,6 +945,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   @override
   void dispose() {
     for (final controller in _trackedControllers) {
+      controller.removeListener(notifyListeners);
       controller.dispose();
     }
     super.dispose();
