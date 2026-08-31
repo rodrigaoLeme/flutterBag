@@ -1,3 +1,4 @@
+import 'announcement_enums.dart';
 import 'enrollment_enums.dart';
 import 'family_member_entity.dart';
 import 'group_income_entity.dart';
@@ -7,6 +8,7 @@ class ScholarshipFormEntity {
   final String processPeriodId;
   final int currentStep;
   final int completedStep;
+  final EducationLevel? educationLevel;
 
   // Step 1 - Moradia
   final String? zipCode;
@@ -31,6 +33,7 @@ class ScholarshipFormEntity {
     required this.processPeriodId,
     this.currentStep = 1,
     this.completedStep = 0,
+    this.educationLevel,
     this.zipCode,
     this.street,
     this.number,
@@ -51,6 +54,7 @@ class ScholarshipFormEntity {
     String? processPeriodId,
     int? currentStep,
     int? completedStep,
+    EducationLevel? educationLevel,
     String? zipCode,
     String? street,
     String? number,
@@ -68,6 +72,7 @@ class ScholarshipFormEntity {
         processPeriodId: processPeriodId ?? this.processPeriodId,
         currentStep: currentStep ?? this.currentStep,
         completedStep: completedStep ?? this.completedStep,
+        educationLevel: educationLevel ?? this.educationLevel,
         zipCode: zipCode ?? this.zipCode,
         street: street ?? this.street,
         number: number ?? this.number,
@@ -86,6 +91,7 @@ class ScholarshipFormEntity {
         'processPeriodId': processPeriodId,
         'currentStep': currentStep,
         'completedStep': completedStep,
+        'educationLevel': educationLevel?.value,
         'zipCode': zipCode,
         'street': street,
         'number': number,
@@ -105,6 +111,8 @@ class ScholarshipFormEntity {
         processPeriodId: json['processPeriodId'] as String? ?? '',
         currentStep: json['currentStep'] as int? ?? 1,
         completedStep: json['completedStep'] as int? ?? 0,
+        educationLevel:
+            EducationLevel.fromValue(json['educationLevel'] as int? ?? 0),
         zipCode: json['zipCode'] as String?,
         street: json['street'] as String?,
         number: json['number'] as String?,

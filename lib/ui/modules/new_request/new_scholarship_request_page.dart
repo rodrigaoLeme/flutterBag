@@ -683,6 +683,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                   scholarshipId: _presenter.form.id ?? '',
                   processPeriodId: widget.processPeriodId,
                   initialFamilyMembers: _presenter.form.familyMembers,
+                  educationLevel: _presenter.form.educationLevel,
                 ),
               ),
             );

@@ -198,11 +198,15 @@ class DioAdapter implements HttpClient {
     developer.log('<<< ${response.statusCode} | body: ${response.data}',
         name: 'HTTP ERROR');
 
-    final code = response.data?['code'] as String? ?? '';
-    final title = response.data?['title'] as String? ?? '';
-    final detail = response.data?['detail'] as String? ?? '';
+    final data = response.data is Map
+        ? response.data as Map<String, dynamic>
+        : <String, dynamic>{};
 
-    final rawErrors = response.data?['errors'] as Map?;
+    final code = data['code'] as String? ?? '';
+    final title = data['title'] as String? ?? '';
+    final detail = data['detail'] as String? ?? '';
+
+    final rawErrors = data['errors'] as Map?;
     final errors = <String, List<String>>{};
     if (rawErrors != null) {
       for (final entry in rawErrors.entries) {

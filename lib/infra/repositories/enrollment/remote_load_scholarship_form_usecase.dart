@@ -1,4 +1,5 @@
 import '../../../data/http/http_client.dart';
+import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/entities/scholarship_form_entity.dart';
@@ -27,6 +28,8 @@ class RemoteLoadScholarshipFormUsecase implements LoadScholarshipFormUsecase {
         // lógica para adaptar currentStep null em 0 e add + 1
         currentStep: (json['currentStep'] as int? ?? 0) + 1,
         completedStep: json['completedStep'] as int? ?? 0,
+        educationLevel:
+            EducationLevel.fromValue(json['educationLevel'] as int? ?? 0),
         zipCode: json['zipCode'] as String?,
         street: json['street'] as String?,
         number: json['number'] as String?,

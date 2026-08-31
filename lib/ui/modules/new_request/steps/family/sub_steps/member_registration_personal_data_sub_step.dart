@@ -228,49 +228,54 @@ class _MemberRegistrationPersonalDataSubStepState
             ),
           ]
         ],
-        const SizedBox(height: 16),
-        EbolsaRadioGroup<int>(
-          question: AppI18n.current.willApplyScholarshipQuestion,
-          options: [
-            RadioOption(label: AppI18n.current.answerNo, value: 0),
-            RadioOption(label: AppI18n.current.answerYes, value: 1),
-          ],
-          groupValue: widget.vm.seraCandidato,
-          onChanged: (v) => widget.vm.setSeraCandidato(v),
-        ),
-        //Se ele responder sim, mostrar o campo para selecionar a nacionalidade
-        if (widget.vm.seraCandidato == 1) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 56,
-            child: InkWell(
-              onTap: widget.onOpenNationality,
-              borderRadius: BorderRadius.circular(12),
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  hintText: AppI18n.current.nationalityLabel,
-                  isDense: true,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+        if (widget.vm.showCandidateField(
+          isFirstMember: widget.vm.addedFamilyMembers.isEmpty,
+          isHigherEducation: widget.vm.isHigherEducation,
+        )) ...[
+          const SizedBox(height: 16),
+          EbolsaRadioGroup<int>(
+            question: AppI18n.current.willApplyScholarshipQuestion,
+            options: [
+              RadioOption(label: AppI18n.current.answerNo, value: 0),
+              RadioOption(label: AppI18n.current.answerYes, value: 1),
+            ],
+            groupValue: widget.vm.seraCandidato,
+            onChanged: (v) => widget.vm.setSeraCandidato(v),
+          ),
+          //Se ele responder sim, mostrar o campo para selecionar a nacionalidade
+          if (widget.vm.seraCandidato == 1) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 56,
+              child: InkWell(
+                onTap: widget.onOpenNationality,
+                borderRadius: BorderRadius.circular(12),
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    hintText: AppI18n.current.nationalityLabel,
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 16),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    suffixIcon: const Icon(Icons.keyboard_arrow_down),
                   ),
-                  suffixIcon: const Icon(Icons.keyboard_arrow_down),
-                ),
-                child: Text(
-                  widget.vm.nacionalityController.text.isNotEmpty
-                      ? widget.vm.nacionalityController.text
-                      : AppI18n.current.nationalityLabel,
-                  style: widget.vm.nacionalityController.text.isEmpty
-                      ? AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.onSurface.withValues(alpha: 0.6))
-                      : AppTextStyles.bodyMedium,
+                  child: Text(
+                    widget.vm.nacionalityController.text.isNotEmpty
+                        ? widget.vm.nacionalityController.text
+                        : AppI18n.current.nationalityLabel,
+                    style: widget.vm.nacionalityController.text.isEmpty
+                        ? AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.onSurface.withValues(alpha: 0.6))
+                        : AppTextStyles.bodyMedium,
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ],
         // se ele for nacionalidade estrangeira deve mostrar o campo abaixo
         if ((widget.vm.nacionalityController.text.trim().isNotEmpty)) ...[

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
+import '../../../../../domain/entities/occupation_type_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/themes/themes.dart';
@@ -15,6 +19,8 @@ class OccupationPage extends StatefulWidget {
     this.initialOccupation,
     this.initialOccupationDetails,
     this.initialMonthlyIncome,
+    this.occupationTypes = const [],
+    this.memberBirthDate,
   });
 
   final int initialPension;
@@ -23,6 +29,8 @@ class OccupationPage extends StatefulWidget {
   final String? initialOccupation;
   final Map<String, String>? initialOccupationDetails;
   final String? initialMonthlyIncome;
+  final List<OccupationTypeEntity> occupationTypes;
+  final String? memberBirthDate;
 
   @override
   State<OccupationPage> createState() => _OccupationPageState();
@@ -34,20 +42,59 @@ class _OccupationPageState extends State<OccupationPage> {
   late int _recebeOutroBeneficioINSS;
   bool _studentAcknowledged = false;
 
-  final List<String> _occupationOptions = const [
-    'Nenhum',
-    'Estudante',
-    'Assalariado(a)',
-    'Proprietário(a) ou Sócio(a) de Empresa',
-    'Autônomo(a) ou Profissional Liberal',
-    'Trabalhador(a) Informal',
-    'Estagiário',
-    'Estágio não Remunerado',
-    'Aposentado e/ou Pensionista',
-    'Beneficiário(a) de Prestação Continuada (BPC)',
-    'Desempregado(a)',
-    'Do Lar',
-  ];
+  // Calcula idade do membro a partir da data de nascimento
+  int get _memberAge {
+    if (widget.memberBirthDate == null || widget.memberBirthDate!.isEmpty) {
+      return 99;
+    }
+    try {
+      final dob = DateFormat('dd/MM/yyyy').parse(widget.memberBirthDate!);
+      final now = DateTime.now();
+      int age = now.year - dob.year;
+      if (now.month < dob.month ||
+          (now.month == dob.month && now.day < dob.day)) {
+        age--;
+      }
+      return age;
+    } catch (_) {
+      return 99;
+    }
+  }
+
+  List<String> get _occupationOptions {
+    if (widget.occupationTypes.isEmpty) {
+      return const [
+        'Nenhum',
+        'Estudante',
+        'Assalariado(a)',
+        'Proprietário(a) ou Sócio(a) de Empresa',
+        'Autônomo(a) ou Profissional Liberal',
+        'Trabalhador(a) Informal',
+        'Estagiário',
+        'Estágio não Remunerado',
+        'Aposentado e/ou Pensionista',
+        'Beneficiário(a) de Prestação Continuada (BPC)',
+        'Desempregado(a)',
+        'Do Lar',
+      ];
+    }
+    // Filtra por idade usando ocupationRules quando confirmado
+    // Por enquanto retorna todos os tipos ordenados
+    // TODO: aplicar filtro de ocupationRules quando regras confirmadas com backend
+    return widget.occupationTypes
+        .map((t) => t.name ?? '')
+        .where((name) => name.isNotEmpty)
+        .toList();
+  }
+
+  OccupationTypeEntity? _selectedOccupationType(String? name) {
+    if (name == null || widget.occupationTypes.isEmpty) return null;
+    try {
+      return widget.occupationTypes.firstWhere((t) => t.name == name);
+    } catch (_) {
+      return null;
+    }
+  }
 
   String? _selectedOccupation;
   OccupationDetailsViewModel? _detailsViewModel;
@@ -141,11 +188,14 @@ class _OccupationPageState extends State<OccupationPage> {
   }
 
   void _saveAndReturn() {
+    final occupationType = _selectedOccupationType(_selectedOccupation);
+
     final Map<String, dynamic> result = {
       'pension': _recebePensaoAlimenticia,
       'previdencia': _recebePrevidenciaPrivada,
       'inss': _recebeOutroBeneficioINSS,
       'occupation': _selectedOccupation,
+      'ocupationTypeId': occupationType?.id,
     };
 
     if (_detailsViewModel != null) {
@@ -330,7 +380,13 @@ class _OccupationPageState extends State<OccupationPage> {
     _movimentacaoValueController?.dispose();
     _movimentacaoValueController = null;
     _incomeController = TextEditingController();
-    _detailsViewModel = OccupationDetailsViewModel(type: type);
+
+    final occupationType = _selectedOccupationType(_selectedOccupation);
+    _detailsViewModel = OccupationDetailsViewModel(
+      type: type,
+      externalDescription: occupationType?.description,
+    );
+
     // listen to controllers to update button state when user types
     _incomeController!.addListener(() => setState(() {}));
     for (final c in _detailsViewModel!.controllers.values) {
@@ -374,6 +430,12 @@ class _OccupationPageState extends State<OccupationPage> {
       return false;
     }
     return _detailsViewModel!.controllers[_movimentacaoQuestionKey]?.text ==
+        'Sim';
+  }
+
+  bool get _showUnemploymentIncomeField {
+    if (_detailsViewModel?.type != OccupationType.desempregado) return false;
+    return _detailsViewModel!.controllers['Recebe seguro desemprego?']?.text ==
         'Sim';
   }
 
@@ -454,7 +516,14 @@ class _OccupationPageState extends State<OccupationPage> {
       if (_detailsViewModel!.type != OccupationType.estudante &&
           _detailsViewModel!.type != OccupationType.estagioNaoRemunerado &&
           _detailsViewModel!.type != OccupationType.desempregado &&
+          _detailsViewModel!.type != OccupationType.propietario &&
           _detailsViewModel!.type != OccupationType.doLar) {
+        if (_incomeController == null ||
+            _incomeController!.text.trim().isEmpty) {
+          return false;
+        }
+      }
+      if (_showUnemploymentIncomeField) {
         if (_incomeController == null ||
             _incomeController!.text.trim().isEmpty) {
           return false;
@@ -474,6 +543,11 @@ class _OccupationPageState extends State<OccupationPage> {
     // if no specific details and not generic, still allow save when occupation selected
     return true;
   }
+
+  final _cnpjMask = MaskTextInputFormatter(
+    mask: '##.###.###/####-##',
+    filter: {'#': RegExp(r'\d')},
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -568,13 +642,30 @@ class _OccupationPageState extends State<OccupationPage> {
                           ),
                         );
                       }
+
+                      final isCnpj = hint == 'CNPJ';
+                      final isMonetary = hint.toLowerCase().contains('valor') ||
+                          hint.toLowerCase().contains('r\$');
+
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 16),
                         child: EbolsaTextField(
                           controller: _detailsViewModel!.controllers[hint]!,
                           label: hint,
                           hint: hint,
-                          keyboardType: TextInputType.text,
+                          keyboardType: isCnpj || isMonetary
+                              ? const TextInputType.numberWithOptions(
+                                  decimal: true)
+                              : TextInputType.text,
+                          inputFormatters: isCnpj
+                              ? [_cnpjMask]
+                              : isMonetary
+                                  ? [
+                                      FilteringTextInputFormatter.allow(
+                                        RegExp(r'[0-9,.]'),
+                                      ),
+                                    ]
+                                  : null,
                           borderRadius: 12.0,
                         ),
                       );
@@ -584,6 +675,7 @@ class _OccupationPageState extends State<OccupationPage> {
                             OccupationType.estagioNaoRemunerado &&
                         _detailsViewModel!.type !=
                             OccupationType.desempregado &&
+                        _detailsViewModel!.type != OccupationType.propietario &&
                         _detailsViewModel!.type != OccupationType.doLar)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16),
@@ -591,7 +683,12 @@ class _OccupationPageState extends State<OccupationPage> {
                           controller: _ensureIncomeController(),
                           label: 'Recebimento mensal em R\$',
                           hint: 'Recebimento mensal em R\$',
-                          keyboardType: TextInputType.number,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'[0-9,.]'))
+                          ],
                           borderRadius: 12.0,
                         ),
                       ),
@@ -620,8 +717,11 @@ class _OccupationPageState extends State<OccupationPage> {
                             controller: _ensureMovimentacaoValueController(),
                             label: 'Informe o valor em R\$',
                             keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
+                                decimal: true),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'[0-9,.]')),
+                            ],
                           ),
                         ),
                       ],
@@ -631,6 +731,27 @@ class _OccupationPageState extends State<OccupationPage> {
                         question: 'Recebe seguro desemprego?',
                         controller: _detailsViewModel!
                             .controllers['Recebe seguro desemprego?']!,
+                        onAnswerChanged: (answer) {
+                          if (answer != 'Sim') {
+                            _incomeController?.clear();
+                          }
+                        },
+                      ),
+                    if (_showUnemploymentIncomeField)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, bottom: 16),
+                        child: EbolsaTextField(
+                          controller: _ensureIncomeController(),
+                          label: 'Recebimento mensal em R\$',
+                          hint: 'Recebimento mensal em R\$',
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'[0-9,.]')),
+                          ],
+                          borderRadius: 12.0,
+                        ),
                       ),
                   ] else if (_genericLabel != null) ...[
                     EbolsaImportantBanner(

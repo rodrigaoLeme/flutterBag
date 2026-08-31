@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 import 'occupation_type.dart';
 
 class OccupationDetailsViewModel {
-  OccupationDetailsViewModel({required this.type}) {
+  OccupationDetailsViewModel({
+    required this.type,
+    this.externalDescription,
+  }) {
     _init();
   }
 
   final OccupationType type;
+  final String? externalDescription;
 
   late final List<String> fieldHints;
   final Map<String, TextEditingController> controllers = {};
@@ -45,7 +49,11 @@ class OccupationDetailsViewModel {
     }
   }
 
-  String get description {
+  String get description => externalDescription?.isNotEmpty == true
+      ? externalDescription!
+      : _localDescription;
+
+  String get _localDescription {
     switch (type) {
       case OccupationType.estudante:
         return 'Pessoa matriculada em instituição de ensino onde os estudos são a atividade principal. Exemplos: alunos do ensino fundamental, médio, técnico, superior (graduação), pós-graduação, cursos profissionalizantes, idiomas ou preparatórios para concursos.';
@@ -66,7 +74,7 @@ class OccupationDetailsViewModel {
       case OccupationType.beneficiario:
         return 'Pessoa com deficiência ou idoso acima de 65 anos em situação de vulnerabilidade social, que recebe um salário mínimo mensal do governo federal. Exemplos: pessoas com deficiência física, intelectual, mental ou sensorial de longo prazo, idosos em famílias com renda per capita inferior a 1/4 do salário mínimo.';
       case OccupationType.desempregado:
-        return 'Pessoa sem trabalho que está ativamente procurando emprego e disponível para trabalhar. Exemplos: pessoas em busca do primeiro emprego, demitidas recentemente, em transição de carreira, podendo ou não receber seguro-desemprego, participando de processos seletivos ou capacitações profissionais.';
+        return 'XPessoa sem trabalho que está ativamente procurando emprego e disponível para trabalhar. Exemplos: pessoas em busca do primeiro emprego, demitidas recentemente, em transição de carreira, podendo ou não receber seguro-desemprego, participando de processos seletivos ou capacitações profissionais.';
       case OccupationType.doLar:
         return 'Pessoa que dedica seu tempo integral aos cuidados domésticos e familiares, sem exercer atividade remunerada externa. Exemplos: responsáveis pelos cuidados da casa, crianças, idosos, pessoas com deficiência ou doentes, organização familiar, sendo esta sua ocupação principal e reconhecida socialmente.';
     }
@@ -79,15 +87,6 @@ class OccupationDetailsViewModel {
         break;
       case OccupationType.assalariado:
         fieldHints = ['Função', 'Empresa'];
-        fieldOptions['Função'] = [
-          'Operacional',
-          'Técnico',
-          'Analista',
-          'Coordenador',
-          'Gerente',
-          'Diretor',
-          'Outro'
-        ];
         break;
       case OccupationType.propietario:
         fieldHints = ['CNPJ', 'Porte da empresa', 'Situação', 'Função/Atuação'];
@@ -111,12 +110,6 @@ class OccupationDetailsViewModel {
         break;
       case OccupationType.autonomo:
         fieldHints = ['Função'];
-        fieldOptions['Função'] = [
-          'Prestador de Serviços',
-          'Profissional Liberal',
-          'Comerciante',
-          'Outro'
-        ];
         break;
       case OccupationType.informal:
         fieldHints = ['Função'];

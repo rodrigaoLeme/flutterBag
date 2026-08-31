@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../domain/entities/announcement_enums.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
+import '../../../../../domain/entities/occupation_type_entity.dart';
 import '../../../../../domain/usecases/enrollment/lookup_person_usecase.dart';
+import '../../../../../infra/repositories/enrollment/remote_load_occupation_types_usecase.dart';
 import '../../../../../main/di/injection_container.dart';
 import '../../../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../../../main/i18n/app_i18n.dart';
@@ -43,12 +46,14 @@ class MemberRegistrationPage extends StatefulWidget {
     required this.scholarshipId,
     required this.processPeriodId,
     required this.initialFamilyMembers,
+    required this.educationLevel,
   });
 
   final MemberRegistrationPresenter? presenter;
   final String scholarshipId;
   final String processPeriodId;
   final List<FamilyMemberEntity> initialFamilyMembers;
+  final EducationLevel? educationLevel;
 
   @override
   State<MemberRegistrationPage> createState() => _MemberRegistrationPageState();
@@ -62,10 +67,16 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
   MemberRegistrationViewModel get _vm => _presenter.viewModel;
 
+  List<OccupationTypeEntity> _occupationTypes = [];
+  bool _isLoadingOccupationTypes = false;
+
   @override
   void initState() {
     super.initState();
-    _presenter = widget.presenter ?? StreamMemberRegistrationPresenter();
+    _presenter = widget.presenter ??
+        StreamMemberRegistrationPresenter(
+          isHigherEducation: widget.educationLevel == EducationLevel.higher,
+        );
     _currentSubStep = _presenter.currentSubStep;
     _scrollController = ScrollController();
     if (_presenter is StreamMemberRegistrationPresenter) {
@@ -81,6 +92,8 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
         _onCpfComplete(accout.userCpf);
       }
     }
+
+    _loadOccupationTypes();
   }
 
   String _formatCpf(String cpf) {
@@ -133,6 +146,9 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       final person = await _lookupPerson.lookup(cpf);
       if (person != null && mounted) {
         _vm.populateFromPerson(person);
+      } else {
+        // Limpa os dados caso coloque outro cpf
+        _vm.clearPersonData();
       }
     } on LookupPersonException catch (e) {
       if (!mounted) return;
@@ -141,6 +157,20 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       );
     } finally {
       if (mounted) setState(() => _vm.isLoadingPerson = false);
+    }
+  }
+
+  Future<void> _loadOccupationTypes() async {
+    setState(() => _isLoadingOccupationTypes = true);
+    try {
+      _occupationTypes = await makeRemoteLoadOccupationTypes().load();
+    } on LoadOccupationTypesException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoadingOccupationTypes = false);
     }
   }
 
@@ -177,9 +207,13 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
   }
 
   Future<void> _openOccupationPage({Map<String, dynamic>? initial}) async {
+    if (_isLoadingOccupationTypes) return;
+
     final res = await Navigator.of(context).push<Map<dynamic, dynamic>>(
       MaterialPageRoute(
         builder: (_) => OccupationPage(
+          occupationTypes: _occupationTypes,
+          memberBirthDate: _vm.dobController.text,
           initialPension: _vm.recebePensaoAlimenticia ?? 0,
           initialPrevidencia: _vm.recebePrevidenciaPrivada ?? 0,
           initialInss: _vm.recebeOutroBeneficioINSS ?? 0,

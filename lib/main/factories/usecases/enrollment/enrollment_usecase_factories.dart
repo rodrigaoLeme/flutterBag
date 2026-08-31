@@ -1,8 +1,10 @@
+import '../../../../domain/usecases/enrollment/load_occupation_types_usecase.dart';
 import '../../../../domain/usecases/enrollment/load_scholarship_form_usecase.dart';
 import '../../../../domain/usecases/enrollment/lookup_person_usecase.dart';
 import '../../../../domain/usecases/enrollment/lookup_zip_code_usecase.dart';
 import '../../../../domain/usecases/enrollment/save_step_1_usecase.dart';
 import '../../../../domain/usecases/enrollment/save_step_2_usecase.dart';
+import '../../../../infra/repositories/enrollment/remote_load_occupation_types_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_load_scholarship_form_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_lookup_person_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_lookup_zip_code_usecase.dart';
@@ -30,6 +32,11 @@ RemoteSaveFamilyMemberUsecase makeRemoteSaveFamilyMember() =>
     );
 
 LookupPersonUsecase makeRemoteLookupPerson() => RemoteLookupPersonUsecase(
+      httpClient: makeAuthorizeHttpClientDecorator(),
+    );
+
+LoadOccupationTypesUsecase makeRemoteLoadOccupationTypes() =>
+    RemoteLoadOccupationTypesUsecase(
       httpClient: makeAuthorizeHttpClientDecorator(),
     );
 

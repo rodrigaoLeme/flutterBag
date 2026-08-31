@@ -5,8 +5,13 @@ import '../../../../ui/modules/new_request/steps/family/member_registration_sub_
 import '../../../../ui/modules/new_request/steps/family/member_registration_view_model.dart';
 
 class StreamMemberRegistrationPresenter implements MemberRegistrationPresenter {
-  StreamMemberRegistrationPresenter({MemberRegistrationViewModel? viewModel})
-      : viewModel = viewModel ?? MemberRegistrationViewModel() {
+  StreamMemberRegistrationPresenter({
+    MemberRegistrationViewModel? viewModel,
+    bool isHigherEducation = false,
+  }) : viewModel = viewModel ??
+            MemberRegistrationViewModel(
+              isHigherEducation: isHigherEducation,
+            ) {
     _currentSubStepController.add(_currentSubStep);
     this.viewModel.addListener(_emitSubStep);
   }

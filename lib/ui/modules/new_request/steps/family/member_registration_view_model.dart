@@ -78,6 +78,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   final List<FamilyMemberEntity> familyMemberEntities = [];
 
   bool isLoadingPerson = false;
+  bool isHigherEducation;
 
   String? cpfError;
   String? selectedGender;
@@ -116,7 +117,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   int? possuiInvestimentoFinanceiro;
   int? possuiVeiculo;
 
-  MemberRegistrationViewModel() {
+  MemberRegistrationViewModel({this.isHigherEducation = false}) {
     for (final controller in _trackedControllers) {
       controller.addListener(notifyListeners);
     }
@@ -141,6 +142,12 @@ class MemberRegistrationViewModel extends ChangeNotifier {
         programaGovernoController,
         programaGovernoValueController,
       ];
+
+  bool showCandidateField(
+      {required bool isFirstMember, required bool isHigherEducation}) {
+    if (isHigherEducation) return true;
+    return !isFirstMember;
+  }
 
   bool get showReceivesPension => maritalStatus == MaritalStatus.viuvo;
   bool get showIsRetired => recebePensao == 1;
@@ -555,18 +562,10 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   bool _isFieldFilled(TextEditingController controller) =>
       controller.text.trim().isNotEmpty;
 
-  bool _isCpfError(String? cpfErro) {
-    if (cpfErro != null) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   bool isPersonalDataSubStepComplete() {
     if (!_isFieldFilled(cpfController) ||
         cpfController.text.length < 14 ||
-        _isCpfError(cpfError)) {
+        cpfError != null) {
       return false;
     }
     if (!_isFieldFilled(nameController)) return false;
@@ -576,7 +575,13 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     if (maritalStatus == null) return false;
     if (showReceivesPension && recebePensao == null) return false;
     if (showIsRetired && aposentado == null) return false;
-    if (seraCandidato == null) return false;
+    if (showCandidateField(
+          isFirstMember: addedFamilyMembers.isEmpty,
+          isHigherEducation: isHigherEducation,
+        ) &&
+        seraCandidato == null) {
+      return false;
+    }
     if (seraCandidato == 1) {
       if (!_isFieldFilled(nacionalityController)) return false;
       if (naturalizado == null) return false;
@@ -639,6 +644,19 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       default:
         return false;
     }
+  }
+
+  void clearPersonData() {
+    nameController.clear();
+    dobController.clear();
+    rgController.clear();
+    orgaoController.clear();
+    selectedGender = null;
+    maritalStatus = null;
+    possuiCIN = null;
+    recebePensao = null;
+    aposentado = null;
+    notifyListeners();
   }
 
   void resetMemberForm() {
