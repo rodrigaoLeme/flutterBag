@@ -6,8 +6,10 @@ import 'package:intl/intl.dart';
 import '../../../../../domain/entities/announcement_enums.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../domain/entities/occupation_type_entity.dart';
+import '../../../../../domain/entities/special_needs_entity.dart';
 import '../../../../../domain/usecases/enrollment/lookup_person_usecase.dart';
 import '../../../../../infra/repositories/enrollment/remote_load_occupation_types_usecase.dart';
+import '../../../../../infra/repositories/enrollment/remote_load_special_needs_usecase.dart';
 import '../../../../../main/di/injection_container.dart';
 import '../../../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../../../main/i18n/app_i18n.dart';
@@ -67,6 +69,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
   MemberRegistrationViewModel get _vm => _presenter.viewModel;
 
+  List<SpecialNeedsEntity> _specialNeeds = [];
   List<OccupationTypeEntity> _occupationTypes = [];
   bool _isLoadingOccupationTypes = false;
 
@@ -93,6 +96,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       }
     }
 
+    _loadSpecialNeeds();
     _loadOccupationTypes();
   }
 
@@ -147,7 +151,6 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       if (person != null && mounted) {
         _vm.populateFromPerson(person);
       } else {
-        // Limpa os dados caso coloque outro cpf
         _vm.clearPersonData();
       }
     } on LookupPersonException catch (e) {
@@ -157,6 +160,20 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       );
     } finally {
       if (mounted) setState(() => _vm.isLoadingPerson = false);
+    }
+  }
+
+  Future<void> _loadSpecialNeeds() async {
+    try {
+      _specialNeeds = await makeRemoteLoadSpecialNeeds().load();
+      if (mounted) {
+        _vm.updatePcdOptions(_specialNeeds);
+      }
+    } on LoadSpecialNeedsException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
     }
   }
 

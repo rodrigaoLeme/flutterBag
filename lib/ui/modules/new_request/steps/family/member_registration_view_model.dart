@@ -7,6 +7,7 @@ import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../domain/entities/group_income_entity.dart';
 import '../../../../../domain/entities/occupation_entity.dart';
 import '../../../../../domain/entities/person_entity.dart';
+import '../../../../../domain/entities/special_needs_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../helpers/money_formatter.dart';
 
@@ -46,14 +47,10 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   final List<String> genderOptions = ['Feminino', 'Masculino'];
   final List<String> responsibleOptions = ['Pai', 'Mãe', 'Outro'];
-  final List<String> pcdOptions = [
-    'Nenhuma',
-    'Auditiva',
-    'Visual',
-    'Fisica',
-    'Mental',
-    'Multipla',
-  ];
+  List<String> get pcdOptions => _specialNeedsOptions
+      .map((e) => e.name ?? '')
+      .where((n) => n.isNotEmpty)
+      .toList();
   final List<String> nationalityOptions = [
     'Brasileira',
     'Argentina',
@@ -79,6 +76,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   bool isLoadingPerson = false;
   bool isHigherEducation;
+
+  List<SpecialNeedsEntity> _specialNeedsOptions = [];
 
   String? cpfError;
   String? selectedGender;
@@ -159,6 +158,16 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     final name = nameController.text.trim();
     if (name.isEmpty) return 'O membro';
     return name.split(RegExp(r'\s+')).first;
+  }
+
+// Retorna o id da opção selecionada (null se 'Nenhuma')
+  String? get selectedPcdId {
+    if (selectedPcd == null || selectedPcd == 'Nenhuma') return null;
+    try {
+      return _specialNeedsOptions.firstWhere((e) => e.name == selectedPcd).id;
+    } catch (_) {
+      return null;
+    }
   }
 
   void setCpfError(String? error) {
@@ -246,6 +255,11 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   void setSelectedPcd(String? v) {
     selectedPcd = v;
+    notifyListeners();
+  }
+
+  void updatePcdOptions(List<SpecialNeedsEntity> options) {
+    _specialNeedsOptions = options;
     notifyListeners();
   }
 
@@ -831,7 +845,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
           possuiDoenca == 1 ? tipoDoencaController.text.trim() : null,
       hasHighAbilityGiftedness: superdotacao == 1,
       hasAutismSpectrumDisorder: espectro == 1,
-      specialNeedsId: selectedPcd == 'Nenhuma' ? null : selectedPcd,
+      specialNeedsId: selectedPcdId,
       hasCadUnico: cadunicoValue == 1,
       governmentBeneficiaryNis:
           cadunicoValue == 1 ? nisController.text.trim() : null,

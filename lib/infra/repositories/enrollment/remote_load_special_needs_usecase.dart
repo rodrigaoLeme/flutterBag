@@ -1,46 +1,43 @@
 import '../../../data/http/http_client.dart';
-import '../../../domain/entities/occupation_type_entity.dart';
-import '../../../domain/usecases/enrollment/load_occupation_types_usecase.dart';
+import '../../../domain/entities/special_needs_entity.dart';
+import '../../../domain/usecases/enrollment/load_special_needs_usecase.dart';
 import '../../../main/flavors.dart';
 import '../../../main/i18n/app_i18n.dart';
 
-class RemoteLoadOccupationTypesUsecase implements LoadOccupationTypesUsecase {
+class RemoteLoadSpecialNeedsUsecase implements LoadSpecialNeedsUsecase {
   final HttpClient httpClient;
 
-  const RemoteLoadOccupationTypesUsecase({required this.httpClient});
+  const RemoteLoadSpecialNeedsUsecase({required this.httpClient});
 
   @override
-  Future<List<OccupationTypeEntity>> load() async {
+  Future<List<SpecialNeedsEntity>> load() async {
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/ocupation-types',
+        url: '${Flavor.apiBaseUrl}/special-needs',
         method: HttpMethod.get,
       );
 
       final list = (response as List)
-          .map((e) => OccupationTypeEntity.fromJson(
+          .map((e) => SpecialNeedsEntity.fromJson(
                 Map<String, dynamic>.from(e as Map),
               ))
           .toList();
 
-      // Ordena pelo campo order
-      list.sort((a, b) => a.order.compareTo(b.order));
-
       return list;
     } on HttpError catch (e) {
       if (e == HttpError.noConnectivity) {
-        throw LoadOccupationTypesException(AppI18n.current.errorNoInternet);
+        throw LoadSpecialNeedsException(AppI18n.current.errorNoInternet);
       }
-      throw LoadOccupationTypesException(AppI18n.current.errorUnexpected);
+      throw LoadSpecialNeedsException(AppI18n.current.errorUnexpected);
     } on ApiException catch (e) {
-      throw LoadOccupationTypesException(
+      throw LoadSpecialNeedsException(
         e.title.isNotEmpty ? e.title : AppI18n.current.errorUnexpected,
       );
     }
   }
 }
 
-class LoadOccupationTypesException implements Exception {
+class LoadSpecialNeedsException implements Exception {
   final String message;
-  const LoadOccupationTypesException(this.message);
+  const LoadSpecialNeedsException(this.message);
 }
