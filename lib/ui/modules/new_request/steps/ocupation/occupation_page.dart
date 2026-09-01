@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../../../../../domain/entities/occupation_type_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
+import '../../../../helpers/money_text_input_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
 import 'occupation_type.dart';
 import 'ocupation_details_view_model.dart';
@@ -207,11 +207,22 @@ class _OccupationPageState extends State<OccupationPage> {
             _movimentacaoValueController!.text.trim();
       }
       result['occupationDetails'] = details;
-      result['monthlyIncome'] = _incomeController?.text;
+
+      if (_detailsViewModel!.type == OccupationType.propietario) {
+        result['monthlyIncome'] = _showMovimentacaoValueField
+            ? _movimentacaoValueController?.text
+            : '0';
+      } else {
+        result['monthlyIncome'] = _incomeController?.text;
+      }
     } else if (_genericLabel != null) {
       result['occupationDetails'] = {'label': _genericLabel};
       result['monthlyIncome'] = _incomeController?.text;
     }
+
+    print('>>> monthlyIncome salvo: ${result['monthlyIncome']}');
+    print('>>> movimentacaoValue: ${_movimentacaoValueController?.text}');
+    print('>>> showMovimentacao: $_showMovimentacaoValueField');
 
     Navigator.of(context).pop(result);
   }
@@ -240,6 +251,7 @@ class _OccupationPageState extends State<OccupationPage> {
       emptyStateText: appStrings.noticesTermsBottomSheetNoResults,
       closeTooltip: appStrings.noticesTermsCloseAction,
       selectedValue: selectedValue,
+      showSearchInput: false,
     );
     if (selected != null) {
       onSelected(selected);
@@ -319,6 +331,7 @@ class _OccupationPageState extends State<OccupationPage> {
       emptyStateText: appStrings.noticesTermsBottomSheetNoResults,
       closeTooltip: appStrings.noticesTermsCloseAction,
       selectedValue: _selectedOccupation,
+      showSearchInput: false,
     );
 
     if (selected == null) return;
@@ -660,11 +673,7 @@ class _OccupationPageState extends State<OccupationPage> {
                           inputFormatters: isCnpj
                               ? [_cnpjMask]
                               : isMonetary
-                                  ? [
-                                      FilteringTextInputFormatter.allow(
-                                        RegExp(r'[0-9,.]'),
-                                      ),
-                                    ]
+                                  ? [MoneyTextInputFormatter()]
                                   : null,
                           borderRadius: 12.0,
                         ),
@@ -685,10 +694,7 @@ class _OccupationPageState extends State<OccupationPage> {
                           hint: 'Recebimento mensal em R\$',
                           keyboardType: const TextInputType.numberWithOptions(
                               decimal: true),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'[0-9,.]'))
-                          ],
+                          inputFormatters: [MoneyTextInputFormatter()],
                           borderRadius: 12.0,
                         ),
                       ),
@@ -718,10 +724,7 @@ class _OccupationPageState extends State<OccupationPage> {
                             label: 'Informe o valor em R\$',
                             keyboardType: const TextInputType.numberWithOptions(
                                 decimal: true),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9,.]')),
-                            ],
+                            inputFormatters: [MoneyTextInputFormatter()],
                           ),
                         ),
                       ],
@@ -746,10 +749,7 @@ class _OccupationPageState extends State<OccupationPage> {
                           hint: 'Recebimento mensal em R\$',
                           keyboardType: const TextInputType.numberWithOptions(
                               decimal: true),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'[0-9,.]')),
-                          ],
+                          inputFormatters: [MoneyTextInputFormatter()],
                           borderRadius: 12.0,
                         ),
                       ),

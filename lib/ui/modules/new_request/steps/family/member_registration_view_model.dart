@@ -151,7 +151,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   bool get showReceivesPension => maritalStatus == MaritalStatus.viuvo;
   bool get showIsRetired => recebePensao == 1;
-  bool get showCINFields => possuiCIN == 1;
+  bool get showCINFields => possuiCIN == 0;
   bool get showNisField => cadunicoValue == 1;
   bool get showDiseaseType => possuiDoenca == 1;
 
@@ -570,6 +570,12 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     }
     if (!_isFieldFilled(nameController)) return false;
     if (!_isFieldFilled(dobController)) return false;
+    try {
+      final dob = DateFormat('dd/MM/yyyy').parse(dobController.text.trim());
+      if (dob.isAfter(DateTime.now())) return false;
+    } catch (_) {
+      return false;
+    }
     if (selectedGender == null) return false;
     if (selectedResponsible == null) return false;
     if (maritalStatus == null) return false;

@@ -26,7 +26,7 @@ class MoneyFormatter {
     if (value is num) return value.toDouble();
     if (value is String) {
       final cleaned = value.replaceAll(RegExp(r'[^0-9,\.]'), '');
-      final normalized = cleaned.replaceAll(',', '.');
+      final normalized = cleaned.replaceAll('.', '').replaceAll(',', '.');
       return double.tryParse(normalized) ?? 0;
     }
     return 0;

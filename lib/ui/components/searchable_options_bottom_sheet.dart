@@ -16,6 +16,7 @@ class SearchableOptionsBottomSheet {
     T? selectedValue,
     String Function(T item)? labelBuilder,
     String Function(T item)? searchTextBuilder,
+    bool showSearchInput = true,
   }) async {
     final resolveLabel = labelBuilder ?? (T item) => item.toString();
     final resolveSearchText = searchTextBuilder ?? resolveLabel;
@@ -38,6 +39,7 @@ class SearchableOptionsBottomSheet {
           selectedValue: selectedValue,
           resolveLabel: resolveLabel,
           resolveSearchText: resolveSearchText,
+          showSearchInput: showSearchInput,
         );
       },
     );
@@ -58,6 +60,7 @@ class _SearchableOptionsContent<T> extends StatefulWidget {
     this.selectedValue,
     required this.resolveLabel,
     required this.resolveSearchText,
+    required this.showSearchInput,
   });
 
   final String title;
@@ -69,6 +72,7 @@ class _SearchableOptionsContent<T> extends StatefulWidget {
   final T? selectedValue;
   final String Function(T) resolveLabel;
   final String Function(T) resolveSearchText;
+  final bool showSearchInput;
 
   @override
   State<_SearchableOptionsContent<T>> createState() =>
@@ -154,46 +158,48 @@ class _SearchableOptionsContentState<T>
                 ],
               ),
               const SizedBox(height: 4),
-              Text(
-                widget.helperText,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: searchController,
-                focusNode: searchFocus,
-                onChanged: (query) {
-                  final normalizedQuery = query.toLowerCase();
-                  setState(() {
-                    filteredOptions = widget.options
-                        .where((item) => widget
-                            .resolveSearchText(item)
-                            .toLowerCase()
-                            .contains(normalizedQuery))
-                        .toList();
-                  });
-                },
-                decoration: InputDecoration(
-                  hintText: widget.searchHint,
-                  prefixIcon: const Icon(Icons.search),
-                  filled: true,
-                  fillColor: AppColors.backgroundLight,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
+              if (widget.showSearchInput) ...[
+                Text(
+                  widget.helperText,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey,
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(50),
-                    borderSide: const BorderSide(
-                      color: Color.fromARGB(255, 208, 209, 214),
-                      width: 1.2,
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: searchController,
+                  focusNode: searchFocus,
+                  onChanged: (query) {
+                    final normalizedQuery = query.toLowerCase();
+                    setState(() {
+                      filteredOptions = widget.options
+                          .where((item) => widget
+                              .resolveSearchText(item)
+                              .toLowerCase()
+                              .contains(normalizedQuery))
+                          .toList();
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: widget.searchHint,
+                    prefixIcon: const Icon(Icons.search),
+                    filled: true,
+                    fillColor: AppColors.backgroundLight,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 208, 209, 214),
+                        width: 1.2,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
               const SizedBox(height: 12),
               Expanded(
                 child: filteredOptions.isEmpty

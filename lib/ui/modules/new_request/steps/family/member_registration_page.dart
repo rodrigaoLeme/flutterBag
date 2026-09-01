@@ -202,6 +202,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       emptyStateText: appStrings.noticesTermsBottomSheetNoResults,
       closeTooltip: appStrings.noticesTermsCloseAction,
       selectedValue: _vm.selectedPcd,
+      showSearchInput: false,
     );
     if (selected != null) _vm.setSelectedPcd(selected);
   }
@@ -470,7 +471,6 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       case 1:
         return MemberRegistrationPersonalDataSubStep(
           vm: _vm,
-          onSelectDate: _selectDate,
           onOpenNationality: _openNationalitySelector,
           onOpenPcd: _openPcdSelector,
           onCpfComplete: _onCpfComplete,

@@ -1,5 +1,6 @@
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../../../../../../domain/entities/enrollment_enums.dart';
 import '../../../../../../main/i18n/app_i18n.dart';
@@ -9,7 +10,6 @@ import '../member_registration_view_model.dart';
 
 class MemberRegistrationPersonalDataSubStep extends StatefulWidget {
   final MemberRegistrationViewModel vm;
-  final VoidCallback onSelectDate;
   final VoidCallback onOpenNationality;
   final VoidCallback onOpenPcd;
   final Future<void> Function(String cpf) onCpfComplete;
@@ -17,7 +17,6 @@ class MemberRegistrationPersonalDataSubStep extends StatefulWidget {
   const MemberRegistrationPersonalDataSubStep({
     super.key,
     required this.vm,
-    required this.onSelectDate,
     required this.onOpenNationality,
     required this.onOpenPcd,
     required this.onCpfComplete,
@@ -56,6 +55,11 @@ class _MemberRegistrationPersonalDataSubStepState
     }
   }
 
+  final _dobMask = MaskTextInputFormatter(
+    mask: '##/##/####',
+    filter: {'#': RegExp(r'\d')},
+  );
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -85,14 +89,12 @@ class _MemberRegistrationPersonalDataSubStepState
             Expanded(
               child: SizedBox(
                 height: 56,
-                child: GestureDetector(
-                  onTap: widget.onSelectDate,
-                  child: AbsorbPointer(
-                    child: EbolsaTextField(
-                      controller: widget.vm.dobController,
-                      label: AppI18n.current.dobLabel,
-                    ),
-                  ),
+                child: EbolsaTextField(
+                  controller: widget.vm.dobController,
+                  label: AppI18n.current.dobLabel,
+                  hint: 'dd/mm/aaaa',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [_dobMask],
                 ),
               ),
             ),
@@ -308,7 +310,7 @@ class _MemberRegistrationPersonalDataSubStepState
           onChanged: (v) => widget.vm.setPossuiCIN(v),
         ),
         // se a resposta for sim, mostrar os campos abaixo para inserir o número do CIN e o órgão emissor
-        if (widget.vm.possuiCIN == 1) ...[
+        if (widget.vm.possuiCIN == 0) ...[
           Row(
             children: [
               Expanded(
