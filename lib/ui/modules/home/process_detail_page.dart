@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/process_enums.dart';
-import '../../../domain/entities/process_period_entity.dart';
 import '../../../domain/entities/scholarship_entity.dart';
+import '../../../domain/entities/scholarship_process_period_entity.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
@@ -16,7 +16,7 @@ import 'process_terms_page.dart';
 
 class ProcessDetailPage extends StatelessWidget {
   final ScholarshipEntity scholarship;
-  final ProcessPeriodAvailableEntity? period;
+  final ScholarshipProcessPeriodEntity? period;
   final ProcessSteps step;
   final VoidCallback? onContinue;
 
@@ -91,7 +91,7 @@ class ProcessDetailPage extends StatelessWidget {
                   // Região administrativa + Edital
                   InfoRow2Col(
                     label1: appStrings.administrativeRegion,
-                    value1: 'Aqui era pra ter UCB-AP',
+                    value1: scholarship.administrativeAcronym ?? '-',
                     label2: appStrings.processCardNotice,
                     value2: period?.announcementTitle ?? '-',
                   ),

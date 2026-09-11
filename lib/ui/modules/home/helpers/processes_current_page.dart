@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../domain/entities/announcement_enums.dart';
 import '../../../../domain/entities/process_enums.dart';
-import '../../../../domain/entities/process_period_entity.dart';
 import '../../../../domain/entities/scholarship_entity.dart';
 import '../../../../main/factories/pages/new_scholarship/new_scholarship_page_factory.dart';
 import '../../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
@@ -17,24 +16,13 @@ class ProcessesCurrentPage extends StatelessWidget {
   final int yearSelected;
   final ProcessesBanner processesBanner;
   final List<ScholarshipEntity> scholarships;
-  final List<ProcessPeriodAvailableEntity> availablePeriods;
 
   const ProcessesCurrentPage({
     super.key,
     required this.yearSelected,
     required this.processesBanner,
     required this.scholarships,
-    required this.availablePeriods,
   });
-
-  // Merge scholarship com period pelo processPeriodId
-  ProcessPeriodAvailableEntity? _periodFor(ScholarshipEntity s) {
-    try {
-      return availablePeriods.firstWhere((p) => p.id == s.processPeriodId);
-    } catch (_) {
-      return null;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,43 +33,54 @@ class ProcessesCurrentPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            appStrings.homeTitle,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text(appStrings.homeTitle,
+              style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
           Text(
-            '${appStrings.homeSubtitleProcessInProgress} $yearSelected', // appStrings.homeSubtitleFinishedProcess,
+            '${appStrings.homeSubtitleProcessInProgress} $yearSelected',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 40),
-          ...scholarships.map((scholarship) {
-            final period = _periodFor(scholarship);
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: ProcessCardCurrent(
-                administrativeRegion: period?.announcementTitle ?? '-',
-                notice: period?.announcementTitle ?? '-',
-                level: period?.educationLevel?.label ?? '-',
-                scholarshipType: period?.scholarshipType?.label ?? '-',
-                processType: scholarship.processType == ProcessType.renewal
-                    ? ProcessesType.renewProcess
-                    : ProcessesType.newProcess,
-                step: ProcessSteps.fromValue(scholarship.currentStep),
-                candidates: const [],
-                processesBanner: processesBanner,
-                warningMessage: period?.registerPeriodLabel ?? '-',
-                onContinue: scholarship.processPeriodId != null
-                    ? () => _onContinue(context, scholarship)
-                    : null,
-                onDetail: () => _onDetail(context, scholarship, period),
-              ),
-            );
-          }),
-          const SizedBox(height: 18),
+          ...scholarships.map((scholarship) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: ProcessCardCurrent(
+                  administrativeRegion:
+                      scholarship.administrativeAcronym ?? '-',
+                  notice: scholarship.announcementTitle ?? '-',
+                  level: scholarship.educationLevel?.label ?? '-',
+                  scholarshipType: scholarship.scholarshipType?.label ?? '-',
+                  processType: scholarship.processType == ProcessType.renewal
+                      ? ProcessesType.renewProcess
+                      : ProcessesType.newProcess,
+                  step: _mapStep(scholarship.completedStep),
+                  candidates: const [],
+                  warningMessage: scholarship.bannerDeadline != null
+                      ? 'Até ${_formatDate(scholarship.bannerDeadline!)}'
+                      : '-',
+                  // Botão continuar — habilitado só se canContinue
+                  onContinue: scholarship.canContinue
+                      ? () => _onContinue(context, scholarship)
+                      : null,
+                  onDetail: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ProcessDetailPage(
+                        scholarship: scholarship,
+                        period: scholarship.processPeriod,
+                        step: _mapStep(scholarship.completedStep),
+                        onContinue: scholarship.canContinue
+                            ? () => _onContinue(context, scholarship)
+                            : null,
+                      ),
+                    ),
+                  ),
+                  processesBanner: processesBanner,
+                ),
+              )),
+          const SizedBox(height: 24),
+          // Botões de nova solicitação e renovação
           Row(
             children: [
-              Flexible(
+              Expanded(
                 child: EbolsaButton(
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
@@ -89,12 +88,12 @@ class ProcessesCurrentPage extends StatelessWidget {
                           makeNewScholarshipPage(lockedYear: yearSelected),
                     ),
                   ),
-                  label: appStrings.newProcess,
+                  label: 'Alguma label', //appStrings.homeNewScholarshipButton,
                   isOutlined: true,
                 ),
               ),
               const SizedBox(width: 16),
-              Flexible(
+              Expanded(
                 child: EbolsaButton(
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
@@ -106,18 +105,17 @@ class ProcessesCurrentPage extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 24),
-          EbolsaImportantBanner(
-            title: appStrings.homeImportantTitle,
-            message: appStrings.homeImportantMessage,
-          ),
-          const SizedBox(height: 23),
         ],
       ),
     );
   }
 
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
   void _onContinue(BuildContext context, ScholarshipEntity scholarship) {
+    if (scholarship.processPeriodId == null) return;
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => NewScholarshipRequestPage(
@@ -128,26 +126,24 @@ class ProcessesCurrentPage extends StatelessWidget {
         ),
       ),
     );
-    // O _initForm do presenter já verifica draft local e endpoint automaticamente
-    // pra carregar os dados.
   }
 
-  void _onDetail(BuildContext context, ScholarshipEntity scholarship,
-      ProcessPeriodAvailableEntity? period) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ProcessDetailPage(
-          scholarship: scholarship,
-          period: period,
-          step: ProcessSteps.fromValue(scholarship.currentStep),
-          onContinue: scholarship.processPeriodId != null
-              ? () {
-                  Navigator.of(context).pop(); // fecha o detail
-                  _onContinue(context, scholarship);
-                }
-              : null,
-        ),
-      ),
-    );
+  ProcessSteps _mapStep(int? completedStep) {
+    switch (completedStep) {
+      case 1:
+        return ProcessSteps.initial;
+      case 2:
+        return ProcessSteps.register;
+      case 3:
+        return ProcessSteps.documentation;
+      case 4:
+        return ProcessSteps.verification;
+      case 5:
+        return ProcessSteps.analysis;
+      case 6:
+        return ProcessSteps.completed;
+      default:
+        return ProcessSteps.initial;
+    }
   }
 }

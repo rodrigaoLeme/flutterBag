@@ -13,7 +13,7 @@ class RemoteLoadOccupationTypesUsecase implements LoadOccupationTypesUsecase {
   Future<List<OccupationTypeEntity>> load() async {
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/ocupation-types',
+        url: '${Flavor.apiBaseUrl}/occupation-types',
         method: HttpMethod.get,
       );
 

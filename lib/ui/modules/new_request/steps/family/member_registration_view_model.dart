@@ -5,6 +5,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../../../../../domain/entities/enrollment_enums.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../domain/entities/group_income_entity.dart';
+import '../../../../../domain/entities/nationalities_entity.dart';
 import '../../../../../domain/entities/occupation_entity.dart';
 import '../../../../../domain/entities/person_entity.dart';
 import '../../../../../domain/entities/special_needs_entity.dart';
@@ -13,6 +14,7 @@ import '../../../../helpers/money_formatter.dart';
 
 class MemberRegistrationViewModel extends ChangeNotifier {
   static const double minimumWage = 1518.0;
+  static const _brazilianNationalityId = 'c88ac7a5-2de6-4b2e-a9b2-dc4d3f654dfa';
 
   final TextEditingController cpfController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
@@ -51,20 +53,10 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       .map((e) => e.name ?? '')
       .where((n) => n.isNotEmpty)
       .toList();
-  final List<String> nationalityOptions = [
-    'Brasileira',
-    'Argentina',
-    'Chile',
-    'Bolívia',
-    'Colômbia',
-    'Paraguai',
-    'Uruguai',
-    'Venezuela',
-    'Estados Unidos',
-    'Portugal',
-    'Espanha',
-    'Outro',
-  ];
+  List<String> get nationalityOptions => _nationalityOptions
+      .map((e) => e.name ?? '')
+      .where((n) => n.isNotEmpty)
+      .toList();
 
   final List<Map<String, dynamic>> addedOccupations = [];
   final List<Map<String, dynamic>> addedOtherIncomes = [];
@@ -78,6 +70,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   bool isHigherEducation;
 
   List<SpecialNeedsEntity> _specialNeedsOptions = [];
+  List<NationalitiesEntity> _nationalityOptions = [];
 
   String? cpfError;
   String? selectedGender;
@@ -153,6 +146,9 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   bool get showCINFields => possuiCIN == 0;
   bool get showNisField => cadunicoValue == 1;
   bool get showDiseaseType => possuiDoenca == 1;
+  bool get showNaturalizedField =>
+      selectedNationalityId != null &&
+      selectedNationalityId != _brazilianNationalityId;
 
   String get memberFirstName {
     final name = nameController.text.trim();
@@ -160,11 +156,21 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     return name.split(RegExp(r'\s+')).first;
   }
 
-// Retorna o id da opção selecionada (null se 'Nenhuma')
   String? get selectedPcdId {
     if (selectedPcd == null || selectedPcd == 'Nenhuma') return null;
     try {
       return _specialNeedsOptions.firstWhere((e) => e.name == selectedPcd).id;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? get selectedNationalityId {
+    if (nacionalityController.text.isEmpty) return null;
+    try {
+      return _nationalityOptions
+          .firstWhere((e) => e.name == nacionalityController.text)
+          .id;
     } catch (_) {
       return null;
     }
@@ -265,6 +271,11 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   void setNationality(String value) {
     nacionalityController.text = value;
+    notifyListeners();
+  }
+
+  void updateNationalityOptions(List<NationalitiesEntity> options) {
+    _nationalityOptions = options;
     notifyListeners();
   }
 
@@ -606,6 +617,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       if (!_isFieldFilled(nacionalityController)) return false;
       if (naturalizado == null) return false;
     }
+    if (showNaturalizedField && naturalizado == null) return false;
     if (possuiCIN == null) return false;
     if (showCINFields) {
       if (!_isFieldFilled(rgController)) return false;
@@ -817,16 +829,14 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   FamilyMemberEntity toFamilyMemberEntity({String? existingId}) {
     return FamilyMemberEntity(
-      id: existingId,
+      id: existingId ?? '1', // TODO: Veriricar essa gambiarra aqui.
       name: nameController.text.trim(),
       personCpf: cpfController.text.trim(),
       personBirthDate: _parseDob(),
       personGender: _parseGender(),
       kinshipType: _parseKinshipType(),
       maritalStatus: _parseMaritalStatus(),
-      nationalityId: nacionalityController.text.trim().isEmpty
-          ? null
-          : nacionalityController.text.trim(),
+      nationalityId: selectedNationalityId,
       naturalized: naturalizado == 1,
       isCandidate: seraCandidato == 1,
       isRetired: aposentado == 1,

@@ -24,5 +24,4 @@ LoadAvailableProcessPeriodsUsecase makeRemoteLoadAvailableProcessPeriods() =>
 LoadHomeDataUsecase makeLoadHomeData() => LoadHomeDataUsecaseImpl(
       loadUserYears: makeRemoteLoadUserYears(),
       loadYearScholarships: makeRemoteLoadYearScholarships(),
-      loadAvailableProcessPeriods: makeRemoteLoadAvailableProcessPeriods(),
     );

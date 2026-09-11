@@ -5,9 +5,11 @@ import 'package:intl/intl.dart';
 
 import '../../../../../domain/entities/announcement_enums.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
+import '../../../../../domain/entities/nationalities_entity.dart';
 import '../../../../../domain/entities/occupation_type_entity.dart';
 import '../../../../../domain/entities/special_needs_entity.dart';
 import '../../../../../domain/usecases/enrollment/lookup_person_usecase.dart';
+import '../../../../../infra/repositories/enrollment/remote_load_nationalities_usecase.dart';
 import '../../../../../infra/repositories/enrollment/remote_load_occupation_types_usecase.dart';
 import '../../../../../infra/repositories/enrollment/remote_load_special_needs_usecase.dart';
 import '../../../../../main/di/injection_container.dart';
@@ -71,6 +73,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
   List<SpecialNeedsEntity> _specialNeeds = [];
   List<OccupationTypeEntity> _occupationTypes = [];
+  List<NationalitiesEntity> _nationalities = [];
   bool _isLoadingOccupationTypes = false;
 
   @override
@@ -98,6 +101,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
     _loadSpecialNeeds();
     _loadOccupationTypes();
+    _loadNationalities();
   }
 
   String _formatCpf(String cpf) {
@@ -188,6 +192,18 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       );
     } finally {
       if (mounted) setState(() => _isLoadingOccupationTypes = false);
+    }
+  }
+
+  Future<void> _loadNationalities() async {
+    try {
+      _nationalities = await makeRemoteLoadNationalities().load();
+      if (mounted) _vm.updateNationalityOptions(_nationalities);
+    } on LoadNationalitiesException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
     }
   }
 

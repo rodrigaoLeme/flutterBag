@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../domain/entities/process_period_entity.dart';
+import '../../../domain/entities/scholarship_process_period_entity.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../helpers/themes/themes.dart';
 
 class ProcessDeadlinesPage extends StatelessWidget {
-  final ProcessPeriodAvailableEntity? period;
+  final ScholarshipProcessPeriodEntity? period;
 
   const ProcessDeadlinesPage({super.key, this.period});
 

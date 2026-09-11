@@ -66,9 +66,9 @@ class ProcessCardCurrent extends StatelessWidget {
           // Região administrativa + Edital
           InfoRow2Col(
             label1: appStrings.administrativeRegion,
-            value1: 'Aqui era pra ter UCB-AP',
+            value1: administrativeRegion,
             label2: appStrings.processCardNotice,
-            value2: administrativeRegion,
+            value2: notice,
           ),
           const SizedBox(height: 12),
 

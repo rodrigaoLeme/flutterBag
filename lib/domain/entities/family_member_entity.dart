@@ -1,35 +1,39 @@
 import 'occupation_entity.dart';
 
 class FamilyMemberEntity {
-  final String? id;
+  final String id;
+  final String? personId;
   final String? name;
-  final String? personCpf;
-  final DateTime? personBirthDate;
-  final int? personGender;
-  final int kinshipType;
-  final int maritalStatus;
-  final String? nationalityId;
-  final bool? naturalized;
+  final int? kinshipType;
+  final bool? isResponsible;
   final bool? isCandidate;
-  final bool? isRetired;
-  final bool? hasWorkBooklet;
-  final bool? ruralWorker;
+  final int maritalStatus;
   final int? declarationType;
   final bool? declared;
+  final bool? ruralWorker;
+  final bool? isRetired;
+  final bool? hasWorkBooklet;
+  final bool? naturalized;
+  final String? personCpf;
+  final String? nationalityId;
+
+  final DateTime? personBirthDate;
+  final int? personGender;
   // Documentos
   final bool? personHasCin;
   final String? personRg;
   final String? personRgIssuingAuthority;
   final String? personMobileNumber;
+
   // Saúde
   final bool? hasChronicDisease;
   final String? chronicDiseaseName;
-  final bool? hasHighAbilityGiftedness;
-  final bool? hasAutismSpectrumDisorder;
   final String? specialNeedsId;
+  final bool? hasAutismSpectrumDisorder;
+  final bool? hasHighAbilityGiftedness;
+  final String? specialNeedsName;
+
   // Benefícios
-  final bool? hasCadUnico;
-  final String? governmentBeneficiaryNis;
   final bool? hasAlimony;
   final double? alimonyAmount;
   final bool? hasInssAssistance;
@@ -37,36 +41,23 @@ class FamilyMemberEntity {
   final bool? hasPrivatePension;
   final double? privatePensionAmount;
   final bool? receivePension;
+  final bool? hasCadUnico;
+  final String? governmentBeneficiaryNis;
+
   // Ocupações
   final List<OccupationEntity> occupations;
 
   const FamilyMemberEntity({
-    this.id,
+    required this.id,
+    this.personId,
     this.name,
-    this.personCpf,
-    this.personBirthDate,
-    this.personGender,
-    required this.kinshipType,
-    required this.maritalStatus,
-    this.nationalityId,
-    this.naturalized,
+    this.kinshipType,
+    this.isResponsible,
     this.isCandidate,
-    this.isRetired,
-    this.hasWorkBooklet,
-    this.ruralWorker,
+    required this.maritalStatus,
     this.declarationType,
     this.declared,
-    this.personHasCin,
-    this.personRg,
-    this.personRgIssuingAuthority,
-    this.personMobileNumber,
-    this.hasChronicDisease,
-    this.chronicDiseaseName,
-    this.hasHighAbilityGiftedness,
-    this.hasAutismSpectrumDisorder,
-    this.specialNeedsId,
-    this.hasCadUnico,
-    this.governmentBeneficiaryNis,
+    this.ruralWorker,
     this.hasAlimony,
     this.alimonyAmount,
     this.hasInssAssistance,
@@ -74,6 +65,25 @@ class FamilyMemberEntity {
     this.hasPrivatePension,
     this.privatePensionAmount,
     this.receivePension,
+    this.isRetired,
+    this.hasWorkBooklet,
+    this.hasCadUnico,
+    this.governmentBeneficiaryNis,
+    this.hasChronicDisease,
+    this.chronicDiseaseName,
+    this.specialNeedsId,
+    this.hasAutismSpectrumDisorder,
+    this.hasHighAbilityGiftedness,
+    this.specialNeedsName,
+    this.naturalized,
+    this.personCpf,
+    this.nationalityId,
+    this.personBirthDate,
+    this.personGender,
+    this.personHasCin,
+    this.personRg,
+    this.personRgIssuingAuthority,
+    this.personMobileNumber,
     this.occupations = const [],
   });
 
@@ -90,35 +100,17 @@ class FamilyMemberEntity {
     return age;
   }
 
-  bool get isResponsible => kinshipType == 1;
-
   Map<String, dynamic> toJson() => {
         'id': id,
+        'personId': personId,
         'name': name,
-        'personCpf': personCpf,
-        'personBirthDate': personBirthDate?.toIso8601String(),
-        'personGender': personGender,
         'kinshipType': kinshipType,
-        'maritalStatus': maritalStatus,
-        'nationalityId': nationalityId,
-        'naturalized': naturalized,
+        'isResponsible': isResponsible,
         'isCandidate': isCandidate,
-        'isRetired': isRetired,
-        'hasWorkBooklet': hasWorkBooklet,
-        'ruralWorker': ruralWorker,
+        'maritalStatus': maritalStatus,
         'declarationType': declarationType,
         'declared': declared,
-        'personHasCin': personHasCin,
-        'personRg': personRg,
-        'personRgIssuingAuthority': personRgIssuingAuthority,
-        'personMobileNumber': personMobileNumber,
-        'hasChronicDisease': hasChronicDisease,
-        'chronicDiseaseName': chronicDiseaseName,
-        'hasHighAbilityGiftedness': hasHighAbilityGiftedness,
-        'hasAutismSpectrumDisorder': hasAutismSpectrumDisorder,
-        'specialNeedsId': specialNeedsId,
-        'hasCadUnico': hasCadUnico,
-        'governmentBeneficiaryNis': governmentBeneficiaryNis,
+        'ruralWorker': ruralWorker,
         'hasAlimony': hasAlimony,
         'alimonyAmount': alimonyAmount,
         'hasInssAssistance': hasInssAssistance,
@@ -126,52 +118,81 @@ class FamilyMemberEntity {
         'hasPrivatePension': hasPrivatePension,
         'privatePensionAmount': privatePensionAmount,
         'receivePension': receivePension,
+        'isRetired': isRetired,
+        'hasWorkBooklet': hasWorkBooklet,
+        'hasCadUnico': hasCadUnico,
+        'governmentBeneficiaryNis': governmentBeneficiaryNis,
+        'hasChronicDisease': hasChronicDisease,
+        'chronicDiseaseName': chronicDiseaseName,
+        'specialNeedsId': specialNeedsId,
+        'hasAutismSpectrumDisorder': hasAutismSpectrumDisorder,
+        'hasHighAbilityGiftedness': hasHighAbilityGiftedness,
+        'specialNeedsName': specialNeedsName,
+        'naturalized': naturalized,
+        'personCpf': personCpf,
+        'nationalityId': nationalityId,
+        'personBirthDate': personBirthDate?.toIso8601String(),
+        'personGender': personGender,
+        'personHasCin': personHasCin,
+        'personRg': personRg,
+        'personRgIssuingAuthority': personRgIssuingAuthority,
+        'personMobileNumber': personMobileNumber,
         'occupations': occupations.map((o) => o.toJson()).toList(),
       };
 
   factory FamilyMemberEntity.fromJson(Map<String, dynamic> json) =>
       FamilyMemberEntity(
-        id: json['id'] as String?,
+        id: json['id'] as String,
+        personId: json['personId'] as String?,
         name: json['name'] as String?,
+        kinshipType: json['kinshipType'] as int? ?? 1,
+        isResponsible: json['isResponsible'] as bool?,
+        isCandidate: json['isCandidate'] as bool?,
+        maritalStatus: json['maritalStatus'] as int? ?? 1,
+        declarationType: json['declarationType'] as int?,
+        declared: json['declared'] as bool?,
+        ruralWorker: json['ruralWorker'] as bool?,
+        hasAlimony: json['hasAlimony'] as bool?,
+        alimonyAmount: _parseDouble(json['alimonyAmount']),
+        hasInssAssistance: json['hasInssAssistance'] as bool?,
+        inssAssistanceAmount: _parseDouble(json['inssAssistanceAmount']),
+        hasPrivatePension: json['hasPrivatePension'] as bool?,
+        privatePensionAmount: _parseDouble(json['privatePensionAmount']),
+        receivePension: json['receivePension'] as bool?,
+        isRetired: json['isRetired'] as bool?,
+        hasWorkBooklet: json['hasWorkBooklet'] as bool?,
+        hasCadUnico: json['hasCadUnico'] as bool?,
+        governmentBeneficiaryNis: json['governmentBeneficiaryNis'] as String?,
+        hasChronicDisease: json['hasChronicDisease'] as bool?,
+        chronicDiseaseName: json['chronicDiseaseName'] as String?,
+        specialNeedsId: json['specialNeedsId'] as String?,
+        hasAutismSpectrumDisorder: json['hasAutismSpectrumDisorder'] as bool?,
+        hasHighAbilityGiftedness: json['hasHighAbilityGiftedness'] as bool?,
+        specialNeedsName: json['specialNeedsName'] as String?,
+        naturalized: json['naturalized'] as bool?,
         personCpf: json['personCpf'] as String?,
+        nationalityId: json['nationalityId'] as String?,
         personBirthDate: json['personBirthDate'] != null
             ? DateTime.tryParse(json['personBirthDate'] as String)
             : null,
         personGender: json['personGender'] as int?,
-        kinshipType: json['kinshipType'] as int? ?? 1,
-        maritalStatus: json['maritalStatus'] as int? ?? 1,
-        nationalityId: json['nationalityId'] as String?,
-        naturalized: json['naturalized'] as bool?,
-        isCandidate: json['isCandidate'] as bool?,
-        isRetired: json['isRetired'] as bool?,
-        hasWorkBooklet: json['hasWorkBooklet'] as bool?,
-        ruralWorker: json['ruralWorker'] as bool?,
-        declarationType: json['declarationType'] as int?,
-        declared: json['declared'] as bool?,
         personHasCin: json['personHasCin'] as bool?,
         personRg: json['personRg'] as String?,
         personRgIssuingAuthority: json['personRgIssuingAuthority'] as String?,
         personMobileNumber: json['personMobileNumber'] as String?,
-        hasChronicDisease: json['hasChronicDisease'] as bool?,
-        chronicDiseaseName: json['chronicDiseaseName'] as String?,
-        hasHighAbilityGiftedness: json['hasHighAbilityGiftedness'] as bool?,
-        hasAutismSpectrumDisorder: json['hasAutismSpectrumDisorder'] as bool?,
-        specialNeedsId: json['specialNeedsId'] as String?,
-        hasCadUnico: json['hasCadUnico'] as bool?,
-        governmentBeneficiaryNis: json['governmentBeneficiaryNis'] as String?,
-        hasAlimony: json['hasAlimony'] as bool?,
-        alimonyAmount: (json['alimonyAmount'] as num?)?.toDouble(),
-        hasInssAssistance: json['hasInssAssistance'] as bool?,
-        inssAssistanceAmount:
-            (json['inssAssistanceAmount'] as num?)?.toDouble(),
-        hasPrivatePension: json['hasPrivatePension'] as bool?,
-        privatePensionAmount:
-            (json['privatePensionAmount'] as num?)?.toDouble(),
-        receivePension: json['receivePension'] as bool?,
         occupations: (json['occupations'] as List?)
                 ?.map((e) => OccupationEntity.fromJson(
                     Map<String, dynamic>.from(e as Map)))
                 .toList() ??
             [],
       );
+
+  static double? _parseDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value);
+    }
+    return null;
+  }
 }

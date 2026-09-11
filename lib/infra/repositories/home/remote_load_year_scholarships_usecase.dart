@@ -20,7 +20,7 @@ class RemoteLoadYearScholarshipsUsecase implements LoadYearScholarshipsUsecase {
       return (response as List)
           .map((e) => RemoteScholarshipModel.fromJson(
                 Map<String, dynamic>.from(e as Map),
-              ).toEntity())
+              ))
           .toList();
     } on HttpError catch (e) {
       if (e == HttpError.unauthorized || e == HttpError.forbidden) {
