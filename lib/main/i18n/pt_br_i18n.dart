@@ -1629,6 +1629,9 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get documentEditAction => 'Editar';
 
   @override
+  String get documentReplaceAction => 'Substituir';
+
+  @override
   String get documentsBackToDocumentsAction => 'Voltar para Tela de Documentos';
 
   @override
@@ -1651,6 +1654,117 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   @override
   String get documentRentedPropertyDeclarationLabel =>
       'Declaração Imóvel Alugado';
+
+  @override
+  String get documentBirthCertificateLabel => 'Certidão de Nascimento';
+
+  @override
+  String get documentCpfLabel => 'CPF';
+
+  @override
+  String get documentCpfProofDescription =>
+      'Envie uma imagem ou PDF do seu CPF (Cadastro de Pessoa Física)';
+
+  @override
+  String get documentCpfProofStepsIntroPrefix =>
+      'Caso não possua o documento impresso, emitir através do site da ';
+
+  @override
+  String get documentCpfProofReceitaFederalLabel => 'Receita Federal';
+
+  @override
+  String get documentCpfProofReceitaFederalUrl =>
+      'https://servicos.receita.fazenda.gov.br/Servicos/CPF/ImpressaoComprovante/ConsultaImpressao.asp';
+
+  @override
+  String get documentCpfProofStepsIntroSuffix =>
+      ', de acordo com os seguintes passos...';
+
+  @override
+  String get documentCpfProofStepsExpanded =>
+      '1. Preencha as informações solicitadas (CPF, Nome, Data de Nascimento, Nome da Mãe e Nº do Título de Eleitor, caso possua.)\n'
+      '2. Clique em Enviar\n'
+      '3. Digite os caracteres que aparecem na imagem\n'
+      '4. Clique em OK\n'
+      '5. Role a página para baixo e clique em Preparar página para impressão\n'
+      '6. Clique em Imprimir\n'
+      '7. Salve o documento (PDF) para posteriormente inseri-lo no e-Bolsa\n\n'
+      'Observação: Caso você tenha declarado o Imposto de Renda no último ano, será necessário informar o número do recibo da última declaração, para que o site gere o CPF.';
+
+  @override
+  String get documentReadMoreAction => 'ler mais';
+
+  @override
+  String get documentReadLessAction => 'ler menos';
+
+  @override
+  String get documentAcademicPerformanceLabel => 'Desempenho Acadêmico';
+
+  @override
+  String get documentCivilIdLabel => 'Identidade Civil';
+
+  @override
+  String get documentUnemployedOrHomemakerLabel => 'Desempregado ou do Lar';
+
+  @override
+  String get documentNoWorkCardLabel => 'Não Possui Carteira de Trabalho';
+
+  @override
+  String get documentNoWorkCardGuidelinesCollapsed =>
+      'Orientações: No caso de funcionário público de Regime Próprio de Previdência Social – RPPS, o qual nunca obteve Carteira de Trabalho, seja funcionário ativo ou aposentado, apresentar declaração de próprio punho ou digitada... ';
+
+  @override
+  String get documentNoWorkCardGuidelinesExpanded =>
+      'Orientações: No caso de funcionário público de Regime Próprio de Previdência Social – RPPS, o qual nunca obteve Carteira de Trabalho, seja funcionário ativo ou aposentado, apresentar declaração de próprio punho ou digitada, com assinatura igual à que consta no RG/CNH sobre a respectiva informação. Se nunca teve Carteira de Trabalho, apresentar declaração de próprio punho ou digitada, com assinatura igual à que consta no RG/CNH sobre a respectiva informação.';
+
+  @override
+  String get documentNoWorkCardTypeNoCtps =>
+      'Declaração de que não possui Carteira de Trabalho';
+
+  @override
+  String get documentNoWorkCardTypePublicRpps =>
+      'Declaração de Funcionário Público por Regime Próprio Social (RPPS)';
+
+  @override
+  String get documentNoWorkCardUploadLabel =>
+      'Comprovante de que não possui carteira de trabalho';
+
+  @override
+  String get documentNoWorkCardDownloadModelHint =>
+      'Caso precise de um modelo de declaração, clique no botão abaixo:';
+
+  @override
+  String get documentNoWorkCardDownloadModelAction =>
+      'Baixar Modelo de declaração';
+
+  @override
+  String get documentMeEppProofLabel => 'Comprovante ME ou EPP';
+
+  @override
+  String get documentMeEppProofDescriptionCollapsed =>
+      'Obrigatório apresentar a DEFIS (Declaração de Informações Socioeconômicas e Fiscais) do ano-calendário anterior. ';
+
+  @override
+  String get documentMeEppProofDescriptionExpanded =>
+      'A DEFIS é a declaração anual obrigatória das empresas optantes pelo Simples Nacional e contém informações econômicas e fiscais da empresa.\n\n'
+      'Além da DEFIS, quando aplicável, também poderão ser enviados a DECORE (Declaração Comprobatória de Percepção de Rendimentos) e o DAS (Documento de Arrecadação do Simples Nacional), conforme a situação da empresa.\n\n'
+      'Envie os documentos solicitados abaixo em formato de imagem ou PDF.';
+
+  @override
+  String get documentMeEppDecoreLabel =>
+      'Declaração Comprobatória de Percepção de Rendimentos - DECORE';
+
+  @override
+  String get documentMeEppDefisLabel =>
+      'Declaração de Informações Socioeconômicas Fiscais - DEFIS';
+
+  @override
+  String get documentMeEppDasLabel =>
+      'Documento de Arrecadação do Simples Nacional - DAS';
+
+  @override
+  String documentPersonProofDescription(String documentTitle) =>
+      'Envie uma imagem ou PDF da sua ${documentTitle.toLowerCase()}';
 
   @override
   String get documentProofSubmitAppBarTitle => 'Envio de Comprovante';
@@ -1706,6 +1820,15 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
 
   @override
   String get documentProofPickFromGallery => 'Fototeca';
+
+  @override
+  String get documentProofTakePhoto => 'Tirar foto';
+
+  @override
+  String get documentProofSelectImage => 'Selecionar imagem';
+
+  @override
+  String get documentProofSelectDocument => 'Selecionar Documento';
 
   @override
   String get concludeAction => 'Concluir';

@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 
 import '../../../main/i18n/app_i18n.dart';
 import '../../../main/routes/routes.dart';
+import '../../components/components.dart';
 import 'onboarding_presenter.dart';
 
 class OnboardingPage extends StatefulWidget {
@@ -128,27 +129,23 @@ class _OnboardingPageState extends State<OnboardingPage> {
               initialData: 0,
               builder: (context, snapshot) {
                 final currentIndex = snapshot.data ?? 0;
-                final isLast = widget.presenter.isLastPage(currentIndex);
                 final appStrings = AppI18n.current;
 
                 return Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton(
+                      child: EbolsaButton(
                         onPressed: () =>
                             Modular.to.pushNamed(Routes.noticesTerms),
-                        child: Text(appStrings.onboardingViewNoticesAction),
+                        label: appStrings.onboardingViewNoticesAction,
+                        isSecondary: true,
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: ElevatedButton(
+                      child: EbolsaButton(
                         onPressed: () => _nextPage(currentIndex),
-                        child: Text(
-                          isLast
-                              ? appStrings.authLoginAction
-                              : appStrings.onboardingNextAction,
-                        ),
+                        label: appStrings.authLoginAction,
                       ),
                     ),
                   ],

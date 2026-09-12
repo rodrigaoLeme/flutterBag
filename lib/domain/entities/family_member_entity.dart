@@ -1,3 +1,4 @@
+import 'extra_income_entity.dart';
 import 'occupation_entity.dart';
 
 class FamilyMemberEntity {
@@ -47,6 +48,8 @@ class FamilyMemberEntity {
   // Ocupações
   final List<OccupationEntity> occupations;
 
+  final List<ExtraIncomeEntity> extraIncomes;
+
   const FamilyMemberEntity({
     required this.id,
     this.personId,
@@ -85,6 +88,7 @@ class FamilyMemberEntity {
     this.personRgIssuingAuthority,
     this.personMobileNumber,
     this.occupations = const [],
+    this.extraIncomes = const [],
   });
 
   // Calcula a idade para filtro de ocupações
@@ -138,6 +142,7 @@ class FamilyMemberEntity {
         'personRgIssuingAuthority': personRgIssuingAuthority,
         'personMobileNumber': personMobileNumber,
         'occupations': occupations.map((o) => o.toJson()).toList(),
+        'extraIncomes': extraIncomes.map((e) => e.toJson()).toList(),
       };
 
   factory FamilyMemberEntity.fromJson(Map<String, dynamic> json) =>
@@ -182,6 +187,11 @@ class FamilyMemberEntity {
         personMobileNumber: json['personMobileNumber'] as String?,
         occupations: (json['occupations'] as List?)
                 ?.map((e) => OccupationEntity.fromJson(
+                    Map<String, dynamic>.from(e as Map)))
+                .toList() ??
+            [],
+        extraIncomes: (json['extraIncomes'] as List?)
+                ?.map((e) => ExtraIncomeEntity.fromJson(
                     Map<String, dynamic>.from(e as Map)))
                 .toList() ??
             [],

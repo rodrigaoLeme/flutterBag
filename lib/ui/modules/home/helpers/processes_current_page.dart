@@ -120,6 +120,7 @@ class ProcessesCurrentPage extends StatelessWidget {
       MaterialPageRoute(
         builder: (_) => NewScholarshipRequestPage(
           processPeriodId: scholarship.processPeriodId!,
+          scholarshipId: scholarship.id,
           presenter: makeNewRequestPresenter(
             processPeriodId: scholarship.processPeriodId!,
           ),

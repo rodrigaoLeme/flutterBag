@@ -22,6 +22,27 @@ class OccupationDetailsViewModel {
   bool showMovimentacao = false;
   bool showUnemployed = false;
 
+  static const _porteDaEmpresaKey = 'Porte da empresa';
+  static const optanteSimplesKey = 'Optante Simples nacional?';
+
+  static const _portesThatHideOptanteSimples = {
+    'Empresa de Pequeno Porte (EPP)',
+    'Empresa de Grande Porte',
+  };
+
+  bool get shouldShowOptanteSimples {
+    if (!showOptanteSimples) return false;
+    final porte = controllers[_porteDaEmpresaKey]?.text.trim() ?? '';
+    if (porte.isEmpty) return true;
+    return !_portesThatHideOptanteSimples.contains(porte);
+  }
+
+  void syncOptanteSimplesVisibility() {
+    if (!showOptanteSimples) return;
+    if (shouldShowOptanteSimples) return;
+    controllers[optanteSimplesKey]?.clear();
+  }
+
   String get title {
     switch (type) {
       case OccupationType.estudante:
@@ -140,7 +161,7 @@ class OccupationDetailsViewModel {
     }
 
     if (showOptanteSimples) {
-      controllers['Optante Simples nacional?'] = TextEditingController();
+      controllers[optanteSimplesKey] = TextEditingController();
     }
     if (showMovimentacao) {
       controllers['Houve movimentacao?'] = TextEditingController();

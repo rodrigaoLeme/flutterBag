@@ -34,19 +34,53 @@ List<DocumentRequirementItem> documentRequirementsForGroup(
           title: i18n.documentRentedPropertyDeclarationLabel,
         ),
       ],
-    DocumentGroupType.candidate => List.generate(
-        group.totalDocuments,
-        (index) => DocumentRequirementItem(
-          id: '${group.id}-doc-$index',
-          title: '${i18n.documentsTitle} ${index + 1}',
-        ),
-      ),
-    DocumentGroupType.member => List.generate(
-        group.totalDocuments,
-        (index) => DocumentRequirementItem(
-          id: '${group.id}-doc-$index',
-          title: '${i18n.documentsTitle} ${index + 1}',
-        ),
-      ),
+    DocumentGroupType.candidate => _candidateDocumentRequirements(i18n),
+    DocumentGroupType.member => _memberDocumentRequirements(i18n),
   };
 }
+
+List<DocumentRequirementItem> _candidateDocumentRequirements(AppI18n i18n) => [
+      DocumentRequirementItem(
+        id: 'birth-certificate',
+        title: i18n.documentBirthCertificateLabel,
+      ),
+      DocumentRequirementItem(
+        id: 'cpf',
+        title: i18n.documentCpfLabel,
+      ),
+      DocumentRequirementItem(
+        id: 'academic-performance',
+        title: i18n.documentAcademicPerformanceLabel,
+      ),
+      DocumentRequirementItem(
+        id: 'civil-id',
+        title: i18n.documentCivilIdLabel,
+      ),
+      DocumentRequirementItem(
+        id: 'unemployed-or-homemaker',
+        title: i18n.documentUnemployedOrHomemakerLabel,
+      ),
+      DocumentRequirementItem(
+        id: 'no-work-card',
+        title: i18n.documentNoWorkCardLabel,
+      ),
+    ];
+
+List<DocumentRequirementItem> _memberDocumentRequirements(AppI18n i18n) => [
+      DocumentRequirementItem(
+        id: 'cpf',
+        title: i18n.documentCpfLabel,
+      ),
+      DocumentRequirementItem(
+        id: 'civil-id',
+        title: i18n.documentCivilIdLabel,
+      ),
+      DocumentRequirementItem(
+        id: 'birth-certificate',
+        title: i18n.documentBirthCertificateLabel,
+      ),
+      DocumentRequirementItem(
+        id: 'me-epp-proof',
+        title: i18n.documentMeEppProofLabel,
+      ),
+    ];

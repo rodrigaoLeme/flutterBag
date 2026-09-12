@@ -15,6 +15,7 @@ class ExpensesStep extends StatefulWidget {
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final VoidCallback? onFormChanged;
+  final List<String> familyMemberNames;
 
   const ExpensesStep({
     super.key,
@@ -22,6 +23,7 @@ class ExpensesStep extends StatefulWidget {
     this.onPrevious,
     this.onNext,
     this.onFormChanged,
+    this.familyMemberNames = const [],
   });
 
   @override
@@ -36,39 +38,16 @@ class ExpensesStepState extends State<ExpensesStep> {
   final GlobalKey<ExpensesLoansSubStepState> _loansSubStepKey =
       GlobalKey<ExpensesLoansSubStepState>();
 
-  bool _isFilled(TextEditingController controller) =>
-      controller.text.trim().isNotEmpty;
-
-  bool _areFilled(List<TextEditingController> controllers) =>
-      controllers.every(_isFilled);
-
   bool canAdvanceCurrentSubStep() {
     switch (widget.currentSubStep) {
-      case 1:
-        return _areFilled([
-          _rentController,
-          _financingController,
-          _iptuController,
-          _condoController,
-          _electricityController,
-          _waterController,
-          _gasController,
-          _phoneInternetController,
-        ]);
-      case 2:
-        return _isFilled(_foodValueController);
-      case 3:
-        return _healthSubStepKey.currentState?.isComplete ?? false;
-      case 4:
+      case 1: // Moradia — opcional
+      case 2: // Alimentação — opcional
+      case 3: // Saúde — opcional
+      case 5: // Automóvel — opcional
+      case 6: // Financiamento / empréstimo — opcional
+        return true;
+      case 4: // Educação — obrigatório
         return _educationSubStepKey.currentState?.canAdvance ?? false;
-      case 5:
-        return _areFilled([
-          _ipvaController,
-          _carInsuranceController,
-          _vehicleFinancingController,
-        ]);
-      case 6:
-        return _loansSubStepKey.currentState?.isComplete ?? false;
       default:
         return false;
     }
@@ -279,6 +258,7 @@ class ExpensesStepState extends State<ExpensesStep> {
           ExpensesEducationSubStep(
             key: _educationSubStepKey,
             educationValueController: _educationValueController,
+            familyMemberNames: widget.familyMemberNames,
             onFormChanged: _notifyFormChanged,
           )
         else if (widget.currentSubStep == 5)

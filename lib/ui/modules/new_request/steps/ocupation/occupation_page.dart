@@ -141,6 +141,7 @@ class _OccupationPageState extends State<OccupationPage> {
           _setDetailsViewModel(OccupationType.aposentado);
           break;
         case 'Beneficiário(a) de Prestação Continuada (BPC)':
+          _setDetailsViewModel(OccupationType.beneficiario);
           break;
         case 'Desempregado(a)':
           _setDetailsViewModel(OccupationType.desempregado);
@@ -167,6 +168,7 @@ class _OccupationPageState extends State<OccupationPage> {
         if (movimentacaoValue != null && movimentacaoValue.isNotEmpty) {
           _ensureMovimentacaoValueController().text = movimentacaoValue;
         }
+        _detailsViewModel!.syncOptanteSimplesVisibility();
       }
 
       if (widget.initialMonthlyIncome != null) {
@@ -267,7 +269,12 @@ class _OccupationPageState extends State<OccupationPage> {
       title: fieldLabel,
       options: options,
       selectedValue: controller.text.isNotEmpty ? controller.text : null,
-      onSelected: (selected) => setState(() => controller.text = selected),
+      onSelected: (selected) => setState(() {
+        controller.text = selected;
+        if (fieldLabel == 'Porte da empresa') {
+          _detailsViewModel?.syncOptanteSimplesVisibility();
+        }
+      }),
     );
   }
 
@@ -366,6 +373,7 @@ class _OccupationPageState extends State<OccupationPage> {
         _setDetailsViewModel(OccupationType.aposentado);
         break;
       case 'Beneficiário(a) de Prestação Continuada (BPC)':
+        _setDetailsViewModel(OccupationType.beneficiario);
         break;
       case 'Desempregado(a)':
         _setDetailsViewModel(OccupationType.desempregado);
@@ -519,6 +527,10 @@ class _OccupationPageState extends State<OccupationPage> {
     if (_detailsViewModel != null) {
       // require all fieldHints controllers to be non-empty
       for (final entry in _detailsViewModel!.controllers.entries) {
+        if (entry.key == OccupationDetailsViewModel.optanteSimplesKey &&
+            !_detailsViewModel!.shouldShowOptanteSimples) {
+          continue;
+        }
         if (entry.value.text.trim().isEmpty) return false;
       }
       if (_showMovimentacaoValueField &&
@@ -698,11 +710,12 @@ class _OccupationPageState extends State<OccupationPage> {
                           borderRadius: 12.0,
                         ),
                       ),
-                    if (_detailsViewModel!.showOptanteSimples)
+                    if (_detailsViewModel!.shouldShowOptanteSimples)
                       _buildYesNoRadioGroup(
                         question: 'Optante Simples nacional?',
                         controller: _detailsViewModel!
-                            .controllers['Optante Simples nacional?']!,
+                            .controllers[OccupationDetailsViewModel
+                                .optanteSimplesKey]!,
                       ),
                     if (_detailsViewModel!.showMovimentacao) ...[
                       _buildYesNoRadioGroup(

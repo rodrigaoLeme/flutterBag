@@ -36,9 +36,22 @@ class _ProfilePageState extends State<ProfilePage> {
 
   late StreamSubscription<ProfileViewModel?> _viewModelSubscription;
   String _originalEmail = '';
+  String _originalPhone = '';
   bool successChangeEmail = false;
 
   final appStrings = AppI18n.current;
+
+  bool get _hasChanges {
+    final emailChanged =
+        _emailController.text.trim().toLowerCase() !=
+            _originalEmail.trim().toLowerCase();
+    final phoneChanged = _normalizePhone(_phoneController.text) !=
+        _normalizePhone(_originalPhone);
+    return emailChanged || phoneChanged;
+  }
+
+  String _normalizePhone(String value) =>
+      value.replaceAll(RegExp(r'\D'), '');
 
   @override
   void initState() {
@@ -48,6 +61,9 @@ class _ProfilePageState extends State<ProfilePage> {
     _emailController = TextEditingController();
     _phoneController = TextEditingController();
 
+    _emailController.addListener(_onEditableFieldChanged);
+    _phoneController.addListener(_onEditableFieldChanged);
+
     _viewModelSubscription = widget.presenter.viewModel.listen((vm) {
       if (vm == null) return;
       if (_cpfController.text.isEmpty) {
@@ -56,6 +72,8 @@ class _ProfilePageState extends State<ProfilePage> {
         _emailController.text = vm.email;
         _phoneController.text = vm.formattedPhone;
         _originalEmail = vm.email;
+        _originalPhone = vm.formattedPhone;
+        if (mounted) setState(() {});
       }
     });
 
@@ -67,8 +85,14 @@ class _ProfilePageState extends State<ProfilePage> {
     widget.presenter.loadData();
   }
 
+  void _onEditableFieldChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    _emailController.removeListener(_onEditableFieldChanged);
+    _phoneController.removeListener(_onEditableFieldChanged);
     _cpfController.dispose();
     _nameController.dispose();
     _emailController.dispose();
@@ -119,6 +143,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 final emailChanged =
                     _emailController.text.trim().toLowerCase() !=
                         _originalEmail.trim().toLowerCase();
+
+                _originalEmail = _emailController.text;
+                _originalPhone = _phoneController.text;
+                setState(() {});
 
                 if (emailChanged) {
                   _showEmailChangedDialog();
@@ -219,7 +247,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                               EbolsaLoadingButton(
-                                onPressed: isLoading ? null : _onSave,
+                                onPressed:
+                                    isLoading || !_hasChanges ? null : _onSave,
                                 isLoading: isLoading,
                                 label: appStrings.profileMyDataSaveButton,
                               ),

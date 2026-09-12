@@ -18,6 +18,7 @@ import 'steps/candidate/candidate_add_page.dart';
 import 'steps/candidate/candidate_step.dart';
 import 'steps/documents/document_group_detail_page.dart';
 import 'steps/documents/document_group_item.dart';
+import 'steps/documents/document_upload_record.dart';
 import 'steps/documents/documents_step.dart';
 import 'steps/expenses/expenses_step.dart';
 import 'steps/family/family_step.dart';
@@ -28,6 +29,7 @@ import 'widgets/scholarship_step_indicator.dart';
 class NewScholarshipRequestPage extends StatefulWidget {
   final NewScholarshipRequestPresenter? presenter;
   final String processPeriodId;
+  final String? scholarshipId;
   final List<AnnouncementSchoolEntity> announcementSchools;
   final int? processYear;
 
@@ -35,6 +37,7 @@ class NewScholarshipRequestPage extends StatefulWidget {
     super.key,
     this.presenter,
     required this.processPeriodId,
+    this.scholarshipId,
     this.announcementSchools = const [],
     this.processYear,
   });
@@ -58,7 +61,9 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       GlobalKey<DocumentsStepState>();
 
   List<Map<String, dynamic>> _registeredCandidates = [];
-  final Map<String, Set<String>> _uploadedDocumentIds = {};
+  List<String> _registeredFamilyMemberNames = [];
+  final Map<String, Map<String, DocumentUploadRecord>>
+      _uploadedDocumentsByGroup = {};
 
   static const int _totalSteps = 5;
 
@@ -74,7 +79,10 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   void initState() {
     super.initState();
     _presenter = widget.presenter ??
-        makeNewRequestPresenter(processPeriodId: widget.processPeriodId);
+        makeNewRequestPresenter(
+          processPeriodId: widget.processPeriodId,
+          scholarshipId: widget.scholarshipId,
+        );
     _presenter.stepSubSteps;
     _presenter.currentStepStream.listen((s) => setState(() {
           _currentStep = s;
@@ -94,6 +102,34 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
 
   void _goToStep(int step) {
     _presenter.goToStep(step);
+  }
+
+  bool _isAdvanceToExpensesResult(Object? result) {
+    if (result == kAdvanceToExpensesResult) return true;
+    if (result is Map) {
+      return result['action'] == kAdvanceToExpensesResult;
+    }
+    return false;
+  }
+
+  List<String> _familyMemberNamesFromResult(Object? result) {
+    if (result is! Map) return const [];
+    final names = result['familyMemberNames'];
+    if (names is! List) return const [];
+    return names
+        .map((n) => n?.toString().trim() ?? '')
+        .where((n) => n.isNotEmpty)
+        .toList();
+  }
+
+  List<String> _familyMemberNamesForExpenses() {
+    final names = <String>{
+      ..._registeredFamilyMemberNames,
+      ..._presenter.familyMembers
+          .map((m) => m.name?.trim() ?? '')
+          .where((name) => name.isNotEmpty),
+    };
+    return names.toList();
   }
 
   void _handleNext() {
@@ -286,7 +322,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           id: id,
           title: candidate['name']?.toString() ?? '',
           type: DocumentGroupType.candidate,
-          totalDocuments: 5,
+          totalDocuments: 4,
         ),
       );
     }
@@ -302,7 +338,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           id: memberId,
           title: member.name ?? '',
           type: DocumentGroupType.member,
-          totalDocuments: 3,
+          totalDocuments: 4,
         ),
       );
     }
@@ -315,7 +351,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   }
 
   int _uploadedCount(String groupId) =>
-      _uploadedDocumentIds[groupId]?.length ?? 0;
+      _uploadedDocumentsByGroup[groupId]?.length ?? 0;
 
   DocumentGroupItem _withUploadProgress(DocumentGroupItem group) =>
       group.copyWith(uploadedDocuments: _uploadedCount(group.id));
@@ -334,25 +370,25 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         id: 'candidate-ana',
         title: 'Ana Silva',
         type: DocumentGroupType.candidate,
-        totalDocuments: 5,
+        totalDocuments: 6,
       ),
       const DocumentGroupItem(
         id: 'candidate-andre',
         title: 'André Silva',
         type: DocumentGroupType.candidate,
-        totalDocuments: 5,
+        totalDocuments: 6,
       ),
       const DocumentGroupItem(
         id: 'member-maria',
         title: 'Maria Silva',
         type: DocumentGroupType.member,
-        totalDocuments: 3,
+        totalDocuments: 4,
       ),
       const DocumentGroupItem(
         id: 'member-joao',
         title: 'João Silva',
         type: DocumentGroupType.member,
-        totalDocuments: 3,
+        totalDocuments: 4,
       ),
     ].map(_withUploadProgress).toList();
   }
@@ -457,15 +493,16 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     final index = groups.indexWhere((item) => item.id == group.id);
     if (index < 0) return;
 
-    final result = await Navigator.of(context).push<Map<String, Set<String>>>(
+    final result = await Navigator.of(context)
+        .push<Map<String, Map<String, DocumentUploadRecord>>>(
       MaterialPageRoute(
         builder: (_) => DocumentGroupDetailPage(
           groups: groups,
           initialIndex: index,
           submissionDeadline: _submissionDeadline,
-          uploadedIdsByGroup: {
-            for (final entry in _uploadedDocumentIds.entries)
-              entry.key: Set<String>.from(entry.value),
+          uploadedDocumentsByGroup: {
+            for (final entry in _uploadedDocumentsByGroup.entries)
+              entry.key: Map<String, DocumentUploadRecord>.from(entry.value),
           },
         ),
       ),
@@ -473,9 +510,12 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
 
     if (result == null || !mounted) return;
     setState(() {
-      for (final entry in result.entries) {
-        _uploadedDocumentIds[entry.key] = Set<String>.from(entry.value);
-      }
+      _uploadedDocumentsByGroup
+        ..clear()
+        ..addAll({
+          for (final entry in result.entries)
+            entry.key: Map<String, DocumentUploadRecord>.from(entry.value),
+        });
     });
   }
 
@@ -688,7 +728,11 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
               ),
             );
             if (!mounted) return;
-            if (result == kAdvanceToExpensesResult) {
+            if (_isAdvanceToExpensesResult(result)) {
+              final names = _familyMemberNamesFromResult(result);
+              if (names.isNotEmpty) {
+                _registeredFamilyMemberNames = names;
+              }
               _presenter.goToStep(3);
               return;
             }
@@ -703,6 +747,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           onPrevious: _presenter.previous,
           onNext: _handleNext,
           onFormChanged: () => setState(() {}),
+          familyMemberNames: _familyMemberNamesForExpenses(),
         );
 
       case 4:

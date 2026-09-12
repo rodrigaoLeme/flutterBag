@@ -2,6 +2,7 @@ import '../../../data/http/http_client.dart';
 import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/family_member_entity.dart';
+import '../../../domain/entities/group_income_entity.dart';
 import '../../../domain/entities/scholarship_form_entity.dart';
 import '../../../domain/usecases/enrollment/load_scholarship_form_usecase.dart';
 import '../../../main/flavors.dart';
@@ -12,11 +13,10 @@ class RemoteLoadScholarshipFormUsecase implements LoadScholarshipFormUsecase {
   const RemoteLoadScholarshipFormUsecase({required this.httpClient});
 
   @override
-  Future<ScholarshipFormEntity?> load(String processPeriodId) async {
+  Future<ScholarshipFormEntity?> load(String scholarshipId) async {
     try {
       final response = await httpClient.request(
-        url:
-            '${Flavor.apiBaseUrl}/process-periods/$processPeriodId/scholarship',
+        url: '${Flavor.apiBaseUrl}/scholarships/$scholarshipId',
         method: HttpMethod.get,
       );
 
@@ -45,10 +45,50 @@ class RemoteLoadScholarshipFormUsecase implements LoadScholarshipFormUsecase {
                     Map<String, dynamic>.from(e as Map)))
                 .toList() ??
             [],
+        groupIncome: _parseGroupIncome(json),
       );
     } on HttpError catch (e) {
       if (e == HttpError.notFound) return null; // 404
       rethrow;
     }
+  }
+
+  GroupIncomeEntity _parseGroupIncome(Map<String, dynamic> json) {
+    return GroupIncomeEntity(
+      hasRentalPropertyValues: json['hasRentalPropertyValues'] as bool?,
+      propertysAmount: _parseDouble(json['propertysAmount']),
+      financialHelpType: json['financialHelpType'] as int?,
+      financialHelpAmount: _parseDouble(json['financialHelpAmount']),
+      financialHelper: json['financialHelper'] as String?,
+      isGovernmentBeneficiary: json['isGovernmentBeneficiary'] as bool?,
+      governmentProgramDescription:
+          json['governmentProgramDescription'] as String?,
+      governmentProgramAmount: _parseDouble(json['governmentProgramAmount']),
+      hasProprietys: json['hasProprietys'] as bool?,
+      hasFinancing: json['hasFinancing'] as bool?,
+      hasVehicles: json['hasVehicles'] as bool?,
+      properties: (json['properties'] as List?)
+              ?.map((e) =>
+                  PropertyEntity.fromJson(Map<String, dynamic>.from(e as Map)))
+              .toList() ??
+          [],
+      financings: (json['financings'] as List?)
+              ?.map((e) =>
+                  FinancingEntity.fromJson(Map<String, dynamic>.from(e as Map)))
+              .toList() ??
+          [],
+      vehicles: (json['vehicles'] as List?)
+              ?.map((e) =>
+                  VehicleEntity.fromJson(Map<String, dynamic>.from(e as Map)))
+              .toList() ??
+          [],
+    );
+  }
+
+  static double? _parseDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
   }
 }

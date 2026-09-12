@@ -24,6 +24,7 @@ class StreamNewScholarshipRequestPresenter
     with SessionManager, LoadingManager, NavigationManager, UIErrorManager
     implements NewScholarshipRequestPresenter {
   final String processPeriodId;
+  final String? scholarshipId;
   final SaveStep1Usecase saveStep1Usecase;
   final LookupZipCodeUsecase lookupZipCodeUsecase;
   final LoadScholarshipFormUsecase loadScholarshipFormUsecase;
@@ -31,6 +32,7 @@ class StreamNewScholarshipRequestPresenter
 
   StreamNewScholarshipRequestPresenter({
     required this.processPeriodId,
+    this.scholarshipId,
     required this.saveStep1Usecase,
     required this.lookupZipCodeUsecase,
     required this.loadScholarshipFormUsecase,
@@ -116,41 +118,50 @@ class StreamNewScholarshipRequestPresenter
       _completedStepNotifier.value = _form.completedStep;
       _populateControllersFromForm(_form);
 
-      try {
-        final remoteForm =
-            await loadScholarshipFormUsecase.load(processPeriodId);
-        final stepToNavigate = remoteForm?.currentStep ?? _form.currentStep;
-        _currentStep = stepToNavigate.clamp(1, _stepSubSteps.length);
-      } catch (_) {
+      final idToLoad = _form.id ?? scholarshipId;
+      if (idToLoad != null) {
+        try {
+          final remoteForm = await loadScholarshipFormUsecase.load(idToLoad);
+          final stepToNavigate = remoteForm?.currentStep ?? _form.currentStep;
+          _currentStep = stepToNavigate.clamp(1, _stepSubSteps.length);
+        } catch (_) {
+          _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
+        }
+      } else {
         _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
       }
-
       _currentStepController.add(_currentStep);
       _currentSubStepController.add(_currentSubStep);
       return;
     }
 
     // 2. Sem draft local - busca no endpoint
-    try {
-      final remoteForm = await loadScholarshipFormUsecase.load(processPeriodId);
+    final idToLoad = scholarshipId ?? _form.id;
+    if (idToLoad != null) {
+      try {
+        final remoteForm = await loadScholarshipFormUsecase.load(idToLoad);
 
-      if (remoteForm != null) {
-        // tem inscrição no servidor - salva como draft
-        _form = remoteForm;
-        await _saveDraftSilently();
-        _completedStepNotifier.value = _form.completedStep;
-        _populateControllersFromForm(_form);
-        _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
-      } else {
-        // 404 - começa do zero
+        if (remoteForm != null) {
+          // tem inscrição no servidor - salva como draft
+          _form = remoteForm;
+          await _saveDraftSilently();
+          _completedStepNotifier.value = _form.completedStep;
+          _populateControllersFromForm(_form);
+          _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
+        } else {
+          // 404 - começa do zero
+          _form = ScholarshipFormEntity(processPeriodId: processPeriodId);
+          _currentStep = 1;
+        }
+      } catch (_) {
         _form = ScholarshipFormEntity(processPeriodId: processPeriodId);
         _currentStep = 1;
       }
-    } catch (_) {
+    } else {
+      // Nova inscrição — sem draft e sem scholarshipId
       _form = ScholarshipFormEntity(processPeriodId: processPeriodId);
       _currentStep = 1;
     }
-
     _currentStepController.add(_currentStep);
     _currentSubStepController.add(_currentSubStep);
   }

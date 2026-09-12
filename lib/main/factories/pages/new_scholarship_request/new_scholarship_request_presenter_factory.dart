@@ -6,9 +6,11 @@ import '../../usecases/enrollment/enrollment_usecase_factories.dart';
 
 NewScholarshipRequestPresenter makeNewRequestPresenter({
   required String processPeriodId,
+  String? scholarshipId,
 }) =>
     StreamNewScholarshipRequestPresenter(
       processPeriodId: processPeriodId,
+      scholarshipId: scholarshipId,
       saveStep1Usecase: makeRemoteSaveStep1(),
       lookupZipCodeUsecase: makeRemoteLookupZipCode(),
       loadScholarshipFormUsecase: makeRemoteLoadScholarshipForm(),

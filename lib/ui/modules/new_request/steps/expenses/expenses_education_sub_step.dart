@@ -42,6 +42,10 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
 
   void _notifyFormChanged() => widget.onFormChanged?.call();
 
+  bool get _requiresTransportValue =>
+      _schoolTransportType == SchoolTransportType.pagoFretado ||
+      _schoolTransportType == SchoolTransportType.proprioCombustivel;
+
   bool get canAdvance {
     if (_hasEducationCosts == null || _schoolTransportType == null) {
       return false;
@@ -49,6 +53,7 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
     if (_hasEducationCosts == 1 && _addedEducationExpenses.isEmpty) {
       return false;
     }
+    if (!_requiresTransportValue) return true;
     return widget.educationValueController.text.trim().isNotEmpty;
   }
 
@@ -84,6 +89,10 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
     setState(() {
       _schoolTransportType = value;
       _schoolTransportError = null;
+      if (value == SchoolTransportType.naoUtiliza ||
+          value == SchoolTransportType.publico) {
+        widget.educationValueController.clear();
+      }
     });
     _notifyFormChanged();
   }
@@ -214,15 +223,18 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
         ],
         const SizedBox(height: 8),
         _buildSchoolTransportGrid(i18n),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 56,
-          child: EbolsaTextField(
-            controller: widget.educationValueController,
-            label: i18n.expenseEducationValueLabel,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        if (_requiresTransportValue) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 56,
+            child: EbolsaTextField(
+              controller: widget.educationValueController,
+              label: i18n.expenseEducationValueLabel,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+            ),
           ),
-        ),
+        ],
       ],
     );
   }

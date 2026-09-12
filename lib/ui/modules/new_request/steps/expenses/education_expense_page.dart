@@ -27,11 +27,8 @@ class EducationExpensePage extends StatefulWidget {
 class _EducationExpensePageState extends State<EducationExpensePage> {
   String? _selectedType;
   String? _selectedMemberName;
-  late final TextEditingController _memberNameController;
   late final TextEditingController _institutionController;
   late final TextEditingController _monthlyValueController;
-
-  bool get _usesMemberSelector => widget.familyMemberNames.isNotEmpty;
 
   List<String> get _typeOptions {
     final i18n = AppI18n.current;
@@ -48,9 +45,6 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
     super.initState();
     _selectedType = widget.initialType;
     _selectedMemberName = widget.initialMemberName;
-    _memberNameController = TextEditingController(
-      text: widget.initialMemberName ?? '',
-    );
     _institutionController = TextEditingController(
       text: widget.initialInstitution ?? '',
     );
@@ -61,19 +55,15 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
 
   @override
   void dispose() {
-    _memberNameController.dispose();
     _institutionController.dispose();
     _monthlyValueController.dispose();
     super.dispose();
   }
 
   bool get _canSave {
-    final memberName = _usesMemberSelector
-        ? _selectedMemberName
-        : _memberNameController.text.trim();
     return _selectedType != null &&
-        memberName != null &&
-        memberName.isNotEmpty &&
+        _selectedMemberName != null &&
+        _selectedMemberName!.isNotEmpty &&
         _institutionController.text.trim().isNotEmpty &&
         _monthlyValueController.text.trim().isNotEmpty;
   }
@@ -115,13 +105,9 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
   void _saveAndReturn() {
     if (!_canSave) return;
 
-    final memberName = _usesMemberSelector
-        ? _selectedMemberName!
-        : _memberNameController.text.trim();
-
     Navigator.of(context).pop({
       'type': _selectedType,
-      'memberName': memberName,
+      'memberName': _selectedMemberName,
       'institution': _institutionController.text.trim(),
       'monthlyValue': _monthlyValueController.text.trim(),
     });
@@ -201,21 +187,11 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
               onTap: _openTypeSelector,
             ),
             const SizedBox(height: 12),
-            if (_usesMemberSelector)
-              _buildSelectorField(
-                hint: i18n.expenseEducationForWhomLabel,
-                value: _selectedMemberName,
-                onTap: _openMemberSelector,
-              )
-            else
-              SizedBox(
-                height: 56,
-                child: EbolsaTextField(
-                  controller: _memberNameController,
-                  label: i18n.expenseEducationForWhomLabel,
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
+            _buildSelectorField(
+              hint: i18n.expenseEducationForWhomLabel,
+              value: _selectedMemberName,
+              onTap: _openMemberSelector,
+            ),
             const SizedBox(height: 12),
             SizedBox(
               height: 56,

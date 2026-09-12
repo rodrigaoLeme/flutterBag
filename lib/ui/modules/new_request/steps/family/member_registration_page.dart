@@ -431,7 +431,10 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
         return;
       }
       if (!mounted) return;
-      Navigator.of(context).pop(kAdvanceToExpensesResult);
+      Navigator.of(context).pop({
+        'action': kAdvanceToExpensesResult,
+        'familyMemberNames': _familyMemberNamesForResult(),
+      });
       return;
     }
 
@@ -451,7 +454,17 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     }
 
     if (!mounted) return;
-    Navigator.of(context).pop(kAdvanceToExpensesResult);
+    Navigator.of(context).pop({
+      'action': kAdvanceToExpensesResult,
+      'familyMemberNames': _familyMemberNamesForResult(),
+    });
+  }
+
+  List<String> _familyMemberNamesForResult() {
+    return _vm.addedFamilyMembers
+        .map((m) => (m['name'] as String?)?.trim() ?? '')
+        .where((name) => name.isNotEmpty)
+        .toList();
   }
 
   Future<void> _onNavForward() async {
