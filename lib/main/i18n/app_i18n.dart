@@ -522,6 +522,7 @@ abstract class AppI18n {
   String get familyConfirmDialogQuestion;
   String get familyConfirmDialogReview;
   String get familyConfirmDialogContinue;
+  String get scholarshipResponsibleTag;
   String get scholarshipCandidateTag;
   String get dobLabel;
   String get genderLabel;

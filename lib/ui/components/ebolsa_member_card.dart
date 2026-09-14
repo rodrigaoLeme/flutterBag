@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import '../helpers/themes/themes.dart';
 
 class EbolsaMemberCard extends StatelessWidget {
+  final bool isResponsible;
   final String? tag;
   final String? headerTitle;
   final String title;
@@ -15,6 +16,7 @@ class EbolsaMemberCard extends StatelessWidget {
 
   const EbolsaMemberCard({
     super.key,
+    this.isResponsible = false,
     this.tag,
     this.headerTitle,
     required this.title,
@@ -27,7 +29,7 @@ class EbolsaMemberCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 12),
       child: Column(
         children: [
           IntrinsicHeight(
@@ -38,34 +40,28 @@ class EbolsaMemberCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        headerTitle ?? '',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      // Text(
+                      //   headerTitle ?? '',
+                      //   style: const TextStyle(
+                      //     fontSize: 12,
+                      //     fontWeight: FontWeight.w500,
+                      //   ),
+                      // ),
                       if (tag != null) ...[
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 28,
-                            vertical: 12,
+                            horizontal: 16,
+                            vertical: 6,
                           ),
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: const Color(0xFFB9BDC6),
+                              color: AppColors.primaryOutline,
                             ),
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Text(
-                            tag!,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          child: Text(tag!, style: AppTextStyles.labelMedium),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 5),
                       ],
                       Text(
                         title,
@@ -79,7 +75,7 @@ class EbolsaMemberCard extends StatelessWidget {
                             style: AppTextStyles.bodyMedium,
                           ),
                         ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 2),
                       ...content,
                     ],
                   ),
@@ -91,20 +87,22 @@ class EbolsaMemberCard extends StatelessWidget {
                       GestureDetector(
                         onTap: onEdit,
                         child: SvgPicture.asset(
-                          'lib/ui/assets/icons/edit.svg',
+                          AppIcons.editIcon,
                           width: 20,
                           color: AppColors.onSurfaceVariant,
                         ),
                       ),
-                      SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: onDelete,
-                        child: SvgPicture.asset(
-                          'lib/ui/assets/icons/delete_icon.svg',
-                          width: 20,
-                          color: AppColors.onSurfaceVariant,
+                      if (!isResponsible) ...{
+                        SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: onDelete,
+                          child: SvgPicture.asset(
+                            AppIcons.deleteIcon,
+                            width: 20,
+                            color: AppColors.onSurfaceVariant,
+                          ),
                         ),
-                      ),
+                      }
                     ],
                   ),
                 ),

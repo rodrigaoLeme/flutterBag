@@ -1493,6 +1493,9 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get familyConfirmDialogContinue => 'Sim, continuar';
 
   @override
+  String get scholarshipResponsibleTag => 'Responsável';
+
+  @override
   String get scholarshipCandidateTag => 'Candidato a Bolsa';
 
   @override

@@ -4,7 +4,6 @@ import '../../../../domain/entities/announcement_enums.dart';
 import '../../../../domain/entities/process_enums.dart';
 import '../../../../domain/entities/scholarship_entity.dart';
 import '../../../../main/factories/pages/new_scholarship/new_scholarship_page_factory.dart';
-import '../../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
 import '../../../../main/i18n/app_i18n.dart';
 import '../../../components/components.dart';
 import '../../new_request/new_scholarship_request_page.dart';
@@ -121,9 +120,6 @@ class ProcessesCurrentPage extends StatelessWidget {
         builder: (_) => NewScholarshipRequestPage(
           processPeriodId: scholarship.processPeriodId!,
           scholarshipId: scholarship.id,
-          presenter: makeNewRequestPresenter(
-            processPeriodId: scholarship.processPeriodId!,
-          ),
         ),
       ),
     );

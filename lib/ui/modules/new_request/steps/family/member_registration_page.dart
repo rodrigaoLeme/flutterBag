@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../domain/entities/announcement_enums.dart';
+import '../../../../../domain/entities/enrollment_enums.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../domain/entities/nationalities_entity.dart';
 import '../../../../../domain/entities/occupation_type_entity.dart';
@@ -90,18 +91,17 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
         if (mounted) setState(() => _currentSubStep = step);
       });
     }
-
     if (widget.initialFamilyMembers.isEmpty) {
-      final accout = sl<CurrentAccount>();
-      _vm.cpfController.text = _formatCpf(accout.userCpf);
-      if (accout.userCpf.isNotEmpty) {
-        _onCpfComplete(accout.userCpf);
+      final account = sl<CurrentAccount>();
+      _vm.cpfController.text = _formatCpf(account.userCpf);
+      if (account.userCpf.isNotEmpty) {
+        _onCpfComplete(account.userCpf);
       }
     }
-
     _loadSpecialNeeds();
     _loadOccupationTypes();
     _loadNationalities();
+    _populateInitialFamilyMembers();
   }
 
   String _formatCpf(String cpf) {
@@ -141,6 +141,39 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     );
 
     if (picked != null) _vm.setDob(picked);
+  }
+
+  void _populateInitialFamilyMembers() {
+    if (widget.initialFamilyMembers.isNotEmpty) {
+      final sorted = [...widget.initialFamilyMembers]..sort((a, b) {
+          if (a.isResponsible == true) return -1;
+          if (b.isResponsible == true) return 1;
+          return 0;
+        });
+
+      for (final member in sorted) {
+        _vm.familyMemberEntities.add(member);
+
+        _vm.addedFamilyMembers.add({
+          'cpf': _formatCpf(member.personCpf ?? ''),
+          'name': member.name ?? '',
+          'dob': member.personBirthDate != null
+              ? DateFormat('dd/MM/yyyy').format(member.personBirthDate!)
+              : '',
+          'maritalStatus':
+              MaritalStatus.fromValue(member.maritalStatus)?.label ?? '',
+          'isScholarshipCandidate': member.isCandidate ?? false,
+          'isResponsible': member.isResponsible ?? false,
+          'occupations': member.occupations
+              .map((o) => {
+                    'ocupationTypeId': o.occupationTypeId,
+                    'monthlyIncome': o.monthlyIncome?.toString() ?? '0',
+                  })
+              .toList(),
+        });
+      }
+      _vm.notifyListeners();
+    }
   }
 
   final _lookupPerson = makeRemoteLookupPerson();

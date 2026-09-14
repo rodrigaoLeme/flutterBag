@@ -2,8 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 
 import '../../../domain/entities/available_announcement_entity.dart';
+import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/helpers/app_constants.dart';
 import '../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
@@ -21,8 +23,9 @@ import 'steps/documents/document_group_item.dart';
 import 'steps/documents/document_upload_record.dart';
 import 'steps/documents/documents_step.dart';
 import 'steps/expenses/expenses_step.dart';
-import 'steps/family/family_step.dart';
 import 'steps/family/member_registration_page.dart';
+import 'steps/family/member_registration_view_model.dart';
+import 'steps/family/sub_steps/member_registration_family_members_sub_step.dart';
 import 'steps/housing/housing_step.dart';
 import 'widgets/scholarship_step_indicator.dart';
 
@@ -51,6 +54,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   int _currentStep = 1;
   int _currentSubStep = 0;
   bool _isInitializing = true;
+  late final MemberRegistrationViewModel _familyStepVm;
 
   late final NewScholarshipRequestPresenter _presenter;
   final GlobalKey<ExpensesStepState> _expensesStepKey =
@@ -98,6 +102,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         _presenter.goToStep(5);
       });
     }
+
+    _familyStepVm = MemberRegistrationViewModel();
   }
 
   void _goToStep(int step) {
@@ -182,6 +188,50 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     if (stepCandidates != null) {
       _registeredCandidates = List<Map<String, dynamic>>.from(stepCandidates);
     }
+  }
+
+  String _formatCpf(String cpf) {
+    final clean = cpf.replaceAll(RegExp(r'\D'), '');
+    if (clean.length != 11) return cpf;
+    return '${clean.substring(0, 3)}.${clean.substring(3, 6)}.${clean.substring(6, 9)}-${clean.substring(9)}';
+  }
+
+  void _syncFamilyMembersToVm() {
+    _familyStepVm.addedFamilyMembers.clear();
+    _familyStepVm.familyMemberEntities.clear();
+
+    final sorted = [..._presenter.form.familyMembers]..sort((a, b) {
+        if (a.isResponsible == true) return -1;
+        if (b.isResponsible == true) return 1;
+        return 0;
+      });
+
+    for (final member in sorted) {
+      _familyStepVm.familyMemberEntities.add(member);
+      _familyStepVm.addedFamilyMembers.add({
+        'cpf': _formatCpf(member.personCpf ?? ''),
+        'name': member.name ?? '',
+        'dob': member.personBirthDate != null
+            ? DateFormat('dd/MM/yyyy').format(member.personBirthDate!)
+            : '',
+        'maritalStatus':
+            MaritalStatus.fromValue(member.maritalStatus)?.label ?? '',
+        'isScholarshipCandidate': member.isCandidate ?? false,
+        'isResponsible': member.isResponsible ?? false,
+        'kinshipType': member.kinshipType?.toString() ?? '',
+        'occupations': member.occupations
+            .map((o) => {
+                  'ocupationTypeId': o.occupationTypeId,
+                  'monthlyIncome': o.monthlyIncome?.toString() ?? '0',
+                })
+            .toList(),
+      });
+    }
+  }
+
+  MemberRegistrationViewModel _getMemberRegistrationVm() {
+    _syncFamilyMembersToVm();
+    return _familyStepVm;
   }
 
   Future<void> _showMissingCandidatesDialog(
@@ -714,8 +764,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         );
 
       case 2:
-        return FamilyStep(
-          currentSubStep: _currentSubStep,
+        return MemberRegistrationFamilyMembersSubStep(
+          vm: _getMemberRegistrationVm(),
           onAddMember: () async {
             final result = await Navigator.of(context).push<Object?>(
               MaterialPageRoute(
@@ -730,14 +780,14 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
             if (!mounted) return;
             if (_isAdvanceToExpensesResult(result)) {
               final names = _familyMemberNamesFromResult(result);
-              if (names.isNotEmpty) {
-                _registeredFamilyMemberNames = names;
-              }
+              if (names.isNotEmpty) _registeredFamilyMemberNames = names;
               _presenter.goToStep(3);
               return;
             }
             setState(() {});
           },
+          onEditMember: (index) {/* TODO */},
+          onDeleteMember: (index) {/* TODO */},
         );
 
       case 3:

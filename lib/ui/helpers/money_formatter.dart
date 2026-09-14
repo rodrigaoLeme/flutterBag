@@ -23,8 +23,13 @@ class MoneyFormatter {
 
   static double parse(dynamic value) {
     if (value == null) return 0;
-    if (value is num) return value.toDouble();
+    if (value is num) return value.toDouble(); // ← já é número, retorna direto
     if (value is String) {
+      if (value.trim().isEmpty) return 0;
+
+      final asDouble = double.tryParse(value);
+      if (asDouble != null) return asDouble; // ← retorna sem normalizar
+
       final cleaned = value.replaceAll(RegExp(r'[^0-9,\.]'), '');
       final normalized = cleaned.replaceAll('.', '').replaceAll(',', '.');
       return double.tryParse(normalized) ?? 0;

@@ -175,7 +175,7 @@ class FamilyMemberEntity {
         hasHighAbilityGiftedness: json['hasHighAbilityGiftedness'] as bool?,
         specialNeedsName: json['specialNeedsName'] as String?,
         naturalized: json['naturalized'] as bool?,
-        personCpf: json['personCpf'] as String?,
+        personCpf: (json['personCpf'] ?? json['personCPF']) as String?,
         nationalityId: json['nationalityId'] as String?,
         personBirthDate: json['personBirthDate'] != null
             ? DateTime.tryParse(json['personBirthDate'] as String)
@@ -185,7 +185,7 @@ class FamilyMemberEntity {
         personRg: json['personRg'] as String?,
         personRgIssuingAuthority: json['personRgIssuingAuthority'] as String?,
         personMobileNumber: json['personMobileNumber'] as String?,
-        occupations: (json['occupations'] as List?)
+        occupations: ((json['occupations'] ?? json['ocupations']) as List?)
                 ?.map((e) => OccupationEntity.fromJson(
                     Map<String, dynamic>.from(e as Map)))
                 .toList() ??

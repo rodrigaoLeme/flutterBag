@@ -46,7 +46,10 @@ class OccupationEntity {
       OccupationEntity(
         id: json['id'] as String?,
         familyMemberId: json['familyMemberId'] as String?,
-        occupationTypeId: json['occupationTypeId'] as String? ?? '',
+        // TODO<dev>: Corrigir a chave occupationTypeId "oCCupations"
+        occupationTypeId:
+            (json['occupationTypeId'] ?? json['ocupationTypeId']) as String? ??
+                '',
         monthlyIncome: (json['monthlyIncome'] as num?)?.toDouble(),
         companyName: json['companyName'] as String?,
         companyType: json['companyType'] as int?,
