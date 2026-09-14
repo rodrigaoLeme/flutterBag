@@ -1511,6 +1511,19 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get maritalStatusLabel => 'Estado Civil';
 
   @override
+  String get deleteMemberDialogTitle => 'Remover membro?';
+
+  @override
+  String get deleteMemberDialogDescription =>
+      'Tem certeza que deseja remover este membro? Todas as informações e documentos associados serão excluídos.';
+
+  @override
+  String get deleteMemberDialogCancel => 'Cancelar';
+
+  @override
+  String get deleteMemberDialogConfirm => 'Sim, remover';
+
+  @override
   String get receivesPensionQuestion => 'Recebe pensão?';
 
   @override

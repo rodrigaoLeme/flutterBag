@@ -528,6 +528,10 @@ abstract class AppI18n {
   String get genderLabel;
   String get responsibleLabel;
   String get maritalStatusLabel;
+  String get deleteMemberDialogTitle;
+  String get deleteMemberDialogDescription;
+  String get deleteMemberDialogCancel;
+  String get deleteMemberDialogConfirm;
   String get receivesPensionQuestion;
   String get isRetiredQuestion;
   String get willApplyScholarshipQuestion;
@@ -551,6 +555,7 @@ abstract class AppI18n {
   String get ruralWorkerQuestion;
   String get dataComplementTitle;
   String get complementFieldsPlaceholder;
+
   String get documentsTitle;
   String get documentsPlaceholder;
   String get documentsStepTitle;

@@ -43,6 +43,7 @@ class _OccupationPageState extends State<OccupationPage> {
   bool _studentAcknowledged = false;
 
   // Calcula idade do membro a partir da data de nascimento
+  // ignore: unused_element
   int get _memberAge {
     if (widget.memberBirthDate == null || widget.memberBirthDate!.isEmpty) {
       return 99;
@@ -713,9 +714,8 @@ class _OccupationPageState extends State<OccupationPage> {
                     if (_detailsViewModel!.shouldShowOptanteSimples)
                       _buildYesNoRadioGroup(
                         question: 'Optante Simples nacional?',
-                        controller: _detailsViewModel!
-                            .controllers[OccupationDetailsViewModel
-                                .optanteSimplesKey]!,
+                        controller: _detailsViewModel!.controllers[
+                            OccupationDetailsViewModel.optanteSimplesKey]!,
                       ),
                     if (_detailsViewModel!.showMovimentacao) ...[
                       _buildYesNoRadioGroup(

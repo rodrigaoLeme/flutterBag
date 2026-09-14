@@ -376,6 +376,12 @@ class StreamNewScholarshipRequestPresenter
     }
   }
 
+  @override
+  void updateFamilyMembers(List<FamilyMemberEntity> members) {
+    _form = _form.copyWith(familyMembers: members);
+    _saveDraftSilently();
+  }
+
   void _clearAddresFields() {
     _addressController.text = '';
     _neighborhoodController.text = '';

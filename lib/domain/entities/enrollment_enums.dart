@@ -81,3 +81,45 @@ enum MaritalStatus {
     }
   }
 }
+
+enum KinshipType {
+  pai(2, 'Pai'),
+  esposo(3, 'Esposo(a)'),
+  companheiro(4, 'Companheiro(a)'),
+  mae(5, 'Mãe'),
+  filho(6, 'Filho(a)'),
+  irmao(7, 'Irmão(ã)'),
+  neto(8, 'Neto(a)'),
+  avo(9, 'Avô(ó)'),
+  tio(10, 'Tio(a)'),
+  sobrinho(11, 'Sobrinho(a)'),
+  bisavo(12, 'Bisavô(ó)'),
+  bisneto(13, 'Bisneto(a)'),
+  primo(14, 'Primo(a)'),
+  sogro(15, 'Sogro(a)'),
+  padrasto(16, 'Padrasto'),
+  madrasta(17, 'Madrasta'),
+  enteado(18, 'Enteado(a)'),
+  cunhado(19, 'Cunhado(a)'),
+  genro(20, 'Genro'),
+  nora(21, 'Nora'),
+  tioAvo(23, 'Tio(a)-avô(ó)'),
+  sobrinhoNeto(24, 'Sobrinho(a)-neto(a)'),
+  consogro(25, 'Consogro(a)'),
+  sobrinhoAfim(26, 'Sobrinho(a)-afim'),
+  tioAfim(27, 'Tio(a)-afim'),
+  semParentesco(99, 'Sem parentesco');
+
+  const KinshipType(this.value, this.label);
+  final int value;
+  final String label;
+
+  static KinshipType? fromValue(int? value) {
+    if (value == null) return null;
+    try {
+      return KinshipType.values.firstWhere((e) => e.value == value);
+    } catch (_) {
+      return null;
+    }
+  }
+}

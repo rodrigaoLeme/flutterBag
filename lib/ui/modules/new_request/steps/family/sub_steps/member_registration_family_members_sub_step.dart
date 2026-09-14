@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../../domain/entities/enrollment_enums.dart';
 import '../../../../../../main/i18n/app_i18n.dart';
 import '../../../../../components/ebolsa_button.dart';
 import '../../../../../components/ebolsa_member_card.dart';
@@ -103,7 +104,7 @@ class MemberRegistrationFamilyMembersSubStep extends StatelessWidget {
                     style: AppTextStyles.labelMedium),
                 const SizedBox(height: 2),
                 Text(
-                  'Parentesco: ${vm.addedFamilyMembers[i]['isResponsible'] == true ? 'Responsável' : vm.addedFamilyMembers[i]['kinshipType'] ?? '-'}',
+                  'Parentesco: ${vm.addedFamilyMembers[i]['isResponsible'] == true ? 'Responsável' : KinshipType.fromValue(vm.addedFamilyMembers[i]['kinshipType'] as int?)?.label ?? '-'}',
                   style: AppTextStyles.labelMedium,
                 ),
                 const SizedBox(height: 2),

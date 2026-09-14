@@ -8,7 +8,9 @@ import '../../../domain/entities/available_announcement_entity.dart';
 import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/helpers/app_constants.dart';
+import '../../../domain/usecases/enrollment/delete_family_member_usecase.dart';
 import '../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
+import '../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../main/factories/usecases/schools/load_school_grades_factory.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../../main/routes/routes.dart';
@@ -70,6 +72,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       _uploadedDocumentsByGroup = {};
 
   static const int _totalSteps = 5;
+
+  final _deleteFamilyMember = makeRemoteDeleteFamilyMember();
 
   // ---------------------------------------------------------------------------
   // TODO(dev): ATALHO TEMPORÁRIO — documente/remova ao finalizar a tela Documentos
@@ -218,7 +222,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
             MaritalStatus.fromValue(member.maritalStatus)?.label ?? '',
         'isScholarshipCandidate': member.isCandidate ?? false,
         'isResponsible': member.isResponsible ?? false,
-        'kinshipType': member.kinshipType?.toString() ?? '',
+        'kinshipType': member.kinshipType,
         'occupations': member.occupations
             .map((o) => {
                   'ocupationTypeId': o.occupationTypeId,
@@ -538,6 +542,57 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     Navigator.of(context).pop();
   }
 
+  Future<void> _onDeleteMember(int index) async {
+    final member = _presenter.form.familyMembers[index];
+
+    // Dialog de confirmação
+    EbolsaDialog.show(
+      context: context,
+      title: AppI18n.current.deleteMemberDialogTitle,
+      description: AppI18n.current.deleteMemberDialogDescription,
+      actions: [
+        EbolsaDialogAction(
+          label: AppI18n.current.deleteMemberDialogCancel,
+          onPressed: () {},
+        ),
+        EbolsaDialogAction(
+          label: AppI18n.current.deleteMemberDialogConfirm,
+          isPrimary: false, // vermelho para ação destrutiva
+          onPressed: () async {
+            // Sem id → só remove localmente (membro ainda não enviado ao backend)
+            if (member.id.isEmpty || _presenter.form.id == null) {
+              _removeLocalMember(index);
+              return;
+            }
+
+            try {
+              await _deleteFamilyMember.delete(DeleteFamilyMemberParams(
+                scholarshipId: _presenter.form.id!,
+                memberId: member.id,
+              ));
+              _removeLocalMember(index);
+            } on DeleteFamilyMemberException catch (e) {
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(e.message),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  void _removeLocalMember(int index) {
+    // Remove do form e atualiza o draft
+    final updatedMembers = [..._presenter.form.familyMembers]..removeAt(index);
+    _presenter.updateFamilyMembers(updatedMembers);
+    setState(() {});
+  }
+
   Future<void> _openDocumentGroupDetail(DocumentGroupItem group) async {
     final groups = _buildDocumentGroups();
     final index = groups.indexWhere((item) => item.id == group.id);
@@ -787,7 +842,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
             setState(() {});
           },
           onEditMember: (index) {/* TODO */},
-          onDeleteMember: (index) {/* TODO */},
+          onDeleteMember: (index) => _onDeleteMember(index),
         );
 
       case 3:

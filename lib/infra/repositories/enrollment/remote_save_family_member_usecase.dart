@@ -12,7 +12,7 @@ class RemoteSaveFamilyMemberUsecase implements SaveFamilyMemberUsecase {
   Future<String> save(SaveFamilyMemberParams params) async {
     try {
       final member = params.member;
-      final hasId = member.id != null;
+      final hasId = member.id.isNotEmpty;
 
       final response = await httpClient.request(
         url: hasId
@@ -22,7 +22,7 @@ class RemoteSaveFamilyMemberUsecase implements SaveFamilyMemberUsecase {
         body: member.toJson(),
       );
 
-      return hasId ? member.id! : response['id'] as String;
+      return hasId ? member.id : response['id'] as String;
     } on ApiException catch (e) {
       throw SaveFamilyMemberException(
         e.fullMessage.isNotEmpty
