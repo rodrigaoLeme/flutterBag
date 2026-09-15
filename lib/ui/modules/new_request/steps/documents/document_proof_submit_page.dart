@@ -8,8 +8,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
-import '../../../../components/searchable_options_bottom_sheet.dart';
-import '../../../../helpers/app_assets.dart';
 import '../../../../helpers/themes/themes.dart';
 import '../../../home/process_declaration_models_page.dart';
 import 'document_proof_preview_page.dart';
@@ -66,6 +64,7 @@ class _DocumentProofSubmitPageState extends State<DocumentProofSubmitPage> {
 
   bool get _isNoWorkCardDocument => widget.documentId == 'no-work-card';
 
+  // ignore: unused_element
   Set<String> get _uploadedOptions => _uploadedOptionFiles.keys.toSet();
 
   bool get _canConfirm {
@@ -178,8 +177,7 @@ class _DocumentProofSubmitPageState extends State<DocumentProofSubmitPage> {
     if (optionLabel == null &&
         _pickedFileName != null &&
         _pickedFileName!.isNotEmpty) {
-      final previewTitle =
-          _selectedDocumentType ?? widget.documentTitle;
+      final previewTitle = _selectedDocumentType ?? widget.documentTitle;
       final confirmed =
           await Navigator.of(context).push<DocumentProofPreviewResult>(
         MaterialPageRoute(

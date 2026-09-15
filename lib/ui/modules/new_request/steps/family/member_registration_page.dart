@@ -120,6 +120,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     super.dispose();
   }
 
+  // ignore: unused_element
   Future<void> _selectDate() async {
     DateTime initial = DateTime.now().subtract(const Duration(days: 365 * 18));
     if (_vm.dobController.text.trim().isNotEmpty) {
@@ -173,6 +174,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
               .toList(),
         });
       }
+      // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
       _vm.notifyListeners();
     }
   }

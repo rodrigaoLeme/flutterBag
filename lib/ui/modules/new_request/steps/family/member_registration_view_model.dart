@@ -141,7 +141,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     return !isFirstMember;
   }
 
-  bool get showReceivesPension => maritalStatus == MaritalStatus.viuvo;
+  bool get showReceivesPension => maritalStatus == MaritalStatus.widower;
   bool get showIsRetired => recebePensao == 1;
   bool get showCINFields => possuiCIN == 0;
   bool get showNisField => cadunicoValue == 1;
@@ -224,7 +224,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   void setMarital(MaritalStatus? m) {
     maritalStatus = m;
-    if (m != MaritalStatus.viuvo) recebePensao = null;
+    if (m != MaritalStatus.widower) recebePensao = null;
     notifyListeners();
   }
 

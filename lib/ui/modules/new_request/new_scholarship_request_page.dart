@@ -55,6 +55,7 @@ class NewScholarshipRequestPage extends StatefulWidget {
 class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   int _currentStep = 1;
   int _currentSubStep = 0;
+  // ignore: unused_field
   bool _isInitializing = true;
   late final MemberRegistrationViewModel _familyStepVm;
 
@@ -159,8 +160,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     _presenter.next();
   }
 
-  String _familyMemberId(FamilyMemberEntity member) =>
-      member.id ?? member.personCpf ?? member.name ?? '';
+  String _familyMemberId(FamilyMemberEntity member) => member.id;
 
   List<FamilyMemberEntity> _requiredScholarshipCandidates() =>
       _presenter.familyMembers.where((m) => m.isCandidate == true).toList();
@@ -565,7 +565,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         ),
         EbolsaDialogAction(
           label: AppI18n.current.deleteMemberDialogConfirm,
-          isPrimary: false, // vermelho para ação destrutiva
+          isPrimary: false,
+          isDanger: true,
           onPressed: () async {
             // Sem id → só remove localmente (membro ainda não enviado ao backend)
             if (member.id.isEmpty || _presenter.form.id == null) {
@@ -573,11 +574,24 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
               return;
             }
 
+            if (!mounted) return;
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => const Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+
             try {
               await _deleteFamilyMember.delete(DeleteFamilyMemberParams(
                 scholarshipId: _presenter.form.id!,
                 memberId: member.id,
               ));
+
+              if (!mounted) return;
+              Navigator.of(context).pop();
+
               _removeLocalMemberById(member.id);
             } on DeleteFamilyMemberException catch (e) {
               if (!mounted) return;
