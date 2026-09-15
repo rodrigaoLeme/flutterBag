@@ -213,6 +213,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     for (final member in sorted) {
       _familyStepVm.familyMemberEntities.add(member);
       _familyStepVm.addedFamilyMembers.add({
+        'id': member.id,
         'cpf': _formatCpf(member.personCpf ?? ''),
         'name': member.name ?? '',
         'dob': member.personBirthDate != null
@@ -543,7 +544,14 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   }
 
   Future<void> _onDeleteMember(int index) async {
-    final member = _presenter.form.familyMembers[index];
+    final memberId = _familyStepVm.addedFamilyMembers[index]['id'] as String?;
+
+    final member = memberId != null
+        ? _presenter.form.familyMembers.firstWhere(
+            (m) => m.id == memberId,
+            orElse: () => _presenter.form.familyMembers[index],
+          )
+        : _presenter.form.familyMembers[index];
 
     // Dialog de confirmação
     EbolsaDialog.show(
@@ -561,7 +569,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           onPressed: () async {
             // Sem id → só remove localmente (membro ainda não enviado ao backend)
             if (member.id.isEmpty || _presenter.form.id == null) {
-              _removeLocalMember(index);
+              _removeLocalMemberById(member.id);
               return;
             }
 
@@ -570,7 +578,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                 scholarshipId: _presenter.form.id!,
                 memberId: member.id,
               ));
-              _removeLocalMember(index);
+              _removeLocalMemberById(member.id);
             } on DeleteFamilyMemberException catch (e) {
               if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
@@ -586,9 +594,10 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     );
   }
 
-  void _removeLocalMember(int index) {
+  void _removeLocalMemberById(String? memberId) {
     // Remove do form e atualiza o draft
-    final updatedMembers = [..._presenter.form.familyMembers]..removeAt(index);
+    final updatedMembers =
+        _presenter.form.familyMembers.where((m) => m.id != memberId).toList();
     _presenter.updateFamilyMembers(updatedMembers);
     setState(() {});
   }

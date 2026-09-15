@@ -155,6 +155,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
         _vm.familyMemberEntities.add(member);
 
         _vm.addedFamilyMembers.add({
+          'id': member.id,
           'cpf': _formatCpf(member.personCpf ?? ''),
           'name': member.name ?? '',
           'dob': member.personBirthDate != null
