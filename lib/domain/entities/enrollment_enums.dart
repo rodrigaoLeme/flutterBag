@@ -61,7 +61,6 @@ enum GuardianRelationshipType {
 }
 
 enum MaritalStatus {
-  unknown(0, 'Desconhecido'),
   commonLawMarriage(1, 'União Estável'),
   widower(2, 'Viúvo(a)'),
   separated(3, 'Separado(a) de fato'),

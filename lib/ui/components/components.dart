@@ -6,6 +6,7 @@ export 'ebolsa_dialog.dart';
 export 'ebolsa_end_drawer.dart';
 export 'ebolsa_error_banner.dart';
 export 'ebolsa_icon_button.dart';
+export 'ebolsa_ignore_pointer.dart';
 export 'ebolsa_important_banner.dart';
 export 'ebolsa_info_bottom_sheet.dart';
 export 'ebolsa_loading_button.dart';

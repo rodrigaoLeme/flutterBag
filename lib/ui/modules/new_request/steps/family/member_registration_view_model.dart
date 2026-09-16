@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -47,7 +48,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     filter: {'#': RegExp(r'\d')},
   );
 
-  final List<String> genderOptions = ['Feminino', 'Masculino'];
+  final List<Gender> genderOptions = Gender.values;
   final List<String> responsibleOptions = ['Pai', 'Mãe', 'Outro'];
   List<String> get pcdOptions => _specialNeedsOptions
       .map((e) => e.name ?? '')
@@ -71,6 +72,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   List<SpecialNeedsEntity> _specialNeedsOptions = [];
   List<NationalitiesEntity> _nationalityOptions = [];
+
+  String? _currentMemberId;
 
   String? cpfError;
   String? selectedGender;
@@ -108,6 +111,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   int? possuiImovelProprio;
   int? possuiInvestimentoFinanceiro;
   int? possuiVeiculo;
+
+  KinshipType? kinshipType;
 
   MemberRegistrationViewModel({this.isHigherEducation = false}) {
     for (final controller in _trackedControllers) {
@@ -156,6 +161,12 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     return name.split(RegExp(r'\s+')).first;
   }
 
+  bool get isFirstMember => addedFamilyMembers.isEmpty;
+
+  bool get isCpfValidated =>
+      cpfError == null &&
+      cpfController.text.replaceAll(RegExp(r'\D'), '').length == 11;
+
   String? get selectedPcdId {
     if (selectedPcd == null || selectedPcd == 'Nenhuma') return null;
     try {
@@ -164,6 +175,9 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       return null;
     }
   }
+
+  Gender? get selectedGenderEnum =>
+      Gender.values.firstWhereOrNull((g) => g.label == selectedGender);
 
   String? get selectedNationalityId {
     if (nacionalityController.text.isEmpty) return null;
@@ -176,9 +190,16 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     }
   }
 
+  List<KinshipType> get kinshipOptions =>
+      KinshipType.values.where((k) => k.value != 1).toList();
+
   void setCpfError(String? error) {
     cpfError = error;
     notifyListeners();
+  }
+
+  void setCurrentMemberId(String id) {
+    _currentMemberId = id;
   }
 
   void populateFromPerson(PersonEntity person) {
@@ -251,6 +272,16 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   void setSelectedGender(String? v) {
     selectedGender = v;
+    notifyListeners();
+  }
+
+  void setKinshipType(KinshipType? k) {
+    kinshipType = k;
+    notifyListeners();
+  }
+
+  void setSelectedGenderEnum(Gender? g) {
+    selectedGender = g?.label;
     notifyListeners();
   }
 
@@ -692,6 +723,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   }
 
   void resetMemberForm() {
+    _currentMemberId = null;
+    kinshipType = null;
     cpfController.clear();
     nameController.clear();
     dobController.clear();
@@ -829,12 +862,14 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   FamilyMemberEntity toFamilyMemberEntity({String? existingId}) {
     return FamilyMemberEntity(
-      id: existingId ?? '1', // TODO: Veriricar essa gambiarra aqui.
+      id: existingId ??
+          _currentMemberId ??
+          '1', // TODO: Veriricar essa gambiarra aqui.
       name: nameController.text.trim(),
       personCpf: cpfController.text.trim(),
       personBirthDate: _parseDob(),
       personGender: _parseGender(),
-      kinshipType: _parseKinshipType(),
+      kinshipType: isFirstMember ? 1 : (kinshipType?.value ?? 99),
       maritalStatus: _parseMaritalStatus(),
       nationalityId: selectedNationalityId,
       naturalized: naturalizado == 1,

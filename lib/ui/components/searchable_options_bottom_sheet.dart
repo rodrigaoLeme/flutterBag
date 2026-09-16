@@ -17,6 +17,7 @@ class SearchableOptionsBottomSheet {
     String Function(T item)? labelBuilder,
     String Function(T item)? searchTextBuilder,
     bool showSearchInput = true,
+    bool enabled = true,
   }) async {
     final resolveLabel = labelBuilder ?? (T item) => item.toString();
     final resolveSearchText = searchTextBuilder ?? resolveLabel;
@@ -40,6 +41,7 @@ class SearchableOptionsBottomSheet {
           resolveLabel: resolveLabel,
           resolveSearchText: resolveSearchText,
           showSearchInput: showSearchInput,
+          enabled: enabled,
         );
       },
     );
@@ -61,6 +63,7 @@ class _SearchableOptionsContent<T> extends StatefulWidget {
     required this.resolveLabel,
     required this.resolveSearchText,
     required this.showSearchInput,
+    required this.enabled,
   });
 
   final String title;
@@ -73,6 +76,7 @@ class _SearchableOptionsContent<T> extends StatefulWidget {
   final String Function(T) resolveLabel;
   final String Function(T) resolveSearchText;
   final bool showSearchInput;
+  final bool enabled;
 
   @override
   State<_SearchableOptionsContent<T>> createState() =>

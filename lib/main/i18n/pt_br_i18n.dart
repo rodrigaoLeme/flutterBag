@@ -1505,7 +1505,7 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get genderLabel => 'Gênero';
 
   @override
-  String get responsibleLabel => 'Responsável';
+  String get kinshipLabel => 'Responsável';
 
   @override
   String get maritalStatusLabel => 'Estado Civil';

@@ -8,7 +8,6 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../../main/routes/routes.dart';
 import '../../../../components/components.dart';
-import '../../../../helpers/app_assets.dart';
 import '../../../../helpers/themes/themes.dart';
 import '../../widgets/scholarship_step_indicator.dart';
 import '../family/widgets/member_registration_sub_step_nav.dart';
@@ -146,7 +145,7 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
   String _appBarTitle(AppI18n i18n) {
     return switch (_currentGroup.type) {
       DocumentGroupType.candidate => i18n.candidateStepTitle,
-      DocumentGroupType.member => i18n.responsibleLabel,
+      DocumentGroupType.member => i18n.kinshipLabel,
       DocumentGroupType.family => _currentGroup.title,
     };
   }
@@ -278,8 +277,7 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
 
     if (item.id == 'me-epp-proof') {
       final i18n = AppI18n.current;
-      final submitted =
-          await Navigator.of(context).push<DocumentUploadRecord>(
+      final submitted = await Navigator.of(context).push<DocumentUploadRecord>(
         MaterialPageRoute(
           builder: (_) => DocumentProofSubmitPage(
             documentTitle: item.title,
@@ -333,8 +331,9 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
     DocumentUploadRecord? initialRecord,
   }) async {
     final i18n = AppI18n.current;
-    final isPersonDocument = _currentGroup.type == DocumentGroupType.candidate ||
-        _currentGroup.type == DocumentGroupType.member;
+    final isPersonDocument =
+        _currentGroup.type == DocumentGroupType.candidate ||
+            _currentGroup.type == DocumentGroupType.member;
 
     DocumentUploadRecord? submitted;
 

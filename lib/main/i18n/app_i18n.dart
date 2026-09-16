@@ -526,7 +526,7 @@ abstract class AppI18n {
   String get scholarshipCandidateTag;
   String get dobLabel;
   String get genderLabel;
-  String get responsibleLabel;
+  String get kinshipLabel;
   String get maritalStatusLabel;
   String get deleteMemberDialogTitle;
   String get deleteMemberDialogDescription;
