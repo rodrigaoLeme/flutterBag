@@ -48,6 +48,31 @@ class _MemberRegistrationPersonalDataSubStepState
         widget.vm.setCpfError(AppI18n.current.loginValidationInvalidCpf);
         return;
       }
+
+      if (widget.vm.isCpfAlreadyAdded(clean)) {
+        widget.vm.setCpfError(AppI18n.current.cpfAlreadyAddedError);
+        // Mostra dialog informativo
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          EbolsaDialog.show(
+            context: context,
+            title: AppI18n.current.cpfAlreadyAddedDialogTitle,
+            description: AppI18n.current.cpfAlreadyAddedDialogDescription,
+            actions: [
+              EbolsaDialogAction(
+                label: AppI18n.current.dialogOk,
+                isPrimary: true,
+                onPressed: () {
+                  widget.vm.cpfController.clear();
+                  widget.vm.setCpfError(null);
+                },
+              ),
+            ],
+          );
+        });
+        return;
+      }
+
       widget.vm.setCpfError(null);
       widget.onCpfComplete(clean);
     } else {
@@ -190,8 +215,9 @@ class _MemberRegistrationPersonalDataSubStepState
                             labelBuilder: (k) => k.label,
                             searchTextBuilder: (k) => k.label,
                           );
-                          if (selected != null)
+                          if (selected != null) {
                             widget.vm.setKinshipType(selected);
+                          }
                         },
                         child: InputDecorator(
                           decoration: InputDecoration(
@@ -329,7 +355,7 @@ class _MemberRegistrationPersonalDataSubStepState
                 ],
               ],
               // se ele for nacionalidade estrangeira deve mostrar o campo abaixo
-              if ((widget.vm.nacionalityController.text.trim().isNotEmpty)) ...[
+              if (widget.vm.showNaturalizedField) ...[
                 const SizedBox(height: 16),
                 EbolsaRadioGroup<int>(
                   question: AppI18n.current.naturalizedQuestion,
@@ -358,7 +384,6 @@ class _MemberRegistrationPersonalDataSubStepState
                 groupValue: widget.vm.possuiCIN,
                 onChanged: (v) => widget.vm.setPossuiCIN(v),
               ),
-              // se a resposta for sim, mostrar os campos abaixo para inserir o número do CIN e o órgão emissor
               if (widget.vm.possuiCIN == 0) ...[
                 Row(
                   children: [
@@ -479,26 +504,29 @@ class _MemberRegistrationPersonalDataSubStepState
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
-              EbolsaRadioGroup<int>(
-                question: AppI18n.current.irpfConditionLabel,
-                options: [
-                  RadioOption(label: AppI18n.current.irpfDeclarante, value: 0),
-                  RadioOption(label: AppI18n.current.irpfIsento, value: 1),
-                ],
-                groupValue: widget.vm.irpfCondition,
-                onChanged: (v) => widget.vm.setIrpfCondition(v),
-              ),
-              const SizedBox(height: 12),
-              EbolsaRadioGroup<int>(
-                question: AppI18n.current.declaredThisYearQuestion,
-                options: [
-                  RadioOption(label: AppI18n.current.answerNo, value: 0),
-                  RadioOption(label: AppI18n.current.answerYes, value: 1),
-                ],
-                groupValue: widget.vm.declarouEsseAno,
-                onChanged: (v) => widget.vm.setDeclarouEsseAno(v),
-              ),
+              if (widget.vm.legalAge) ...[
+                const SizedBox(height: 12),
+                EbolsaRadioGroup<int>(
+                  question: AppI18n.current.irpfConditionLabel,
+                  options: [
+                    RadioOption(
+                        label: AppI18n.current.irpfDeclarante, value: 0),
+                    RadioOption(label: AppI18n.current.irpfIsento, value: 1),
+                  ],
+                  groupValue: widget.vm.irpfCondition,
+                  onChanged: (v) => widget.vm.setIrpfCondition(v),
+                ),
+                const SizedBox(height: 12),
+                EbolsaRadioGroup<int>(
+                  question: AppI18n.current.declaredThisYearQuestion,
+                  options: [
+                    RadioOption(label: AppI18n.current.answerNo, value: 0),
+                    RadioOption(label: AppI18n.current.answerYes, value: 1),
+                  ],
+                  groupValue: widget.vm.declarouEsseAno,
+                  onChanged: (v) => widget.vm.setDeclarouEsseAno(v),
+                ),
+              ],
               const SizedBox(height: 12),
               EbolsaRadioGroup<int>(
                 question: AppI18n.current.hasWorkCardQuestion,

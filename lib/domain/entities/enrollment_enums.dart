@@ -141,3 +141,26 @@ enum Gender {
     }
   }
 }
+
+enum OccupationRule {
+  hasIncome(10),
+  hasFunction(20),
+  hasDescription(30),
+  childrenOnly(40),
+  juniorTeenagerOnly(50),
+  seniorTeenagerOnly(60),
+  juniorAdultOnly(70),
+  seniorAdultOnly(80),
+  seniorAdultPwdOnly(90);
+
+  const OccupationRule(this.value);
+  final int value;
+
+  static OccupationRule? fromValue(int value) {
+    try {
+      return OccupationRule.values.firstWhere((e) => e.value == value);
+    } catch (_) {
+      return null;
+    }
+  }
+}

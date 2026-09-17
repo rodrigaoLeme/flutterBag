@@ -5,10 +5,13 @@ import 'package:intl/intl.dart';
 
 import '../../../../../domain/entities/announcement_enums.dart';
 import '../../../../../domain/entities/enrollment_enums.dart';
+import '../../../../../domain/entities/extra_income_type_entity.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../domain/entities/nationalities_entity.dart';
 import '../../../../../domain/entities/occupation_type_entity.dart';
+import '../../../../../domain/entities/process_enums.dart';
 import '../../../../../domain/entities/special_needs_entity.dart';
+import '../../../../../domain/usecases/enrollment/load_extra_income_types_usecase.dart';
 import '../../../../../domain/usecases/enrollment/lookup_person_usecase.dart';
 import '../../../../../infra/repositories/enrollment/remote_load_nationalities_usecase.dart';
 import '../../../../../infra/repositories/enrollment/remote_load_occupation_types_usecase.dart';
@@ -75,7 +78,9 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
   List<SpecialNeedsEntity> _specialNeeds = [];
   List<OccupationTypeEntity> _occupationTypes = [];
   List<NationalitiesEntity> _nationalities = [];
+  List<ExtraIncomeTypeEntity> _extraIncomeTypes = [];
   bool _isLoadingOccupationTypes = false;
+  String _lastValidDob = '';
 
   @override
   void initState() {
@@ -98,9 +103,12 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
         _onCpfComplete(account.userCpf);
       }
     }
+    _vm.dobController.addListener(_onDobChanged);
+
     _loadSpecialNeeds();
     _loadOccupationTypes();
     _loadNationalities();
+    _loadExtraIncomeTypes();
     _populateInitialFamilyMembers();
   }
 
@@ -114,34 +122,11 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
   void dispose() {
     _scrollController.dispose();
     _subStepSubscription?.cancel();
+    _vm.dobController.removeListener(_onDobChanged);
     if (widget.presenter == null) {
       _presenter.dispose();
     }
     super.dispose();
-  }
-
-  // ignore: unused_element
-  Future<void> _selectDate() async {
-    DateTime initial = DateTime.now().subtract(const Duration(days: 365 * 18));
-    if (_vm.dobController.text.trim().isNotEmpty) {
-      try {
-        initial = DateFormat('dd/MM/yyyy').parse(_vm.dobController.text);
-      } catch (_) {}
-      if (initial.isAfter(DateTime.now())) {
-        initial = DateTime.now();
-      }
-    }
-
-    final picked = await showDatePicker(
-      context: context,
-      locale: const Locale('pt', 'BR'),
-      initialDate: initial,
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-      initialEntryMode: DatePickerEntryMode.calendar,
-    );
-
-    if (picked != null) _vm.setDob(picked);
   }
 
   void _populateInitialFamilyMembers() {
@@ -177,6 +162,50 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
       _vm.notifyListeners();
     }
+  }
+
+  void _onDobChanged() {
+    final text = _vm.dobController.text;
+    if (text.length < 10) return;
+
+    try {
+      DateFormat('dd/MM/yyyy').parse(text.trim());
+    } catch (_) {
+      return;
+    }
+
+    if (text == _lastValidDob) return;
+
+    if (_vm.hasIncompatibleOccupations) {
+      _showIncompatibleOccupationsDialog(previousDob: _lastValidDob);
+    } else {
+      _lastValidDob = text;
+    }
+  }
+
+  void _showIncompatibleOccupationsDialog({required String previousDob}) {
+    EbolsaDialog.show(
+      context: context,
+      title: appStrings.occupationDialogValidationTitle,
+      description: appStrings.occupationDialogValidationDescription,
+      actions: [
+        EbolsaDialogAction(
+          label: appStrings.occupationDialogValidationCancelButton,
+          onPressed: () {
+            _vm.dobController.text = previousDob;
+          },
+        ),
+        EbolsaDialogAction(
+          label: appStrings.occupationDialogValidationProceedButton,
+          isPrimary: false,
+          isDanger: true,
+          onPressed: () {
+            _vm.removeIncompatibleOccupations();
+            _lastValidDob = _vm.dobController.text;
+          },
+        ),
+      ],
+    );
   }
 
   final _lookupPerson = makeRemoteLookupPerson();
@@ -221,6 +250,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     setState(() => _isLoadingOccupationTypes = true);
     try {
       _occupationTypes = await makeRemoteLoadOccupationTypes().load();
+      _vm.updateOccupationTypes(_occupationTypes);
     } on LoadOccupationTypesException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -236,6 +266,17 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       _nationalities = await makeRemoteLoadNationalities().load();
       if (mounted) _vm.updateNationalityOptions(_nationalities);
     } on LoadNationalitiesException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
+    }
+  }
+
+  Future<void> _loadExtraIncomeTypes() async {
+    try {
+      _extraIncomeTypes = await makeRemoteLoadExtraIncomeTypes().load();
+    } on LoadExtraIncomeTypesException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.message)),
@@ -282,7 +323,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     final res = await Navigator.of(context).push<Map<dynamic, dynamic>>(
       MaterialPageRoute(
         builder: (_) => OccupationPage(
-          occupationTypes: _occupationTypes,
+          occupationTypes: _vm.compatibleOccupationTypes,
           memberBirthDate: _vm.dobController.text,
           initialPension: _vm.recebePensaoAlimenticia ?? 0,
           initialPrevidencia: _vm.recebePrevidenciaPrivada ?? 0,
@@ -323,6 +364,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     final res = await Navigator.of(context).push<Map<dynamic, dynamic>>(
       MaterialPageRoute(
         builder: (_) => OtherIncomeSourcePage(
+          extraIncomeTypes: _extraIncomeTypes,
           initialType: initial?['type'] as String?,
           initialMonthlyIncome: initial?['monthlyIncome']?.toString(),
           initialDescription: initial?['description']?.toString(),

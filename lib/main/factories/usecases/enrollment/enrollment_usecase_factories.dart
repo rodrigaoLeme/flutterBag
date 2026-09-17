@@ -1,4 +1,5 @@
 import '../../../../domain/usecases/enrollment/delete_family_member_usecase.dart';
+import '../../../../domain/usecases/enrollment/load_extra_income_types_usecase.dart';
 import '../../../../domain/usecases/enrollment/load_nationalities_usecase.dart';
 import '../../../../domain/usecases/enrollment/load_occupation_types_usecase.dart';
 import '../../../../domain/usecases/enrollment/load_scholarship_form_usecase.dart';
@@ -8,6 +9,7 @@ import '../../../../domain/usecases/enrollment/lookup_zip_code_usecase.dart';
 import '../../../../domain/usecases/enrollment/save_step_1_usecase.dart';
 import '../../../../domain/usecases/enrollment/save_step_2_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_delete_family_member_usecase.dart';
+import '../../../../infra/repositories/enrollment/remote_load_extra_income_types_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_load_nationalities_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_load_occupation_types_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_load_scholarship_form_usecase.dart';
@@ -58,6 +60,11 @@ LoadOccupationTypesUsecase makeRemoteLoadOccupationTypes() =>
 
 LoadNationalitiesUsecase makeRemoteLoadNationalities() =>
     RemoteLoadNationalitiesUsecase(
+      httpClient: makeAuthorizeHttpClientDecorator(),
+    );
+
+LoadExtraIncomeTypesUsecase makeRemoteLoadExtraIncomeTypes() =>
+    RemoteLoadExtraIncomeTypesUsecase(
       httpClient: makeAuthorizeHttpClientDecorator(),
     );
 

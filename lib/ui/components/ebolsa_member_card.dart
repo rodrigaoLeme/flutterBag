@@ -29,7 +29,7 @@ class EbolsaMemberCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
       child: Column(
         children: [
           IntrinsicHeight(
@@ -40,13 +40,13 @@ class EbolsaMemberCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Text(
-                      //   headerTitle ?? '',
-                      //   style: const TextStyle(
-                      //     fontSize: 12,
-                      //     fontWeight: FontWeight.w500,
-                      //   ),
-                      // ),
+                      Text(
+                        headerTitle ?? '',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                       if (tag != null) ...[
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -67,7 +67,7 @@ class EbolsaMemberCard extends StatelessWidget {
                         title,
                         style: AppTextStyles.bodyLarge,
                       ),
-                      if (subtitle != null)
+                      if (subtitle != null) ...[
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
@@ -75,7 +75,8 @@ class EbolsaMemberCard extends StatelessWidget {
                             style: AppTextStyles.bodyMedium,
                           ),
                         ),
-                      const SizedBox(height: 2),
+                        const SizedBox(height: 2),
+                      ],
                       ...content,
                     ],
                   ),

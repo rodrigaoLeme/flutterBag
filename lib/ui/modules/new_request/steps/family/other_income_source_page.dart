@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../domain/entities/extra_income_type_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/money_text_input_formatter.dart';
@@ -20,11 +21,13 @@ class OtherIncomeTypeConfig {
 class OtherIncomeSourcePage extends StatefulWidget {
   const OtherIncomeSourcePage({
     super.key,
+    required this.extraIncomeTypes,
     this.initialType,
     this.initialMonthlyIncome,
     this.initialDescription,
   });
 
+  final List<ExtraIncomeTypeEntity> extraIncomeTypes;
   final String? initialType;
   final String? initialMonthlyIncome;
   final String? initialDescription;
@@ -147,6 +150,8 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
 
   void _onFieldsChanged() => setState(() {});
 
+  bool get hasSelection => _selectedTypeEntity != null;
+
   OtherIncomeTypeConfig? get _selectedConfig => _selectedType == null
       ? null
       : OtherIncomeSourcePage.typeConfigs[_selectedType];
@@ -163,7 +168,8 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
   bool get _canAdd {
     if (_selectedType == null) return false;
     if (_monthlyIncomeController.text.trim().isEmpty) return false;
-    if (_requiresDescription && _descriptionController.text.trim().isEmpty) {
+    if (_selectedTypeEntity!.requiresDescription &&
+        _descriptionController.text.trim().isEmpty) {
       return false;
     }
     return true;
@@ -189,17 +195,22 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
     );
   }
 
+  ExtraIncomeTypeEntity? _selectedTypeEntity;
+
   Future<void> _openTypeSelector() async {
     final i18n = AppI18n.current;
-    final selected = await SearchableOptionsBottomSheet.show<String>(
+    final selected =
+        await SearchableOptionsBottomSheet.show<ExtraIncomeTypeEntity>(
       context: context,
       title: i18n.selectIncomeTypeLabel,
-      options: OtherIncomeSourcePage.incomeTypes,
+      options: widget.extraIncomeTypes,
       searchHint: i18n.noticesTermsSearchHint,
       helperText: i18n.noticesTermsBottomSheetSearchHelp,
       emptyStateText: i18n.noticesTermsBottomSheetNoResults,
       closeTooltip: i18n.noticesTermsCloseAction,
-      selectedValue: _selectedType,
+      selectedValue: _selectedTypeEntity,
+      labelBuilder: (t) => t.name ?? '',
+      searchTextBuilder: (t) => t.name ?? '',
     );
     if (selected == null || !mounted) return;
 
@@ -219,6 +230,7 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
     if (!_canAdd) return;
     Navigator.of(context).pop({
       'type': _selectedType,
+      'extraIncomeTypeId': _selectedTypeEntity?.id,
       'monthlyIncome': _monthlyIncomeController.text.trim(),
       if (_requiresDescription)
         'description': _descriptionController.text.trim(),
@@ -229,7 +241,7 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
   Widget build(BuildContext context) {
     final i18n = AppI18n.current;
     final config = _effectiveConfig;
-    final hasSelection = _selectedType != null;
+    //final hasSelection = _selectedType != null;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -294,8 +306,7 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
               const SizedBox(height: 24),
               EbolsaImportantBanner(
                 title: _selectedType!,
-                message:
-                    '${i18n.otherIncomeSelectedDetailsPrefix}${config.details}',
+                message: _selectedTypeEntity?.description ?? '',
                 backgroundColor: Colors.white,
               ),
               Padding(

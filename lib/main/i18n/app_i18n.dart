@@ -150,6 +150,7 @@ abstract class AppI18n {
   String get homeSubtitleEmptyProcess;
   String get homeSubtitleProcessInProgress;
   String get homeSubtitleProcessCompleted;
+  String get homeNewScholarshipButton;
   String get homeRenewScholarshipButton;
   String get homeImportantTitle;
   String get homeImportantMessage;
@@ -375,6 +376,10 @@ abstract class AppI18n {
   String get memberRegistrationDescription;
   String get personalDataTitle;
   String get occupationStepDescription;
+  String get occupationDialogValidationTitle;
+  String get occupationDialogValidationDescription;
+  String get occupationDialogValidationCancelButton;
+  String get occupationDialogValidationProceedButton;
   String get childSupportIncomeQuestion;
   String get privatePensionQuestion;
   String get inssBenefitQuestion;
@@ -411,6 +416,7 @@ abstract class AppI18n {
   String get otherIncomeNoneConfirmationDescriptionSuffix;
   String get otherIncomeNoneDeclarationLabel;
   String get otherIncomeNoSourcesDeclaredMessage;
+  String get annualIncomeWarning;
   String get undoAction;
   String get rentedPropertyIncomeQuestion;
   String get financialHelpQuestion;
@@ -555,6 +561,10 @@ abstract class AppI18n {
   String get ruralWorkerQuestion;
   String get dataComplementTitle;
   String get complementFieldsPlaceholder;
+  String get cpfAlreadyAddedError;
+  String get cpfAlreadyAddedDialogTitle;
+  String get cpfAlreadyAddedDialogDescription;
+  String get dialogOk;
 
   String get documentsTitle;
   String get documentsPlaceholder;

@@ -1,3 +1,5 @@
+import 'enrollment_enums.dart';
+
 class OccupationTypeEntity {
   final String id;
   final String? name;
@@ -18,6 +20,22 @@ class OccupationTypeEntity {
     required this.order,
     this.ocupationRules = const [],
   });
+
+  bool isCompatibleWith({required int age, required bool hasPwd}) {
+    final requiredRule = _requiredRuleFor(age: age, hasPwd: hasPwd);
+    if (requiredRule == null) return true;
+    return ocupationRules.contains(requiredRule.value);
+  }
+
+  static OccupationRule? _requiredRuleFor(
+      {required int age, required bool hasPwd}) {
+    if (age <= 13) return OccupationRule.childrenOnly;
+    if (age <= 15) return OccupationRule.juniorTeenagerOnly;
+    if (age <= 17) return OccupationRule.seniorTeenagerOnly;
+    if (age <= 23) return OccupationRule.juniorAdultOnly;
+    if (hasPwd) return OccupationRule.seniorAdultPwdOnly;
+    return OccupationRule.seniorAdultOnly;
+  }
 
   factory OccupationTypeEntity.fromJson(Map<String, dynamic> json) =>
       OccupationTypeEntity(

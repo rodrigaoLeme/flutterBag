@@ -101,6 +101,7 @@ class MemberRegistrationOtherIncomeSubStep extends StatelessWidget {
                 color: AppColors.onPrimaryContainer,
               ),
             ),
+            const SizedBox(height: 20),
             if (vm.addedOtherIncomes.isNotEmpty)
               for (var i = 0; i < vm.addedOtherIncomes.length; i++)
                 EbolsaMemberCard(

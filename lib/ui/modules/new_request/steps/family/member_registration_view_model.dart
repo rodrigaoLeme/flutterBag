@@ -8,6 +8,7 @@ import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../domain/entities/group_income_entity.dart';
 import '../../../../../domain/entities/nationalities_entity.dart';
 import '../../../../../domain/entities/occupation_entity.dart';
+import '../../../../../domain/entities/occupation_type_entity.dart';
 import '../../../../../domain/entities/person_entity.dart';
 import '../../../../../domain/entities/special_needs_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
@@ -16,6 +17,7 @@ import '../../../../helpers/money_formatter.dart';
 class MemberRegistrationViewModel extends ChangeNotifier {
   static const double minimumWage = 1518.0;
   static const _brazilianNationalityId = 'c88ac7a5-2de6-4b2e-a9b2-dc4d3f654dfa';
+  static const _nenhunmaSpecialNeedsId = '8bb77161-9f1b-46eb-b92a-cef26b02f804';
 
   final TextEditingController cpfController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
@@ -72,6 +74,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   List<SpecialNeedsEntity> _specialNeedsOptions = [];
   List<NationalitiesEntity> _nationalityOptions = [];
+  List<OccupationTypeEntity> _occupationTypes = [];
 
   String? _currentMemberId;
 
@@ -113,6 +116,22 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   int? possuiVeiculo;
 
   KinshipType? kinshipType;
+  String _previousDob = '';
+
+  int get age {
+    try {
+      final dob = DateFormat('dd/MM/yyyy').parse(dobController.text.trim());
+      final now = DateTime.now();
+      int age = now.year - dob.year;
+      if (now.month < dob.month ||
+          (now.month == dob.month && now.day < dob.day)) {
+        age--;
+      }
+      return age;
+    } catch (_) {
+      return 0; // data inválida ou vazia → sem filtro de idade
+    }
+  }
 
   MemberRegistrationViewModel({this.isHigherEducation = false}) {
     for (final controller in _trackedControllers) {
@@ -146,6 +165,13 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     return !isFirstMember;
   }
 
+  bool isCpfAlreadyAdded(String cpf) {
+    final clean = cpf.replaceAll(RegExp(r'\D'), '');
+    return familyMemberEntities.any(
+      (m) => m.personCpf?.replaceAll(RegExp(r'\D'), '') == clean,
+    );
+  }
+
   bool get showReceivesPension => maritalStatus == MaritalStatus.widower;
   bool get showIsRetired => recebePensao == 1;
   bool get showCINFields => possuiCIN == 0;
@@ -176,6 +202,13 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     }
   }
 
+  bool get legalAge => age >= 18;
+
+  bool get hasPwd =>
+      selectedPcdId != null && selectedPcdId != _nenhunmaSpecialNeedsId;
+
+  bool get hasIncompatibleOccupations => incompatibleOccupations.isNotEmpty;
+
   Gender? get selectedGenderEnum =>
       Gender.values.firstWhereOrNull((g) => g.label == selectedGender);
 
@@ -193,6 +226,22 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   List<KinshipType> get kinshipOptions =>
       KinshipType.values.where((k) => k.value != 1).toList();
 
+  List<Map<String, dynamic>> get incompatibleOccupations {
+    return addedOccupations.where((o) {
+      final typeId = o['ocupationTypeId'] as String?;
+      if (typeId == null) return false;
+      final type = _occupationTypes.firstWhereOrNull((t) => t.id == typeId);
+      if (type == null) return false;
+      return !type.isCompatibleWith(age: age, hasPwd: hasPwd);
+    }).toList();
+  }
+
+  List<OccupationTypeEntity> get compatibleOccupationTypes {
+    return _occupationTypes
+        .where((t) => t.isCompatibleWith(age: age, hasPwd: hasPwd))
+        .toList();
+  }
+
   void setCpfError(String? error) {
     cpfError = error;
     notifyListeners();
@@ -200,6 +249,31 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   void setCurrentMemberId(String id) {
     _currentMemberId = id;
+  }
+
+  void updateOccupationTypes(List<OccupationTypeEntity> types) {
+    _occupationTypes = types;
+    notifyListeners();
+  }
+
+  void saveDobSnapshot() {
+    _previousDob = dobController.text;
+  }
+
+  void restoreDob() {
+    dobController.text = _previousDob;
+    notifyListeners();
+  }
+
+  void removeIncompatibleOccupations() {
+    addedOccupations.removeWhere((o) {
+      final typeId = o['ocupationTypeId'] as String?;
+      if (typeId == null) return false;
+      final type = _occupationTypes.firstWhereOrNull((t) => t.id == typeId);
+      if (type == null) return false;
+      return !type.isCompatibleWith(age: age, hasPwd: hasPwd);
+    });
+    notifyListeners();
   }
 
   void populateFromPerson(PersonEntity person) {
@@ -633,7 +707,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       return false;
     }
     if (selectedGender == null) return false;
-    if (selectedResponsible == null) return false;
+    if (!isFirstMember && kinshipType == null) return false;
     if (maritalStatus == null) return false;
     if (showReceivesPension && recebePensao == null) return false;
     if (showIsRetired && aposentado == null) return false;
@@ -644,9 +718,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
         seraCandidato == null) {
       return false;
     }
-    if (seraCandidato == 1) {
-      if (!_isFieldFilled(nacionalityController)) return false;
-      if (naturalizado == null) return false;
+    if (seraCandidato == 1 && !_isFieldFilled(nacionalityController)) {
+      return false;
     }
     if (showNaturalizedField && naturalizado == null) return false;
     if (possuiCIN == null) return false;
@@ -661,8 +734,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     if (possuiDoenca == null) return false;
     if (showDiseaseType && !_isFieldFilled(tipoDoencaController)) return false;
     if (selectedPcd == null) return false;
-    if (irpfCondition == null) return false;
-    if (declarouEsseAno == null) return false;
+    if (legalAge && irpfCondition == null) return false;
+    if (legalAge && declarouEsseAno == null) return false;
     if (temCarteira == null) return false;
     if (trabalhadorRural == null) return false;
     return true;
@@ -927,17 +1000,6 @@ class MemberRegistrationViewModel extends ChangeNotifier {
         return 2;
       default:
         return 1;
-    }
-  }
-
-  int _parseKinshipType() {
-    switch (selectedResponsible) {
-      case 'Pai':
-        return 2;
-      case 'Mãe':
-        return 3;
-      default:
-        return 4;
     }
   }
 

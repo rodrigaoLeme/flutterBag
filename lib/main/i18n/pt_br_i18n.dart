@@ -607,6 +607,9 @@ class PtBrI18n implements AppI18n {
       'Veja os processos que você participou em';
 
   @override
+  String get homeNewScholarshipButton => 'Nova Solicitação';
+
+  @override
   String get homeRenewScholarshipButton => 'Renovar Bolsa';
 
   @override
@@ -1005,6 +1008,20 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
       'Agora nos informe algumas informações referente a ocupação e renda do membro familiar';
 
   @override
+  String get occupationDialogValidationTitle => 'Ocupações incompatíveis';
+
+  @override
+  String get occupationDialogValidationDescription =>
+      'Caso prossiga com a alteração da data de nascimento, as ocupações incompatíveis com a idade que estão cadastradas serão removidas, sendo necessário registrar uma nova ocupação.';
+
+  @override
+  String get occupationDialogValidationCancelButton => 'Cancelar';
+
+  @override
+  String get occupationDialogValidationProceedButton =>
+      'Remover ocupações e continuar';
+
+  @override
   String get childSupportIncomeQuestion =>
       'Recebe pensão alimentícia? (Sendo judicial ou não, informar quanto recebe)';
 
@@ -1129,6 +1146,9 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   @override
   String get otherIncomeNoSourcesDeclaredMessage =>
       'Declaro que este membro familiar não possui outras fontes de renda';
+
+  @override
+  String get annualIncomeWarning => 'O valor informado representa renda anual.';
 
   @override
   String get undoAction => 'Desfazer';
@@ -1505,7 +1525,7 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get genderLabel => 'Gênero';
 
   @override
-  String get kinshipLabel => 'Responsável';
+  String get kinshipLabel => 'Parentesco';
 
   @override
   String get maritalStatusLabel => 'Estado Civil';
@@ -1593,6 +1613,19 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   @override
   String get complementFieldsPlaceholder =>
       'Lembre-se de que uma pessoa pode ter múltiplas ocupações: como dois empregos, ser aposentada e ainda trabalhar, ser estudante e aprendiz, ou assalariada e sócia de uma empresa. Certifique-se de registrar todas as informações relevantes.';
+
+  @override
+  String get cpfAlreadyAddedError => 'Atenção';
+
+  @override
+  String get cpfAlreadyAddedDialogTitle => 'Atenção';
+
+  @override
+  String get cpfAlreadyAddedDialogDescription =>
+      'O CPF informado já pertence ao grupo familiar.';
+
+  @override
+  String get dialogOk => 'OK';
 
   @override
   String get documentsTitle => 'Documentos';

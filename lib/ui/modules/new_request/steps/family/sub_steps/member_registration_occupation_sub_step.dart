@@ -64,6 +64,7 @@ class MemberRegistrationOccupationSubStep extends StatelessWidget {
             color: AppColors.onPrimaryContainer,
           ),
         ),
+        const SizedBox(height: 20),
         if (vm.addedOccupations.isNotEmpty)
           for (var i = 0; i < vm.addedOccupations.length; i++)
             EbolsaMemberCard(
@@ -72,19 +73,78 @@ class MemberRegistrationOccupationSubStep extends StatelessWidget {
                     vm.addedOccupations[i]['headerTitle'],
               ),
               title: vm.addedOccupations[i]['occupation']?.toString() ?? '',
-              subtitle: vm.addedOccupations[i]['occupationDetails'] != null
+              subtitle: vm.addedOccupations[i]['occupationDetails'].isNotEmpty
                   ? vm.addedOccupations[i]['occupationDetails']['function']
-                          ?.toString() ??
-                      ''
-                  : vm.addedOccupations[i]['subtitle']?.toString() ?? '',
-              content: vm.addedOccupations[i]['company'] != null
-                  ? [Text(vm.addedOccupations[i]['company'].toString())]
-                  : const [],
+                      ?.toString()
+                  : null,
+              content: showContent(
+                vm.addedOccupations[i]['ocupationTypeId'],
+                vm.addedOccupations[i]['occupationDetails'],
+              ),
               onEdit: () => onEditOccupation(i),
               onDelete: () => onDeleteOccupation(i),
             ),
         const SizedBox(height: 16),
       ],
     );
+  }
+
+  List<Text> showContent(String ocupationTypeId, Map occupationDetails) {
+    if (occupationDetails.isEmpty) {
+      return [];
+    }
+
+    // Proprietário
+    if (ocupationTypeId == '7c8efd3f-c5b1-449f-a2c2-cef814cb296e') {
+      return [
+        Text('${occupationDetails['Porte da empresa'] ?? ''}',
+            style: AppTextStyles.labelMedium),
+        Text('CNPJ: ${occupationDetails['CNPJ'] ?? ''}',
+            style: AppTextStyles.labelMedium),
+        Text('Função/Atuação: ${occupationDetails['Função/Atuação'] ?? ''}',
+            style: AppTextStyles.labelMedium),
+      ];
+    }
+
+    // Autônomo
+    if (ocupationTypeId == '54b67b6a-7759-49a3-9df3-c2f205bb8960') {
+      return [
+        Text('Função: ${occupationDetails['Função'] ?? ''}',
+            style: AppTextStyles.labelMedium),
+      ];
+    }
+
+    // Informal
+    if (ocupationTypeId == '9df23f2f-c523-4ac3-9857-e891cb6f24d8') {
+      return [
+        Text('Função: ${occupationDetails['Função'] ?? ''}',
+            style: AppTextStyles.labelMedium),
+      ];
+    }
+
+    // Assalariado
+    if (ocupationTypeId == '27e77bb7-387e-4b3a-819e-d34518a91908') {
+      return [
+        Text('${occupationDetails['Empresa'] ?? ''}',
+            style: AppTextStyles.labelMedium),
+        Text('Função: ${occupationDetails['Função'] ?? ''}',
+            style: AppTextStyles.labelMedium),
+      ];
+    }
+
+    // Desempregado
+    if (ocupationTypeId == '799d77b8-435e-4d37-bf1d-e3d68916cf4c') {
+      if (occupationDetails['Recebe seguro desemprego?'] == 'Sim') {
+        return [
+          Text('Recebe seguro desemprego', style: AppTextStyles.labelMedium)
+        ];
+      } else {
+        return [
+          Text('Não recebe seguro desemprego', style: AppTextStyles.labelMedium)
+        ];
+      }
+    }
+
+    return [];
   }
 }
