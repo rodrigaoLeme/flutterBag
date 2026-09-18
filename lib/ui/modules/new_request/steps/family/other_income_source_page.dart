@@ -25,12 +25,14 @@ class OtherIncomeSourcePage extends StatefulWidget {
     this.initialType,
     this.initialMonthlyIncome,
     this.initialDescription,
+    this.excludedTypeIds = const [],
   });
 
   final List<ExtraIncomeTypeEntity> extraIncomeTypes;
   final String? initialType;
   final String? initialMonthlyIncome;
   final String? initialDescription;
+  final List<String> excludedTypeIds;
 
   static const incomeTypes = [
     'Aluguéis, Inclusive por Temporada',
@@ -126,7 +128,6 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
   @override
   void initState() {
     super.initState();
-    _selectedType = widget.initialType;
     _monthlyIncomeController = TextEditingController(
       text: widget.initialMonthlyIncome ?? '',
     );
@@ -135,6 +136,14 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
     );
     _monthlyIncomeController.addListener(_onFieldsChanged);
     _descriptionController.addListener(_onFieldsChanged);
+    if (widget.initialType != null) {
+      _selectedType = widget.initialType;
+      try {
+        _selectedTypeEntity = widget.extraIncomeTypes.firstWhere(
+          (t) => t.name == widget.initialType,
+        );
+      } catch (_) {}
+    }
   }
 
   @override
@@ -166,19 +175,18 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
   bool get _requiresDescription => _effectiveConfig.requiresDescription;
 
   bool get _canAdd {
-    if (_selectedType == null) return false;
+    if (_selectedTypeEntity == null) return false;
     if (_monthlyIncomeController.text.trim().isEmpty) return false;
-    if (_selectedTypeEntity!.requiresDescription &&
+    if (_selectedTypeEntity!.hasDescription &&
         _descriptionController.text.trim().isEmpty) {
       return false;
     }
     return true;
   }
 
-  Future<void> _showAverageIncomeAlertIfNeeded(String type) async {
-    if (!OtherIncomeSourcePage.incomeTypesWithAverageAlert.contains(type)) {
-      return;
-    }
+  Future<void> _showAverageIncomeAlertIfNeeded(
+      ExtraIncomeTypeEntity type) async {
+    if (!type.isAnnualIncome) return;
     if (!mounted) return;
 
     final i18n = AppI18n.current;
@@ -199,11 +207,18 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
 
   Future<void> _openTypeSelector() async {
     final i18n = AppI18n.current;
+    final availableTypes = widget.extraIncomeTypes
+        .where((t) =>
+            !widget.excludedTypeIds.contains(t.id) ||
+            t.id == _selectedTypeEntity?.id)
+        .toList();
+
     final selected =
         await SearchableOptionsBottomSheet.show<ExtraIncomeTypeEntity>(
+      showSearchInput: false,
       context: context,
       title: i18n.selectIncomeTypeLabel,
-      options: widget.extraIncomeTypes,
+      options: availableTypes,
       searchHint: i18n.noticesTermsSearchHint,
       helperText: i18n.noticesTermsBottomSheetSearchHelp,
       emptyStateText: i18n.noticesTermsBottomSheetNoResults,
@@ -214,9 +229,10 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
     );
     if (selected == null || !mounted) return;
 
-    final typeChanged = selected != _selectedType;
+    final typeChanged = _selectedTypeEntity?.id != selected.id;
     setState(() {
-      _selectedType = selected;
+      _selectedTypeEntity = selected;
+      _selectedType = selected.name;
       if (typeChanged) {
         _monthlyIncomeController.clear();
         _descriptionController.clear();

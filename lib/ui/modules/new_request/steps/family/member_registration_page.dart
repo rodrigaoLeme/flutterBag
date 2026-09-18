@@ -361,6 +361,12 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
   Future<void> _openOtherIncomeSourcePage(
       {Map<String, dynamic>? initial}) async {
+    final excludedIds = _vm.addedOtherIncomes
+        .where((o) => o != initial) // exclui o atual em edição
+        .map((o) => o['extraIncomeTypeId'] as String? ?? '')
+        .where((id) => id.isNotEmpty)
+        .toList();
+
     final res = await Navigator.of(context).push<Map<dynamic, dynamic>>(
       MaterialPageRoute(
         builder: (_) => OtherIncomeSourcePage(
@@ -368,6 +374,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
           initialType: initial?['type'] as String?,
           initialMonthlyIncome: initial?['monthlyIncome']?.toString(),
           initialDescription: initial?['description']?.toString(),
+          excludedTypeIds: excludedIds,
         ),
       ),
     );
