@@ -30,7 +30,8 @@ class OccupationEntity {
   Map<String, dynamic> toJson() => {
         'id': id,
         'familyMemberId': familyMemberId,
-        'occupationTypeId': occupationTypeId,
+        // TODO: Verificar grafia de occupations
+        'ocupationTypeId': occupationTypeId,
         'monthlyIncome': monthlyIncome,
         'companyName': companyName,
         'companyType': companyType,

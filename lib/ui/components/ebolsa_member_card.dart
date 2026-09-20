@@ -40,13 +40,14 @@ class EbolsaMemberCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        headerTitle ?? '',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                      if (headerTitle != null)
+                        Text(
+                          headerTitle ?? '',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
                       if (tag != null) ...[
                         Container(
                           padding: const EdgeInsets.symmetric(

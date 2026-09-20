@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../data/cache/enrollment_draft_storage.dart';
 import '../../../../../domain/entities/announcement_enums.dart';
 import '../../../../../domain/entities/enrollment_enums.dart';
 import '../../../../../domain/entities/extra_income_type_entity.dart';
@@ -10,12 +11,15 @@ import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../domain/entities/nationalities_entity.dart';
 import '../../../../../domain/entities/occupation_type_entity.dart';
 import '../../../../../domain/entities/process_enums.dart';
+import '../../../../../domain/entities/scholarship_form_entity.dart';
 import '../../../../../domain/entities/special_needs_entity.dart';
 import '../../../../../domain/usecases/enrollment/load_extra_income_types_usecase.dart';
 import '../../../../../domain/usecases/enrollment/lookup_person_usecase.dart';
+import '../../../../../domain/usecases/enrollment/save_family_member_usecase.dart';
 import '../../../../../infra/repositories/enrollment/remote_load_nationalities_usecase.dart';
 import '../../../../../infra/repositories/enrollment/remote_load_occupation_types_usecase.dart';
 import '../../../../../infra/repositories/enrollment/remote_load_special_needs_usecase.dart';
+import '../../../../../infra/repositories/enrollment/remote_save_family_member_usecase.dart';
 import '../../../../../main/di/injection_container.dart';
 import '../../../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../../../main/i18n/app_i18n.dart';
@@ -81,6 +85,8 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
   List<ExtraIncomeTypeEntity> _extraIncomeTypes = [];
   bool _isLoadingOccupationTypes = false;
   String _lastValidDob = '';
+
+  final _saveFamilyMember = makeRemoteSaveFamilyMember();
 
   @override
   void initState() {
@@ -496,17 +502,85 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     _presenter.decrementSubStep();
   }
 
-  void _advanceFromOtherIncome() {
-    if (_vm.hasCurrentMemberToCommit) {
+  Future<void> _advanceFromOtherIncome() async {
+    if (!_vm.hasCurrentMemberToCommit) {
+      _presenter.incrementSubStep();
+      return;
+    }
+
+    final scholarshipId = widget.scholarshipId;
+    if (scholarshipId.isEmpty) {
       _presenter.commitMemberAndAdvance();
       return;
     }
-    _presenter.incrementSubStep();
+
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final entity = _vm.toFamilyMemberEntity();
+      final savedId = await _saveFamilyMember.save(SaveFamilyMemberParams(
+        scholarshipId: scholarshipId,
+        member: entity,
+      ));
+
+      if (!mounted) return;
+      Navigator.of(context).pop(); // fecha loading
+
+      // Guarda o id retornado e commita
+      _vm.setCurrentMemberId(savedId);
+      _presenter.commitMemberAndAdvance();
+
+      // Atualiza o draft com o novo membro
+      _syncMembersToDraft();
+    } on SaveFamilyMemberException catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop(); // fecha loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: AppColors.error,
+          persist: true,
+          showCloseIcon: true,
+        ),
+      );
+    }
+  }
+
+  Future<void> _syncMembersToDraft() async {
+    try {
+      final userId = sl<CurrentAccount>().userCpf;
+      final draftStorage = sl<EnrollmentDraftStorage>();
+
+      final draft = await draftStorage.load(
+        userId: userId,
+        processPeriodId: widget.processPeriodId,
+      );
+
+      if (draft == null) return;
+
+      final form = ScholarshipFormEntity.fromJson(draft);
+      final updated = form.copyWith(
+        familyMembers: List<FamilyMemberEntity>.from(
+          _vm.familyMemberEntities,
+        ),
+      );
+
+      await draftStorage.save(
+        userId: userId,
+        processPeriodId: widget.processPeriodId,
+        data: updated.toJson(),
+      );
+    } catch (_) {}
   }
 
   Future<void> _onFooterAdvance() async {
     if (_currentSubStep == 3) {
-      _advanceFromOtherIncome();
+      await _advanceFromOtherIncome();
       return;
     }
 
@@ -554,7 +628,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
   Future<void> _onNavForward() async {
     if (_currentSubStep == 3) {
-      _advanceFromOtherIncome();
+      await _advanceFromOtherIncome();
       return;
     }
 

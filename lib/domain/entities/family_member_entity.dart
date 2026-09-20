@@ -48,6 +48,8 @@ class FamilyMemberEntity {
   // Ocupações
   final List<OccupationEntity> occupations;
 
+  // Rendas Extras
+  final bool? noExtraIncomeDeclared;
   final List<ExtraIncomeEntity> extraIncomes;
 
   const FamilyMemberEntity({
@@ -89,6 +91,7 @@ class FamilyMemberEntity {
     this.personMobileNumber,
     this.occupations = const [],
     this.extraIncomes = const [],
+    this.noExtraIncomeDeclared,
   });
 
   // Calcula a idade para filtro de ocupações
@@ -105,11 +108,8 @@ class FamilyMemberEntity {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'personId': personId,
         'name': name,
         'kinshipType': kinshipType,
-        'isResponsible': isResponsible,
         'isCandidate': isCandidate,
         'maritalStatus': maritalStatus,
         'declarationType': declarationType,
@@ -125,24 +125,26 @@ class FamilyMemberEntity {
         'isRetired': isRetired,
         'hasWorkBooklet': hasWorkBooklet,
         'hasCadUnico': hasCadUnico,
-        'governmentBeneficiaryNis': governmentBeneficiaryNis,
+        // TODO: Campo sem camel case
+        'governmentBeneficiaryNIS': governmentBeneficiaryNis,
         'hasChronicDisease': hasChronicDisease,
         'chronicDiseaseName': chronicDiseaseName,
         'specialNeedsId': specialNeedsId,
         'hasAutismSpectrumDisorder': hasAutismSpectrumDisorder,
         'hasHighAbilityGiftedness': hasHighAbilityGiftedness,
-        'specialNeedsName': specialNeedsName,
         'naturalized': naturalized,
-        'personCpf': personCpf,
+        'personCPF': personCpf,
         'nationalityId': nationalityId,
         'personBirthDate': personBirthDate?.toIso8601String(),
         'personGender': personGender,
         'personHasCin': personHasCin,
-        'personRg': personRg,
+        'personRG': personRg,
         'personRgIssuingAuthority': personRgIssuingAuthority,
         'personMobileNumber': personMobileNumber,
-        'occupations': occupations.map((o) => o.toJson()).toList(),
+        // TODO: Verificar a grafia de "occupations"
+        'ocupations': occupations.map((o) => o.toJson()).toList(),
         'extraIncomes': extraIncomes.map((e) => e.toJson()).toList(),
+        'noExtraIncomeDeclared': noExtraIncomeDeclared ?? false,
       };
 
   factory FamilyMemberEntity.fromJson(Map<String, dynamic> json) =>
@@ -195,6 +197,7 @@ class FamilyMemberEntity {
                     Map<String, dynamic>.from(e as Map)))
                 .toList() ??
             [],
+        noExtraIncomeDeclared: json['noExtraIncomeDeclared'] as bool?,
       );
 
   static double? _parseDouble(dynamic value) {

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../../../../../domain/entities/enrollment_enums.dart';
+import '../../../../../domain/entities/extra_income_entity.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../domain/entities/group_income_entity.dart';
 import '../../../../../domain/entities/nationalities_entity.dart';
@@ -935,9 +936,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   FamilyMemberEntity toFamilyMemberEntity({String? existingId}) {
     return FamilyMemberEntity(
-      id: existingId ??
-          _currentMemberId ??
-          '1', // TODO: Veriricar essa gambiarra aqui.
+      id: existingId ?? _currentMemberId ?? '',
       name: nameController.text.trim(),
       personCpf: cpfController.text.trim(),
       personBirthDate: _parseDob(),
@@ -950,8 +949,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       isRetired: aposentado == 1,
       hasWorkBooklet: temCarteira == 1,
       ruralWorker: trabalhadorRural == 1,
-      declarationType: irpfCondition,
-      declared: declarouEsseAno == 1,
+      declarationType: legalAge ? irpfCondition : null,
+      declared: legalAge ? declarouEsseAno == 1 : null,
       personHasCin: possuiCIN == 1,
       personRg:
           rgController.text.trim().isEmpty ? null : rgController.text.trim(),
@@ -963,7 +962,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
           possuiDoenca == 1 ? tipoDoencaController.text.trim() : null,
       hasHighAbilityGiftedness: superdotacao == 1,
       hasAutismSpectrumDisorder: espectro == 1,
-      specialNeedsId: selectedPcdId,
+      specialNeedsId: selectedPcdId ?? _nenhunmaSpecialNeedsId,
       hasCadUnico: cadunicoValue == 1,
       governmentBeneficiaryNis:
           cadunicoValue == 1 ? nisController.text.trim() : null,
@@ -981,6 +980,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
           : null,
       receivePension: recebePensao == 1,
       occupations: _parseOccupations(),
+      extraIncomes: _parseExtraIncomes(),
+      noExtraIncomeDeclared: possuiOutraFonteRenda == 0,
     );
   }
 
@@ -1005,11 +1006,24 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   int _parseMaritalStatus() => maritalStatus?.value ?? 4;
 
+  List<ExtraIncomeEntity> _parseExtraIncomes() {
+    return addedOtherIncomes
+        .map((o) => ExtraIncomeEntity(
+              id: o['id'] as String?,
+              extraIncomeTypeId: o['extraIncomeTypeId'] as String?,
+              description: o['description'] as String?,
+              amount:
+                  MoneyFormatter.parse(o['monthlyIncome']?.toString() ?? '0'),
+            ))
+        .toList();
+  }
+
   List<OccupationEntity> _parseOccupations() {
     return addedOccupations.map((o) {
       return OccupationEntity(
         id: o['id'] as String?,
-        occupationTypeId: o['occupationTypeId'] as String? ?? '',
+        occupationTypeId:
+            (o['ocupationTypeId'] ?? o['occupationTypeId'] ?? '') as String,
         monthlyIncome: MoneyFormatter.parse(
           o['monthlyIncome']?.toString() ?? o['headerTitle']?.toString() ?? '0',
         ),

@@ -80,7 +80,7 @@ class MemberRegistrationFamilyMembersSubStep extends StatelessWidget {
           for (var i = 0; i < vm.addedFamilyMembers.length; i++) ...[
             EbolsaMemberCard(
               isResponsible: vm.addedFamilyMembers[i]['isResponsible'],
-              headerTitle: vm.addedFamilyMembers[i]['cpf']?.toString() ?? '',
+              headerTitle: null,
               tag: vm.addedFamilyMembers[i]['isResponsible'] == true
                   ? AppI18n.current.scholarshipResponsibleTag
                   : vm.addedFamilyMembers[i]['isScholarshipCandidate'] == true

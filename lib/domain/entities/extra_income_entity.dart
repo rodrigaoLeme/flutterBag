@@ -1,12 +1,12 @@
 class ExtraIncomeEntity {
-  final String id;
+  final String? id;
   final String? familyMemberId;
   final String? extraIncomeTypeId;
   final String? description;
   final double? amount;
 
   const ExtraIncomeEntity({
-    required this.id,
+    this.id,
     this.familyMemberId,
     this.extraIncomeTypeId,
     this.description,
@@ -15,7 +15,7 @@ class ExtraIncomeEntity {
 
   factory ExtraIncomeEntity.fromJson(Map<String, dynamic> json) =>
       ExtraIncomeEntity(
-        id: json['id'] as String,
+        id: json['id'] as String?,
         familyMemberId: json['familyMemberId'] as String?,
         extraIncomeTypeId: json['extraIncomeTypeId'] as String?,
         description: json['description'] as String?,
