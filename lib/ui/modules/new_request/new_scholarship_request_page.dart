@@ -160,7 +160,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     _presenter.next();
   }
 
-  String _familyMemberId(FamilyMemberEntity member) => member.id;
+  String? _familyMemberId(FamilyMemberEntity member) => member.id;
 
   List<FamilyMemberEntity> _requiredScholarshipCandidates() =>
       _presenter.familyMembers.where((m) => m.isCandidate == true).toList();
@@ -345,7 +345,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     return _requiredScholarshipCandidates()
         .map(
           (member) => CandidateFamilyMemberOption(
-            id: _familyMemberId(member),
+            id: _familyMemberId(member) ?? '',
             name: member.name ?? '',
             cpf: member.personCpf,
           ),
@@ -390,7 +390,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
 
       groups.add(
         DocumentGroupItem(
-          id: memberId,
+          id: memberId ?? '',
           title: member.name ?? '',
           type: DocumentGroupType.member,
           totalDocuments: 4,
@@ -569,7 +569,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           isDanger: true,
           onPressed: () async {
             // Sem id → só remove localmente (membro ainda não enviado ao backend)
-            if (member.id.isEmpty || _presenter.form.id == null) {
+            if ((member.id?.isEmpty ?? true) || _presenter.form.id == null) {
               _removeLocalMemberById(member.id);
               return;
             }
@@ -586,7 +586,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
             try {
               await _deleteFamilyMember.delete(DeleteFamilyMemberParams(
                 scholarshipId: _presenter.form.id!,
-                memberId: member.id,
+                memberId: member.id!,
               ));
 
               if (!mounted) return;

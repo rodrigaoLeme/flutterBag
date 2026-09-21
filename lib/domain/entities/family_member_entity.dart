@@ -2,7 +2,7 @@ import 'extra_income_entity.dart';
 import 'occupation_entity.dart';
 
 class FamilyMemberEntity {
-  final String id;
+  final String? id;
   final String? personId;
   final String? name;
   final int? kinshipType;
@@ -108,6 +108,46 @@ class FamilyMemberEntity {
   }
 
   Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'kinshipType': kinshipType,
+        'isCandidate': isCandidate,
+        'maritalStatus': maritalStatus,
+        'declarationType': declarationType,
+        'declared': declared,
+        'ruralWorker': ruralWorker,
+        'hasAlimony': hasAlimony,
+        'alimonyAmount': alimonyAmount,
+        'hasInssAssistance': hasInssAssistance,
+        'inssAssistanceAmount': inssAssistanceAmount,
+        'hasPrivatePension': hasPrivatePension,
+        'privatePensionAmount': privatePensionAmount,
+        'receivePension': receivePension,
+        'isRetired': isRetired,
+        'hasWorkBooklet': hasWorkBooklet,
+        'hasCadUnico': hasCadUnico,
+        // TODO: Campo sem camel case
+        'governmentBeneficiaryNIS': governmentBeneficiaryNis,
+        'hasChronicDisease': hasChronicDisease,
+        'chronicDiseaseName': chronicDiseaseName,
+        'specialNeedsId': specialNeedsId,
+        'hasAutismSpectrumDisorder': hasAutismSpectrumDisorder,
+        'hasHighAbilityGiftedness': hasHighAbilityGiftedness,
+        'naturalized': naturalized,
+        'personCPF': personCpf,
+        'nationalityId': nationalityId,
+        'personBirthDate': personBirthDate?.toIso8601String(),
+        'personGender': personGender,
+        'personHasCin': personHasCin,
+        'personRG': personRg,
+        'personRgIssuingAuthority': personRgIssuingAuthority,
+        'personMobileNumber': personMobileNumber,
+        // TODO: Verificar a grafia de "occupations"
+        'ocupations': occupations.map((o) => o.toJson()).toList(),
+        'extraIncomes': extraIncomes.map((e) => e.toJson()).toList(),
+        'noExtraIncomeDeclared': noExtraIncomeDeclared ?? false,
+      };
+  Map<String, dynamic> toRequestBody() => {
         'name': name,
         'kinshipType': kinshipType,
         'isCandidate': isCandidate,
@@ -149,7 +189,7 @@ class FamilyMemberEntity {
 
   factory FamilyMemberEntity.fromJson(Map<String, dynamic> json) =>
       FamilyMemberEntity(
-        id: json['id'] as String,
+        id: json['id'] as String?,
         personId: json['personId'] as String?,
         name: json['name'] as String?,
         kinshipType: json['kinshipType'] as int? ?? 1,

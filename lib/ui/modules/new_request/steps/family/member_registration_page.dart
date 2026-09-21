@@ -282,6 +282,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
   Future<void> _loadExtraIncomeTypes() async {
     try {
       _extraIncomeTypes = await makeRemoteLoadExtraIncomeTypes().load();
+      _vm.updateExtraIncomeTypes(_extraIncomeTypes);
     } on LoadExtraIncomeTypesException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -704,7 +705,10 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
             _vm.resetMemberForm();
             _presenter.goToSubStep(1);
           },
-          onEditMember: (_) => _presenter.goToSubStep(1),
+          onEditMember: (index) {
+            _vm.startEditing(index);
+            _presenter.goToSubStep(1);
+          },
           onDeleteMember: _vm.removeFamilyMemberAt,
         );
       case 5:

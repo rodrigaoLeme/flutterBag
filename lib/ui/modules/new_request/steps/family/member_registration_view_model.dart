@@ -5,6 +5,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../../../../../domain/entities/enrollment_enums.dart';
 import '../../../../../domain/entities/extra_income_entity.dart';
+import '../../../../../domain/entities/extra_income_type_entity.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../domain/entities/group_income_entity.dart';
 import '../../../../../domain/entities/nationalities_entity.dart';
@@ -76,8 +77,10 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   List<SpecialNeedsEntity> _specialNeedsOptions = [];
   List<NationalitiesEntity> _nationalityOptions = [];
   List<OccupationTypeEntity> _occupationTypes = [];
+  List<ExtraIncomeTypeEntity> _extraIncomeTypes = [];
 
   String? _currentMemberId;
+  int? _editingIndex;
 
   String? cpfError;
   String? selectedGender;
@@ -118,6 +121,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   KinshipType? kinshipType;
   String _previousDob = '';
+
+  bool get isEditing => _editingIndex != null;
 
   int get age {
     try {
@@ -257,6 +262,11 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateExtraIncomeTypes(List<ExtraIncomeTypeEntity> types) {
+    _extraIncomeTypes = types;
+    notifyListeners();
+  }
+
   void saveDobSnapshot() {
     _previousDob = dobController.text;
   }
@@ -298,6 +308,121 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       possuiCIN = person.hasCin! ? 1 : 0;
     }
     notifyListeners();
+  }
+
+  void startEditing(int index) {
+    _editingIndex = index;
+    final entity = familyMemberEntities[index];
+    _currentMemberId = entity.id;
+
+    // Dados pessoais
+    cpfController.text = _formatCpf(entity.personCpf ?? '');
+    nameController.text = entity.name ?? '';
+    if (entity.personBirthDate != null) {
+      dobController.text =
+          DateFormat('dd/MM/yyyy').format(entity.personBirthDate!);
+    }
+    selectedGender = _genderLabel(entity.personGender!);
+    maritalStatus = MaritalStatus.fromValue(entity.maritalStatus);
+    kinshipType = KinshipType.fromValue(entity.kinshipType);
+    seraCandidato = entity.isCandidate == true ? 1 : 0;
+    naturalizado = entity.naturalized == true ? 1 : 0;
+    possuiCIN = entity.personHasCin == true ? 1 : 0;
+    rgController.text = entity.personRg ?? '';
+    orgaoController.text = entity.personRgIssuingAuthority ?? '';
+
+    // Saúde
+    possuiDoenca = entity.hasChronicDisease == true ? 1 : 0;
+    tipoDoencaController.text = entity.chronicDiseaseName ?? '';
+    superdotacao = entity.hasHighAbilityGiftedness == true ? 1 : 0;
+    espectro = entity.hasAutismSpectrumDisorder == true ? 1 : 0;
+
+    // PcD — busca pelo id
+    selectedPcd = _specialNeedsOptions
+        .firstWhereOrNull((s) => s.id == entity.specialNeedsId)
+        ?.name;
+
+    // CadÚnico
+    cadunicoValue = entity.hasCadUnico == true ? 1 : 0;
+    nisController.text = entity.governmentBeneficiaryNis ?? '';
+
+    // Benefícios
+    recebePensaoAlimenticia = entity.hasAlimony == true ? 1 : 0;
+    if (entity.alimonyAmount != null) {
+      pensionValueController.text = MoneyFormatter.format(entity.alimonyAmount);
+    }
+    recebeOutroBeneficioINSS = entity.hasInssAssistance == true ? 1 : 0;
+    if (entity.inssAssistanceAmount != null) {
+      beneficioValueController.text =
+          MoneyFormatter.format(entity.inssAssistanceAmount);
+    }
+    recebePrevidenciaPrivada = entity.hasPrivatePension == true ? 1 : 0;
+    if (entity.privatePensionAmount != null) {
+      previdenciaValueController.text =
+          MoneyFormatter.format(entity.privatePensionAmount);
+    }
+    recebePensao = entity.receivePension == true ? 1 : 0;
+    aposentado = entity.isRetired == true ? 1 : 0;
+    temCarteira = entity.hasWorkBooklet == true ? 1 : 0;
+    trabalhadorRural = entity.ruralWorker == true ? 1 : 0;
+    irpfCondition = entity.declarationType;
+    declarouEsseAno = entity.declared == true ? 1 : 0;
+
+    // Nacionalidade
+    final nationality = _nationalityOptions
+        .firstWhereOrNull((n) => n.id == entity.nationalityId);
+    if (nationality != null) {
+      nacionalityController.text = nationality.name ?? '';
+    }
+
+    // Ocupações
+    addedOccupations.clear();
+    for (final o in entity.occupations) {
+      final typeName = _occupationTypes
+              .firstWhereOrNull((t) => t.id == o.occupationTypeId)
+              ?.name ??
+          '';
+      addedOccupations.add({
+        'id': o.id,
+        'ocupationTypeId': o.occupationTypeId,
+        'occupation': typeName,
+        'headerTitle': MoneyFormatter.format(o.monthlyIncome ?? 0),
+        'monthlyIncome': o.monthlyIncome?.toString() ?? '0',
+        'companyName': o.companyName,
+        'function': o.function,
+        'cnpj': o.cnpj,
+        'companyType': o.companyType,
+        'situation': o.situation,
+        'hadActivityLastYear': o.hadActivityLastYear,
+        'simplesNacionalTax': o.simplesNacionalTax,
+        'unemploymentInsurance': o.unemploymentInsurance,
+      });
+    }
+
+    // Outras rendas
+    addedOtherIncomes.clear();
+    possuiOutraFonteRenda = entity.extraIncomes.isEmpty ? 0 : 1;
+    for (final e in entity.extraIncomes) {
+      final typeName = _extraIncomeTypes
+              .firstWhereOrNull((t) => t.id == e.extraIncomeTypeId)
+              ?.name ??
+          '';
+      addedOtherIncomes.add({
+        'id': e.id,
+        'type': typeName,
+        'extraIncomeTypeId': e.extraIncomeTypeId,
+        'monthlyIncome': MoneyFormatter.format(e.amount ?? 0),
+        'description': e.description,
+      });
+    }
+
+    notifyListeners();
+  }
+
+  String _formatCpf(String cpf) {
+    final clean = cpf.replaceAll(RegExp(r'\D'), '');
+    if (clean.length != 11) return cpf;
+    return '${clean.substring(0, 3)}.${clean.substring(3, 6)}.${clean.substring(6, 9)}-${clean.substring(9)}';
   }
 
   String _genderLabel(int gender) {
@@ -797,6 +922,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   }
 
   void resetMemberForm() {
+    _editingIndex = null;
     _currentMemberId = null;
     kinshipType = null;
     cpfController.clear();
@@ -865,18 +991,32 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       possuiOutraFonteRenda != null;
 
   void commitCurrentMemberToList() {
-    addedFamilyMembers.add({
+    final map = {
+      'id': _currentMemberId,
       'cpf': cpfController.text.trim(),
       'name': nameController.text.trim(),
       'dob': dobController.text.trim(),
       'maritalStatus': maritalStatus?.label,
       'isScholarshipCandidate': seraCandidato == 1,
+      'isResponsible': isFirstMember,
+      'kinshipType': kinshipType?.value,
       'occupations': List<Map<String, dynamic>>.from(addedOccupations),
       'hasOtherIncome': possuiOutraFonteRenda == 1,
       'otherIncomes': List<Map<String, dynamic>>.from(addedOtherIncomes),
-    });
+    };
 
-    familyMemberEntities.add(toFamilyMemberEntity());
+    final entity = toFamilyMemberEntity();
+
+    if (_editingIndex != null) {
+      // Atualiza o existente
+      addedFamilyMembers[_editingIndex!] = map;
+      familyMemberEntities[_editingIndex!] = entity;
+      _editingIndex = null;
+    } else {
+      // Adiciona novo
+      addedFamilyMembers.add(map);
+      familyMemberEntities.add(entity);
+    }
 
     resetMemberForm();
   }
