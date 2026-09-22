@@ -113,6 +113,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   bool pensionIncomeAcknowledged = false;
   bool inssBenefitAcknowledged = false;
 
+  bool _hasPendingOccupationNames = false;
+
   int? possuiOutraFonteRenda;
   int? recebeValorImovelAlugado;
   int? ajudaFinanceira;
@@ -261,6 +263,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   void updateOccupationTypes(List<OccupationTypeEntity> types) {
     _occupationTypes = types;
+    _applyPendingOccupationNames();
     notifyListeners();
   }
 
@@ -380,20 +383,39 @@ class MemberRegistrationViewModel extends ChangeNotifier {
               .firstWhereOrNull((t) => t.id == o.occupationTypeId)
               ?.name ??
           '';
+
+      final details = <String, dynamic>{};
+      if (o.companyName?.isNotEmpty == true) details['Empresa'] = o.companyName;
+      if (o.function?.isNotEmpty == true) {
+        details['Função'] = o.function;
+        details['Função/Atuação'] = o.function;
+      }
+      if (o.cnpj?.isNotEmpty == true) details['CNPJ'] = o.cnpj;
+      if (o.companyType != null) details['companyType'] = o.companyType;
+      if (o.situation != null) details['Situação'] = o.situation?.toString();
+      if (o.hadActivityLastYear != null) {
+        details['Houve movimentacao?'] =
+            o.hadActivityLastYear == true ? 'Sim' : 'Não';
+      }
+      if (o.simplesNacionalTax != null) {
+        details['Optante Simples nacional?'] =
+            o.simplesNacionalTax == true ? 'Sim' : 'Não';
+      }
+      if (o.unemploymentInsurance != null) {
+        details['Recebe seguro desemprego?'] =
+            o.unemploymentInsurance == true ? 'Sim' : 'Não';
+      }
+
       addedOccupations.add({
         'id': o.id,
         'occupationTypeId': o.occupationTypeId,
         'occupation': typeName,
         'headerTitle': MoneyFormatter.format(o.monthlyIncome ?? 0),
         'monthlyIncome': o.monthlyIncome?.toString() ?? '0',
-        'companyName': o.companyName,
-        'function': o.function,
-        'cnpj': o.cnpj,
-        'companyType': o.companyType,
-        'situation': o.situation,
-        'hadActivityLastYear': o.hadActivityLastYear,
-        'simplesNacionalTax': o.simplesNacionalTax,
-        'unemploymentInsurance': o.unemploymentInsurance,
+        'occupationDetails': details,
+        'pension': recebePensaoAlimenticia ?? 0,
+        'previdencia': recebePrevidenciaPrivada ?? 0,
+        'inss': recebeOutroBeneficioINSS ?? 0,
       });
     }
 
@@ -437,6 +459,22 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       _pendingNationalityId = null;
       notifyListeners();
     }
+  }
+
+  void _applyPendingOccupationNames() {
+    if (!_hasPendingOccupationNames) return;
+    for (final o in addedOccupations) {
+      if ((o['occupation'] as String?)?.isEmpty == true) {
+        final typeId =
+            (o['ocupationTypeId'] ?? o['occupationTypeId']) as String?;
+        final typeName =
+            _occupationTypes.firstWhereOrNull((t) => t.id == typeId)?.name ??
+                '';
+        o['occupation'] = typeName;
+      }
+    }
+    _hasPendingOccupationNames = false;
+    notifyListeners();
   }
 
   String _formatCpf(String cpf) {

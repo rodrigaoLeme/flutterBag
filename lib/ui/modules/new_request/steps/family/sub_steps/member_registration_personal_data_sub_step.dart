@@ -520,8 +520,8 @@ class _MemberRegistrationPersonalDataSubStepState
                   question: AppI18n.current.irpfConditionLabel,
                   options: [
                     RadioOption(
-                        label: AppI18n.current.irpfDeclarante, value: 0),
-                    RadioOption(label: AppI18n.current.irpfIsento, value: 1),
+                        label: AppI18n.current.irpfDeclarante, value: 1),
+                    RadioOption(label: AppI18n.current.irpfIsento, value: 2),
                   ],
                   groupValue: widget.vm.irpfCondition,
                   onChanged: (v) => widget.vm.setIrpfCondition(v),
