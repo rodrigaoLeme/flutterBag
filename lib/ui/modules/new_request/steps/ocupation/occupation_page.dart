@@ -537,6 +537,10 @@ class _OccupationPageState extends State<OccupationPage> {
       if (_showMovimentacaoValueField &&
           _movimentacaoValueController!.text.trim().isEmpty) {
         return false;
+      } else {
+        if (_movimentacaoValueController!.text.trim() == '0,00') {
+          return false;
+        }
       }
       // if income input is shown, require it
       if (_detailsViewModel!.type != OccupationType.estudante &&
@@ -545,7 +549,8 @@ class _OccupationPageState extends State<OccupationPage> {
           _detailsViewModel!.type != OccupationType.propietario &&
           _detailsViewModel!.type != OccupationType.doLar) {
         if (_incomeController == null ||
-            _incomeController!.text.trim().isEmpty) {
+            _incomeController!.text.trim().isEmpty ||
+            _incomeController!.text.trim() == '0,00') {
           return false;
         }
       }
@@ -560,7 +565,9 @@ class _OccupationPageState extends State<OccupationPage> {
 
     // if generic label (custom occupation), require income
     if (_genericLabel != null) {
-      if (_incomeController == null || _incomeController!.text.trim().isEmpty) {
+      if (_incomeController == null ||
+          _incomeController!.text.trim().isEmpty ||
+          _incomeController!.text.trim() == '0,00') {
         return false;
       }
       return true;
@@ -778,7 +785,9 @@ class _OccupationPageState extends State<OccupationPage> {
                         controller: _ensureIncomeController(),
                         label: 'Recebimento mensal em R\$',
                         hint: 'Recebimento mensal em R\$',
-                        keyboardType: TextInputType.number,
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        inputFormatters: [MoneyTextInputFormatter()],
                         borderRadius: 12.0,
                       ),
                     ),

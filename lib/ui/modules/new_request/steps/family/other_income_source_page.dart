@@ -176,7 +176,10 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
 
   bool get _canAdd {
     if (_selectedTypeEntity == null) return false;
-    if (_monthlyIncomeController.text.trim().isEmpty) return false;
+    if (_monthlyIncomeController.text.trim().isEmpty ||
+        _monthlyIncomeController.text.trim() == '0,00') {
+      return false;
+    }
     if (_selectedTypeEntity!.hasDescription &&
         _descriptionController.text.trim().isEmpty) {
       return false;

@@ -113,7 +113,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   bool pensionIncomeAcknowledged = false;
   bool inssBenefitAcknowledged = false;
 
-  bool _hasPendingOccupationNames = false;
+  //bool _hasPendingOccupationNames = false;
 
   int? possuiOutraFonteRenda;
   int? recebeValorImovelAlugado;
@@ -462,7 +462,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   }
 
   void _applyPendingOccupationNames() {
-    if (!_hasPendingOccupationNames) return;
+    //if (!_hasPendingOccupationNames) return;
     for (final o in addedOccupations) {
       if ((o['occupation'] as String?)?.isEmpty == true) {
         final typeId =
@@ -473,7 +473,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
         o['occupation'] = typeName;
       }
     }
-    _hasPendingOccupationNames = false;
+
     notifyListeners();
   }
 
@@ -927,7 +927,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     return true;
   }
 
-  bool isOccupationSubStepComplete() => hasOccupation;
+  bool isOccupationSubStepComplete() => addedOccupations.isNotEmpty;
 
   bool isOtherIncomeSubStepComplete() {
     if (possuiOutraFonteRenda == null) return false;
