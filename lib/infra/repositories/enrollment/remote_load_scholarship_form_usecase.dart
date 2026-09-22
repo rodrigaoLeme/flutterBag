@@ -16,7 +16,7 @@ class RemoteLoadScholarshipFormUsecase implements LoadScholarshipFormUsecase {
   Future<ScholarshipFormEntity?> load(String scholarshipId) async {
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/scholarships/$scholarshipId',
+        url: '${Flavor.apiBaseUrl}/v1/scholarships/$scholarshipId',
         method: HttpMethod.get,
       );
 

@@ -27,7 +27,7 @@ class RemoteLoadAvailableAnnouncementsUsecase
       }
 
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/announcements',
+        url: '${Flavor.apiBaseUrl}/v1/announcements',
         method: HttpMethod.get,
         queryParameters: queryParams,
       );

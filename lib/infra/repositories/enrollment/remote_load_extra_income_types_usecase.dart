@@ -13,7 +13,7 @@ class RemoteLoadExtraIncomeTypesUsecase implements LoadExtraIncomeTypesUsecase {
   Future<List<ExtraIncomeTypeEntity>> load() async {
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/extra-income-types',
+        url: '${Flavor.apiBaseUrl}/v1/extra-income-types',
         method: HttpMethod.get,
       );
 

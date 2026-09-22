@@ -46,7 +46,7 @@ class RemoteLoginUsecase implements LoginUsecase {
 
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/auth/login',
+        url: '${Flavor.apiBaseUrl}/v1/auth/login',
         method: HttpMethod.post,
         body: {
           'userName': cleanCpf,
@@ -105,7 +105,7 @@ class RemoteCreateAccountUsecase implements CreateAccountUsecase {
   Future<UserEntity> createAccount(CreateAccountUsecaseParams params) async {
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/auth/register',
+        url: '${Flavor.apiBaseUrl}/v1/auth/register',
         method: HttpMethod.post,
         body: {
           'cpf': params.cpf.replaceAll(RegExp(r'[^\d]'), ''),
@@ -187,7 +187,7 @@ class RemoteForgotPasswordUsecase implements ForgotPasswordUsecase {
     }
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/account/forgot-password',
+        url: '${Flavor.apiBaseUrl}/v1/account/forgot-password',
         method: HttpMethod.post,
         body: {'username': params.identifier.trim()},
       );

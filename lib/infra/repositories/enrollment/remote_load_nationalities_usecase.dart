@@ -13,7 +13,7 @@ class RemoteLoadNationalitiesUsecase implements LoadNationalitiesUsecase {
   Future<List<NationalitiesEntity>> load() async {
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/nationalities',
+        url: '${Flavor.apiBaseUrl}/v1/nationalities',
         method: HttpMethod.get,
       );
 

@@ -42,6 +42,8 @@ class _MemberRegistrationPersonalDataSubStepState
   }
 
   void _onCpfChanged() {
+    if (widget.vm.isEditing) return;
+
     final clean = widget.vm.cpfController.text.replaceAll(RegExp(r'\D'), '');
     if (clean.length == 11) {
       if (!CPFValidator.isValid(clean)) {
@@ -99,6 +101,7 @@ class _MemberRegistrationPersonalDataSubStepState
             keyboardType: TextInputType.number,
             inputFormatters: [widget.vm.cpfMask],
             errorText: widget.vm.cpfError,
+            enabled: !widget.vm.isEditing,
           ),
         ),
         if (widget.vm.isLoadingPerson)
@@ -117,7 +120,8 @@ class _MemberRegistrationPersonalDataSubStepState
           ),
         const SizedBox(height: 12),
         EbolsaIgnorePointer(
-          ignoring: !widget.vm.isCpfValidated || widget.vm.isLoadingPerson,
+          ignoring: (!widget.vm.isCpfValidated || widget.vm.isLoadingPerson) &&
+              !widget.vm.isEditing,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -196,47 +200,53 @@ class _MemberRegistrationPersonalDataSubStepState
               const SizedBox(height: 12),
               Row(
                 children: [
-                  if (!widget.vm.isFirstMember)
+                  if (!widget.vm.isFirstMember) ...[
                     Expanded(
-                      child: GestureDetector(
-                        onTap: () async {
-                          final selected = await SearchableOptionsBottomSheet
-                              .show<KinshipType>(
-                            context: context,
-                            title: AppI18n.current.kinshipLabel,
-                            options: widget.vm.kinshipOptions,
-                            searchHint: AppI18n.current.noticesTermsSearchHint,
-                            helperText: '',
-                            emptyStateText: AppI18n
-                                .current.noticesTermsBottomSheetNoResults,
-                            closeTooltip:
-                                AppI18n.current.noticesTermsCloseAction,
-                            selectedValue: widget.vm.kinshipType,
-                            labelBuilder: (k) => k.label,
-                            searchTextBuilder: (k) => k.label,
-                          );
-                          if (selected != null) {
-                            widget.vm.setKinshipType(selected);
-                          }
-                        },
-                        child: InputDecorator(
-                          decoration: InputDecoration(
-                            labelText: AppI18n.current.kinshipLabel,
-                            suffixIcon:
-                                const Icon(Icons.keyboard_arrow_down_rounded),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16)),
-                          ),
-                          child: Text(
-                            widget.vm.kinshipType?.label ??
-                                AppI18n.current.kinshipLabel,
-                            style: widget.vm.kinshipType == null
-                                ? AppTextStyles.ebolsaBodyLargeOutline
-                                : AppTextStyles.ebolsaBodyLarge,
+                      child: EbolsaIgnorePointer(
+                        ignoring:
+                            widget.vm.kinshipType == KinshipType.responsible,
+                        child: GestureDetector(
+                          onTap: () async {
+                            final selected = await SearchableOptionsBottomSheet
+                                .show<KinshipType>(
+                              context: context,
+                              title: AppI18n.current.kinshipLabel,
+                              options: widget.vm.kinshipOptions,
+                              searchHint:
+                                  AppI18n.current.noticesTermsSearchHint,
+                              helperText: '',
+                              emptyStateText: AppI18n
+                                  .current.noticesTermsBottomSheetNoResults,
+                              closeTooltip:
+                                  AppI18n.current.noticesTermsCloseAction,
+                              selectedValue: widget.vm.kinshipType,
+                              labelBuilder: (k) => k.label,
+                              searchTextBuilder: (k) => k.label,
+                            );
+                            if (selected != null) {
+                              widget.vm.setKinshipType(selected);
+                            }
+                          },
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: AppI18n.current.kinshipLabel,
+                              suffixIcon:
+                                  const Icon(Icons.keyboard_arrow_down_rounded),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16)),
+                            ),
+                            child: Text(
+                              widget.vm.kinshipType?.label ??
+                                  AppI18n.current.kinshipLabel,
+                              style: widget.vm.kinshipType == null
+                                  ? AppTextStyles.ebolsaBodyLargeOutline
+                                  : AppTextStyles.ebolsaBodyLarge,
+                            ),
                           ),
                         ),
                       ),
                     ),
+                  ],
                   const SizedBox(width: 12),
                   Expanded(
                     child: GestureDetector(

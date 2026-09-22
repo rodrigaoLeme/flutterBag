@@ -198,7 +198,7 @@ class _OccupationPageState extends State<OccupationPage> {
       'previdencia': _recebePrevidenciaPrivada,
       'inss': _recebeOutroBeneficioINSS,
       'occupation': _selectedOccupation,
-      'ocupationTypeId': occupationType?.id,
+      'occupationTypeId': occupationType?.id,
     };
 
     if (_detailsViewModel != null) {

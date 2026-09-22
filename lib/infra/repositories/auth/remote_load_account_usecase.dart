@@ -13,7 +13,7 @@ class RemoteLoadAccountUsecase implements LoadAccountUsecase {
   Future<AccountEntity> load() async {
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/account/me',
+        url: '${Flavor.apiBaseUrl}/v1/account/me',
         method: HttpMethod.get,
       );
       return AccountEntity.fromJson(

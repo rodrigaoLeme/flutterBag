@@ -59,6 +59,7 @@ class MemberRegistrationPage extends StatefulWidget {
     required this.processPeriodId,
     required this.initialFamilyMembers,
     required this.educationLevel,
+    this.initialEditIndex,
   });
 
   final MemberRegistrationPresenter? presenter;
@@ -66,6 +67,7 @@ class MemberRegistrationPage extends StatefulWidget {
   final String processPeriodId;
   final List<FamilyMemberEntity> initialFamilyMembers;
   final EducationLevel? educationLevel;
+  final int? initialEditIndex;
 
   @override
   State<MemberRegistrationPage> createState() => _MemberRegistrationPageState();
@@ -116,6 +118,13 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     _loadNationalities();
     _loadExtraIncomeTypes();
     _populateInitialFamilyMembers();
+
+    if (widget.initialEditIndex != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _vm.startEditing(widget.initialEditIndex!);
+        _presenter.goToSubStep(1);
+      });
+    }
   }
 
   String _formatCpf(String cpf) {
@@ -159,7 +168,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
           'isResponsible': member.isResponsible ?? false,
           'occupations': member.occupations
               .map((o) => {
-                    'ocupationTypeId': o.occupationTypeId,
+                    'occupationTypeId': o.occupationTypeId,
                     'monthlyIncome': o.monthlyIncome?.toString() ?? '0',
                   })
               .toList(),

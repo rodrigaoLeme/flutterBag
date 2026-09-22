@@ -83,6 +83,7 @@ enum MaritalStatus {
 }
 
 enum KinshipType {
+  responsible(1, 'Responsável'),
   father(2, 'Pai'),
   spouse(3, 'Esposo(a)'),
   partner(4, 'Companheiro(a)'),

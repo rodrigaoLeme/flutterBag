@@ -11,7 +11,7 @@ class RemoteLookupZipCodeUsecase implements LookupZipCodeUsecase {
   Future<ZipCodeEntity> lookup(String cep) async {
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/addresses/cep/$cep',
+        url: '${Flavor.apiBaseUrl}/v1/addresses/cep/$cep',
         method: HttpMethod.get,
       );
 

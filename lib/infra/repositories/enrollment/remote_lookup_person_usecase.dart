@@ -14,7 +14,7 @@ class RemoteLookupPersonUsecase implements LookupPersonUsecase {
     try {
       final cleanCpf = cpf.replaceAll(RegExp(r'\D'), '');
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/persons/$cleanCpf',
+        url: '${Flavor.apiBaseUrl}/v1/persons/$cleanCpf',
         method: HttpMethod.get,
       );
 

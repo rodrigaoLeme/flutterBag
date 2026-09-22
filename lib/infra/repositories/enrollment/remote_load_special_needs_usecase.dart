@@ -13,7 +13,7 @@ class RemoteLoadSpecialNeedsUsecase implements LoadSpecialNeedsUsecase {
   Future<List<SpecialNeedsEntity>> load() async {
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/special-needs',
+        url: '${Flavor.apiBaseUrl}/v1/special-needs',
         method: HttpMethod.get,
       );
 

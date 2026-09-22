@@ -226,7 +226,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         'kinshipType': member.kinshipType,
         'occupations': member.occupations
             .map((o) => {
-                  'ocupationTypeId': o.occupationTypeId,
+                  'occupationTypeId': o.occupationTypeId,
                   'monthlyIncome': o.monthlyIncome?.toString() ?? '0',
                 })
             .toList(),
@@ -864,7 +864,21 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
             }
             setState(() {});
           },
-          onEditMember: (index) {/* TODO */},
+          onEditMember: (index) async {
+            await Navigator.of(context).push<Object?>(
+              MaterialPageRoute(
+                builder: (_) => MemberRegistrationPage(
+                  scholarshipId: _presenter.form.id ?? '',
+                  processPeriodId: widget.processPeriodId,
+                  initialFamilyMembers: _presenter.form.familyMembers,
+                  educationLevel: _presenter.form.educationLevel,
+                  initialEditIndex: index, // ← passa o índice
+                ),
+              ),
+            );
+            if (!mounted) return;
+            setState(() {});
+          },
           onDeleteMember: (index) => _onDeleteMember(index),
         );
 

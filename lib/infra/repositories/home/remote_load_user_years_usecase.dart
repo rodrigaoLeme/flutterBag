@@ -12,7 +12,7 @@ class RemoteLoadUserYearsUsecase implements LoadUserYearsUsecase {
   Future<List<int>> load() async {
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/year-processes/years',
+        url: '${Flavor.apiBaseUrl}/v1/year-processes/years',
         method: HttpMethod.get,
       );
       return (response as List).map((e) => e as int).toList();

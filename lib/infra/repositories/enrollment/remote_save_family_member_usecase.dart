@@ -16,8 +16,8 @@ class RemoteSaveFamilyMemberUsecase implements SaveFamilyMemberUsecase {
 
       final response = await httpClient.request(
         url: hasId
-            ? '${Flavor.apiBaseUrl}/scholarships/${params.scholarshipId}/step-2/family-members/${member.id}'
-            : '${Flavor.apiBaseUrl}/scholarships/${params.scholarshipId}/step-2/family-members',
+            ? '${Flavor.apiBaseUrl}/v1/scholarships/${params.scholarshipId}/step-2/family-members/${member.id}'
+            : '${Flavor.apiBaseUrl}/v1/scholarships/${params.scholarshipId}/step-2/family-members',
         method: hasId ? HttpMethod.put : HttpMethod.post,
         body: member.toRequestBody(),
       );

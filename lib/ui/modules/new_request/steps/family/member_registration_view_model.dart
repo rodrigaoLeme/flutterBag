@@ -100,6 +100,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   int? trabalhadorRural;
   int? superdotacao;
   int? espectro;
+  String? _pendingSpecialNeedsId;
+  String? _pendingNationalityId;
 
   int? recebePensaoAlimenticia;
   int? recebePrevidenciaPrivada;
@@ -234,7 +236,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   List<Map<String, dynamic>> get incompatibleOccupations {
     return addedOccupations.where((o) {
-      final typeId = o['ocupationTypeId'] as String?;
+      final typeId = o['occupationTypeId'] as String?;
       if (typeId == null) return false;
       final type = _occupationTypes.firstWhereOrNull((t) => t.id == typeId);
       if (type == null) return false;
@@ -278,7 +280,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   void removeIncompatibleOccupations() {
     addedOccupations.removeWhere((o) {
-      final typeId = o['ocupationTypeId'] as String?;
+      final typeId = o['occupationTypeId'] as String?;
       if (typeId == null) return false;
       final type = _occupationTypes.firstWhereOrNull((t) => t.id == typeId);
       if (type == null) return false;
@@ -338,9 +340,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     espectro = entity.hasAutismSpectrumDisorder == true ? 1 : 0;
 
     // PcD — busca pelo id
-    selectedPcd = _specialNeedsOptions
-        .firstWhereOrNull((s) => s.id == entity.specialNeedsId)
-        ?.name;
+    _pendingSpecialNeedsId = entity.specialNeedsId;
+    _applyPendingSpecialNeeds();
 
     // CadÚnico
     cadunicoValue = entity.hasCadUnico == true ? 1 : 0;
@@ -369,11 +370,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     declarouEsseAno = entity.declared == true ? 1 : 0;
 
     // Nacionalidade
-    final nationality = _nationalityOptions
-        .firstWhereOrNull((n) => n.id == entity.nationalityId);
-    if (nationality != null) {
-      nacionalityController.text = nationality.name ?? '';
-    }
+    _pendingNationalityId = entity.nationalityId;
+    _applyPendingNationality();
 
     // Ocupações
     addedOccupations.clear();
@@ -384,7 +382,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
           '';
       addedOccupations.add({
         'id': o.id,
-        'ocupationTypeId': o.occupationTypeId,
+        'occupationTypeId': o.occupationTypeId,
         'occupation': typeName,
         'headerTitle': MoneyFormatter.format(o.monthlyIncome ?? 0),
         'monthlyIncome': o.monthlyIncome?.toString() ?? '0',
@@ -417,6 +415,28 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  void _applyPendingSpecialNeeds() {
+    if (_pendingSpecialNeedsId == null) return;
+    final found = _specialNeedsOptions
+        .firstWhereOrNull((s) => s.id == _pendingSpecialNeedsId);
+    if (found != null) {
+      selectedPcd = found.name;
+      _pendingSpecialNeedsId = null;
+      notifyListeners();
+    }
+  }
+
+  void _applyPendingNationality() {
+    if (_pendingNationalityId == null) return;
+    final found = _nationalityOptions
+        .firstWhereOrNull((n) => n.id == _pendingNationalityId);
+    if (found != null) {
+      nacionalityController.text = found.name ?? '';
+      _pendingNationalityId = null;
+      notifyListeners();
+    }
   }
 
   String _formatCpf(String cpf) {
@@ -497,6 +517,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   void updatePcdOptions(List<SpecialNeedsEntity> options) {
     _specialNeedsOptions = options;
+    _applyPendingSpecialNeeds();
     notifyListeners();
   }
 
@@ -507,6 +528,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   void updateNationalityOptions(List<NationalitiesEntity> options) {
     _nationalityOptions = options;
+    _applyPendingNationality();
     notifyListeners();
   }
 
@@ -1163,7 +1185,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       return OccupationEntity(
         id: o['id'] as String?,
         occupationTypeId:
-            (o['ocupationTypeId'] ?? o['occupationTypeId'] ?? '') as String,
+            (o['occupationTypeId'] ?? o['occupationTypeId'] ?? '') as String,
         monthlyIncome: MoneyFormatter.parse(
           o['monthlyIncome']?.toString() ?? o['headerTitle']?.toString() ?? '0',
         ),

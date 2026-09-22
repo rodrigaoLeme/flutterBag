@@ -14,7 +14,7 @@ class RemoteLoadYearScholarshipsUsecase implements LoadYearScholarshipsUsecase {
   Future<List<ScholarshipEntity>> load(int year) async {
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/year-processes/$year/scholarships',
+        url: '${Flavor.apiBaseUrl}/v1/year-processes/$year/scholarships',
         method: HttpMethod.get,
       );
       return (response as List)

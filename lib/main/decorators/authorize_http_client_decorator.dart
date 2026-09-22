@@ -72,7 +72,7 @@ class AuthorizeHttpClientDecorator implements HttpClient {
     }
     try {
       final response = await decoratee.request(
-        url: '${Flavor.apiBaseUrl}/auth/refresh',
+        url: '${Flavor.apiBaseUrl}/v1/auth/refresh',
         method: HttpMethod.post,
         body: {'token': token, 'refreshToken': refreshToken},
       );

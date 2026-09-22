@@ -12,7 +12,7 @@ class RemoteUpdateContactInfoUsecase implements UpdateContactInfoUsecase {
   Future<void> update(UpdateContactInfoParams params) async {
     try {
       await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/account/me/contact-info',
+        url: '${Flavor.apiBaseUrl}/v1/account/me/contact-info',
         method: HttpMethod.put,
         body: {
           'email': params.email.trim().toLowerCase(),

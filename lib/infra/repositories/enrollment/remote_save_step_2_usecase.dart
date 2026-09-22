@@ -14,7 +14,8 @@ class RemoteSaveStep2Usecase implements SaveStep2Usecase {
   Future<void> save(SaveStep2Params params) async {
     try {
       await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/scholarships/${params.scholarshipId}/step-2',
+        url:
+            '${Flavor.apiBaseUrl}/v1/scholarships/${params.scholarshipId}/step-2',
         method: HttpMethod.put,
         body: params.groupIncome.toJson(),
       );

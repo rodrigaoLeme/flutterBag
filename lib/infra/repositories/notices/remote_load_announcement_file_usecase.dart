@@ -12,7 +12,8 @@ class RemoteLoadAnnouncementFileUsecase implements LoadAnnouncementFileUsecase {
   Future<String> load(LoadAnnouncementFileParams params) async {
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/announcements/${params.announcementId}/file',
+        url:
+            '${Flavor.apiBaseUrl}/v1/announcements/${params.announcementId}/file',
         method: HttpMethod.get,
       );
 

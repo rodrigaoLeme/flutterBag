@@ -8,7 +8,7 @@ class OccupationTypeEntity {
   final bool hasFunction;
   final bool hasDescription;
   final int order;
-  final List<int> ocupationRules;
+  final List<int> occupationRules;
 
   const OccupationTypeEntity({
     required this.id,
@@ -18,13 +18,13 @@ class OccupationTypeEntity {
     required this.hasFunction,
     required this.hasDescription,
     required this.order,
-    this.ocupationRules = const [],
+    this.occupationRules = const [],
   });
 
   bool isCompatibleWith({required int age, required bool hasPwd}) {
     final requiredRule = _requiredRuleFor(age: age, hasPwd: hasPwd);
     if (requiredRule == null) return true;
-    return ocupationRules.contains(requiredRule.value);
+    return occupationRules.contains(requiredRule.value);
   }
 
   static OccupationRule? _requiredRuleFor(
@@ -46,8 +46,8 @@ class OccupationTypeEntity {
         hasFunction: json['hasFunction'] as bool? ?? false,
         hasDescription: json['hasDescription'] as bool? ?? false,
         order: int.tryParse(json['order']?.toString() ?? '0') ?? 0,
-        ocupationRules:
-            (json['ocupationRules'] as List?)?.map((e) => e as int).toList() ??
+        occupationRules:
+            (json['occupationRules'] as List?)?.map((e) => e as int).toList() ??
                 [],
       );
 }

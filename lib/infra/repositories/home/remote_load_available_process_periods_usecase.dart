@@ -15,7 +15,7 @@ class RemoteLoadAvailableProcessPeriodsUsecase
   Future<List<ProcessPeriodAvailableEntity>> load(int year) async {
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/process-periods/available',
+        url: '${Flavor.apiBaseUrl}/v1/process-periods/available',
         method: HttpMethod.get,
         queryParameters: {'year': year},
       );

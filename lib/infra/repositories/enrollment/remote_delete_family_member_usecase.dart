@@ -13,7 +13,7 @@ class RemoteDeleteFamilyMemberUsecase implements DeleteFamilyMemberUsecase {
     try {
       await httpClient.request(
         url:
-            '${Flavor.apiBaseUrl}/scholarships/${params.scholarshipId}/step-2/family-members/${params.memberId}',
+            '${Flavor.apiBaseUrl}/v1/scholarships/${params.scholarshipId}/step-2/family-members/${params.memberId}',
         method: HttpMethod.delete,
       );
     } on ApiException catch (e) {

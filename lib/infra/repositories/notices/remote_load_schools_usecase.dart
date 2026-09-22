@@ -14,7 +14,7 @@ class RemoteLoadSchoolsUsecase implements LoadSchoolsUsecase {
   Future<List<SchoolEntity>> load(LoadSchoolsParams params) async {
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/schools',
+        url: '${Flavor.apiBaseUrl}/v1/schools',
         method: HttpMethod.get,
         queryParameters: {'year': params.year},
       );
