@@ -346,7 +346,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
           initialInss: _vm.recebeOutroBeneficioINSS ?? 0,
           initialOccupation: initial?['occupation'] as String?,
           initialOccupationDetails: initial?['occupationDetails'] != null
-              ? Map<String, String>.from(
+              ? Map<String, dynamic>.from(
                   initial!['occupationDetails'] as Map,
                 )
               : null,

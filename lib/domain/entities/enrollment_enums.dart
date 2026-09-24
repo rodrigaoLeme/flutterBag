@@ -165,3 +165,43 @@ enum OccupationRule {
     }
   }
 }
+
+enum CompanySituation {
+  active(1, 'Ativa'),
+  inactive(3, 'Baixada'),
+  ineligible(5, 'Inapta'),
+  nulla(6, 'Nula'),
+  suspended(7, 'Suspensa');
+
+  const CompanySituation(this.value, this.label);
+  final int value;
+  final String label;
+
+  static CompanySituation? fromValue(int value) {
+    try {
+      return CompanySituation.values.firstWhere((e) => e.value == value);
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+enum CompanyType {
+  mei(1, 'Microempreendedor Individual (MEI)'),
+  me(2, 'Microempresa (ME)'),
+  epp(3, 'Empresa de Pequeno Porte (EPP)'),
+  emp(4, 'Empresa de Médio Porte'),
+  egp(5, 'Empresa de Grande Porte');
+
+  const CompanyType(this.value, this.label);
+  final int value;
+  final String label;
+
+  static CompanyType? fromValue(int value) {
+    try {
+      return CompanyType.values.firstWhere((e) => e.value == value);
+    } catch (_) {
+      return null;
+    }
+  }
+}

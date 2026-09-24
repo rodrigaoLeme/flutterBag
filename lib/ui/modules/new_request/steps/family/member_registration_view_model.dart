@@ -418,6 +418,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
         'inss': recebeOutroBeneficioINSS ?? 0,
       });
     }
+    hasOccupation = addedOccupations.isNotEmpty;
 
     // Outras rendas
     addedOtherIncomes.clear();
@@ -927,7 +928,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     return true;
   }
 
-  bool isOccupationSubStepComplete() => addedOccupations.isNotEmpty;
+  bool isOccupationSubStepComplete() => hasOccupation;
 
   bool isOtherIncomeSubStepComplete() {
     if (possuiOutraFonteRenda == null) return false;
