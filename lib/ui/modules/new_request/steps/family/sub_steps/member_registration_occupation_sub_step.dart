@@ -94,20 +94,20 @@ class MemberRegistrationOccupationSubStep extends StatelessWidget {
         '') as String;
     final details = (occupationDetails['occupationDetails'] as Map?) ?? {};
 
-    if (details.isEmpty) return [];
-
     if (occupationDetails.isEmpty) {
       return [];
     }
 
+    if (details.isEmpty) return [];
+
     // Proprietário
     if (typeId == '7c8efd3f-c5b1-449f-a2c2-cef814cb296e') {
       return [
-        Text('${occupationDetails['Porte da empresa'] ?? ''}',
+        Text('${details['companyTypeLabel'] ?? ''}',
             style: AppTextStyles.labelMedium),
-        Text('CNPJ: ${occupationDetails['CNPJ'] ?? ''}',
+        Text('CNPJ: ${details['CNPJ'] ?? ''}',
             style: AppTextStyles.labelMedium),
-        Text('Função/Atuação: ${occupationDetails['Função/Atuação'] ?? ''}',
+        Text('Função/Atuação: ${details['Função/Atuação'] ?? ''}',
             style: AppTextStyles.labelMedium),
       ];
     }
@@ -115,7 +115,7 @@ class MemberRegistrationOccupationSubStep extends StatelessWidget {
     // Autônomo
     if (typeId == '54b67b6a-7759-49a3-9df3-c2f205bb8960') {
       return [
-        Text('Função: ${occupationDetails['Função'] ?? ''}',
+        Text('Função: ${details['Função'] ?? ''}',
             style: AppTextStyles.labelMedium),
       ];
     }
@@ -123,7 +123,7 @@ class MemberRegistrationOccupationSubStep extends StatelessWidget {
     // Informal
     if (typeId == '9df23f2f-c523-4ac3-9857-e891cb6f24d8') {
       return [
-        Text('Função: ${occupationDetails['Função'] ?? ''}',
+        Text('Função: ${details['Função'] ?? ''}',
             style: AppTextStyles.labelMedium),
       ];
     }
@@ -131,17 +131,15 @@ class MemberRegistrationOccupationSubStep extends StatelessWidget {
     // Assalariado
     if (typeId == '27e77bb7-387e-4b3a-819e-d34518a91908') {
       return [
-        Text('${occupationDetails['occupationDetails']['Empresa'] ?? ''}',
-            style: AppTextStyles.labelMedium),
-        Text(
-            'Função: ${occupationDetails['occupationDetails']['Função'] ?? ''}',
+        Text('${details['Empresa'] ?? ''}', style: AppTextStyles.labelMedium),
+        Text('Função: ${details['Função'] ?? ''}',
             style: AppTextStyles.labelMedium),
       ];
     }
 
     // Desempregado
     if (typeId == '799d77b8-435e-4d37-bf1d-e3d68916cf4c') {
-      if (occupationDetails['Recebe seguro desemprego?'] == 'Sim') {
+      if (details['Recebe seguro desemprego?'] == 'Sim') {
         return [
           Text('Recebe seguro desemprego', style: AppTextStyles.labelMedium)
         ];

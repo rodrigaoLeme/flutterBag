@@ -391,7 +391,11 @@ class MemberRegistrationViewModel extends ChangeNotifier {
         details['Função/Atuação'] = o.function;
       }
       if (o.cnpj?.isNotEmpty == true) details['CNPJ'] = o.cnpj;
-      if (o.companyType != null) details['companyType'] = o.companyType;
+      if (o.companyType != null) {
+        details['companyType'] = o.companyType;
+        details['companyTypeLabel'] =
+            CompanyType.fromValue(o.companyType!)!.label;
+      }
       if (o.situation != null) details['Situação'] = o.situation?.toString();
       if (o.hadActivityLastYear != null) {
         details['Houve movimentacao?'] =

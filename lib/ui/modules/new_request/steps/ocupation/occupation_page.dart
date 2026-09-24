@@ -39,6 +39,8 @@ class _OccupationPageState extends State<OccupationPage> {
   static const _desempregadoId = '799d77b8-435e-4d37-bf1d-e3d68916cf4c';
   static const _estudanteId = '57e45b23-7ded-45dd-b26e-eb35baa79c90';
   static const _nenhumaId = '38bcaf6b-d485-4c47-8bff-a9db1342d12f';
+  static const _autonomo = '54b67b6a-7759-49a3-9df3-c2f205bb8960';
+  static const _informal = '9df23f2f-c523-4ac3-9857-e891cb6f24d8';
 
   // ── Estado ──────────────────────────────────────────────────
   late int _recebePensaoAlimenticia;
@@ -74,6 +76,8 @@ class _OccupationPageState extends State<OccupationPage> {
   bool get _isProprietario => _selectedType?.id == _proprietarioId;
   bool get _isDesempregado => _selectedType?.id == _desempregadoId;
   bool get _isEstudante => _selectedType?.id == _estudanteId;
+  bool get _isAutonomo => _selectedType?.id == _autonomo;
+  bool get _isInformal => _selectedType?.id == _informal;
 
   // Campos baseados nos flags do endpoint
   bool get _showFunction =>
@@ -81,7 +85,10 @@ class _OccupationPageState extends State<OccupationPage> {
   bool get _showCompany =>
       (_selectedType?.hasDescription ?? false) &&
       !_isNenhuma &&
-      !_isProprietario;
+      !_isProprietario &&
+      !_isAutonomo &&
+      !_isInformal;
+
   bool get _showIncome =>
       (_selectedType?.hasIncome ?? false) &&
       !_isNenhuma &&
@@ -91,7 +98,7 @@ class _OccupationPageState extends State<OccupationPage> {
   // Campos especiais — apenas para Proprietário
   bool get _showCnpj => _isProprietario;
   bool get _showOptantesSimples => _isProprietario;
-  bool get _showMovimentacao => _isProprietario;
+  //bool get _showMovimentacao => _isProprietario;
   bool get _showMovimentacaoValue =>
       _isProprietario && _movimentacaoController.text == 'Sim';
 
@@ -199,13 +206,15 @@ class _OccupationPageState extends State<OccupationPage> {
   // ── Validação ────────────────────────────────────────────────
   bool get _canSave {
     if (_selectedType == null) return false;
-    if (_isNenhuma) return false;
+    if (_isNenhuma) return true;
     if (_isEstudante && !_studentAcknowledged) return false;
 
-    if (_showFunction && (_functionController?.text.trim().isEmpty ?? true))
+    if (_showFunction && (_functionController?.text.trim().isEmpty ?? true)) {
       return false;
-    if (_showCompany && (_companyController?.text.trim().isEmpty ?? true))
+    }
+    if (_showCompany && (_companyController?.text.trim().isEmpty ?? true)) {
       return false;
+    }
 
     // Proprietário
     if (_showCnpj) {
@@ -214,21 +223,27 @@ class _OccupationPageState extends State<OccupationPage> {
       if (_selectedCompanySituation == null) return false;
       if (_optanteSimplesController.text.isEmpty) return false;
       if (_movimentacaoController.text.isEmpty) return false;
-      if (_showMovimentacaoValue &&
-          (_movimentacaoValueController?.text.trim().isEmpty ?? true)) {
+      if ((_showMovimentacaoValue &&
+              ((_movimentacaoValueController?.text.trim().isEmpty) ?? true)) ||
+          _movimentacaoValueController?.text == '0,00') {
         return false;
       }
     }
 
     // Renda regular
-    if (_showIncome && (_incomeController?.text.trim().isEmpty ?? true))
+    if ((_showIncome && (_incomeController?.text.trim().isEmpty ?? true)) ||
+        _incomeController?.text == '0,00') {
       return false;
+    }
 
     // Desempregado
-    if (_showSeguroDesemprego && _seguroDesempregoController.text.isEmpty)
+    if (_showSeguroDesemprego && _seguroDesempregoController.text.isEmpty) {
       return false;
+    }
     if (_showSeguroDesempregoIncome &&
-        (_incomeController?.text.trim().isEmpty ?? true)) return false;
+        (_incomeController?.text.trim().isEmpty ?? true)) {
+      return false;
+    }
 
     return true;
   }
@@ -237,27 +252,34 @@ class _OccupationPageState extends State<OccupationPage> {
   void _saveAndReturn() {
     final details = <String, dynamic>{};
 
-    if (_functionController != null)
+    if (_functionController != null) {
       details['Função'] = _functionController!.text;
-    if (_companyController != null)
+      details['Função/Atuação'] = _functionController!.text;
+    }
+    if (_companyController != null) {
       details['Empresa'] = _companyController!.text;
+    }
     if (_cnpjController != null) details['CNPJ'] = _cnpjController!.text;
     if (_selectedCompanyType != null) {
-      details['Porte da empresa'] = _selectedCompanyType!.label;
+      details['companyTypeLabel'] = _selectedCompanyType!.label;
       details['companyType'] = _selectedCompanyType!.value;
     }
     if (_selectedCompanySituation != null) {
       details['Situação'] = _selectedCompanySituation!.label;
       details['situation'] = _selectedCompanySituation!.value;
     }
-    if (_optanteSimplesController.text.isNotEmpty)
+    if (_optanteSimplesController.text.isNotEmpty) {
       details['Optante Simples nacional?'] = _optanteSimplesController.text;
-    if (_movimentacaoController.text.isNotEmpty)
+    }
+    if (_movimentacaoController.text.isNotEmpty) {
       details['Houve movimentacao?'] = _movimentacaoController.text;
-    if (_movimentacaoValueController != null)
+    }
+    if (_movimentacaoValueController != null) {
       details['Valor movimentacao'] = _movimentacaoValueController!.text;
-    if (_seguroDesempregoController.text.isNotEmpty)
+    }
+    if (_seguroDesempregoController.text.isNotEmpty) {
       details['Recebe seguro desemprego?'] = _seguroDesempregoController.text;
+    }
 
     // Renda mensal
     final income = _showMovimentacaoValue
@@ -275,6 +297,11 @@ class _OccupationPageState extends State<OccupationPage> {
       'function': _functionController?.text,
       'companyName': _companyController?.text,
       'cnpj': _cnpjController?.text,
+      'companyType': _selectedCompanyType?.value,
+      'situation': _selectedCompanySituation?.value,
+      'hadActivityLastYear': _movimentacaoController.text == 'Sim',
+      'simplesNacionalTax': _optanteSimplesController.text == 'Sim',
+      'unemploymentInsurance': _seguroDesempregoController.text == 'Sim',
       'occupationDetails': details,
     });
   }
@@ -285,7 +312,7 @@ class _OccupationPageState extends State<OccupationPage> {
         await SearchableOptionsBottomSheet.show<OccupationTypeEntity>(
       context: context,
       title: 'Selecione o tipo de ocupação',
-      options: widget.occupationTypes.where((t) => t.id != _nenhumaId).toList(),
+      options: widget.occupationTypes,
       searchHint: 'Pesquisar',
       helperText: '',
       emptyStateText: 'Nenhum resultado',
@@ -293,6 +320,7 @@ class _OccupationPageState extends State<OccupationPage> {
       selectedValue: _selectedType,
       labelBuilder: (t) => t.name ?? '',
       searchTextBuilder: (t) => t.name ?? '',
+      showSearchInput: false,
     );
 
     if (selected == null || !mounted) return;
@@ -373,6 +401,7 @@ class _OccupationPageState extends State<OccupationPage> {
       selectedValue: selectedValue,
       labelBuilder: labelBuilder,
       searchTextBuilder: labelBuilder,
+      showSearchInput: false,
     );
     if (selected != null && mounted) setState(() => onSelected(selected));
   }
@@ -495,7 +524,7 @@ class _OccupationPageState extends State<OccupationPage> {
               const SizedBox(height: 24),
 
               // ── Campos dinâmicos ───────────────────────────────
-              if (_selectedType != null && !_isNenhuma) ...[
+              if (_selectedType != null) ...[
                 // Descrição do tipo
                 if (_selectedType!.description?.isNotEmpty == true) ...[
                   EbolsaImportantBanner(
@@ -508,7 +537,7 @@ class _OccupationPageState extends State<OccupationPage> {
 
                 // 2.2 Assalariado / 2.4 Autônomo+Informal / 2.5 Estágio Rem. / Aprendiz
                 // Ordem: Função → Empresa → Renda
-                if (_showFunction) ...[
+                if (_showFunction && !_showCnpj) ...[
                   EbolsaTextField(
                     controller: _functionController!,
                     label: 'Função',

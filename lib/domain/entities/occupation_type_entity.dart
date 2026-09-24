@@ -22,6 +22,7 @@ class OccupationTypeEntity {
   });
 
   bool isCompatibleWith({required int age, required bool hasPwd}) {
+    if (occupationRules.isEmpty) return false;
     final requiredRule = _requiredRuleFor(age: age, hasPwd: hasPwd);
     if (requiredRule == null) return true;
     return occupationRules.contains(requiredRule.value);
