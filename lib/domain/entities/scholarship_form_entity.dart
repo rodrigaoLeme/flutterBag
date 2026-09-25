@@ -1,5 +1,6 @@
 import 'announcement_enums.dart';
 import 'enrollment_enums.dart';
+import 'expenses_entity.dart';
 import 'family_member_entity.dart';
 import 'group_income_entity.dart';
 
@@ -26,6 +27,8 @@ class ScholarshipFormEntity {
   final GroupIncomeEntity? groupIncome;
 
   // Step 3 - Despesas
+  final ExpensesEntity? expenses;
+
   // Step 4 - Candidatos
 
   const ScholarshipFormEntity({
@@ -45,6 +48,7 @@ class ScholarshipFormEntity {
     this.residenceAreaType,
     this.familyMembers = const [],
     this.groupIncome,
+    this.expenses,
   });
 
   bool get hasScholarship => id != null;
@@ -66,6 +70,7 @@ class ScholarshipFormEntity {
     ResidenceAreaType? residenceAreaType,
     List<FamilyMemberEntity>? familyMembers,
     GroupIncomeEntity? groupIncome,
+    ExpensesEntity? expenses,
   }) =>
       ScholarshipFormEntity(
         id: id ?? this.id,
@@ -84,6 +89,7 @@ class ScholarshipFormEntity {
         residenceAreaType: residenceAreaType ?? this.residenceAreaType,
         familyMembers: familyMembers ?? this.familyMembers,
         groupIncome: groupIncome ?? this.groupIncome,
+        expenses: expenses ?? this.expenses,
       );
 
   Map<String, dynamic> toJson() => {
@@ -103,6 +109,7 @@ class ScholarshipFormEntity {
         'residenceAreaType': residenceAreaType?.value,
         'familyMembers': familyMembers.map((e) => e.toJson()).toList(),
         'groupIncome': groupIncome?.toJson(),
+        'expenses': expenses?.toJson(),
       };
 
   factory ScholarshipFormEntity.fromJson(Map<String, dynamic> json) =>
@@ -131,6 +138,10 @@ class ScholarshipFormEntity {
         groupIncome: json['groupIncome'] != null
             ? GroupIncomeEntity.fromJson(
                 Map<String, dynamic>.from(json['groupIncome'] as Map))
+            : null,
+        expenses: json['expenses'] != null
+            ? ExpensesEntity.fromJson(
+                Map<String, dynamic>.from(json['expenses'] as Map))
             : null,
       );
 }

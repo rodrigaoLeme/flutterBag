@@ -148,6 +148,7 @@ class FamilyMemberEntity {
   Map<String, dynamic> toRequestBody() => {
         'name': name,
         'kinshipType': kinshipType,
+        'isResponsible': isResponsible,
         'isCandidate': isCandidate,
         'maritalStatus': maritalStatus,
         'declarationType': declarationType,
@@ -169,6 +170,7 @@ class FamilyMemberEntity {
         'specialNeedsId': specialNeedsId,
         'hasAutismSpectrumDisorder': hasAutismSpectrumDisorder,
         'hasHighAbilityGiftedness': hasHighAbilityGiftedness,
+        'specialNeedsName': specialNeedsName,
         'naturalized': naturalized,
         'personCpf': personCpf,
         'nationalityId': nationalityId,
@@ -205,7 +207,8 @@ class FamilyMemberEntity {
         isRetired: json['isRetired'] as bool?,
         hasWorkBooklet: json['hasWorkBooklet'] as bool?,
         hasCadUnico: json['hasCadUnico'] as bool?,
-        governmentBeneficiaryNis: json['governmentBeneficiaryNis'] as String?,
+        governmentBeneficiaryNis: (json['governmentBeneficiaryNis'] ??
+            json['governmentBeneficiaryNIS']) as String?,
         hasChronicDisease: json['hasChronicDisease'] as bool?,
         chronicDiseaseName: json['chronicDiseaseName'] as String?,
         specialNeedsId: json['specialNeedsId'] as String?,
@@ -220,7 +223,7 @@ class FamilyMemberEntity {
             : null,
         personGender: json['personGender'] as int?,
         personHasCin: json['personHasCin'] as bool?,
-        personRg: json['personRg'] as String?,
+        personRg: (json['personRg'] ?? json['personRG']) as String?,
         personRgIssuingAuthority: json['personRgIssuingAuthority'] as String?,
         personMobileNumber: json['personMobileNumber'] as String?,
         occupations: ((json['occupations'] ?? json['ocupations']) as List?)

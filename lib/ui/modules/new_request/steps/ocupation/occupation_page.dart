@@ -1,3 +1,4 @@
+import 'package:cpf_cnpj_validator/cnpj_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
@@ -187,7 +188,11 @@ class _OccupationPageState extends State<OccupationPage> {
         ? (TextEditingController()..addListener(() => setState(() {})))
         : null;
     _cnpjController = _showCnpj
-        ? (TextEditingController()..addListener(() => setState(() {})))
+        ? (TextEditingController()
+          ..addListener(() {
+            setState(() {});
+            _validateCnpj();
+          }))
         : null;
     _incomeController = (_showIncome || _showSeguroDesemprego)
         ? (TextEditingController()..addListener(() => setState(() {})))
@@ -201,6 +206,19 @@ class _OccupationPageState extends State<OccupationPage> {
     _seguroDesempregoController.clear();
     _selectedCompanyType = null;
     _selectedCompanySituation = null;
+  }
+
+  String? _cnpjError;
+
+  void _validateCnpj() {
+    final clean = _cnpjController?.text.replaceAll(RegExp(r'\D'), '') ?? '';
+    if (clean.length < 14) {
+      setState(() => _cnpjError = null); // ainda digitando, sem erro
+      return;
+    }
+    setState(() {
+      _cnpjError = CNPJValidator.isValid(clean) ? null : 'CNPJ inválido';
+    });
   }
 
   // ── Validação ────────────────────────────────────────────────
@@ -566,6 +584,7 @@ class _OccupationPageState extends State<OccupationPage> {
                     keyboardType: TextInputType.number,
                     inputFormatters: [_cnpjMask],
                     borderRadius: 12.0,
+                    errorText: _cnpjError,
                   ),
                   const SizedBox(height: 16),
                   _buildEnumSelectorField<CompanyType>(

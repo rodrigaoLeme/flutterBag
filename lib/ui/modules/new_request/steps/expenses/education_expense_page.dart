@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/themes/themes.dart';
@@ -7,15 +8,17 @@ import '../../../../helpers/themes/themes.dart';
 class EducationExpensePage extends StatefulWidget {
   const EducationExpensePage({
     super.key,
-    required this.familyMemberNames,
+    required this.familyMembers,
     this.initialType,
+    this.initialMemberId,
     this.initialMemberName,
     this.initialInstitution,
     this.initialMonthlyValue,
   });
 
-  final List<String> familyMemberNames;
+  final List<FamilyMemberEntity> familyMembers;
   final String? initialType;
+  final String? initialMemberId;
   final String? initialMemberName;
   final String? initialInstitution;
   final String? initialMonthlyValue;
@@ -26,6 +29,7 @@ class EducationExpensePage extends StatefulWidget {
 
 class _EducationExpensePageState extends State<EducationExpensePage> {
   String? _selectedType;
+  String? _selectedMemberId;
   String? _selectedMemberName;
   late final TextEditingController _institutionController;
   late final TextEditingController _monthlyValueController;
@@ -40,11 +44,25 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
     ];
   }
 
+  List<String> get _memberNames => widget.familyMembers
+      .map((m) => m.name?.trim() ?? '')
+      .where((name) => name.isNotEmpty)
+      .toList();
+
   @override
   void initState() {
     super.initState();
     _selectedType = widget.initialType;
+    _selectedMemberId = widget.initialMemberId;
     _selectedMemberName = widget.initialMemberName;
+    if (_selectedMemberId == null && _selectedMemberName != null) {
+      for (final member in widget.familyMembers) {
+        if (member.name?.trim() == _selectedMemberName) {
+          _selectedMemberId = member.id;
+          break;
+        }
+      }
+    }
     _institutionController = TextEditingController(
       text: widget.initialInstitution ?? '',
     );
@@ -90,7 +108,7 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
     final selected = await SearchableOptionsBottomSheet.show<String>(
       context: context,
       title: i18n.expenseEducationForWhomLabel,
-      options: widget.familyMemberNames,
+      options: _memberNames,
       searchHint: i18n.noticesTermsSearchHint,
       helperText: i18n.noticesTermsBottomSheetSearchHelp,
       emptyStateText: i18n.noticesTermsBottomSheetNoResults,
@@ -98,7 +116,22 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
       selectedValue: _selectedMemberName,
     );
     if (selected != null) {
-      setState(() => _selectedMemberName = selected);
+      String? memberId;
+      for (final member in widget.familyMembers) {
+        if (member.name?.trim() == selected) {
+          if (member.id != null) {
+            memberId = member.id!.isEmpty ? null : member.id;
+            break;
+          } else {
+            memberId = null;
+            break;
+          }
+        }
+      }
+      setState(() {
+        _selectedMemberName = selected;
+        _selectedMemberId = memberId;
+      });
     }
   }
 
@@ -107,6 +140,7 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
 
     Navigator.of(context).pop({
       'type': _selectedType,
+      'memberId': _selectedMemberId,
       'memberName': _selectedMemberName,
       'institution': _institutionController.text.trim(),
       'monthlyValue': _monthlyValueController.text.trim(),

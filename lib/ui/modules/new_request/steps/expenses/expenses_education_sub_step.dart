@@ -1,31 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../domain/entities/enrollment_enums.dart';
+import '../../../../../domain/entities/expenses_entity.dart';
+import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/ebolsa_button.dart';
 import '../../../../components/ebolsa_member_card.dart';
 import '../../../../components/ebolsa_radio_group.dart';
 import '../../../../components/ebolsa_text_field.dart';
+import '../../../../helpers/money_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
 import 'education_expense_page.dart';
-
-enum SchoolTransportType {
-  naoUtiliza,
-  pagoFretado,
-  proprioCombustivel,
-  publico,
-}
 
 class ExpensesEducationSubStep extends StatefulWidget {
   const ExpensesEducationSubStep({
     super.key,
     required this.educationValueController,
-    this.familyMemberNames = const [],
+    this.familyMembers = const [],
     this.onFormChanged,
   });
 
   final TextEditingController educationValueController;
-  final List<String> familyMemberNames;
+  final List<FamilyMemberEntity> familyMembers;
   final VoidCallback? onFormChanged;
 
   @override
@@ -42,9 +39,50 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
 
   void _notifyFormChanged() => widget.onFormChanged?.call();
 
+  bool? get hasEducationSpending {
+    if (_hasEducationCosts == null) return null;
+    return _hasEducationCosts == 1;
+  }
+
+  SchoolTransportType? get schoolTransportType => _schoolTransportType;
+
+  List<EducationSpendingEntity> get educationSpendings =>
+      _addedEducationExpenses.map(_mapEducationSpending).toList();
+
+  EducationSpendingEntity _mapEducationSpending(Map<String, dynamic> item) {
+    final amountRaw = item['monthlyValue'];
+    return EducationSpendingEntity(
+      educationSpendingType: _mapEducationType(item['type'] as String?),
+      educationSpendingOther: item['typeOther'] as String?,
+      familyMemberId: item['memberId'] as String?,
+      educationSpendingInstitution: item['institution'] as String?,
+      educationSpendingAmount: amountRaw == null ||
+              (amountRaw is String && amountRaw.trim().isEmpty)
+          ? null
+          : MoneyFormatter.parse(amountRaw),
+    );
+  }
+
+  EducationSpendingType? _mapEducationType(String? label) {
+    if (label == null) return null;
+    final i18n = AppI18n.current;
+    if (label == i18n.expenseEducationTypeBasic) {
+      return EducationSpendingType.basic;
+    }
+    if (label == i18n.expenseEducationTypeHigher) {
+      return EducationSpendingType.higher;
+    }
+    if (label == i18n.expenseEducationTypeLanguage) {
+      return EducationSpendingType.language;
+    }
+    if (label == i18n.expenseEducationTypeOther) {
+      return EducationSpendingType.other;
+    }
+    return null;
+  }
+
   bool get _requiresTransportValue =>
-      _schoolTransportType == SchoolTransportType.pagoFretado ||
-      _schoolTransportType == SchoolTransportType.proprioCombustivel;
+      _schoolTransportType?.requiresAmount ?? false;
 
   bool get canAdvance {
     if (_hasEducationCosts == null || _schoolTransportType == null) {
@@ -64,7 +102,10 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
         : null;
     final schoolTransportError = _schoolTransportType == null
         ? i18n.expenseSchoolTransportRequiredError
-        : null;
+        : (_requiresTransportValue &&
+                widget.educationValueController.text.trim().isEmpty)
+            ? i18n.expenseSchoolTransportRequiredError
+            : null;
 
     setState(() {
       _hasEducationCostsError = hasEducationCostsError;
@@ -89,8 +130,8 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
     setState(() {
       _schoolTransportType = value;
       _schoolTransportError = null;
-      if (value == SchoolTransportType.naoUtiliza ||
-          value == SchoolTransportType.publico) {
+      if (value == SchoolTransportType.none ||
+          value == SchoolTransportType.public) {
         widget.educationValueController.clear();
       }
     });
@@ -128,8 +169,9 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
     final result = await Navigator.of(context).push<Map<String, dynamic>>(
       MaterialPageRoute(
         builder: (_) => EducationExpensePage(
-          familyMemberNames: widget.familyMemberNames,
+          familyMembers: widget.familyMembers,
           initialType: initial?['type'] as String?,
+          initialMemberId: initial?['memberId'] as String?,
           initialMemberName: initial?['memberName'] as String?,
           initialInstitution: initial?['institution'] as String?,
           initialMonthlyValue: initial?['monthlyValue'] as String?,
@@ -243,19 +285,19 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
     final options = [
       RadioOption(
         label: i18n.expenseSchoolTransportNaoUtiliza,
-        value: SchoolTransportType.naoUtiliza,
+        value: SchoolTransportType.none,
       ),
       RadioOption(
         label: i18n.expenseSchoolTransportPagoFretado,
-        value: SchoolTransportType.pagoFretado,
+        value: SchoolTransportType.paidChartered,
       ),
       RadioOption(
         label: i18n.expenseSchoolTransportProprioCombustivel,
-        value: SchoolTransportType.proprioCombustivel,
+        value: SchoolTransportType.ownFuel,
       ),
       RadioOption(
         label: i18n.expenseSchoolTransportPublico,
-        value: SchoolTransportType.publico,
+        value: SchoolTransportType.public,
       ),
     ];
 

@@ -7,13 +7,16 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../../data/cache/enrollment_draft_storage.dart';
 import '../../../domain/entities/enrollment_enums.dart';
+import '../../../domain/entities/expenses_entity.dart';
 import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/entities/housing_entity.dart';
 import '../../../domain/entities/scholarship_form_entity.dart';
 import '../../../domain/usecases/enrollment/load_scholarship_form_usecase.dart';
 import '../../../domain/usecases/enrollment/lookup_zip_code_usecase.dart';
 import '../../../domain/usecases/enrollment/save_step_1_usecase.dart';
+import '../../../domain/usecases/enrollment/save_step_3_usecase.dart';
 import '../../../infra/repositories/enrollment/remote_save_step_1_usecase.dart';
+import '../../../infra/repositories/enrollment/remote_save_step_3_usecase.dart';
 import '../../../main/di/injection_container.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../../share/current_account.dart';
@@ -26,6 +29,7 @@ class StreamNewScholarshipRequestPresenter
   final String processPeriodId;
   final String? scholarshipId;
   final SaveStep1Usecase saveStep1Usecase;
+  final SaveStep3Usecase saveStep3Usecase;
   final LookupZipCodeUsecase lookupZipCodeUsecase;
   final LoadScholarshipFormUsecase loadScholarshipFormUsecase;
   final EnrollmentDraftStorage draftStorage;
@@ -34,6 +38,7 @@ class StreamNewScholarshipRequestPresenter
     required this.processPeriodId,
     this.scholarshipId,
     required this.saveStep1Usecase,
+    required this.saveStep3Usecase,
     required this.lookupZipCodeUsecase,
     required this.loadScholarshipFormUsecase,
     required this.draftStorage,
@@ -107,35 +112,52 @@ class StreamNewScholarshipRequestPresenter
   Future<void> _initForm() async {
     final userId = sl<CurrentAccount>().userCpf;
 
-    // 1. Tents carregar draft local
-    final localDraft = await draftStorage.load(
-      userId: userId,
-      processPeriodId: processPeriodId,
-    );
-
-    if (localDraft != null) {
-      _form = ScholarshipFormEntity.fromJson(localDraft);
-      _completedStepNotifier.value = _form.completedStep;
-      _populateControllersFromForm(_form);
-
-      final idToLoad = _form.id ?? scholarshipId;
-      if (idToLoad != null) {
-        try {
-          final remoteForm = await loadScholarshipFormUsecase.load(idToLoad);
-          final stepToNavigate = remoteForm?.currentStep ?? _form.currentStep;
-          _currentStep = stepToNavigate.clamp(1, _stepSubSteps.length);
-        } catch (_) {
-          _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
-        }
-      } else {
-        _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
-      }
-      _currentStepController.add(_currentStep);
-      _currentSubStepController.add(_currentSubStep);
-      return;
+    // 1. Tenta carregar draft local (com proteção contra JSON inválido/legado)
+    Map<String, dynamic>? localDraft;
+    try {
+      localDraft = await draftStorage.load(
+        userId: userId,
+        processPeriodId: processPeriodId,
+      );
+    } catch (_) {
+      localDraft = null;
     }
 
-    // 2. Sem draft local - busca no endpoint
+    if (localDraft != null) {
+      try {
+        _form = ScholarshipFormEntity.fromJson(localDraft);
+        _completedStepNotifier.value = _form.completedStep;
+        _populateControllersFromForm(_form);
+
+        final idToLoad = _form.id ?? scholarshipId;
+        if (idToLoad != null) {
+          try {
+            final remoteForm = await loadScholarshipFormUsecase.load(idToLoad);
+            if (remoteForm != null) {
+              _form = _mergeRemoteOverDraft(remoteForm, _form);
+              _completedStepNotifier.value = _form.completedStep;
+              _populateControllersFromForm(_form);
+              _currentStep =
+                  remoteForm.currentStep.clamp(1, _stepSubSteps.length);
+            } else {
+              _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
+            }
+          } catch (_) {
+            _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
+          }
+        } else {
+          _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
+        }
+        _currentSubStep = 1;
+        _currentStepController.add(_currentStep);
+        _currentSubStepController.add(_currentSubStep);
+        return;
+      } catch (_) {
+        // Draft corrompido — cai para carga remota / formulário novo
+      }
+    }
+
+    // 2. Sem draft local válido - busca no endpoint
     final idToLoad = scholarshipId ?? _form.id;
     if (idToLoad != null) {
       try {
@@ -162,8 +184,30 @@ class StreamNewScholarshipRequestPresenter
       _form = ScholarshipFormEntity(processPeriodId: processPeriodId);
       _currentStep = 1;
     }
+    _currentSubStep = 1;
     _currentStepController.add(_currentStep);
     _currentSubStepController.add(_currentSubStep);
+  }
+
+  /// Mantém progresso local (ex.: despesas ainda não sincronizadas) e
+  /// prioriza dados remotos de moradia/família quando disponíveis.
+  ScholarshipFormEntity _mergeRemoteOverDraft(
+    ScholarshipFormEntity remote,
+    ScholarshipFormEntity draft,
+  ) {
+    return remote.copyWith(
+      currentStep: remote.currentStep >= draft.currentStep
+          ? remote.currentStep
+          : draft.currentStep,
+      completedStep: remote.completedStep >= draft.completedStep
+          ? remote.completedStep
+          : draft.completedStep,
+      expenses: remote.expenses ?? draft.expenses,
+      groupIncome: remote.groupIncome ?? draft.groupIncome,
+      familyMembers: remote.familyMembers.isNotEmpty
+          ? remote.familyMembers
+          : draft.familyMembers,
+    );
   }
 
   void _populateControllersFromForm(ScholarshipFormEntity form) {
@@ -465,6 +509,49 @@ class StreamNewScholarshipRequestPresenter
       await _saveDraftSilently();
       next();
     } on SaveStep1Exception catch (e) {
+      uiError = e.message;
+    } catch (_) {
+      uiError = AppI18n.current.errorUnexpected;
+    } finally {
+      isLoading = LoadingData(isLoading: false);
+    }
+  }
+
+  @override
+  Future<void> submitStep3(ExpensesEntity expenses) async {
+    final scholarshipId = _form.id;
+    if (scholarshipId == null || scholarshipId.isEmpty) {
+      uiError = AppI18n.current.errorUnexpected;
+      return;
+    }
+
+    isLoading = LoadingData(isLoading: true);
+    uiError = null;
+
+    try {
+      await saveStep3Usecase.save(
+        SaveStep3Params(
+          scholarshipId: scholarshipId,
+          expenses: expenses,
+        ),
+      );
+
+      final completed =
+          _form.completedStep < 3 ? 3 : _form.completedStep;
+      _form = _form.copyWith(
+        expenses: expenses,
+        completedStep: completed,
+        currentStep: 4,
+      );
+      _completedStepNotifier.value = completed;
+
+      await _saveDraftSilently();
+
+      _currentStep = 4;
+      _currentSubStep = 1;
+      _currentStepController.add(_currentStep);
+      _currentSubStepController.add(_currentSubStep);
+    } on SaveStep3Exception catch (e) {
       uiError = e.message;
     } catch (_) {
       uiError = AppI18n.current.errorUnexpected;

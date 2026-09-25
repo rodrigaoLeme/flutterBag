@@ -205,3 +205,52 @@ enum CompanyType {
     }
   }
 }
+
+enum EducationSpendingType {
+  basic(1),
+  higher(2),
+  language(3),
+  other(4);
+
+  const EducationSpendingType(this.value);
+  final int value;
+
+  static EducationSpendingType? fromValue(int? value) {
+    if (value == null) return null;
+    try {
+      return EducationSpendingType.values.firstWhere((e) => e.value == value);
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+enum SchoolTransportType {
+  /// Pago/Fretado — exige valor mensal.
+  paidChartered(1),
+
+  /// Próprio/Combustível — exige valor mensal.
+  ownFuel(2),
+
+  /// Transporte público — sem valor.
+  public(3),
+
+  /// Não utiliza — sem valor.
+  none(4);
+
+  const SchoolTransportType(this.value);
+  final int value;
+
+  bool get requiresAmount =>
+      this == SchoolTransportType.paidChartered ||
+      this == SchoolTransportType.ownFuel;
+
+  static SchoolTransportType? fromValue(int? value) {
+    if (value == null) return null;
+    try {
+      return SchoolTransportType.values.firstWhere((e) => e.value == value);
+    } catch (_) {
+      return null;
+    }
+  }
+}

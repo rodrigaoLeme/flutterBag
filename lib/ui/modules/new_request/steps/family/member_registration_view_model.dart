@@ -20,6 +20,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   static const double minimumWage = 1518.0;
   static const _brazilianNationalityId = 'c88ac7a5-2de6-4b2e-a9b2-dc4d3f654dfa';
   static const _nenhunmaSpecialNeedsId = '8bb77161-9f1b-46eb-b92a-cef26b02f804';
+  static const _proprietarioId = '7c8efd3f-c5b1-449f-a2c2-cef814cb296e';
 
   final TextEditingController cpfController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
@@ -390,16 +391,29 @@ class MemberRegistrationViewModel extends ChangeNotifier {
         details['Função'] = o.function;
         details['Função/Atuação'] = o.function;
       }
-      if (o.cnpj?.isNotEmpty == true) details['CNPJ'] = o.cnpj;
+      if (o.cnpj?.isNotEmpty == true) {
+        details['CNPJ'] = _formatCnpj(o.cnpj!);
+      }
       if (o.companyType != null) {
         details['companyType'] = o.companyType;
         details['companyTypeLabel'] =
             CompanyType.fromValue(o.companyType!)!.label;
       }
-      if (o.situation != null) details['Situação'] = o.situation?.toString();
+      if (o.situation != null) {
+        details['Situação'] =
+            CompanySituation.fromValue(o.situation!)?.label ?? '';
+        details['situation'] = o.situation;
+      }
       if (o.hadActivityLastYear != null) {
         details['Houve movimentacao?'] =
             o.hadActivityLastYear == true ? 'Sim' : 'Não';
+      }
+      if (o.occupationTypeId == _proprietarioId &&
+          o.monthlyIncome != null &&
+          o.monthlyIncome! > 0) {
+        details['Houve movimentacao?'] =
+            o.hadActivityLastYear == true ? 'Sim' : 'Não';
+        details['Valor movimentacao'] = MoneyFormatter.format(o.monthlyIncome);
       }
       if (o.simplesNacionalTax != null) {
         details['Optante Simples nacional?'] =
@@ -416,6 +430,14 @@ class MemberRegistrationViewModel extends ChangeNotifier {
         'occupation': typeName,
         'headerTitle': MoneyFormatter.format(o.monthlyIncome ?? 0),
         'monthlyIncome': o.monthlyIncome?.toString() ?? '0',
+        'function': o.function,
+        'companyName': o.companyName,
+        'cnpj': o.cnpj != null ? _formatCnpj(o.cnpj!) : null,
+        'companyType': o.companyType,
+        'situation': o.situation,
+        'hadActivityLastYear': o.hadActivityLastYear,
+        'simplesNacionalTax': o.simplesNacionalTax,
+        'unemploymentInsurance': o.unemploymentInsurance,
         'occupationDetails': details,
         'pension': recebePensaoAlimenticia ?? 0,
         'previdencia': recebePrevidenciaPrivada ?? 0,
@@ -486,6 +508,12 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     final clean = cpf.replaceAll(RegExp(r'\D'), '');
     if (clean.length != 11) return cpf;
     return '${clean.substring(0, 3)}.${clean.substring(3, 6)}.${clean.substring(6, 9)}-${clean.substring(9)}';
+  }
+
+  String _formatCnpj(String cnpj) {
+    final clean = cnpj.replaceAll(RegExp(r'\D'), '');
+    if (clean.length != 14) return cnpj;
+    return '${clean.substring(0, 2)}.${clean.substring(2, 5)}.${clean.substring(5, 8)}/${clean.substring(8, 12)}-${clean.substring(12)}';
   }
 
   String _genderLabel(int gender) {

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -13,6 +14,7 @@ import '../../../../../domain/entities/occupation_type_entity.dart';
 import '../../../../../domain/entities/process_enums.dart';
 import '../../../../../domain/entities/scholarship_form_entity.dart';
 import '../../../../../domain/entities/special_needs_entity.dart';
+import '../../../../../domain/usecases/enrollment/delete_family_member_usecase.dart';
 import '../../../../../domain/usecases/enrollment/load_extra_income_types_usecase.dart';
 import '../../../../../domain/usecases/enrollment/lookup_person_usecase.dart';
 import '../../../../../domain/usecases/enrollment/save_family_member_usecase.dart';
@@ -89,6 +91,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
   String _lastValidDob = '';
 
   final _saveFamilyMember = makeRemoteSaveFamilyMember();
+  final _deleteFamilyMember = makeRemoteDeleteFamilyMember();
 
   @override
   void initState() {
@@ -660,6 +663,66 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     if (_presenter.canAdvance) _presenter.incrementSubStep();
   }
 
+  Future<void> _onDeleteMember(int index) async {
+    final memberId = _vm.addedFamilyMembers[index]['id'] as String?;
+    final member = memberId != null
+        ? _vm.familyMemberEntities.firstWhereOrNull((m) => m.id == memberId)
+        : null;
+    if (member == null) return;
+
+    EbolsaDialog.show(
+      context: context,
+      title: AppI18n.current.deleteMemberDialogTitle,
+      description: AppI18n.current.deleteMemberDialogDescription,
+      actions: [
+        EbolsaDialogAction(
+          label: AppI18n.current.deleteMemberDialogCancel,
+          onPressed: () {},
+        ),
+        EbolsaDialogAction(
+          label: AppI18n.current.deleteMemberDialogConfirm,
+          isPrimary: false,
+          isDanger: true,
+          onPressed: () async {
+            // Sem id → só remove localmente
+            if ((member.id?.isEmpty ?? true) || widget.scholarshipId.isEmpty) {
+              _vm.removeFamilyMemberAt(index);
+              return;
+            }
+
+            if (!mounted) return;
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => const Center(child: CircularProgressIndicator()),
+            );
+
+            try {
+              await _deleteFamilyMember.delete(DeleteFamilyMemberParams(
+                scholarshipId: widget.scholarshipId,
+                memberId: member.id!,
+              ));
+
+              if (!mounted) return;
+              Navigator.of(context).pop(); // fecha loading
+              _vm.removeFamilyMemberAt(index);
+              await _syncMembersToDraft();
+            } on DeleteFamilyMemberException catch (e) {
+              if (!mounted) return;
+              Navigator.of(context).pop(); // fecha loading
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(e.message),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildStepHeader() {
     final config = memberRegistrationSubStepConfig(_currentSubStep);
 
@@ -718,7 +781,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
             _vm.startEditing(index);
             _presenter.goToSubStep(1);
           },
-          onDeleteMember: _vm.removeFamilyMemberAt,
+          onDeleteMember: (index) => _onDeleteMember(index),
         );
       case 5:
         return MemberRegistrationAssetsSubStep(

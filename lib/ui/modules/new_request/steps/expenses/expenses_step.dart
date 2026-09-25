@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../domain/entities/expenses_entity.dart';
+import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
+import '../../../../helpers/money_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
 import '../../dev_navigation_overrides.dart';
 import 'expenses_automobile_sub_step.dart';
@@ -15,7 +18,7 @@ class ExpensesStep extends StatefulWidget {
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final VoidCallback? onFormChanged;
-  final List<String> familyMemberNames;
+  final List<FamilyMemberEntity> familyMembers;
 
   const ExpensesStep({
     super.key,
@@ -23,7 +26,7 @@ class ExpensesStep extends StatefulWidget {
     this.onPrevious,
     this.onNext,
     this.onFormChanged,
-    this.familyMemberNames = const [],
+    this.familyMembers = const [],
   });
 
   @override
@@ -60,6 +63,51 @@ class ExpensesStepState extends State<ExpensesStep> {
     return canAdvanceCurrentSubStep();
   }
 
+  ExpensesEntity buildExpensesEntity() {
+    final education = _educationSubStepKey.currentState;
+
+    return ExpensesEntity(
+      familyResidenceRentalAmount: _amountOrNull(_rentController),
+      iptuAmount: _amountOrNull(_iptuController),
+      condominiumAmount: _amountOrNull(_condoController),
+      gasAmount: _amountOrNull(_gasController),
+      energyAmount: _amountOrNull(_electricityController),
+      waterAmount: _amountOrNull(_waterController),
+      phoneAmount: _amountOrNull(_phoneInternetController),
+      otherResidenceAmount: _amountOrNull(_financingController),
+      foodAmount: _amountOrNull(_foodValueController),
+      healthPlanAmount: _amountOrNull(_healthPlanController),
+      otherHealthAmount: _amountOrNull(_otherHealthServicesController),
+      otherHealthDescription:
+          _textOrNull(_otherHealthServicesSpecifyController),
+      chronicDiseaseAmount: _amountOrNull(_chronicDiseaseController),
+      hasEducationSpending: education?.hasEducationSpending,
+      educationSpendings: education?.educationSpendings ?? const [],
+      schoolTransportType: education?.schoolTransportType,
+      schoolTransportAmount:
+          education?.schoolTransportType?.requiresAmount == true
+              ? _amountOrNull(_educationValueController)
+              : null,
+      ipvaAmount: _amountOrNull(_ipvaController),
+      carInsuranceAmount: _amountOrNull(_carInsuranceController),
+      bankDebtsAmount: _amountOrNull(_bankLoansController),
+      otherBankDebtsAmount: _amountOrNull(_loansOtherServicesController),
+      otherBankDebtsDescription:
+          _textOrNull(_loansOtherServicesDescribeController),
+    );
+  }
+
+  double? _amountOrNull(TextEditingController controller) {
+    final text = controller.text.trim();
+    if (text.isEmpty) return null;
+    return MoneyFormatter.parse(text);
+  }
+
+  String? _textOrNull(TextEditingController controller) {
+    final text = controller.text.trim();
+    return text.isEmpty ? null : text;
+  }
+
   void _handleNext() {
     if (!DevNavigationOverrides.allowAdvanceWithoutFill &&
         !validateCurrentSubStep()) {
@@ -73,6 +121,7 @@ class ExpensesStepState extends State<ExpensesStep> {
   void _attachFormListeners(TextEditingController controller) {
     controller.addListener(_notifyFormChanged);
   }
+
   late final TextEditingController _rentController;
   late final TextEditingController _financingController;
   late final TextEditingController _iptuController;
@@ -231,50 +280,52 @@ class ExpensesStepState extends State<ExpensesStep> {
             ],
           ),
         ),
-        if (widget.currentSubStep == 1)
-          ExpensesHousingSubStep(
-            rentController: _rentController,
-            financingController: _financingController,
-            iptuController: _iptuController,
-            condoController: _condoController,
-            electricityController: _electricityController,
-            waterController: _waterController,
-            gasController: _gasController,
-            phoneInternetController: _phoneInternetController,
-          )
-        else if (widget.currentSubStep == 2)
-          ExpensesFoodSubStep(foodValueController: _foodValueController)
-        else if (widget.currentSubStep == 3)
-          ExpensesHealthSubStep(
-            key: _healthSubStepKey,
-            healthPlanController: _healthPlanController,
-            chronicDiseaseController: _chronicDiseaseController,
-            otherServicesController: _otherHealthServicesController,
-            otherServicesSpecifyController:
-                _otherHealthServicesSpecifyController,
-            onFormChanged: _notifyFormChanged,
-          )
-        else if (widget.currentSubStep == 4)
-          ExpensesEducationSubStep(
-            key: _educationSubStepKey,
-            educationValueController: _educationValueController,
-            familyMemberNames: widget.familyMemberNames,
-            onFormChanged: _notifyFormChanged,
-          )
-        else if (widget.currentSubStep == 5)
-          ExpensesAutomobileSubStep(
-            ipvaController: _ipvaController,
-            carInsuranceController: _carInsuranceController,
-            vehicleFinancingController: _vehicleFinancingController,
-          )
-        else if (widget.currentSubStep == 6)
-          ExpensesLoansSubStep(
-            key: _loansSubStepKey,
-            bankLoansController: _bankLoansController,
-            otherServicesController: _loansOtherServicesController,
-            otherServicesDescribeController:
-                _loansOtherServicesDescribeController,
-            onFormChanged: _notifyFormChanged,
+        if (widget.currentSubStep >= 1 &&
+            widget.currentSubStep <= expensesSubStepCount)
+          IndexedStack(
+            index: widget.currentSubStep - 1,
+            sizing: StackFit.loose,
+            children: [
+              ExpensesHousingSubStep(
+                rentController: _rentController,
+                financingController: _financingController,
+                iptuController: _iptuController,
+                condoController: _condoController,
+                electricityController: _electricityController,
+                waterController: _waterController,
+                gasController: _gasController,
+                phoneInternetController: _phoneInternetController,
+              ),
+              ExpensesFoodSubStep(foodValueController: _foodValueController),
+              ExpensesHealthSubStep(
+                key: _healthSubStepKey,
+                healthPlanController: _healthPlanController,
+                chronicDiseaseController: _chronicDiseaseController,
+                otherServicesController: _otherHealthServicesController,
+                otherServicesSpecifyController:
+                    _otherHealthServicesSpecifyController,
+                onFormChanged: _notifyFormChanged,
+              ),
+              ExpensesEducationSubStep(
+                key: _educationSubStepKey,
+                educationValueController: _educationValueController,
+                familyMembers: widget.familyMembers,
+                onFormChanged: _notifyFormChanged,
+              ),
+              ExpensesAutomobileSubStep(
+                ipvaController: _ipvaController,
+                carInsuranceController: _carInsuranceController,
+                vehicleFinancingController: _vehicleFinancingController,
+              ),
+              ExpensesLoansSubStep(
+                key: _loansSubStepKey,
+                bankLoansController: _bankLoansController,
+                otherServicesController: _loansOtherServicesController,
+                otherServicesDescribeController:
+                    _loansOtherServicesDescribeController,
+                onFormChanged: _notifyFormChanged,
+              ),
+            ],
           )
         else
           Center(

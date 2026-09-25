@@ -24,6 +24,7 @@ import 'steps/documents/document_group_detail_page.dart';
 import 'steps/documents/document_group_item.dart';
 import 'steps/documents/document_upload_record.dart';
 import 'steps/documents/documents_step.dart';
+import 'steps/expenses/expenses_housing_sub_step.dart';
 import 'steps/expenses/expenses_step.dart';
 import 'steps/family/member_registration_page.dart';
 import 'steps/family/member_registration_view_model.dart';
@@ -133,28 +134,48 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         .toList();
   }
 
-  List<String> _familyMemberNamesForExpenses() {
-    final names = <String>{
-      ..._registeredFamilyMemberNames,
-      ..._presenter.familyMembers
-          .map((m) => m.name?.trim() ?? '')
-          .where((name) => name.isNotEmpty),
+  List<FamilyMemberEntity> _familyMembersForExpenses() {
+    final byId = <String, FamilyMemberEntity>{
+      for (final member in _presenter.familyMembers) member.id!: member,
     };
-    return names.toList();
+
+    // Nomes vindos do fluxo anterior sem id ainda entram só como label.
+    for (final name in _registeredFamilyMemberNames) {
+      final trimmed = name.trim();
+      if (trimmed.isEmpty) continue;
+      final alreadyListed = byId.values.any((m) => m.name?.trim() == trimmed);
+      if (alreadyListed) continue;
+      byId['name:$trimmed'] = FamilyMemberEntity(
+        id: '',
+        name: trimmed,
+        maritalStatus: 0,
+      );
+    }
+
+    return byId.values.toList();
   }
 
-  void _handleNext() {
+  Future<void> _handleNext() async {
     if (DevNavigationOverrides.allowAdvanceWithoutFill) {
       _presenter.next();
       return;
     }
 
-    if (_currentStep == 3 &&
-        !_expensesStepKey.currentState!.validateCurrentSubStep()) {
-      return;
+    if (_currentStep == 3) {
+      final expensesState = _expensesStepKey.currentState;
+      if (expensesState == null || !expensesState.validateCurrentSubStep()) {
+        return;
+      }
+
+      final totalSubSteps = _presenter.stepSubSteps[3] ?? expensesSubStepCount;
+      if (_currentSubStep >= totalSubSteps) {
+        await _presenter.submitStep3(expensesState.buildExpensesEntity());
+        return;
+      }
     }
+
     if (_currentStep == 4) {
-      _handleCandidateStepNext();
+      await _handleCandidateStepNext();
       return;
     }
     _presenter.next();
@@ -779,7 +800,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
             const SizedBox(width: 12),
             Expanded(
               child: EbolsaButton(
-                onPressed: _canAdvanceCurrentStep() ? _handleNext : null,
+                onPressed:
+                    _canAdvanceCurrentStep() ? () => _handleNext() : null,
                 label: 'Avançar',
               ),
             ),
@@ -887,9 +909,9 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           key: _expensesStepKey,
           currentSubStep: _currentSubStep,
           onPrevious: _presenter.previous,
-          onNext: _handleNext,
+          onNext: () => _handleNext(),
           onFormChanged: () => setState(() {}),
-          familyMemberNames: _familyMemberNamesForExpenses(),
+          familyMembers: _familyMembersForExpenses(),
         );
 
       case 4:
