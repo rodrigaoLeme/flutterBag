@@ -62,6 +62,7 @@ class MemberRegistrationPage extends StatefulWidget {
     required this.initialFamilyMembers,
     required this.educationLevel,
     this.initialEditIndex,
+    this.initialSubStep,
   });
 
   final MemberRegistrationPresenter? presenter;
@@ -70,6 +71,7 @@ class MemberRegistrationPage extends StatefulWidget {
   final List<FamilyMemberEntity> initialFamilyMembers;
   final EducationLevel? educationLevel;
   final int? initialEditIndex;
+  final int? initialSubStep;
 
   @override
   State<MemberRegistrationPage> createState() => _MemberRegistrationPageState();
@@ -126,6 +128,12 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _vm.startEditing(widget.initialEditIndex!);
         _presenter.goToSubStep(1);
+      });
+    }
+
+    if (widget.initialSubStep != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _presenter.goToSubStep(widget.initialSubStep!);
       });
     }
   }

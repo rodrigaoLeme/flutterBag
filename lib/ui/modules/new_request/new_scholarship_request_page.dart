@@ -29,6 +29,7 @@ import 'steps/expenses/expenses_step.dart';
 import 'steps/family/member_registration_page.dart';
 import 'steps/family/member_registration_view_model.dart';
 import 'steps/family/sub_steps/member_registration_family_members_sub_step.dart';
+import 'steps/family/widgets/member_registration_dialogs.dart';
 import 'steps/housing/housing_step.dart';
 import 'widgets/scholarship_step_indicator.dart';
 
@@ -800,9 +801,38 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
             const SizedBox(width: 12),
             Expanded(
               child: EbolsaButton(
-                onPressed:
-                    _canAdvanceCurrentStep() ? () => _handleNext() : null,
-                label: 'Avançar',
+                onPressed: _canAdvanceCurrentStep()
+                    ? () async {
+                        if (_currentStep == 2) {
+                          final confirmed = await MemberRegistrationDialogs
+                              .showFamilyMembersConfirmDialog(
+                                  context, _familyStepVm);
+                          if (confirmed == true && mounted) {
+                            final result =
+                                await Navigator.of(context).push<Object?>(
+                              MaterialPageRoute(
+                                builder: (_) => MemberRegistrationPage(
+                                  scholarshipId: _presenter.form.id ?? '',
+                                  processPeriodId: widget.processPeriodId,
+                                  initialFamilyMembers:
+                                      _presenter.form.familyMembers,
+                                  educationLevel:
+                                      _presenter.form.educationLevel,
+                                  initialSubStep: 5,
+                                ),
+                              ),
+                            );
+                            if (_isAdvanceToExpensesResult(result) && mounted) {
+                              _presenter
+                                  .next(); // só avança para step 3 quando finalizar tudo
+                            }
+                          }
+                        } else {
+                          _presenter.next();
+                        }
+                      }
+                    : null,
+                label: _currentStep < _totalSteps ? 'Avançar' : 'Finalizar',
               ),
             ),
           ],

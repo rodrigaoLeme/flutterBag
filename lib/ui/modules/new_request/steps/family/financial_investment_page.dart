@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
+import '../../../../helpers/money_text_input_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
 
 class FinancialInvestmentPage extends StatefulWidget {
@@ -56,6 +57,7 @@ class _FinancialInvestmentPageState extends State<FinancialInvestmentPage> {
       emptyStateText: i18n.noticesTermsBottomSheetNoResults,
       closeTooltip: i18n.noticesTermsCloseAction,
       selectedValue: _selectedType,
+      showSearchInput: false,
     );
     if (selected != null) {
       setState(() => _selectedType = selected);
@@ -141,6 +143,7 @@ class _FinancialInvestmentPageState extends State<FinancialInvestmentPage> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
+                inputFormatters: [MoneyTextInputFormatter()],
                 onChanged: (_) => setState(() {}),
               ),
             ),

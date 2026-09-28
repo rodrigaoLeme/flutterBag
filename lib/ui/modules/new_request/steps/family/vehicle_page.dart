@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
+import '../../../../helpers/money_text_input_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
 
 class VehiclePage extends StatefulWidget {
@@ -140,6 +141,7 @@ class _VehiclePageState extends State<VehiclePage> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
+                inputFormatters: [MoneyTextInputFormatter()],
                 onChanged: (_) => setState(() {}),
               ),
             ),
@@ -152,6 +154,7 @@ class _VehiclePageState extends State<VehiclePage> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
+                inputFormatters: [MoneyTextInputFormatter()],
                 onChanged: (_) => setState(() {}),
               ),
             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
+import '../../../../helpers/money_text_input_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
 
 class OwnPropertyPage extends StatefulWidget {
@@ -62,15 +63,15 @@ class _OwnPropertyPageState extends State<OwnPropertyPage> {
   Future<void> _openTypeSelector() async {
     final i18n = AppI18n.current;
     final selected = await SearchableOptionsBottomSheet.show<String>(
-      context: context,
-      title: i18n.typeLabel,
-      options: _propertyTypes,
-      searchHint: i18n.noticesTermsSearchHint,
-      helperText: i18n.noticesTermsBottomSheetSearchHelp,
-      emptyStateText: i18n.noticesTermsBottomSheetNoResults,
-      closeTooltip: i18n.noticesTermsCloseAction,
-      selectedValue: _selectedType,
-    );
+        context: context,
+        title: i18n.typeLabel,
+        options: _propertyTypes,
+        searchHint: i18n.noticesTermsSearchHint,
+        helperText: i18n.noticesTermsBottomSheetSearchHelp,
+        emptyStateText: i18n.noticesTermsBottomSheetNoResults,
+        closeTooltip: i18n.noticesTermsCloseAction,
+        selectedValue: _selectedType,
+        showSearchInput: false);
     if (selected != null) {
       setState(() => _selectedType = selected);
     }
@@ -156,6 +157,7 @@ class _OwnPropertyPageState extends State<OwnPropertyPage> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
+                inputFormatters: [MoneyTextInputFormatter()],
                 onChanged: (_) => setState(() {}),
               ),
             ),
@@ -168,7 +170,8 @@ class _OwnPropertyPageState extends State<OwnPropertyPage> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                onChanged: (_) => setState(() {}),
+                inputFormatters: [MoneyTextInputFormatter()],
+                //onChanged: (_) => setState(() {}),
               ),
             ),
           ],
