@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
+import '../../../../../domain/entities/asset_type_entity.dart';
 import '../../../../../domain/entities/enrollment_enums.dart';
 import '../../../../../domain/entities/extra_income_entity.dart';
 import '../../../../../domain/entities/extra_income_type_entity.dart';
@@ -17,7 +18,8 @@ import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../helpers/money_formatter.dart';
 
 class MemberRegistrationViewModel extends ChangeNotifier {
-  static const double minimumWage = 1518.0;
+  // TODO: Verificar endpoint que retorna a constante do salário mínimo
+  static const double minimumWage = 1621;
   static const _brazilianNationalityId = 'c88ac7a5-2de6-4b2e-a9b2-dc4d3f654dfa';
   static const _nenhunmaSpecialNeedsId = '8bb77161-9f1b-46eb-b92a-cef26b02f804';
   static const _proprietarioId = '7c8efd3f-c5b1-449f-a2c2-cef814cb296e';
@@ -79,6 +81,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   List<NationalitiesEntity> _nationalityOptions = [];
   List<OccupationTypeEntity> _occupationTypes = [];
   List<ExtraIncomeTypeEntity> _extraIncomeTypes = [];
+  List<AssetTypeEntity> _assetTypes = [];
 
   String? _currentMemberId;
   int? _editingIndex;
@@ -114,7 +117,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   bool pensionIncomeAcknowledged = false;
   bool inssBenefitAcknowledged = false;
 
-  //bool _hasPendingOccupationNames = false;
+  final bool _hasPendingExtraIncomeNames = false;
 
   int? possuiOutraFonteRenda;
   int? recebeValorImovelAlugado;
@@ -270,6 +273,31 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   void updateExtraIncomeTypes(List<ExtraIncomeTypeEntity> types) {
     _extraIncomeTypes = types;
+    for (final o in addedOtherIncomes) {
+      if ((o['type'] as String?)?.isEmpty == true) {
+        final typeId = o['extraIncomeTypeId'] as String?;
+        final name = types.firstWhereOrNull((t) => t.id == typeId)?.name ?? '';
+        if (name.isNotEmpty) o['type'] = name;
+      }
+    }
+
+    for (final member in addedFamilyMembers) {
+      final otherIncomes = member['otherIncomes'] as List?;
+      if (otherIncomes == null) continue;
+      for (final o in otherIncomes) {
+        if ((o['type'] as String?)?.isEmpty == true) {
+          final typeId = o['extraIncomeTypeId'] as String?;
+          final name =
+              types.firstWhereOrNull((t) => t.id == typeId)?.name ?? '';
+          if (name.isNotEmpty) o['type'] = name;
+        }
+      }
+    }
+    notifyListeners();
+  }
+
+  void updateAssetTypes(List<AssetTypeEntity> types) {
+    _assetTypes = types;
     notifyListeners();
   }
 
@@ -533,6 +561,12 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   List<MaritalStatus> get maritalOptions => MaritalStatus.values;
   String maritalDisplay(MaritalStatus m) => m.label;
+
+  List<AssetTypeEntity> get propertyTypes =>
+      _assetTypes.where((t) => t.group == 'Imóveis').toList();
+
+  List<AssetTypeEntity> get investmentTypes =>
+      _assetTypes.where((t) => t.group == 'Investimentos').toList();
 
   void setMarital(MaritalStatus? m) {
     maritalStatus = m;
@@ -1127,6 +1161,10 @@ class MemberRegistrationViewModel extends ChangeNotifier {
           occupation['monthlyIncome'] ?? occupation['headerTitle'],
         );
       }
+      final otherIncomes = member['otherIncomes'] as List? ?? [];
+      for (final o in otherIncomes) {
+        total += MoneyFormatter.parse(o['monthlyIncome']?.toString() ?? '0');
+      }
     }
 
     if (recebeValorImovelAlugado == 1) {
@@ -1151,7 +1189,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   String formatSalaryRatio(double perCapitaIncome) {
     final ratio = perCapitaIncome / minimumWage;
-    return '${NumberFormat('#,##0.00', 'pt_BR').format(ratio)} '
+    return '${NumberFormat('#,##0.000', 'pt_BR').format(ratio)} '
         '${AppI18n.current.salaryRatioSuffix}';
   }
 

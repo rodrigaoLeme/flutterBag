@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../domain/entities/asset_type_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/money_text_input_formatter.dart';
@@ -9,11 +10,15 @@ class FinancialInvestmentPage extends StatefulWidget {
   const FinancialInvestmentPage({
     super.key,
     this.initialType,
+    this.initialAssetTypeId,
     this.initialValue,
+    this.assetTypes = const [],
   });
 
   final String? initialType;
+  final int? initialAssetTypeId;
   final String? initialValue;
+  final List<AssetTypeEntity> assetTypes;
 
   @override
   State<FinancialInvestmentPage> createState() =>
@@ -21,11 +26,7 @@ class FinancialInvestmentPage extends StatefulWidget {
 }
 
 class _FinancialInvestmentPageState extends State<FinancialInvestmentPage> {
-  static const _investmentTypes = [
-    'Aplicação/Fundo',
-    'Dinheiro em caixa',
-    'Poupança',
-  ];
+  AssetTypeEntity? _selectedAssetType;
 
   String? _selectedType;
   late final TextEditingController _valueController;
@@ -43,32 +44,41 @@ class _FinancialInvestmentPageState extends State<FinancialInvestmentPage> {
     super.dispose();
   }
 
-  bool get _canSave =>
-      _selectedType != null && _valueController.text.trim().isNotEmpty;
+  bool get _canSave {
+    if (_selectedAssetType != null) {
+      if (_valueController.text.trim().isNotEmpty) {
+        if (_valueController.text != '0,00') {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 
   Future<void> _openTypeSelector() async {
     final i18n = AppI18n.current;
-    final selected = await SearchableOptionsBottomSheet.show<String>(
+    final selected = await SearchableOptionsBottomSheet.show<AssetTypeEntity>(
       context: context,
       title: i18n.typeLabel,
-      options: _investmentTypes,
+      options: widget.assetTypes,
       searchHint: i18n.noticesTermsSearchHint,
       helperText: i18n.noticesTermsBottomSheetSearchHelp,
       emptyStateText: i18n.noticesTermsBottomSheetNoResults,
       closeTooltip: i18n.noticesTermsCloseAction,
-      selectedValue: _selectedType,
+      selectedValue: _selectedAssetType,
+      labelBuilder: (t) => t.name ?? '',
+      searchTextBuilder: (t) => t.name ?? '',
       showSearchInput: false,
     );
-    if (selected != null) {
-      setState(() => _selectedType = selected);
-    }
+    if (selected != null) setState(() => _selectedAssetType = selected);
   }
 
   void _saveAndReturn() {
     if (!_canSave) return;
 
     Navigator.of(context).pop({
-      'type': _selectedType,
+      'type': _selectedAssetType?.name,
+      'assetTypeId': _selectedAssetType?.id,
       'value': _valueController.text.trim(),
     });
   }
@@ -124,7 +134,7 @@ class _FinancialInvestmentPageState extends State<FinancialInvestmentPage> {
                     suffixIcon: const Icon(Icons.keyboard_arrow_down),
                   ),
                   child: Text(
-                    _selectedType ?? i18n.typeLabel,
+                    _selectedAssetType?.name ?? i18n.typeLabel,
                     style: _selectedType == null
                         ? AppTextStyles.bodyMedium.copyWith(
                             color: AppColors.onSurface.withValues(alpha: 0.6),

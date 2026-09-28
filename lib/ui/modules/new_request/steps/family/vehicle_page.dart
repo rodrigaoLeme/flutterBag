@@ -60,8 +60,8 @@ class _VehiclePageState extends State<VehiclePage> {
       _brandController.text.trim().isNotEmpty &&
       _modelController.text.trim().isNotEmpty &&
       _yearController.text.trim().isNotEmpty &&
-      _installmentValueController.text.trim().isNotEmpty &&
-      _assetValueController.text.trim().isNotEmpty;
+      _assetValueController.text.trim().isNotEmpty &&
+      _assetValueController.text != '0,00';
 
   void _saveAndReturn() {
     if (!_canSave) return;

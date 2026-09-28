@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../../data/cache/enrollment_draft_storage.dart';
 import '../../../../../domain/entities/announcement_enums.dart';
+import '../../../../../domain/entities/asset_type_entity.dart';
 import '../../../../../domain/entities/enrollment_enums.dart';
 import '../../../../../domain/entities/extra_income_type_entity.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
@@ -15,6 +16,7 @@ import '../../../../../domain/entities/process_enums.dart';
 import '../../../../../domain/entities/scholarship_form_entity.dart';
 import '../../../../../domain/entities/special_needs_entity.dart';
 import '../../../../../domain/usecases/enrollment/delete_family_member_usecase.dart';
+import '../../../../../domain/usecases/enrollment/load_asset_types_usecase.dart';
 import '../../../../../domain/usecases/enrollment/load_extra_income_types_usecase.dart';
 import '../../../../../domain/usecases/enrollment/lookup_person_usecase.dart';
 import '../../../../../domain/usecases/enrollment/save_family_member_usecase.dart';
@@ -29,6 +31,7 @@ import '../../../../../presentation/presenters/member_registration/stream_member
 import '../../../../../share/current_account.dart';
 import '../../../../components/components.dart';
 import '../../../../components/ebolsa_step_header.dart';
+import '../../../../helpers/money_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
 import '../../dev_navigation_overrides.dart';
 import '../../widgets/scholarship_step_indicator.dart';
@@ -89,6 +92,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
   List<OccupationTypeEntity> _occupationTypes = [];
   List<NationalitiesEntity> _nationalities = [];
   List<ExtraIncomeTypeEntity> _extraIncomeTypes = [];
+  List<AssetTypeEntity> _assetTypes = [];
   bool _isLoadingOccupationTypes = false;
   String _lastValidDob = '';
 
@@ -123,6 +127,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     _loadNationalities();
     _loadExtraIncomeTypes();
     _populateInitialFamilyMembers();
+    _loadAssetTypes();
 
     if (widget.initialEditIndex != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -183,10 +188,31 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
                     'monthlyIncome': o.monthlyIncome?.toString() ?? '0',
                   })
               .toList(),
+          'otherIncomes': member.extraIncomes
+              .map((e) => {
+                    'id': e.id,
+                    'type': '',
+                    'extraIncomeTypeId': e.extraIncomeTypeId,
+                    'monthlyIncome': MoneyFormatter.format(e.amount ?? 0),
+                    'description': e.description,
+                  })
+              .toList(),
         });
       }
       // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
       _vm.notifyListeners();
+    }
+  }
+
+  Future<void> _loadAssetTypes() async {
+    try {
+      _assetTypes = await makeRemoteLoadAssetTypes().load();
+      _vm.updateAssetTypes(_assetTypes);
+    } on LoadAssetTypesException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
     }
   }
 
@@ -399,6 +425,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
         builder: (_) => OtherIncomeSourcePage(
           extraIncomeTypes: _extraIncomeTypes,
           initialType: initial?['type'] as String?,
+          initialExtraIncomeTypeId: initial?['extraIncomeTypeId'] as String?,
           initialMonthlyIncome: initial?['monthlyIncome']?.toString(),
           initialDescription: initial?['description']?.toString(),
           excludedTypeIds: excludedIds,
@@ -441,7 +468,9 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     final res = await Navigator.of(context).push<Map<String, dynamic>>(
       MaterialPageRoute(
         builder: (_) => OwnPropertyPage(
+          assetTypes: _vm.propertyTypes,
           initialType: initial?['type'] as String?,
+          initialAssetTypeId: initial?['assetTypeId'] as int?,
           initialInstallmentValue: initial?['installmentValue'] as String?,
           initialAssetValue: initial?['assetValue'] as String?,
         ),
@@ -458,7 +487,9 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     final res = await Navigator.of(context).push<Map<String, dynamic>>(
       MaterialPageRoute(
         builder: (_) => FinancialInvestmentPage(
+          assetTypes: _vm.investmentTypes,
           initialType: initial?['type'] as String?,
+          initialAssetTypeId: initial?['assetTypeId'] as int?,
           initialValue: initial?['value'] as String?,
         ),
       ),

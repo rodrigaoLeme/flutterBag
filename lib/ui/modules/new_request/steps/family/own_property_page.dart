@@ -1,5 +1,7 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../../domain/entities/asset_type_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/money_text_input_formatter.dart';
@@ -9,36 +11,38 @@ class OwnPropertyPage extends StatefulWidget {
   const OwnPropertyPage({
     super.key,
     this.initialType,
+    this.initialAssetTypeId,
     this.initialInstallmentValue,
     this.initialAssetValue,
+    this.assetTypes = const [],
   });
 
   final String? initialType;
+  final int? initialAssetTypeId;
   final String? initialInstallmentValue;
   final String? initialAssetValue;
+  final List<AssetTypeEntity> assetTypes;
 
   @override
   State<OwnPropertyPage> createState() => _OwnPropertyPageState();
 }
 
 class _OwnPropertyPageState extends State<OwnPropertyPage> {
-  static const _propertyTypes = [
-    'Apartamento',
-    'Casa',
-    'Chácara',
-    'Comercial',
-    'Fazenda',
-    'Sítio',
-    'Terreno',
-  ];
-
   String? _selectedType;
   late final TextEditingController _installmentValueController;
   late final TextEditingController _assetValueController;
 
+  AssetTypeEntity? _selectedAssetType;
+
   @override
   void initState() {
     super.initState();
+    if (widget.initialAssetTypeId != null) {
+      _selectedAssetType = widget.assetTypes.firstWhereOrNull(
+        (t) => t.id == widget.initialAssetTypeId,
+      );
+    }
+
     _selectedType = widget.initialType;
     _installmentValueController = TextEditingController(
       text: widget.initialInstallmentValue ?? '',
@@ -55,25 +59,34 @@ class _OwnPropertyPageState extends State<OwnPropertyPage> {
     super.dispose();
   }
 
-  bool get _canSave =>
-      _selectedType != null &&
-      _installmentValueController.text.trim().isNotEmpty &&
-      _assetValueController.text.trim().isNotEmpty;
+  bool get _canSave {
+    if (_selectedAssetType != null) {
+      if (_assetValueController.text.trim().isNotEmpty) {
+        if (_assetValueController.text != '0,00') {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 
   Future<void> _openTypeSelector() async {
     final i18n = AppI18n.current;
-    final selected = await SearchableOptionsBottomSheet.show<String>(
+    final selected = await SearchableOptionsBottomSheet.show<AssetTypeEntity>(
         context: context,
         title: i18n.typeLabel,
-        options: _propertyTypes,
+        options: widget.assetTypes,
         searchHint: i18n.noticesTermsSearchHint,
         helperText: i18n.noticesTermsBottomSheetSearchHelp,
         emptyStateText: i18n.noticesTermsBottomSheetNoResults,
         closeTooltip: i18n.noticesTermsCloseAction,
-        selectedValue: _selectedType,
+        selectedValue: _selectedAssetType,
+        labelBuilder: (t) => t.name ?? '',
+        searchTextBuilder: (t) => t.name ?? '',
         showSearchInput: false);
+
     if (selected != null) {
-      setState(() => _selectedType = selected);
+      setState(() => _selectedAssetType = selected);
     }
   }
 
@@ -81,7 +94,8 @@ class _OwnPropertyPageState extends State<OwnPropertyPage> {
     if (!_canSave) return;
 
     Navigator.of(context).pop({
-      'type': _selectedType,
+      'type': _selectedAssetType?.name,
+      'assetTypeId': _selectedAssetType?.id,
       'installmentValue': _installmentValueController.text.trim(),
       'assetValue': _assetValueController.text.trim(),
     });
@@ -138,7 +152,7 @@ class _OwnPropertyPageState extends State<OwnPropertyPage> {
                     suffixIcon: const Icon(Icons.keyboard_arrow_down),
                   ),
                   child: Text(
-                    _selectedType ?? i18n.typeLabel,
+                    _selectedAssetType?.name ?? i18n.typeLabel,
                     style: _selectedType == null
                         ? AppTextStyles.bodyMedium.copyWith(
                             color: AppColors.onSurface.withValues(alpha: 0.6),
@@ -171,7 +185,7 @@ class _OwnPropertyPageState extends State<OwnPropertyPage> {
                   decimal: true,
                 ),
                 inputFormatters: [MoneyTextInputFormatter()],
-                //onChanged: (_) => setState(() {}),
+                onChanged: (_) => setState(() {}),
               ),
             ),
           ],

@@ -40,14 +40,29 @@ class MemberRegistrationFamilyMembersSubStep extends StatelessWidget {
   }
 
   double _calculateIncome(Map<String, dynamic> member) {
+    double total = 0;
+
+    // Ocupações
     final occupations = member['occupations'];
-    if (occupations is! List) return 0;
-    return occupations.fold(0.0, (sum, o) {
-      return sum +
-          MoneyFormatter.parse(
-            o['monthlyIncome'] ?? o['headerTitle'] ?? '0',
-          );
-    });
+    if (occupations is List) {
+      for (final o in occupations) {
+        total += MoneyFormatter.parse(
+          o['monthlyIncome'] ?? o['headerTitle'] ?? '0',
+        );
+      }
+    }
+
+    // Outras rendas
+    final otherIncomes = member['otherIncomes'];
+    if (otherIncomes is List) {
+      for (final o in otherIncomes) {
+        total += MoneyFormatter.parse(
+          o['monthlyIncome']?.toString() ?? '0',
+        );
+      }
+    }
+
+    return total;
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../domain/entities/extra_income_type_entity.dart';
@@ -23,6 +24,7 @@ class OtherIncomeSourcePage extends StatefulWidget {
     super.key,
     required this.extraIncomeTypes,
     this.initialType,
+    this.initialExtraIncomeTypeId,
     this.initialMonthlyIncome,
     this.initialDescription,
     this.excludedTypeIds = const [],
@@ -30,6 +32,7 @@ class OtherIncomeSourcePage extends StatefulWidget {
 
   final List<ExtraIncomeTypeEntity> extraIncomeTypes;
   final String? initialType;
+  final String? initialExtraIncomeTypeId;
   final String? initialMonthlyIncome;
   final String? initialDescription;
   final List<String> excludedTypeIds;
@@ -128,6 +131,16 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialType?.isNotEmpty == true) {
+      _selectedTypeEntity = widget.extraIncomeTypes
+          .firstWhereOrNull((t) => t.name == widget.initialType);
+    }
+    if (_selectedTypeEntity == null &&
+        widget.initialExtraIncomeTypeId != null) {
+      _selectedTypeEntity = widget.extraIncomeTypes
+          .firstWhereOrNull((t) => t.id == widget.initialExtraIncomeTypeId);
+    }
+    _selectedType = _selectedTypeEntity?.name;
     _monthlyIncomeController = TextEditingController(
       text: widget.initialMonthlyIncome ?? '',
     );
