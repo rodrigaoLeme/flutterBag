@@ -9,6 +9,7 @@ import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/helpers/app_constants.dart';
 import '../../../domain/usecases/enrollment/delete_family_member_usecase.dart';
+import '../../../domain/usecases/enrollment/set_scholarship_step_usecase.dart';
 import '../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
 import '../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../main/factories/usecases/schools/load_school_grades_factory.dart';
@@ -77,6 +78,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   static const int _totalSteps = 5;
 
   final _deleteFamilyMember = makeRemoteDeleteFamilyMember();
+
+  final _setScholarshipStep = makeRemoteSetScholarshipStep();
 
   // ---------------------------------------------------------------------------
   // TODO(dev): ATALHO TEMPORÁRIO — documente/remova ao finalizar a tela Documentos
@@ -553,6 +556,24 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     );
   }
 
+  Future<void> _onBack() async {
+    if (_currentStep <= 1) {
+      Navigator.of(context).pop();
+      return;
+    }
+
+    if (_currentStep > 1 && _presenter.form.id != null) {
+      try {
+        await _setScholarshipStep.set(SetScholarshipStepParams(
+          scholarshipId: _presenter.form.id!,
+          step: _currentStep - 1,
+        ));
+      } catch (_) {}
+    }
+
+    _presenter.previous();
+  }
+
   void _onAppBarBackPressed() {
     if (_currentStep == 5) {
       _confirmDocumentsBack();
@@ -782,7 +803,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           children: [
             Expanded(
               child: OutlinedButton(
-                onPressed: _presenter.previous,
+                onPressed: _onBack,
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 48),
                   side: const BorderSide(color: Color(0xFFB9BDC6)),

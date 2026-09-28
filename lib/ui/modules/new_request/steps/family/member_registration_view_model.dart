@@ -1341,19 +1341,25 @@ class MemberRegistrationViewModel extends ChangeNotifier {
           .map((p) => PropertyEntity(
                 id: p['id'] as String?,
                 assetTypeId: p['assetTypeId'] as int?,
-                assetAmount:
-                    MoneyFormatter.parse(p['assetAmount']?.toString() ?? '0'),
-                installmentAmount: p['installmentAmount'] != null
-                    ? MoneyFormatter.parse(p['installmentAmount'].toString())
-                    : null,
+                assetAmount: MoneyFormatter.parse(
+                  (p['assetValue'] ?? p['assetAmount'])?.toString() ?? '0',
+                ),
+                installmentAmount:
+                    (p['installmentValue'] ?? p['installmentAmount']) != null
+                        ? MoneyFormatter.parse(
+                            (p['installmentValue'] ?? p['installmentAmount'])
+                                .toString(),
+                          )
+                        : null,
               ))
           .toList(),
       financings: addedInvestments
           .map((f) => FinancingEntity(
                 id: f['id'] as String?,
                 assetTypeId: f['assetTypeId'] as int?,
-                assetAmount:
-                    MoneyFormatter.parse(f['assetAmount']?.toString() ?? '0'),
+                assetAmount: MoneyFormatter.parse(
+                  (f['value'] ?? f['assetAmount'])?.toString() ?? '0',
+                ),
               ))
           .toList(),
       vehicles: addedVehicles

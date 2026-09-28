@@ -12,7 +12,7 @@ class PropertyEntity {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
+        'id': id?.isEmpty == true ? null : id,
         'assetTypeId': assetTypeId,
         'assetAmount': assetAmount,
         'installmentAmount': installmentAmount,

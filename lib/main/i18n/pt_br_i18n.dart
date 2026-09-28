@@ -188,7 +188,9 @@ class PtBrI18n implements AppI18n {
   @override
   String get enrollmentTypeLabel => 'Tipo de Inscrição';
   @override
-  String get installmentValueLabel => 'Valor';
+  String get installmentValueLabel => 'Valor da parcela';
+  @override
+  String get installmentInvestValueLabel => 'Valor';
   @override
   String get assetValueLabel => 'Valor do bem';
   @override

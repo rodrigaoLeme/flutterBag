@@ -149,7 +149,7 @@ class _FinancialInvestmentPageState extends State<FinancialInvestmentPage> {
               height: 56,
               child: EbolsaTextField(
                 controller: _valueController,
-                label: i18n.installmentValueLabel,
+                label: i18n.installmentInvestValueLabel,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),

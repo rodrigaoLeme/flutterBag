@@ -52,7 +52,6 @@ class MemberRegistrationFamilyMembersSubStep extends StatelessWidget {
       }
     }
 
-    // Outras rendas
     final otherIncomes = member['otherIncomes'];
     if (otherIncomes is List) {
       for (final o in otherIncomes) {

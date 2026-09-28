@@ -30,6 +30,7 @@ abstract class AppI18n {
   String get scholarshipTypeLabel;
   String get enrollmentTypeLabel;
   String get installmentValueLabel;
+  String get installmentInvestValueLabel;
   String get assetValueLabel;
   String get valueDisplayLabel;
   String get okAction;

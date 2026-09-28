@@ -10,6 +10,7 @@ import '../../../../../domain/entities/asset_type_entity.dart';
 import '../../../../../domain/entities/enrollment_enums.dart';
 import '../../../../../domain/entities/extra_income_type_entity.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
+import '../../../../../domain/entities/group_income_entity.dart';
 import '../../../../../domain/entities/nationalities_entity.dart';
 import '../../../../../domain/entities/occupation_type_entity.dart';
 import '../../../../../domain/entities/process_enums.dart';
@@ -20,10 +21,12 @@ import '../../../../../domain/usecases/enrollment/load_asset_types_usecase.dart'
 import '../../../../../domain/usecases/enrollment/load_extra_income_types_usecase.dart';
 import '../../../../../domain/usecases/enrollment/lookup_person_usecase.dart';
 import '../../../../../domain/usecases/enrollment/save_family_member_usecase.dart';
+import '../../../../../domain/usecases/enrollment/save_step_2_usecase.dart';
 import '../../../../../infra/repositories/enrollment/remote_load_nationalities_usecase.dart';
 import '../../../../../infra/repositories/enrollment/remote_load_occupation_types_usecase.dart';
 import '../../../../../infra/repositories/enrollment/remote_load_special_needs_usecase.dart';
 import '../../../../../infra/repositories/enrollment/remote_save_family_member_usecase.dart';
+import '../../../../../infra/repositories/enrollment/remote_save_step_2_usecase.dart';
 import '../../../../../main/di/injection_container.dart';
 import '../../../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../../../main/i18n/app_i18n.dart';
@@ -98,6 +101,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
   final _saveFamilyMember = makeRemoteSaveFamilyMember();
   final _deleteFamilyMember = makeRemoteDeleteFamilyMember();
+  final _saveStep2 = makeRemoteSaveStep2();
 
   @override
   void initState() {
@@ -204,10 +208,76 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     }
   }
 
+  void _populateGroupIncomeFromDraft() async {
+    final userId = sl<CurrentAccount>().userCpf;
+    final draftStorage = sl<EnrollmentDraftStorage>();
+    final draft = await draftStorage.load(
+      userId: userId,
+      processPeriodId: widget.processPeriodId,
+    );
+    if (draft == null) return;
+
+    final form = ScholarshipFormEntity.fromJson(draft);
+    final groupIncome = form.groupIncome;
+    if (groupIncome == null) return;
+
+    _vm.setPossuiImovelProprio(groupIncome.hasProprietys == true ? 1 : 0);
+    _vm.setPossuiInvestimentoFinanceiro(
+        groupIncome.hasFinancing == true ? 1 : 0);
+    _vm.setPossuiVeiculo(groupIncome.hasVehicles == true ? 1 : 0);
+
+    for (final p in groupIncome.properties) {
+      final typeName =
+          _assetTypes.firstWhereOrNull((t) => t.id == p.assetTypeId)?.name ??
+              '';
+      _vm.addedProperties.add({
+        'id': p.id,
+        'assetTypeId': p.assetTypeId,
+        'type': typeName,
+        'assetValue': MoneyFormatter.format(p.assetAmount ?? 0),
+        'installmentValue': p.installmentAmount != null
+            ? MoneyFormatter.format(p.installmentAmount)
+            : null,
+      });
+    }
+
+    for (final f in groupIncome.financings) {
+      final typeName =
+          _assetTypes.firstWhereOrNull((t) => t.id == f.assetTypeId)?.name ??
+              '';
+      _vm.addedInvestments.add({
+        'id': f.id,
+        'assetTypeId': f.assetTypeId,
+        'type': typeName,
+        'value': MoneyFormatter.format(f.assetAmount ?? 0),
+      });
+    }
+
+    for (final v in groupIncome.vehicles) {
+      _vm.addedVehicles.add({
+        'id': v.id,
+        'brand': v.vehicleBrand,
+        'model': v.vehicleModel,
+        'year': v.vehicleYear,
+        'assetValue': MoneyFormatter.format(v.assetAmount ?? 0),
+        'installmentValue': v.installmentAmount != null
+            ? MoneyFormatter.format(v.installmentAmount)
+            : null,
+      });
+    }
+
+    // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+    _vm.notifyListeners();
+
+    print('>>> groupIncome do draft: ${form.groupIncome?.toJson()}');
+    print('>>> properties: ${form.groupIncome?.properties.length}');
+  }
+
   Future<void> _loadAssetTypes() async {
     try {
       _assetTypes = await makeRemoteLoadAssetTypes().load();
       _vm.updateAssetTypes(_assetTypes);
+      _populateGroupIncomeFromDraft();
     } on LoadAssetTypesException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -603,6 +673,86 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     }
   }
 
+  Future<void> _submitStep2() async {
+    final scholarshipId = widget.scholarshipId;
+    if (scholarshipId.isEmpty) {
+      Navigator.of(context).pop({
+        'action': kAdvanceToExpensesResult,
+        'familyMemberNames': _familyMemberNamesForResult(),
+      });
+      return;
+    }
+
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final groupIncome = _vm.toGroupIncomeEntity();
+
+      await _saveStep2.save(SaveStep2Params(
+        scholarshipId: scholarshipId,
+        groupIncome: groupIncome,
+      ));
+
+      // Atualiza o draft
+      await _syncStep2ToDraft(groupIncome);
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+
+      Navigator.of(context).pop({
+        'action': kAdvanceToExpensesResult,
+        'familyMemberNames': _familyMemberNamesForResult(),
+      });
+    } on SaveStep2Exception catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          persist: true,
+          content: Text(e.message),
+          backgroundColor: AppColors.error,
+          showCloseIcon: true,
+        ),
+      );
+    }
+  }
+
+  Future<void> _syncStep2ToDraft(GroupIncomeEntity groupIncome) async {
+    try {
+      final userId = sl<CurrentAccount>().userCpf;
+      final draftStorage = sl<EnrollmentDraftStorage>();
+
+      final draft = await draftStorage.load(
+        userId: userId,
+        processPeriodId: widget.processPeriodId,
+      );
+
+      if (draft == null) return;
+
+      final form = ScholarshipFormEntity.fromJson(draft);
+      final updated = form.copyWith(
+        familyMembers: List<FamilyMemberEntity>.from(_vm.familyMemberEntities),
+        groupIncome: groupIncome,
+        completedStep: 2,
+        currentStep: 3,
+      );
+
+      await draftStorage.save(
+        userId: userId,
+        processPeriodId: widget.processPeriodId,
+        data: updated.toJson(),
+      );
+      print('>>> draft salvo com groupIncome: ${groupIncome.toJson()}');
+    } catch (e) {
+      print('>>> erro ao salvar draft: $e');
+    }
+  }
+
   Future<void> _syncMembersToDraft() async {
     try {
       final userId = sl<CurrentAccount>().userCpf;
@@ -617,9 +767,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
       final form = ScholarshipFormEntity.fromJson(draft);
       final updated = form.copyWith(
-        familyMembers: List<FamilyMemberEntity>.from(
-          _vm.familyMemberEntities,
-        ),
+        familyMembers: List<FamilyMemberEntity>.from(_vm.familyMemberEntities),
       );
 
       await draftStorage.save(
@@ -641,11 +789,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
         _presenter.incrementSubStep();
         return;
       }
-      if (!mounted) return;
-      Navigator.of(context).pop({
-        'action': kAdvanceToExpensesResult,
-        'familyMemberNames': _familyMemberNamesForResult(),
-      });
+      await _submitStep2();
       return;
     }
 
@@ -664,11 +808,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       return;
     }
 
-    if (!mounted) return;
-    Navigator.of(context).pop({
-      'action': kAdvanceToExpensesResult,
-      'familyMemberNames': _familyMemberNamesForResult(),
-    });
+    await _submitStep2();
   }
 
   List<String> _familyMemberNamesForResult() {
