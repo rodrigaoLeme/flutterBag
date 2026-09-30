@@ -894,8 +894,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         processNewScholarship
                                             .responsiblePersonName,
                                       );
+                                      final route =
+                                          processNewScholarship.currentStep == 5
+                                              ? 'acceptance_terms'
+                                              : 'select_group';
                                       Modular.to
-                                          .pushNamed('select_group')
+                                          .pushNamed(route)
                                           .then((response) {
                                         if (response == true) {
                                           init();

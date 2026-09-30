@@ -41,10 +41,11 @@ class ProcessRenewalStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (renewalScholarship.scholarshipStatus) {
       case ScholarshipStatus.notFinished:
+      case ScholarshipStatus.applied:
         if (renewalScholarship.currentStep < 4) {
           return const NotFinishedScholarshipStepper();
         }
-        if (renewalScholarship.completedStep == 4) {
+        if (renewalScholarship.currentStep == 4) {
           if (renewalScholarship.digitalProcess) {
             final documentationUploadDeadline =
                 processRenewal.documentationUploadDeadline;
@@ -91,10 +92,62 @@ class ProcessRenewalStepper extends StatelessWidget {
                 );
               },
             );
-          } else {
-            return ManualSendDocumentationStepper(
-              declassification: renewalScholarship.declassificationType,
-            );
+          }
+        } else {
+          if (renewalScholarship.currentStep == 5) {
+            if (renewalScholarship.digitalProcess) {
+              final documentationUploadDeadline =
+                  processRenewal.documentationUploadDeadline;
+              if (documentationUploadDeadline == null ||
+                  documentationUploadDeadline.isEmpty) {
+                onDateTimeError();
+                return const SizedBox();
+              }
+
+              final DateTime? deadline =
+                  DateTime.tryParse(documentationUploadDeadline);
+              if (deadline == null) {
+                onDateTimeError();
+                return const SizedBox();
+              }
+
+              final store = Modular.get<authorized.Store>();
+
+              // Chamada da store com os parâmetros
+              store.call(authorized.Params(
+                responsiblePersonId: renewalScholarship.responsiblePersonId,
+                processPeriodId: renewalScholarship.processPeriodId,
+              ));
+
+              return ScopedBuilder<authorized.Store,
+                  authorized.UsecaseException, authorized_user.Entity>(
+                store: store,
+                onLoading: (_) =>
+                    const Center(child: CircularProgressIndicator()),
+                onError: (_, error) {
+                  return SendDocumentationScholarshipStepper(
+                    documentationUploadDeadline: deadline,
+                    onTapSendDocuments: onTapSendDocuments,
+                    isAuthorizedToSendAfterDeadline: false, // fallback se erro
+                    declassification: renewalScholarship.declassificationType,
+                  );
+                },
+                onState: (_, entity) {
+                  final isAuthorized = entity.id.isNotEmpty;
+                  return SendDocumentationScholarshipStepper(
+                    documentationUploadDeadline: deadline,
+                    onTapSendDocuments: onTapSendDocuments,
+                    isAuthorizedToSendAfterDeadline: isAuthorized,
+                    declassification: renewalScholarship.declassificationType,
+                    buttonLabel: 'Continuar Inscrição',
+                  );
+                },
+              );
+            } else {
+              return ManualSendDocumentationStepper(
+                declassification: renewalScholarship.declassificationType,
+              );
+            }
           }
         }
         return const WaitingForCompletionStepper();

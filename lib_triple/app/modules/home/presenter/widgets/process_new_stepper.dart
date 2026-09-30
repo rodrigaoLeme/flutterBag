@@ -39,6 +39,7 @@ class ProcessNewStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (processNewScholarship.scholarshipStatus) {
       case ScholarshipStatus.notFinished:
+      case ScholarshipStatus.applied:
         if (processNewScholarship.currentStep < 4) {
           return const NotFinishedScholarshipStepper();
         }
@@ -139,15 +140,11 @@ class ProcessNewStepper extends StatelessWidget {
                   final isAuthorized = entity.id.isNotEmpty;
                   return SendDocumentationScholarshipStepper(
                     documentationUploadDeadline: deadline,
-                    onTapSendDocuments: () {
-                      Modular.to.pushNamed('acceptance_terms', arguments: {
-                        'userName': processNewScholarship.responsiblePersonName
-                      });
-                    },
+                    onTapSendDocuments: onTapSendDocuments,
                     isAuthorizedToSendAfterDeadline: isAuthorized,
                     declassification:
                         processNewScholarship.declassificationType,
-                    buttonLabel: 'Finalizar Envio',
+                    buttonLabel: 'Continuar Inscrição',
                   );
                 },
               );

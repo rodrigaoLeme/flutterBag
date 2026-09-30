@@ -309,8 +309,11 @@ class _PageState extends State<Page> {
                                             fileUrl: fileUrl,
                                             fileName: fileName)
                                       ];
-                                      store.update(store.state
-                                          .copyWith(files: newFileList));
+                                      store.update(store.state.copyWith(
+                                        files: newFileList,
+                                        scholarshipReviewId:
+                                            state.scholarshipReviewId,
+                                      ));
                                     });
                                   }
                                 }

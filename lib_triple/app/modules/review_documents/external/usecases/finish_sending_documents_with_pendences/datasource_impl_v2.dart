@@ -17,11 +17,8 @@ class DatasourceImplV2 implements Datasource {
   Future<Either<UsecaseException, Entity>> call(Params params) async {
     final result = await _client.put(
       _endpoints.finishSendingDocumentsWithPendences(
+          scholarshipId: params.scholarshipId,
           scholarshipReviewId: params.scholarshipReviewId),
-      data: {
-        'ScholarshipId': params.scholarshipId,
-        'scholarshipReviewId': params.scholarshipReviewId
-      },
     );
     return result.fold(
       (exception) {

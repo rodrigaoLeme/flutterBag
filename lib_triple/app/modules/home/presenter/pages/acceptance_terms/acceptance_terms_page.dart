@@ -67,7 +67,7 @@ class _AcceptanceTermsPageState extends State<AcceptanceTermsPage> {
 
   Future<void> _onBack() async {
     await controller.revertToStepFour();
-    Modular.to.pop(false);
+    Modular.to.pop(true);
   }
 
   void _onFinalize() {

@@ -45,8 +45,9 @@ class EndpointsV2Dev extends Endpoints {
   String proofsWithPendences({required String scholarshipReviewId}) =>
       '/api/v2/scholarship-reviews/$scholarshipReviewId/scholarship-proofs';
   String finishSendingDocumentsWithPendences(
-          {required String scholarshipReviewId}) =>
-      '/api/v2/scholarship-reviews/$scholarshipReviewId';
+          {required String scholarshipId,
+          required String scholarshipReviewId}) =>
+      '/api/v2/scholarships/$scholarshipId/scholarship-reviews/$scholarshipReviewId/resubmission/complete';
   String sendProofDocumentWithPendences(
           {required String scholarshipReviewId,
           required String scholarshipProofDocumentId}) =>

@@ -34,7 +34,7 @@ class Store extends triple.StreamStore<String, StoreState> {
       this.getDocumentByFileIdStore, this.getAcceptedDocumentsByProofStore)
       : super(const Initial());
 
-  final maxSizeInBytes = 20 * 1024 * 1024;
+  final maxSizeInBytes = 15 * 1024 * 1024;
 
   void init({required String scholarshipReviewId}) {
     update(state.copyWith(scholarshipReviewId: scholarshipReviewId));
@@ -95,7 +95,7 @@ class Store extends triple.StreamStore<String, StoreState> {
         final file = File(path);
         final fileSize = await file.length();
         if (fileSize > maxSizeInBytes) {
-          return const Left('O arquivo selecionado excede o limite de 20MB.');
+          return const Left('O arquivo selecionado excede o limite de 15MB.');
         }
         pathsToGeneratePdf.add(path);
         var newString = path.substring(path.length - 5);
@@ -178,7 +178,7 @@ class Store extends triple.StreamStore<String, StoreState> {
 
       final fileSize = await pdfFile.length();
       if (fileSize > maxSizeInBytes) {
-        setError('O arquivo PDF excede o tamanho máximo permitido de 20MB.');
+        setError('O arquivo PDF excede o tamanho máximo permitido de 15MB.');
         update(state, force: true);
         setLoading(false, force: true);
         return;
@@ -210,27 +210,27 @@ class Store extends triple.StreamStore<String, StoreState> {
     } else {
       File? scannedDoc =
           await DocumentScannerFlutter.launchForPdf(context, labelsConfig: {
-        ScannerLabelsConfig.ANDROID_NEXT_BUTTON_LABEL: "Próximo",
+        ScannerLabelsConfig.ANDROID_NEXT_BUTTON_LABEL: 'Próximo',
         ScannerLabelsConfig.PDF_GALLERY_FILLED_TITLE_SINGLE:
-            "1 foto para enviar",
+            '1 foto para enviar',
         ScannerLabelsConfig.PDF_GALLERY_FILLED_TITLE_MULTIPLE:
-            "{PAGES_COUNT} fotos para enviar",
-        ScannerLabelsConfig.PDF_GALLERY_EMPTY_TITLE: "Gerenciador de Fotos",
+            '{PAGES_COUNT} fotos para enviar',
+        ScannerLabelsConfig.PDF_GALLERY_EMPTY_TITLE: 'Gerenciador de Fotos',
         ScannerLabelsConfig.PDF_GALLERY_EMPTY_MESSAGE:
-            "Nenhuma foto adicionada",
-        ScannerLabelsConfig.PDF_GALLERY_ADD_IMAGE_LABEL: "Adicionar",
-        ScannerLabelsConfig.PICKER_CAMERA_LABEL: "Câmera",
-        ScannerLabelsConfig.PICKER_GALLERY_LABEL: "Galeria de Fotos",
-        ScannerLabelsConfig.ANDROID_OK_LABEL: "Concluir",
-        ScannerLabelsConfig.ANDROID_SAVE_BUTTON_LABEL: "Salvar",
-        ScannerLabelsConfig.PDF_GALLERY_DONE_LABEL: "Finalizar"
+            'Nenhuma foto adicionada',
+        ScannerLabelsConfig.PDF_GALLERY_ADD_IMAGE_LABEL: 'Adicionar',
+        ScannerLabelsConfig.PICKER_CAMERA_LABEL: 'Câmera',
+        ScannerLabelsConfig.PICKER_GALLERY_LABEL: 'Galeria de Fotos',
+        ScannerLabelsConfig.ANDROID_OK_LABEL: 'Concluir',
+        ScannerLabelsConfig.ANDROID_SAVE_BUTTON_LABEL: 'Salvar',
+        ScannerLabelsConfig.PDF_GALLERY_DONE_LABEL: 'Finalizar'
       });
 
       if (scannedDoc == null) return;
 
       final fileSize = await scannedDoc.length();
       if (fileSize > maxSizeInBytes) {
-        setError('O arquivo PDF excede o tamanho máximo permitido de 20MB.');
+        setError('O arquivo PDF excede o tamanho máximo permitido de 15MB.');
         update(state, force: true);
         setLoading(false, force: true);
         return;
@@ -402,7 +402,7 @@ class Store extends triple.StreamStore<String, StoreState> {
       }
 
       final pdfPath =
-          "${directoryForThePdf.path}/${state.selectedAcceptedDocumentName}.pdf";
+          '${directoryForThePdf.path}/${state.selectedAcceptedDocumentName}.pdf';
 
       final pdfFileToFillOut = File(pdfPath);
 
@@ -430,7 +430,8 @@ class Store extends triple.StreamStore<String, StoreState> {
       if (state is EditingAdding) {
         update((state as EditingAdding).stateBeforeEditing, force: true);
       } else {
-        update(const Initial());
+        update(Initial(scholarshipReviewId: state.scholarshipReviewId),
+            force: true);
       }
     } else {
       setError('${sendProofDocumentStore.error}', force: true);
@@ -457,7 +458,8 @@ class Store extends triple.StreamStore<String, StoreState> {
       if (state is EditingAdding) {
         update((state as EditingAdding).stateBeforeEditing, force: true);
       } else {
-        update(const Initial());
+        update(Initial(scholarshipReviewId: state.scholarshipReviewId),
+            force: true);
       }
     } else {
       setError('${sendProofDocumentStore.error}', force: true);

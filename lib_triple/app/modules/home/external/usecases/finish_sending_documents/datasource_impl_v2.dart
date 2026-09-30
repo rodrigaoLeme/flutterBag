@@ -34,7 +34,6 @@ class DatasourceImplV2 implements Datasource {
           return const Right(Entity(response: true));
         }
 
-        // Captura a mensagem específica do backend quando disponível
         String? errorMessage;
         if (response.data is Map) {
           final data = response.data as Map<String, dynamic>;
