@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/ebolsa_text_field.dart';
+import '../../../../helpers/money_text_input_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
 
 class ExpensesFoodSubStep extends StatelessWidget {
@@ -25,6 +26,7 @@ class ExpensesFoodSubStep extends StatelessWidget {
             controller: foodValueController,
             label: i18n.expenseFoodValueLabel,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [MoneyTextInputFormatter()],
           ),
         ),
         const SizedBox(height: 4),

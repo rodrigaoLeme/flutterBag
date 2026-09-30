@@ -238,7 +238,8 @@ class MemberRegistrationDialogs {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.backgroundLight,
-        title: Text(i18n.familyConfirmDialogTitle, style: AppTextStyles.titleLarge),
+        title: Text(i18n.familyConfirmDialogTitle,
+            style: AppTextStyles.titleLarge),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -281,7 +282,8 @@ class MemberRegistrationDialogs {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.backgroundLight,
-        title: Text(i18n.familyConfirmDialogTitle, style: AppTextStyles.titleLarge),
+        title: Text(i18n.familyConfirmDialogTitle,
+            style: AppTextStyles.titleLarge),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

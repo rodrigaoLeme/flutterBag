@@ -111,6 +111,7 @@ class FamilyMemberEntity {
         'id': id,
         'name': name,
         'kinshipType': kinshipType,
+        'isResponsible': isResponsible,
         'isCandidate': isCandidate,
         'maritalStatus': maritalStatus,
         'declarationType': declarationType,

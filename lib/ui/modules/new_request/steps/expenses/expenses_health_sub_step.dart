@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/ebolsa_text_field.dart';
+import '../../../../helpers/money_text_input_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
 
 class ExpensesHealthSubStep extends StatefulWidget {
@@ -34,8 +35,7 @@ class ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
         widget.chronicDiseaseController.text.trim().isNotEmpty;
     final otherServicesFilled =
         widget.otherServicesController.text.trim().isNotEmpty;
-    final otherServicesSpecifyFilled =
-        !_showOtherServicesSpecifyField ||
+    final otherServicesSpecifyFilled = !_showOtherServicesSpecifyField ||
         widget.otherServicesSpecifyController.text.trim().isNotEmpty;
 
     return healthPlanFilled &&
@@ -49,6 +49,8 @@ class ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
   @override
   void initState() {
     super.initState();
+    _chronicDiseaseAcknowledged =
+        widget.chronicDiseaseController.text.trim().isNotEmpty;
     _showOtherServicesSpecifyField =
         widget.otherServicesController.text.trim().isNotEmpty;
     widget.otherServicesController.addListener(_onOtherServicesChanged);
@@ -179,6 +181,9 @@ class ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
             controller: controller,
             label: label,
             keyboardType: keyboardType,
+            inputFormatters: keyboardType == TextInputType.text
+                ? null
+                : [MoneyTextInputFormatter()],
           ),
         ),
         if (helperText != null) ...[

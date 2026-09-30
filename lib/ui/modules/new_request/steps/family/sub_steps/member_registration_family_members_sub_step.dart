@@ -54,11 +54,7 @@ class MemberRegistrationFamilyMembersSubStep extends StatelessWidget {
 
     final otherIncomes = member['otherIncomes'];
     if (otherIncomes is List) {
-      for (final o in otherIncomes) {
-        total += MoneyFormatter.parse(
-          o['monthlyIncome']?.toString() ?? '0',
-        );
-      }
+      total += vm.grossIncomeFromOtherIncomes(otherIncomes);
     }
 
     return total;

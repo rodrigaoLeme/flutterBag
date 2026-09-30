@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../../domain/entities/expenses_entity.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
@@ -19,6 +20,7 @@ class ExpensesStep extends StatefulWidget {
   final VoidCallback? onNext;
   final VoidCallback? onFormChanged;
   final List<FamilyMemberEntity> familyMembers;
+  final ExpensesEntity? initialExpenses;
 
   const ExpensesStep({
     super.key,
@@ -27,6 +29,7 @@ class ExpensesStep extends StatefulWidget {
     this.onNext,
     this.onFormChanged,
     this.familyMembers = const [],
+    this.initialExpenses,
   });
 
   @override
@@ -167,6 +170,8 @@ class ExpensesStepState extends State<ExpensesStep> {
     _loansOtherServicesController = TextEditingController();
     _loansOtherServicesDescribeController = TextEditingController();
 
+    _populateFromExpenses(widget.initialExpenses);
+
     for (final controller in [
       _rentController,
       _financingController,
@@ -192,6 +197,44 @@ class ExpensesStepState extends State<ExpensesStep> {
       _attachFormListeners(controller);
     }
   }
+
+  void _populateFromExpenses(ExpensesEntity? expenses) {
+    if (expenses == null) return;
+
+    _setAmount(_rentController, expenses.familyResidenceRentalAmount);
+    _setAmount(_financingController, expenses.otherResidenceAmount);
+    _setAmount(_iptuController, expenses.iptuAmount);
+    _setAmount(_condoController, expenses.condominiumAmount);
+    _setAmount(_electricityController, expenses.energyAmount);
+    _setAmount(_waterController, expenses.waterAmount);
+    _setAmount(_gasController, expenses.gasAmount);
+    _setAmount(_phoneInternetController, expenses.phoneAmount);
+    _setAmount(_foodValueController, expenses.foodAmount);
+    _setAmount(_healthPlanController, expenses.healthPlanAmount);
+    _setAmount(_chronicDiseaseController, expenses.chronicDiseaseAmount);
+    _setAmount(_otherHealthServicesController, expenses.otherHealthAmount);
+    _otherHealthServicesSpecifyController.text =
+        expenses.otherHealthDescription ?? '';
+    if (expenses.schoolTransportType?.requiresAmount == true) {
+      _setAmount(_educationValueController, expenses.schoolTransportAmount);
+    }
+    _setAmount(_ipvaController, expenses.ipvaAmount);
+    _setAmount(_carInsuranceController, expenses.carInsuranceAmount);
+    _setAmount(_bankLoansController, expenses.bankDebtsAmount);
+    _setAmount(_loansOtherServicesController, expenses.otherBankDebtsAmount);
+    _loansOtherServicesDescribeController.text =
+        expenses.otherBankDebtsDescription ?? '';
+  }
+
+  void _setAmount(TextEditingController controller, double? value) {
+    controller.text = value == null ? '' : _amountFormat.format(value).trim();
+  }
+
+  static final _amountFormat = NumberFormat.currency(
+    locale: 'pt_BR',
+    symbol: '',
+    decimalDigits: 2,
+  );
 
   @override
   void dispose() {
@@ -310,6 +353,7 @@ class ExpensesStepState extends State<ExpensesStep> {
                 key: _educationSubStepKey,
                 educationValueController: _educationValueController,
                 familyMembers: widget.familyMembers,
+                initialExpenses: widget.initialExpenses,
                 onFormChanged: _notifyFormChanged,
               ),
               ExpensesAutomobileSubStep(

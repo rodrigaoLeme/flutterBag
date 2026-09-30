@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/ebolsa_text_field.dart';
+import '../../../../helpers/money_text_input_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
 
 class ExpensesAutomobileSubStep extends StatelessWidget {
@@ -62,6 +63,7 @@ class ExpensesAutomobileSubStep extends StatelessWidget {
             controller: controller,
             label: label,
             keyboardType: keyboardType,
+            inputFormatters: [MoneyTextInputFormatter()],
           ),
         ),
         if (helperText != null) ...[

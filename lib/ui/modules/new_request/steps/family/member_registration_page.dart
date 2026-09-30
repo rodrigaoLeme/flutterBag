@@ -621,6 +621,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       if (confirmed == true && mounted) _presenter.decrementSubStep();
       return;
     }
+    if (_currentSubStep == 4) _vm.restoreMemberForReview();
     _presenter.decrementSubStep();
   }
 

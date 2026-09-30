@@ -149,7 +149,8 @@ class CandidateStepState extends State<CandidateStep> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.add, size: 20, color: AppColors.onPrimaryContainer),
+            const Icon(Icons.add,
+                size: 20, color: AppColors.onPrimaryContainer),
             const SizedBox(width: 8),
             Text(
               AppI18n.current.addCandidate,

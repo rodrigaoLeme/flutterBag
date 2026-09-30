@@ -35,6 +35,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
 
+  // ignore: unused_element
   Future<void> _nextPage(int currentIndex) async {
     await widget.presenter.nextPage(currentIndex);
 
@@ -128,6 +129,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
               stream: widget.presenter.currentPageIndexStream,
               initialData: 0,
               builder: (context, snapshot) {
+                // ignore: unused_local_variable
                 final currentIndex = snapshot.data ?? 0;
                 final appStrings = AppI18n.current;
 
@@ -144,7 +146,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: EbolsaButton(
-                        onPressed: () => _nextPage(currentIndex),
+                        onPressed: () => Modular.to.pushNamed(Routes.login),
                         label: appStrings.authLoginAction,
                       ),
                     ),

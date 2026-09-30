@@ -9,6 +9,7 @@ import '../../../data/cache/enrollment_draft_storage.dart';
 import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/expenses_entity.dart';
 import '../../../domain/entities/family_member_entity.dart';
+import '../../../domain/entities/group_income_entity.dart';
 import '../../../domain/entities/housing_entity.dart';
 import '../../../domain/entities/scholarship_form_entity.dart';
 import '../../../domain/usecases/enrollment/load_scholarship_form_usecase.dart';
@@ -135,6 +136,7 @@ class StreamNewScholarshipRequestPresenter
             final remoteForm = await loadScholarshipFormUsecase.load(idToLoad);
             if (remoteForm != null) {
               _form = _mergeRemoteOverDraft(remoteForm, _form);
+              await _saveDraftSilently();
               _completedStepNotifier.value = _form.completedStep;
               _populateControllersFromForm(_form);
               _currentStep =
@@ -195,6 +197,24 @@ class StreamNewScholarshipRequestPresenter
     ScholarshipFormEntity remote,
     ScholarshipFormEntity draft,
   ) {
+    GroupIncomeEntity? mergedGroupIncome;
+    final remoteIncome = remote.groupIncome;
+    final draftIncome = draft.groupIncome;
+
+    if (remoteIncome == null) {
+      mergedGroupIncome = draftIncome;
+    } else if (draftIncome == null) {
+      mergedGroupIncome = remoteIncome;
+    } else {
+      final draftTotal = draftIncome.properties.length +
+          draftIncome.financings.length +
+          draftIncome.vehicles.length;
+      final remoteTotal = remoteIncome.properties.length +
+          remoteIncome.financings.length +
+          remoteIncome.vehicles.length;
+      mergedGroupIncome =
+          draftTotal >= remoteTotal ? draftIncome : remoteIncome;
+    }
     return remote.copyWith(
       currentStep: remote.currentStep >= draft.currentStep
           ? remote.currentStep
@@ -203,7 +223,7 @@ class StreamNewScholarshipRequestPresenter
           ? remote.completedStep
           : draft.completedStep,
       expenses: remote.expenses ?? draft.expenses,
-      groupIncome: remote.groupIncome ?? draft.groupIncome,
+      groupIncome: mergedGroupIncome,
       familyMembers: remote.familyMembers.isNotEmpty
           ? remote.familyMembers
           : draft.familyMembers,
@@ -426,6 +446,27 @@ class StreamNewScholarshipRequestPresenter
     _saveDraftSilently();
   }
 
+  @override
+  Future<void> reloadFamilyDataFromDraft() async {
+    try {
+      final draft = await draftStorage.load(
+        userId: sl<CurrentAccount>().userCpf,
+        processPeriodId: processPeriodId,
+      );
+      if (draft == null) return;
+
+      final stored = ScholarshipFormEntity.fromJson(draft);
+      _form = _form.copyWith(
+        familyMembers: stored.familyMembers,
+        groupIncome: stored.groupIncome ?? _form.groupIncome,
+        completedStep: stored.completedStep > _form.completedStep
+            ? stored.completedStep
+            : _form.completedStep,
+      );
+      _completedStepNotifier.value = _form.completedStep;
+    } catch (_) {}
+  }
+
   void _clearAddresFields() {
     _addressController.text = '';
     _neighborhoodController.text = '';
@@ -536,8 +577,7 @@ class StreamNewScholarshipRequestPresenter
         ),
       );
 
-      final completed =
-          _form.completedStep < 3 ? 3 : _form.completedStep;
+      final completed = _form.completedStep < 3 ? 3 : _form.completedStep;
       _form = _form.copyWith(
         expenses: expenses,
         completedStep: completed,

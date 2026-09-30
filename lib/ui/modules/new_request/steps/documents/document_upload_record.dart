@@ -27,8 +27,7 @@ class DocumentUploadRecord {
       DocumentUploadRecord(
         fileName: fileName ?? this.fileName,
         filePath: filePath ?? this.filePath,
-        selectedDocumentType:
-            selectedDocumentType ?? this.selectedDocumentType,
+        selectedDocumentType: selectedDocumentType ?? this.selectedDocumentType,
         value: value ?? this.value,
         optionFiles: optionFiles ?? this.optionFiles,
       );

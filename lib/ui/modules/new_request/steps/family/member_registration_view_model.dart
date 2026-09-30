@@ -85,6 +85,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   String? _currentMemberId;
   int? _editingIndex;
+  int? _lastCommittedIndex;
 
   String? cpfError;
   String? selectedGender;
@@ -191,6 +192,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   bool get showCINFields => possuiCIN == 0;
   bool get showNisField => cadunicoValue == 1;
   bool get showDiseaseType => possuiDoenca == 1;
+  bool get showWorkCardField => age >= 14 && age < 18;
   bool get showNaturalizedField =>
       selectedNationalityId != null &&
       selectedNationalityId != _brazilianNationalityId;
@@ -202,6 +204,13 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   }
 
   bool get isFirstMember => addedFamilyMembers.isEmpty;
+
+  bool get isResponsibleMember {
+    if (isFirstMember) return true;
+    final index = _editingIndex;
+    if (index == null || index >= addedFamilyMembers.length) return false;
+    return addedFamilyMembers[index]['isResponsible'] == true;
+  }
 
   bool get isCpfValidated =>
       cpfError == null &&
@@ -939,6 +948,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   void removeFamilyMemberAt(int index) {
     addedFamilyMembers.removeAt(index);
     familyMemberEntities.removeAt(index);
+    _lastCommittedIndex = null;
     notifyListeners();
   }
 
@@ -960,7 +970,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       return false;
     }
     if (selectedGender == null) return false;
-    if (!isFirstMember && kinshipType == null) return false;
+    if (!isResponsibleMember && kinshipType == null) return false;
     if (maritalStatus == null) return false;
     if (showReceivesPension && recebePensao == null) return false;
     if (showIsRetired && aposentado == null) return false;
@@ -971,9 +981,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
         seraCandidato == null) {
       return false;
     }
-    if (seraCandidato == 1 && !_isFieldFilled(nacionalityController)) {
-      return false;
-    }
+    if (!_isFieldFilled(nacionalityController)) return false;
     if (showNaturalizedField && naturalizado == null) return false;
     if (possuiCIN == null) return false;
     if (showCINFields) {
@@ -989,7 +997,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     if (selectedPcd == null) return false;
     if (legalAge && irpfCondition == null) return false;
     if (legalAge && declarouEsseAno == null) return false;
-    if (temCarteira == null) return false;
+    if (showWorkCardField && temCarteira == null) return false;
     if (trabalhadorRural == null) return false;
     return true;
   }
@@ -1118,6 +1126,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       possuiOutraFonteRenda != null;
 
   void commitCurrentMemberToList() {
+    final isResponsible = isResponsibleMember;
     final map = {
       'id': _currentMemberId,
       'cpf': cpfController.text.trim(),
@@ -1125,8 +1134,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       'dob': dobController.text.trim(),
       'maritalStatus': maritalStatus?.label,
       'isScholarshipCandidate': seraCandidato == 1,
-      'isResponsible': isFirstMember,
-      'kinshipType': kinshipType?.value,
+      'isResponsible': isResponsible,
+      'kinshipType': isResponsible ? null : kinshipType?.value,
       'occupations': List<Map<String, dynamic>>.from(addedOccupations),
       'hasOtherIncome': possuiOutraFonteRenda == 1,
       'otherIncomes': List<Map<String, dynamic>>.from(addedOtherIncomes),
@@ -1138,14 +1147,47 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       // Atualiza o existente
       addedFamilyMembers[_editingIndex!] = map;
       familyMemberEntities[_editingIndex!] = entity;
+      _lastCommittedIndex = _editingIndex;
       _editingIndex = null;
     } else {
       // Adiciona novo
       addedFamilyMembers.add(map);
       familyMemberEntities.add(entity);
+      _lastCommittedIndex = familyMemberEntities.length - 1;
     }
 
     resetMemberForm();
+  }
+
+  bool get canRestoreMemberForReview =>
+      !isEditing &&
+      !hasCurrentMemberToCommit &&
+      familyMemberEntities.isNotEmpty;
+
+  void restoreMemberForReview() {
+    if (!canRestoreMemberForReview) return;
+    final lastIndex = familyMemberEntities.length - 1;
+    final index = (_lastCommittedIndex ?? lastIndex).clamp(0, lastIndex);
+    startEditing(index);
+  }
+
+  bool isGovernmentProgramIncome(Map<dynamic, dynamic> income) {
+    var name = income['type']?.toString() ?? '';
+    if (name.isEmpty) {
+      final typeId = income['extraIncomeTypeId']?.toString();
+      name =
+          _extraIncomeTypes.firstWhereOrNull((t) => t.id == typeId)?.name ?? '';
+    }
+    return name.toLowerCase().contains('programa do governo');
+  }
+
+  double grossIncomeFromOtherIncomes(List<dynamic> otherIncomes) {
+    var total = 0.0;
+    for (final o in otherIncomes) {
+      if (o is! Map || isGovernmentProgramIncome(o)) continue;
+      total += MoneyFormatter.parse(o['monthlyIncome']?.toString() ?? '0');
+    }
+    return total;
   }
 
   double computeGrossFamilyIncome() {
@@ -1153,18 +1195,17 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
     for (final member in addedFamilyMembers) {
       final occupations = member['occupations'];
-      if (occupations is! List) continue;
-
-      for (final occupation in occupations) {
-        if (occupation is! Map) continue;
-        total += MoneyFormatter.parse(
-          occupation['monthlyIncome'] ?? occupation['headerTitle'],
-        );
+      if (occupations is List) {
+        for (final occupation in occupations) {
+          if (occupation is! Map) continue;
+          total += MoneyFormatter.parse(
+            occupation['monthlyIncome'] ?? occupation['headerTitle'],
+          );
+        }
       }
-      final otherIncomes = member['otherIncomes'] as List? ?? [];
-      for (final o in otherIncomes) {
-        total += MoneyFormatter.parse(o['monthlyIncome']?.toString() ?? '0');
-      }
+      total += grossIncomeFromOtherIncomes(
+        member['otherIncomes'] as List? ?? const [],
+      );
     }
 
     if (recebeValorImovelAlugado == 1) {
@@ -1212,13 +1253,14 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       personCpf: cpfController.text.trim(),
       personBirthDate: _parseDob(),
       personGender: _parseGender(),
-      kinshipType: isFirstMember ? 1 : (kinshipType?.value ?? 99),
+      kinshipType: isResponsibleMember ? null : (kinshipType?.value ?? 99),
+      isResponsible: isResponsibleMember,
       maritalStatus: _parseMaritalStatus(),
       nationalityId: selectedNationalityId,
       naturalized: naturalizado == 1,
       isCandidate: seraCandidato == 1,
       isRetired: aposentado == 1,
-      hasWorkBooklet: temCarteira == 1,
+      hasWorkBooklet: showWorkCardField ? temCarteira == 1 : legalAge,
       ruralWorker: trabalhadorRural == 1,
       declarationType: legalAge ? irpfCondition : null,
       declared: legalAge ? declarouEsseAno == 1 : null,

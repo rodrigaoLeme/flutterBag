@@ -200,53 +200,53 @@ class _MemberRegistrationPersonalDataSubStepState
               const SizedBox(height: 12),
               Row(
                 children: [
-                  if (!widget.vm.isFirstMember) ...[
-                    Expanded(
-                      child: EbolsaIgnorePointer(
-                        ignoring:
-                            widget.vm.kinshipType == KinshipType.responsible,
-                        child: GestureDetector(
-                          onTap: () async {
-                            final selected = await SearchableOptionsBottomSheet
-                                .show<KinshipType>(
-                              context: context,
-                              title: AppI18n.current.kinshipLabel,
-                              options: widget.vm.kinshipOptions,
-                              searchHint:
-                                  AppI18n.current.noticesTermsSearchHint,
-                              helperText: '',
-                              emptyStateText: AppI18n
-                                  .current.noticesTermsBottomSheetNoResults,
-                              closeTooltip:
-                                  AppI18n.current.noticesTermsCloseAction,
-                              selectedValue: widget.vm.kinshipType,
-                              labelBuilder: (k) => k.label,
-                              searchTextBuilder: (k) => k.label,
-                            );
-                            if (selected != null) {
-                              widget.vm.setKinshipType(selected);
-                            }
-                          },
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              labelText: AppI18n.current.kinshipLabel,
-                              suffixIcon:
-                                  const Icon(Icons.keyboard_arrow_down_rounded),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16)),
-                            ),
-                            child: Text(
-                              widget.vm.kinshipType?.label ??
-                                  AppI18n.current.kinshipLabel,
-                              style: widget.vm.kinshipType == null
-                                  ? AppTextStyles.ebolsaBodyLargeOutline
-                                  : AppTextStyles.ebolsaBodyLarge,
-                            ),
+                  Expanded(
+                    child: EbolsaIgnorePointer(
+                      ignoring: widget.vm.isResponsibleMember ||
+                          widget.vm.kinshipType == KinshipType.responsible,
+                      child: GestureDetector(
+                        onTap: () async {
+                          final selected = await SearchableOptionsBottomSheet
+                              .show<KinshipType>(
+                            context: context,
+                            title: AppI18n.current.kinshipLabel,
+                            options: widget.vm.kinshipOptions,
+                            searchHint: AppI18n.current.noticesTermsSearchHint,
+                            helperText: '',
+                            emptyStateText: AppI18n
+                                .current.noticesTermsBottomSheetNoResults,
+                            closeTooltip:
+                                AppI18n.current.noticesTermsCloseAction,
+                            selectedValue: widget.vm.kinshipType,
+                            labelBuilder: (k) => k.label,
+                            searchTextBuilder: (k) => k.label,
+                          );
+                          if (selected != null) {
+                            widget.vm.setKinshipType(selected);
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: AppI18n.current.kinshipLabel,
+                            suffixIcon:
+                                const Icon(Icons.keyboard_arrow_down_rounded),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16)),
+                          ),
+                          child: Text(
+                            widget.vm.isResponsibleMember
+                                ? KinshipType.responsible.label
+                                : widget.vm.kinshipType?.label ??
+                                    AppI18n.current.kinshipLabel,
+                            style: widget.vm.kinshipType == null &&
+                                    !widget.vm.isResponsibleMember
+                                ? AppTextStyles.ebolsaBodyLargeOutline
+                                : AppTextStyles.ebolsaBodyLarge,
                           ),
                         ),
                       ),
                     ),
-                  ],
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: GestureDetector(
@@ -328,42 +328,38 @@ class _MemberRegistrationPersonalDataSubStepState
                   groupValue: widget.vm.seraCandidato,
                   onChanged: (v) => widget.vm.setSeraCandidato(v),
                 ),
-                //Se ele responder sim, mostrar o campo para selecionar a nacionalidade
-                if (widget.vm.seraCandidato == 1) ...[
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: 56,
-                    child: InkWell(
-                      onTap: widget.onOpenNationality,
-                      borderRadius: BorderRadius.circular(12),
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          hintText: AppI18n.current.nationalityLabel,
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 16),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          suffixIcon: const Icon(Icons.keyboard_arrow_down),
-                        ),
-                        child: Text(
-                          widget.vm.nacionalityController.text.isNotEmpty
-                              ? widget.vm.nacionalityController.text
-                              : AppI18n.current.nationalityLabel,
-                          style: widget.vm.nacionalityController.text.isEmpty
-                              ? AppTextStyles.bodyMedium.copyWith(
-                                  color: AppColors.onSurface
-                                      .withValues(alpha: 0.6))
-                              : AppTextStyles.bodyMedium,
-                        ),
+              ],
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 56,
+                child: InkWell(
+                  onTap: widget.onOpenNationality,
+                  borderRadius: BorderRadius.circular(12),
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      hintText: AppI18n.current.nationalityLabel,
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 16),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
+                      suffixIcon: const Icon(Icons.keyboard_arrow_down),
+                    ),
+                    child: Text(
+                      widget.vm.nacionalityController.text.isNotEmpty
+                          ? widget.vm.nacionalityController.text
+                          : AppI18n.current.nationalityLabel,
+                      style: widget.vm.nacionalityController.text.isEmpty
+                          ? AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.onSurface.withValues(alpha: 0.6))
+                          : AppTextStyles.bodyMedium,
                     ),
                   ),
-                ],
-              ],
+                ),
+              ),
               // se ele for nacionalidade estrangeira deve mostrar o campo abaixo
               if (widget.vm.showNaturalizedField) ...[
                 const SizedBox(height: 16),
@@ -537,16 +533,18 @@ class _MemberRegistrationPersonalDataSubStepState
                   onChanged: (v) => widget.vm.setDeclarouEsseAno(v),
                 ),
               ],
-              const SizedBox(height: 12),
-              EbolsaRadioGroup<int>(
-                question: AppI18n.current.hasWorkCardQuestion,
-                options: [
-                  RadioOption(label: AppI18n.current.answerNo, value: 0),
-                  RadioOption(label: AppI18n.current.answerYes, value: 1),
-                ],
-                groupValue: widget.vm.temCarteira,
-                onChanged: (v) => widget.vm.setTemCarteira(v),
-              ),
+              if (widget.vm.showWorkCardField) ...[
+                const SizedBox(height: 12),
+                EbolsaRadioGroup<int>(
+                  question: AppI18n.current.hasWorkCardQuestion,
+                  options: [
+                    RadioOption(label: AppI18n.current.answerNo, value: 0),
+                    RadioOption(label: AppI18n.current.answerYes, value: 1),
+                  ],
+                  groupValue: widget.vm.temCarteira,
+                  onChanged: (v) => widget.vm.setTemCarteira(v),
+                ),
+              ],
               const SizedBox(height: 12),
               EbolsaRadioGroup<int>(
                 question: AppI18n.current.ruralWorkerQuestion,

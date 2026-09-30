@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -10,6 +11,7 @@ import '../../../../components/ebolsa_member_card.dart';
 import '../../../../components/ebolsa_radio_group.dart';
 import '../../../../components/ebolsa_text_field.dart';
 import '../../../../helpers/money_formatter.dart';
+import '../../../../helpers/money_text_input_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
 import 'education_expense_page.dart';
 
@@ -19,11 +21,13 @@ class ExpensesEducationSubStep extends StatefulWidget {
     required this.educationValueController,
     this.familyMembers = const [],
     this.onFormChanged,
+    this.initialExpenses,
   });
 
   final TextEditingController educationValueController;
   final List<FamilyMemberEntity> familyMembers;
   final VoidCallback? onFormChanged;
+  final ExpensesEntity? initialExpenses;
 
   @override
   State<ExpensesEducationSubStep> createState() =>
@@ -38,6 +42,55 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
   String? _schoolTransportError;
 
   void _notifyFormChanged() => widget.onFormChanged?.call();
+
+  @override
+  void initState() {
+    super.initState();
+    final expenses = widget.initialExpenses;
+    if (expenses == null) return;
+
+    _schoolTransportType = expenses.schoolTransportType;
+    final hasSpending = expenses.hasEducationSpending ??
+        (expenses.educationSpendings.isNotEmpty ? true : null);
+    if (hasSpending != null) _hasEducationCosts = hasSpending ? 1 : 0;
+
+    for (final spending in expenses.educationSpendings) {
+      final memberName = widget.familyMembers
+          .firstWhereOrNull((m) => m.id == spending.familyMemberId)
+          ?.name
+          ?.trim();
+      _addedEducationExpenses.add({
+        'type': _educationTypeLabel(spending.educationSpendingType),
+        'typeOther': spending.educationSpendingOther,
+        'memberId': spending.familyMemberId,
+        'memberName': memberName,
+        'institution': spending.educationSpendingInstitution ?? '',
+        'monthlyValue': spending.educationSpendingAmount == null
+            ? ''
+            : NumberFormat.currency(
+                locale: 'pt_BR',
+                symbol: '',
+                decimalDigits: 2,
+              ).format(spending.educationSpendingAmount).trim(),
+      });
+    }
+  }
+
+  String? _educationTypeLabel(EducationSpendingType? type) {
+    final i18n = AppI18n.current;
+    switch (type) {
+      case EducationSpendingType.basic:
+        return i18n.expenseEducationTypeBasic;
+      case EducationSpendingType.higher:
+        return i18n.expenseEducationTypeHigher;
+      case EducationSpendingType.language:
+        return i18n.expenseEducationTypeLanguage;
+      case EducationSpendingType.other:
+        return i18n.expenseEducationTypeOther;
+      case null:
+        return null;
+    }
+  }
 
   bool? get hasEducationSpending {
     if (_hasEducationCosts == null) return null;
@@ -56,10 +109,10 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
       educationSpendingOther: item['typeOther'] as String?,
       familyMemberId: item['memberId'] as String?,
       educationSpendingInstitution: item['institution'] as String?,
-      educationSpendingAmount: amountRaw == null ||
-              (amountRaw is String && amountRaw.trim().isEmpty)
-          ? null
-          : MoneyFormatter.parse(amountRaw),
+      educationSpendingAmount:
+          amountRaw == null || (amountRaw is String && amountRaw.trim().isEmpty)
+              ? null
+              : MoneyFormatter.parse(amountRaw),
     );
   }
 
@@ -274,6 +327,7 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
               label: i18n.expenseEducationValueLabel,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [MoneyTextInputFormatter()],
             ),
           ),
         ],

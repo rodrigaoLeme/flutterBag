@@ -51,16 +51,19 @@ class _OtherIncomeNoneConfirmationPageState
                         style: AppTextStyles.bodyMedium,
                         children: [
                           TextSpan(
-                            text: i18n.otherIncomeNoneConfirmationDescriptionPrefix,
+                            text: i18n
+                                .otherIncomeNoneConfirmationDescriptionPrefix,
                           ),
                           TextSpan(
-                            text: i18n.otherIncomeNoneConfirmationCancelHighlight,
+                            text:
+                                i18n.otherIncomeNoneConfirmationCancelHighlight,
                             style: AppTextStyles.bodyMedium.copyWith(
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           TextSpan(
-                            text: i18n.otherIncomeNoneConfirmationDescriptionMiddle,
+                            text: i18n
+                                .otherIncomeNoneConfirmationDescriptionMiddle,
                           ),
                           TextSpan(
                             text: i18n.otherIncomeNoneConfirmationYesHighlight,
@@ -69,7 +72,8 @@ class _OtherIncomeNoneConfirmationPageState
                             ),
                           ),
                           TextSpan(
-                            text: i18n.otherIncomeNoneConfirmationDescriptionSuffix,
+                            text: i18n
+                                .otherIncomeNoneConfirmationDescriptionSuffix,
                           ),
                         ],
                       ),

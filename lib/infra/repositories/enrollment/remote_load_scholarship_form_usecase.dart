@@ -1,6 +1,7 @@
 import '../../../data/http/http_client.dart';
 import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/enrollment_enums.dart';
+import '../../../domain/entities/expenses_entity.dart';
 import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/entities/group_income_entity.dart';
 import '../../../domain/entities/scholarship_form_entity.dart';
@@ -46,11 +47,23 @@ class RemoteLoadScholarshipFormUsecase implements LoadScholarshipFormUsecase {
                 .toList() ??
             [],
         groupIncome: _parseGroupIncome(json),
+        expenses: _parseExpenses(json),
       );
     } on HttpError catch (e) {
       if (e == HttpError.notFound) return null; // 404
       rethrow;
     }
+  }
+
+  ExpensesEntity? _parseExpenses(Map<String, dynamic> json) {
+    final expenses = ExpensesEntity.fromJson(json);
+    final amounts = expenses.toJson()
+      ..remove('educationSpendings')
+      ..remove('schoolTransportAmount');
+    final hasData = expenses.schoolTransportType != null ||
+        expenses.educationSpendings.isNotEmpty ||
+        amounts.isNotEmpty;
+    return hasData ? expenses : null;
   }
 
   GroupIncomeEntity _parseGroupIncome(Map<String, dynamic> json) {

@@ -79,8 +79,8 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
           widget.eligibleMembers.firstWhere((m) => m.id == memberId);
     } catch (_) {}
 
-    _selectedRelationship =
-        GuardianRelationshipType.fromValue(data['guardianRelationship'] as int?);
+    _selectedRelationship = GuardianRelationshipType.fromValue(
+        data['guardianRelationship'] as int?);
 
     final schoolId = data['schoolId']?.toString();
     try {
@@ -123,8 +123,7 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
         _isLoadingGrades = false;
         if (preselectGradeId != null) {
           try {
-            _selectedGrade =
-                grades.firstWhere((g) => g.id == preselectGradeId);
+            _selectedGrade = grades.firstWhere((g) => g.id == preselectGradeId);
           } catch (_) {}
         }
       });
@@ -278,8 +277,8 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
     if (_isLoadingGrades) return;
 
     Navigator.of(context).pop({
-      'familyMemberId':
-          _selectedMember?.id ?? 'mock-member-${DateTime.now().millisecondsSinceEpoch}',
+      'familyMemberId': _selectedMember?.id ??
+          'mock-member-${DateTime.now().millisecondsSinceEpoch}',
       'name': _selectedMember?.name ?? 'Candidato',
       'cpf': _selectedMember?.cpf,
       'guardianRelationship': _selectedRelationship?.value,
@@ -339,8 +338,7 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
                       color: AppColors.onSurface.withValues(alpha: 0.6),
                     )
                   : AppTextStyles.bodyMedium.copyWith(
-                      color:
-                          enabled ? AppColors.onSurface : AppColors.outline,
+                      color: enabled ? AppColors.onSurface : AppColors.outline,
                     ),
             ),
           ),
@@ -375,7 +373,8 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
             ),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -401,7 +400,9 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
                     _buildSelectorField(
                       hint: i18n.selectCandidateLabel,
                       value: _selectedMember?.name,
-                      onTap: _availableMembers.isEmpty ? null : _openMemberSelector,
+                      onTap: _availableMembers.isEmpty
+                          ? null
+                          : _openMemberSelector,
                       enabled: _availableMembers.isNotEmpty,
                     ),
                     const SizedBox(height: 12),
@@ -424,9 +425,8 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
                     const SizedBox(height: 12),
                     _buildSelectorField(
                       hint: i18n.intendedCourseLabel(widget.processYear),
-                      value: _isLoadingGrades
-                          ? null
-                          : _selectedGrade?.displayName,
+                      value:
+                          _isLoadingGrades ? null : _selectedGrade?.displayName,
                       onTap: _selectedSchool != null &&
                               !_isLoadingGrades &&
                               _grades.isNotEmpty

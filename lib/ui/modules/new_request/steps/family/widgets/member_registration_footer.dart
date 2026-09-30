@@ -22,8 +22,7 @@ class MemberRegistrationFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final nextLabel =
-        advanceLabel ?? AppI18n.current.createAccountNextAction;
+    final nextLabel = advanceLabel ?? AppI18n.current.createAccountNextAction;
 
     return Padding(
       padding: const EdgeInsets.all(16),

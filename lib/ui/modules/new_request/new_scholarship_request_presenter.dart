@@ -59,6 +59,7 @@ abstract class NewScholarshipRequestPresenter {
   bool get isPopulating;
 
   void updateFamilyMembers(List<FamilyMemberEntity> members);
+  Future<void> reloadFamilyDataFromDraft();
 
   void clearAddressFields();
 

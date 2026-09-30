@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
+import '../../../../helpers/money_text_input_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
 
 class EducationExpensePage extends StatefulWidget {
@@ -244,6 +245,7 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
+                inputFormatters: [MoneyTextInputFormatter()],
                 onChanged: (_) => setState(() {}),
               ),
             ),

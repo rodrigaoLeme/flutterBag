@@ -843,6 +843,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                                 ),
                               ),
                             );
+                            await _presenter.reloadFamilyDataFromDraft();
                             if (_isAdvanceToExpensesResult(result) && mounted) {
                               _presenter
                                   .next(); // só avança para step 3 quando finalizar tudo
@@ -928,6 +929,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                 ),
               ),
             );
+            await _presenter.reloadFamilyDataFromDraft();
             if (!mounted) return;
             if (_isAdvanceToExpensesResult(result)) {
               final names = _familyMemberNamesFromResult(result);
@@ -949,6 +951,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                 ),
               ),
             );
+            await _presenter.reloadFamilyDataFromDraft();
             if (!mounted) return;
             setState(() {});
           },
@@ -963,6 +966,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           onNext: () => _handleNext(),
           onFormChanged: () => setState(() {}),
           familyMembers: _familyMembersForExpenses(),
+          initialExpenses: _presenter.form.expenses,
         );
 
       case 4:

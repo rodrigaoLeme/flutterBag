@@ -1,5 +1,11 @@
 import 'enrollment_enums.dart';
 
+double? _toDouble(dynamic value) {
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
+}
+
 class EducationSpendingEntity {
   final String? id;
   final EducationSpendingType? educationSpendingType;
@@ -40,8 +46,7 @@ class EducationSpendingEntity {
         familyMemberId: json['familyMemberId'] as String?,
         educationSpendingInstitution:
             json['educationSpendingInstitution'] as String?,
-        educationSpendingAmount:
-            (json['educationSpendingAmount'] as num?)?.toDouble(),
+        educationSpendingAmount: _toDouble(json['educationSpendingAmount']),
       );
 }
 
@@ -122,8 +127,7 @@ class ExpensesEntity {
       'otherHealthDescription': otherHealthDescription,
       'chronicDiseaseAmount': chronicDiseaseAmount,
       'hasEducationSpending': hasEducationSpending,
-      'educationSpendings':
-          educationSpendings.map((e) => e.toJson()).toList(),
+      'educationSpendings': educationSpendings.map((e) => e.toJson()).toList(),
       'schoolTransportType': schoolTransportType?.value,
       'schoolTransportAmount': schoolTransportAmount,
       'ipvaAmount': ipvaAmount,
@@ -148,26 +152,23 @@ class ExpensesEntity {
 
   factory ExpensesEntity.fromJson(Map<String, dynamic> json) => ExpensesEntity(
         familyResidenceRentalAmount:
-            (json['familyResidenceRentalAmount'] as num?)?.toDouble(),
-        iptuAmount: (json['iptuAmount'] as num?)?.toDouble(),
-        condominiumAmount: (json['condominiumAmount'] as num?)?.toDouble(),
-        gasAmount: (json['gasAmount'] as num?)?.toDouble(),
-        energyAmount: (json['energyAmount'] as num?)?.toDouble(),
-        waterAmount: (json['waterAmount'] as num?)?.toDouble(),
-        phoneAmount: (json['phoneAmount'] as num?)?.toDouble(),
-        otherResidenceAmount:
-            (json['otherResidenceAmount'] as num?)?.toDouble(),
-        otherResidenceDescription:
-            json['otherResidenceDescription'] as String?,
-        foodAmount: (json['foodAmount'] as num?)?.toDouble(),
-        healthPlanAmount: (json['healthPlanAmount'] as num?)?.toDouble(),
-        medicalAmount: (json['medicalAmount'] as num?)?.toDouble(),
-        dentalPlanAmount: (json['dentalPlanAmount'] as num?)?.toDouble(),
-        dentalAmount: (json['dentalAmount'] as num?)?.toDouble(),
-        otherHealthAmount: (json['otherHealthAmount'] as num?)?.toDouble(),
+            _toDouble(json['familyResidenceRentalAmount']),
+        iptuAmount: _toDouble(json['iptuAmount']),
+        condominiumAmount: _toDouble(json['condominiumAmount']),
+        gasAmount: _toDouble(json['gasAmount']),
+        energyAmount: _toDouble(json['energyAmount']),
+        waterAmount: _toDouble(json['waterAmount']),
+        phoneAmount: _toDouble(json['phoneAmount']),
+        otherResidenceAmount: _toDouble(json['otherResidenceAmount']),
+        otherResidenceDescription: json['otherResidenceDescription'] as String?,
+        foodAmount: _toDouble(json['foodAmount']),
+        healthPlanAmount: _toDouble(json['healthPlanAmount']),
+        medicalAmount: _toDouble(json['medicalAmount']),
+        dentalPlanAmount: _toDouble(json['dentalPlanAmount']),
+        dentalAmount: _toDouble(json['dentalAmount']),
+        otherHealthAmount: _toDouble(json['otherHealthAmount']),
         otherHealthDescription: json['otherHealthDescription'] as String?,
-        chronicDiseaseAmount:
-            (json['chronicDiseaseAmount'] as num?)?.toDouble(),
+        chronicDiseaseAmount: _toDouble(json['chronicDiseaseAmount']),
         hasEducationSpending: json['hasEducationSpending'] as bool?,
         educationSpendings: (json['educationSpendings'] as List?)
                 ?.map((e) => EducationSpendingEntity.fromJson(
@@ -177,14 +178,11 @@ class ExpensesEntity {
         schoolTransportType: SchoolTransportType.fromValue(
           json['schoolTransportType'] as int?,
         ),
-        schoolTransportAmount:
-            (json['schoolTransportAmount'] as num?)?.toDouble(),
-        ipvaAmount: (json['ipvaAmount'] as num?)?.toDouble(),
-        carInsuranceAmount: (json['carInsuranceAmount'] as num?)?.toDouble(),
-        bankDebtsAmount: (json['bankDebtsAmount'] as num?)?.toDouble(),
-        otherBankDebtsAmount:
-            (json['otherBankDebtsAmount'] as num?)?.toDouble(),
-        otherBankDebtsDescription:
-            json['otherBankDebtsDescription'] as String?,
+        schoolTransportAmount: _toDouble(json['schoolTransportAmount']),
+        ipvaAmount: _toDouble(json['ipvaAmount']),
+        carInsuranceAmount: _toDouble(json['carInsuranceAmount']),
+        bankDebtsAmount: _toDouble(json['bankDebtsAmount']),
+        otherBankDebtsAmount: _toDouble(json['otherBankDebtsAmount']),
+        otherBankDebtsDescription: json['otherBankDebtsDescription'] as String?,
       );
 }
