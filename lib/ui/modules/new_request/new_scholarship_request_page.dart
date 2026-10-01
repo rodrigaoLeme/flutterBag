@@ -840,6 +840,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                                   educationLevel:
                                       _presenter.form.educationLevel,
                                   initialSubStep: 5,
+                                  residenceType: _presenter.form.residenceType,
                                 ),
                               ),
                             );
@@ -926,6 +927,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                   processPeriodId: widget.processPeriodId,
                   initialFamilyMembers: _presenter.form.familyMembers,
                   educationLevel: _presenter.form.educationLevel,
+                  residenceType: _presenter.form.residenceType,
                 ),
               ),
             );

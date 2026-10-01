@@ -119,6 +119,7 @@ class _HousingStepState extends State<HousingStep> {
       selectedValue: current,
       labelBuilder: (item) => item.label,
       searchTextBuilder: (item) => item.label,
+      showSearchInput: false,
     );
     if (selected != null) {
       widget.onHousingTypeChanged(selected);

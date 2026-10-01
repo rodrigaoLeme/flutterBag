@@ -32,22 +32,19 @@ class MemberRegistrationAssetsSubStep extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        EbolsaRadioGroup<int>(
-          question: AppI18n.current.ownsPropertyQuestion,
-          options: [
-            RadioOption(
-              label: AppI18n.current.answerNo,
-              value: 0,
-            ),
-            RadioOption(
-              label: AppI18n.current.answerYes,
-              value: 1,
-            ),
-          ],
-          groupValue: vm.possuiImovelProprio,
-          onChanged: (v) {
-            if (v != null) vm.setPossuiImovelProprio(v);
-          },
+        EbolsaIgnorePointer(
+          ignoring: vm.hasPropertyForcedTrue,
+          child: EbolsaRadioGroup<int>(
+            question: AppI18n.current.ownsPropertyQuestion,
+            options: [
+              RadioOption(label: AppI18n.current.answerNo, value: 0),
+              RadioOption(label: AppI18n.current.answerYes, value: 1),
+            ],
+            groupValue: vm.possuiImovelProprio,
+            onChanged: (v) {
+              if (v != null) vm.setPossuiImovelProprio(v);
+            },
+          ),
         ),
         if (vm.possuiImovelProprio == 1) ...[
           const SizedBox(height: 16),

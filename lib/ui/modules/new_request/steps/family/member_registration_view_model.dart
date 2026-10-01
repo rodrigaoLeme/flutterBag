@@ -108,6 +108,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   String? _pendingSpecialNeedsId;
   String? _pendingNationalityId;
 
+  int? residenceTypeForcedFromStep1;
+
   int? recebePensaoAlimenticia;
   int? recebePrevidenciaPrivada;
   int? recebeOutroBeneficioINSS;
@@ -185,12 +187,23 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     );
   }
 
+  bool get hasPropertyForcedTrue {
+    final rt = residenceTypeForcedFromStep1;
+    return rt == ResidenceType.own.value || rt == ResidenceType.financed.value;
+  }
+
   bool get showReceivesPension => maritalStatus == MaritalStatus.widower;
   bool get showIsRetired => recebePensao == 1;
   bool get showCINFields => possuiCIN == 0;
   bool get showNisField => cadunicoValue == 1;
   bool get showDiseaseType => possuiDoenca == 1;
-  bool get showWorkCardField => age >= 14 && age < 18;
+  bool get showWorkCardField => age >= 14 && age <= 17; // Teen júnior e sênior
+  bool get forcedWorkBookletTrue => age >= 18; // Adulto — forçado true
+  bool get forcedWorkBookletFalse =>
+      age <= 13 && age > 0; // Criança — forçado false
+
+  // Teen em diante — exibe Criança (≤13) -> forçado false, não exibe
+  bool get showRuralWorkerField => age >= 14 && age > 0;
   bool get showNaturalizedField =>
       selectedNationalityId != null &&
       selectedNationalityId != _brazilianNationalityId;
@@ -996,7 +1009,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     if (legalAge && irpfCondition == null) return false;
     if (legalAge && declarouEsseAno == null) return false;
     if (showWorkCardField && temCarteira == null) return false;
-    if (trabalhadorRural == null) return false;
+    if (showRuralWorkerField && trabalhadorRural == null) return false;
     return true;
   }
 
@@ -1258,8 +1271,12 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       naturalized: naturalizado == 1,
       isCandidate: seraCandidato == 1,
       isRetired: aposentado == 1,
-      hasWorkBooklet: showWorkCardField ? temCarteira == 1 : legalAge,
-      ruralWorker: trabalhadorRural == 1,
+      hasWorkBooklet: forcedWorkBookletFalse
+          ? false
+          : forcedWorkBookletTrue
+              ? true
+              : temCarteira == 1,
+      ruralWorker: (age <= 13 && age == 0) ? false : trabalhadorRural == 1,
       declarationType: legalAge ? irpfCondition : null,
       declared: legalAge ? declarouEsseAno == 1 : null,
       personHasCin: possuiCIN == 1,

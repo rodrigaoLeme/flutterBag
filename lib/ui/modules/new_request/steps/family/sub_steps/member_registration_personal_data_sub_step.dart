@@ -547,16 +547,18 @@ class _MemberRegistrationPersonalDataSubStepState
                   onChanged: (v) => widget.vm.setTemCarteira(v),
                 ),
               ],
-              const SizedBox(height: 12),
-              EbolsaRadioGroup<int>(
-                question: AppI18n.current.ruralWorkerQuestion,
-                options: [
-                  RadioOption(label: AppI18n.current.answerNo, value: 0),
-                  RadioOption(label: AppI18n.current.answerYes, value: 1),
-                ],
-                groupValue: widget.vm.trabalhadorRural,
-                onChanged: (v) => widget.vm.setTrabalhadorRural(v),
-              ),
+              if (widget.vm.showRuralWorkerField) ...[
+                const SizedBox(height: 12),
+                EbolsaRadioGroup<int>(
+                  question: AppI18n.current.ruralWorkerQuestion,
+                  options: [
+                    RadioOption(label: AppI18n.current.answerNo, value: 0),
+                    RadioOption(label: AppI18n.current.answerYes, value: 1),
+                  ],
+                  groupValue: widget.vm.trabalhadorRural,
+                  onChanged: (v) => widget.vm.setTrabalhadorRural(v),
+                ),
+              ],
             ],
           ),
         ),

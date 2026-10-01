@@ -23,8 +23,7 @@ enum ResidenceType {
   rented(3, 'Alugado'),
   financed(4, 'Financiado'),
   illegalOccupation(5, 'Ocupação irregular (invasão e/ou assentamento)'),
-  institutionalOrCollective(6, 'Institucional/Coletiva'),
-  other(7, 'Outro');
+  institutionalOrCollective(6, 'Institucional/Coletiva');
 
   const ResidenceType(this.value, this.label);
   final int value;

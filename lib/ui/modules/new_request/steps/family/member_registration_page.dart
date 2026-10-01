@@ -69,6 +69,7 @@ class MemberRegistrationPage extends StatefulWidget {
     required this.educationLevel,
     this.initialEditIndex,
     this.initialSubStep,
+    this.residenceType,
   });
 
   final MemberRegistrationPresenter? presenter;
@@ -78,6 +79,7 @@ class MemberRegistrationPage extends StatefulWidget {
   final EducationLevel? educationLevel;
   final int? initialEditIndex;
   final int? initialSubStep;
+  final ResidenceType? residenceType;
 
   @override
   State<MemberRegistrationPage> createState() => _MemberRegistrationPageState();
@@ -164,6 +166,13 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     super.dispose();
   }
 
+  void _prepareAssetsSubStep() {
+    _vm.residenceTypeForcedFromStep1 = widget.residenceType?.value;
+    if (_vm.hasPropertyForcedTrue) {
+      _vm.setPossuiImovelProprio(1);
+    }
+  }
+
   void _populateInitialFamilyMembers() {
     if (widget.initialFamilyMembers.isNotEmpty) {
       final sorted = [...widget.initialFamilyMembers]..sort((a, b) {
@@ -221,10 +230,19 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     final groupIncome = form.groupIncome;
     if (groupIncome == null) return;
 
-    _vm.setPossuiImovelProprio(groupIncome.hasProprietys == true ? 1 : 0);
-    _vm.setPossuiInvestimentoFinanceiro(
-        groupIncome.hasFinancing == true ? 1 : 0);
-    _vm.setPossuiVeiculo(groupIncome.hasVehicles == true ? 1 : 0);
+    //if (groupIncome.hasProprietys != null) {
+    if (_vm.hasPropertyForcedTrue) {
+      _vm.setPossuiImovelProprio(1);
+    }
+    //}
+
+    if (groupIncome.hasFinancing != null) {
+      _vm.setPossuiInvestimentoFinanceiro(groupIncome.hasFinancing! ? 1 : 0);
+    }
+
+    if (groupIncome.hasVehicles != null) {
+      _vm.setPossuiVeiculo(groupIncome.hasVehicles! ? 1 : 0);
+    }
 
     for (final p in groupIncome.properties) {
       final typeName =
@@ -800,7 +818,10 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       final confirmed =
           await MemberRegistrationDialogs.showFamilyMembersConfirmDialog(
               context, _vm);
-      if (confirmed == true && mounted) _presenter.incrementSubStep();
+      if (confirmed == true && mounted) {
+        _prepareAssetsSubStep();
+        _presenter.incrementSubStep();
+      }
       return;
     }
 
