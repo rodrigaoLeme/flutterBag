@@ -227,7 +227,9 @@ class _MemberRegistrationPersonalDataSubStepState
                         },
                         child: InputDecorator(
                           decoration: InputDecoration(
-                            labelText: AppI18n.current.kinshipLabel,
+                            labelText: (!widget.vm.isResponsibleMember)
+                                ? AppI18n.current.kinshipLabel
+                                : '',
                             suffixIcon:
                                 const Icon(Icons.keyboard_arrow_down_rounded),
                             border: OutlineInputBorder(

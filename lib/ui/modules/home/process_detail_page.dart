@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../../../data/cache/enrollment_draft_storage.dart';
 import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/process_enums.dart';
 import '../../../domain/entities/scholarship_entity.dart';
 import '../../../domain/entities/scholarship_process_period_entity.dart';
+import '../../../domain/usecases/enrollment/cancel_scholarship_usecase.dart';
+import '../../../main/di/injection_container.dart';
+import '../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../main/i18n/app_i18n.dart';
+import '../../../share/current_account.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
 import 'components/banners/processes_banner_warning.dart';
@@ -14,7 +19,7 @@ import 'process_deadlines_page.dart';
 import 'process_declaration_models_page.dart';
 import 'process_terms_page.dart';
 
-class ProcessDetailPage extends StatelessWidget {
+class ProcessDetailPage extends StatefulWidget {
   final ScholarshipEntity scholarship;
   final ScholarshipProcessPeriodEntity? period;
   final ProcessSteps step;
@@ -27,6 +32,15 @@ class ProcessDetailPage extends StatelessWidget {
     this.period,
     this.onContinue,
   });
+
+  @override
+  State<ProcessDetailPage> createState() => _ProcessDetailPageState();
+}
+
+class _ProcessDetailPageState extends State<ProcessDetailPage> {
+  final _cancelScholarshipRequest = makeRemoteCancelScholarship();
+  // ignore: unused_field
+  bool _isCancelling = false;
 
   void _showCancelDialog(BuildContext context) {
     EbolsaDialogWithCancel.show(
@@ -54,7 +68,63 @@ class ProcessDetailPage extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       builder: (_) => const _CancelReasonDialog(),
+    ).then((reason) {
+      if (reason != null) {
+        _cancelScholarship(reason as String);
+      }
+    });
+  }
+
+  Future<void> _cancelScholarship(String reason) async {
+    final scholarshipId = widget.scholarship.id;
+
+    setState(() => _isCancelling = true);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
     );
+
+    try {
+      await _cancelScholarshipRequest.cancel(CancelScholarshipParams(
+        scholarshipId: scholarshipId,
+        cancelObservation: reason.trim().isEmpty ? null : reason.trim(),
+      ));
+
+      await _clearDraft(scholarshipId);
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+
+      Navigator.of(context).pop('cancelled');
+    } on CancelScholarshipException catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop(); // fecha loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isCancelling = false);
+    }
+  }
+
+  Future<void> _clearDraft(String scholarshipId) async {
+    try {
+      final userId = sl<CurrentAccount>().userCpf;
+      final draftStorage = sl<EnrollmentDraftStorage>();
+
+      // O draft é keyed pelo processPeriodId
+      if (widget.scholarship.processPeriodId != null) {
+        await draftStorage.delete(
+          userId: userId,
+          processPeriodId: widget.scholarship.processPeriodId!,
+        );
+      }
+    } catch (_) {}
   }
 
   @override
@@ -83,26 +153,26 @@ class ProcessDetailPage extends StatelessWidget {
                   // ----- Banner warnings com botão continuar ---
                   // TODO: Implementar outros banners deposi
                   ProcessesBannerWarning(
-                    message: period?.registerPeriodLabel ?? '-',
-                    onContinue: onContinue,
+                    message: widget.period?.registerPeriodLabel ?? '-',
+                    onContinue: widget.onContinue,
                   ),
                   const SizedBox(height: 12),
 
                   // Região administrativa + Edital
                   InfoRow2Col(
                     label1: appStrings.administrativeRegion,
-                    value1: scholarship.administrativeAcronym ?? '-',
+                    value1: widget.scholarship.administrativeAcronym ?? '-',
                     label2: appStrings.processCardNotice,
-                    value2: period?.announcementTitle ?? '-',
+                    value2: widget.period?.announcementTitle ?? '-',
                   ),
                   const SizedBox(height: 12),
 
                   // Nível + Tipo de bolsa
                   InfoRow2Col(
                     label1: appStrings.processCardLevel,
-                    value1: period?.educationLevel?.label ?? '-',
+                    value1: widget.period?.educationLevel?.label ?? '-',
                     label2: appStrings.processCardScholarshipType,
-                    value2: period?.scholarshipType?.label ?? '-',
+                    value2: widget.period?.scholarshipType?.label ?? '-',
                   ),
                   const SizedBox(height: 12),
 
@@ -113,7 +183,8 @@ class ProcessDetailPage extends StatelessWidget {
                         child: InfoCol(
                           label: appStrings.processCardProcessType,
                           child: Text(
-                            scholarship.processType == ProcessType.renewal
+                            widget.scholarship.processType ==
+                                    ProcessType.renewal
                                 ? appStrings.renewProcess
                                 : appStrings.newProcess,
                             style:
@@ -132,11 +203,11 @@ class ProcessDetailPage extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 6),
                             decoration: BoxDecoration(
-                              color: step.color,
+                              color: widget.step.color,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              step.label,
+                              widget.step.label,
                               style: Theme.of(context)
                                   .textTheme
                                   .labelMedium
@@ -216,7 +287,7 @@ class ProcessDetailPage extends StatelessWidget {
               label: appStrings.processDetailDeadlines,
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => ProcessDeadlinesPage(period: period),
+                  builder: (_) => ProcessDeadlinesPage(period: widget.period),
                 ),
               ),
             ),
@@ -297,7 +368,7 @@ class _CancelReasonDialogState extends State<_CancelReasonDialog> {
           TextField(
             controller: _reasonController,
             maxLines: 4,
-            maxLength: 500,
+            maxLength: 300,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
               hintText: appStrings.processCancelReasonDialogHint,
@@ -314,8 +385,8 @@ class _CancelReasonDialogState extends State<_CancelReasonDialog> {
           onPressed: _reasonController.text.trim().isEmpty
               ? null
               : () {
-                  Navigator.of(context).pop();
-                  // TODO: chamar endpoint com _reasonController.text
+                  final reason = _reasonController.text.trim();
+                  Navigator.of(context).pop(reason);
                 },
           child: Text(
             appStrings.processCancelReasonDialogConfirm,
@@ -328,7 +399,7 @@ class _CancelReasonDialogState extends State<_CancelReasonDialog> {
           ),
         ),
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pop(null),
           child: Text(
             appStrings.processCancelDialogDeny,
             style: AppTextStyles.bodyMedium.copyWith(

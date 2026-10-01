@@ -15,12 +15,14 @@ class ProcessesCurrentPage extends StatelessWidget {
   final int yearSelected;
   final ProcessesBanner processesBanner;
   final List<ScholarshipEntity> scholarships;
+  final VoidCallback? onScholarshipCancelled;
 
   const ProcessesCurrentPage({
     super.key,
     required this.yearSelected,
     required this.processesBanner,
     required this.scholarships,
+    this.onScholarshipCancelled,
   });
 
   @override
@@ -60,7 +62,8 @@ class ProcessesCurrentPage extends StatelessWidget {
                   onContinue: scholarship.canContinue
                       ? () => _onContinue(context, scholarship)
                       : null,
-                  onDetail: () => Navigator.of(context).push(
+                  onDetail: () => Navigator.of(context)
+                      .push(
                     MaterialPageRoute(
                       builder: (_) => ProcessDetailPage(
                         scholarship: scholarship,
@@ -71,7 +74,12 @@ class ProcessesCurrentPage extends StatelessWidget {
                             : null,
                       ),
                     ),
-                  ),
+                  )
+                      .then((result) {
+                    if (result == 'cancelled') {
+                      onScholarshipCancelled?.call(); // ← chama o callback
+                    }
+                  }),
                   processesBanner: processesBanner,
                 ),
               )),

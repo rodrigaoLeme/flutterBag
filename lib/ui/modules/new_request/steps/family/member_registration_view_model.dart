@@ -118,8 +118,6 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   bool pensionIncomeAcknowledged = false;
   bool inssBenefitAcknowledged = false;
 
-  final bool _hasPendingExtraIncomeNames = false;
-
   int? possuiOutraFonteRenda;
   int? recebeValorImovelAlugado;
   int? ajudaFinanceira;

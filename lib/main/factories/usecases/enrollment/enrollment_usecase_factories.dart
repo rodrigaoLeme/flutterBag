@@ -1,3 +1,4 @@
+import '../../../../domain/usecases/enrollment/cancel_scholarship_usecase.dart';
 import '../../../../domain/usecases/enrollment/delete_family_member_usecase.dart';
 import '../../../../domain/usecases/enrollment/load_asset_types_usecase.dart';
 import '../../../../domain/usecases/enrollment/load_extra_income_types_usecase.dart';
@@ -11,6 +12,7 @@ import '../../../../domain/usecases/enrollment/save_step_1_usecase.dart';
 import '../../../../domain/usecases/enrollment/save_step_2_usecase.dart';
 import '../../../../domain/usecases/enrollment/save_step_3_usecase.dart';
 import '../../../../domain/usecases/enrollment/set_scholarship_step_usecase.dart';
+import '../../../../infra/repositories/enrollment/remote_cancel_scholarship_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_delete_family_member_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_load_asset_types_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_load_extra_income_types_usecase.dart';
@@ -88,5 +90,10 @@ SaveStep3Usecase makeRemoteSaveStep3() => RemoteSaveStep3Usecase(
 
 SetScholarshipStepUsecase makeRemoteSetScholarshipStep() =>
     RemoteSetScholarshipStepUsecase(
+      httpClient: makeAuthorizeHttpClientDecorator(),
+    );
+
+CancelScholarshipUsecase makeRemoteCancelScholarship() =>
+    RemoteCancelScholarshipUsecase(
       httpClient: makeAuthorizeHttpClientDecorator(),
     );
