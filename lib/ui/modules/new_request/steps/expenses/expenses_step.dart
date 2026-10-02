@@ -21,6 +21,7 @@ class ExpensesStep extends StatefulWidget {
   final VoidCallback? onFormChanged;
   final List<FamilyMemberEntity> familyMembers;
   final ExpensesEntity? initialExpenses;
+  final double? propertyFinancingAmount;
 
   const ExpensesStep({
     super.key,
@@ -30,6 +31,7 @@ class ExpensesStep extends StatefulWidget {
     this.onFormChanged,
     this.familyMembers = const [],
     this.initialExpenses,
+    this.propertyFinancingAmount,
   });
 
   @override

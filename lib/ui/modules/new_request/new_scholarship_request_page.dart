@@ -159,6 +159,13 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     return byId.values.toList();
   }
 
+  double _calculatePropertyFinancing() {
+    final properties = _presenter.form.groupIncome?.properties ?? [];
+    return properties.fold(0.0, (sum, p) {
+      return sum + (p.installmentAmount ?? 0.0);
+    });
+  }
+
   Future<void> _handleNext() async {
     if (DevNavigationOverrides.allowAdvanceWithoutFill) {
       _presenter.next();
@@ -969,6 +976,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           onFormChanged: () => setState(() {}),
           familyMembers: _familyMembersForExpenses(),
           initialExpenses: _presenter.form.expenses,
+          propertyFinancingAmount: _calculatePropertyFinancing(),
         );
 
       case 4:

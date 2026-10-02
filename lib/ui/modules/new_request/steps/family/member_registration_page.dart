@@ -114,6 +114,9 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
         );
     _currentSubStep = _presenter.currentSubStep;
     _scrollController = ScrollController();
+
+    _vm.residenceTypeForcedFromStep1 = widget.residenceType?.value;
+
     if (_presenter is StreamMemberRegistrationPresenter) {
       _subStepSubscription = (_presenter).currentSubStepStream.listen((step) {
         if (mounted) setState(() => _currentSubStep = step);
@@ -164,13 +167,6 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
       _presenter.dispose();
     }
     super.dispose();
-  }
-
-  void _prepareAssetsSubStep() {
-    _vm.residenceTypeForcedFromStep1 = widget.residenceType?.value;
-    if (_vm.hasPropertyForcedTrue) {
-      _vm.setPossuiImovelProprio(1);
-    }
   }
 
   void _populateInitialFamilyMembers() {
@@ -230,11 +226,13 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     final groupIncome = form.groupIncome;
     if (groupIncome == null) return;
 
-    //if (groupIncome.hasProprietys != null) {
+    if (groupIncome.hasProprietys != null) {
+      _vm.setPossuiImovelProprio(groupIncome.hasProprietys! ? 1 : 0);
+    }
+
     if (_vm.hasPropertyForcedTrue) {
       _vm.setPossuiImovelProprio(1);
     }
-    //}
 
     if (groupIncome.hasFinancing != null) {
       _vm.setPossuiInvestimentoFinanceiro(groupIncome.hasFinancing! ? 1 : 0);
@@ -819,7 +817,9 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
           await MemberRegistrationDialogs.showFamilyMembersConfirmDialog(
               context, _vm);
       if (confirmed == true && mounted) {
-        _prepareAssetsSubStep();
+        if (_vm.hasPropertyForcedTrue) {
+          _vm.setPossuiImovelProprio(1);
+        }
         _presenter.incrementSubStep();
       }
       return;
