@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import '../../../domain/entities/candidate_entity.dart';
 import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/expenses_entity.dart';
 import '../../../domain/entities/family_member_entity.dart';
@@ -55,6 +56,7 @@ abstract class NewScholarshipRequestPresenter {
   Future<void> lookupZipCode(String cep);
   Future<void> submitStep1();
   Future<void> submitStep3(ExpensesEntity expenses);
+  Future<void> submitStep4(List<CandidateEntity> candidates);
   bool isStep1Complete();
   bool get isPopulating;
 

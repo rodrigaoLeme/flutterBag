@@ -1,5 +1,6 @@
 import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/available_announcement_entity.dart';
+import '../../../domain/entities/school_grade_entity.dart';
 
 class RemoteAvailableAnnouncementModel {
   final String id;
@@ -35,13 +36,16 @@ class RemoteAvailableAnnouncementModel {
   factory RemoteAvailableAnnouncementModel.fromJson(Map<String, dynamic> json) {
     final announcement = json['announcement'] as Map<String, dynamic>? ?? {};
     final processPeriodJson = json['processPeriod'] as Map<String, dynamic>?;
-    final schoolsList = (json['schools'] as List?)
-            ?.map((s) => AnnouncementSchoolEntity(
-                  id: s['id'] as String,
-                  name: s['name'] as String?,
-                  city: s['city'] as String?,
-                ))
-            .toList() ??
+    final schoolsList = (json['schools'] as List?)?.map((s) {
+          final map = Map<String, dynamic>.from(s as Map);
+          return AnnouncementSchoolEntity(
+            id: (map['id'] ?? map['schoolId']).toString(),
+            name: map['name'] as String?,
+            city: map['city'] as String?,
+            educationLevel: _educationLevelFrom(map),
+            grades: SchoolGradeEntity.listFrom(map),
+          );
+        }).toList() ??
         [];
 
     ProcessPeriodEntity? processPeriod;
@@ -106,4 +110,15 @@ class RemoteAvailableAnnouncementModel {
         schools: schools,
         isPersonAuthorized: isPersonAuthorized,
       );
+
+  static EducationLevel? _educationLevelFrom(Map<String, dynamic> json) {
+    final raw = json['educationLevel'] ?? json['schoolType'];
+    final value = raw is int ? raw : int.tryParse(raw?.toString() ?? '');
+    if (value == null) return null;
+    try {
+      return EducationLevel.fromValue(value);
+    } catch (_) {
+      return null;
+    }
+  }
 }

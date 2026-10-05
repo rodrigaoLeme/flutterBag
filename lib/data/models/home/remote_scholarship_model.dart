@@ -36,7 +36,15 @@ class RemoteScholarshipModel {
 
   static DateTime? _parseDateTime(dynamic value) {
     if (value == null) return null;
-    return DateTime.tryParse(value.toString());
+    final date = DateTime.tryParse(value.toString());
+    if (date == null || date.year <= 1) return null;
+    return date;
+  }
+
+  static String? _parseId(dynamic value) {
+    if (value == null) return null;
+    final id = value.toString().trim();
+    return id.isEmpty ? null : id;
   }
 
   static ScholarshipEntity fromJson(Map<String, dynamic> json) {
@@ -61,7 +69,7 @@ class RemoteScholarshipModel {
       completedStep: _parseInt(json['completedStep']),
       finishedOnUtc: _parseDateTime(json['finishedOnUtc']),
       canceledOnUtc: _parseDateTime(json['canceledOnUtc']),
-      processPeriodId: json['processPeriodId'] as String?,
+      processPeriodId: _parseId(json['processPeriodId']),
       processType: ProcessType.fromValue(_parseInt(json['processType'])),
       status: ApplicantScholarshipStatus.fromValue(_parseInt(json['status'])),
       scholarshipStatus:

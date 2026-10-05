@@ -8,12 +8,14 @@ class CandidateStep extends StatefulWidget {
   final VoidCallback? onAddCandidate;
   final void Function(Map<String, dynamic> candidate)? onEditCandidate;
   final VoidCallback? onCandidatesChanged;
+  final List<Map<String, dynamic>> initialCandidates;
 
   const CandidateStep({
     super.key,
     this.onAddCandidate,
     this.onEditCandidate,
     this.onCandidatesChanged,
+    this.initialCandidates = const [],
   });
 
   @override
@@ -22,6 +24,14 @@ class CandidateStep extends StatefulWidget {
 
 class CandidateStepState extends State<CandidateStep> {
   final List<Map<String, dynamic>> _candidates = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _candidates.addAll(
+      widget.initialCandidates.map(Map<String, dynamic>.from),
+    );
+  }
 
   bool get hasCandidates => _candidates.isNotEmpty;
 

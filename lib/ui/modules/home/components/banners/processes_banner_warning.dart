@@ -45,26 +45,23 @@ class ProcessesBannerWarning extends StatelessWidget {
               ],
             ),
           ),
-          InkWell(
-            onTap: onContinue,
-            child: Container(
-              // height: 35,
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: AppColors.onSurface,
-                  width: 1,
-                ),
+          OutlinedButton(
+            onPressed: onContinue,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.onSurface,
+              side: const BorderSide(color: AppColors.onSurface),
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(25),
-                shape: BoxShape.rectangle,
               ),
-              child: Text(
-                appStrings.continueAction,
-                style: Theme.of(context)
-                    .textTheme
-                    .labelLarge!
-                    .copyWith(color: AppColors.onSurface),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              minimumSize: const Size(88, 40),
+            ),
+            child: Text(
+              appStrings.continueAction,
+              style: Theme.of(context)
+                  .textTheme
+                  .labelLarge!
+                  .copyWith(color: AppColors.onSurface),
             ),
           ),
         ],

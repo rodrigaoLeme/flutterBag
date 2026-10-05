@@ -174,6 +174,11 @@ class ExpensesStepState extends State<ExpensesStep> {
 
     _populateFromExpenses(widget.initialExpenses);
 
+    if (widget.propertyFinancingAmount != null &&
+        widget.propertyFinancingAmount! > 0) {
+      _setAmount(_financingController, widget.propertyFinancingAmount);
+    }
+
     for (final controller in [
       _rentController,
       _financingController,
@@ -340,6 +345,7 @@ class ExpensesStepState extends State<ExpensesStep> {
                 waterController: _waterController,
                 gasController: _gasController,
                 phoneInternetController: _phoneInternetController,
+                isFinancingLocked: (widget.propertyFinancingAmount ?? 0) > 0,
               ),
               ExpensesFoodSubStep(foodValueController: _foodValueController),
               ExpensesHealthSubStep(

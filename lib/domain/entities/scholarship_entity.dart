@@ -50,11 +50,13 @@ class ScholarshipEntity {
     this.authorizationCapabilities,
   });
 
+  static bool _hasDate(DateTime? date) => date != null && date.year > 1;
+
   // Inscrição somente leitura — não pode retomar
   bool get isReadOnly =>
-      finishedOnUtc != null ||
+      _hasDate(finishedOnUtc) ||
       completedStep == 6 ||
-      canceledOnUtc != null ||
+      _hasDate(canceledOnUtc) ||
       declassificationType != 0;
 
   // Stage relevante baseado no completedStep
@@ -64,8 +66,12 @@ class ScholarshipEntity {
   // Data do banner — effectiveDeadline do stage relevante
   DateTime? get bannerDeadline => relevantStage?.effectiveDeadline;
 
-  // Pode continuar — canPerform + não somente leitura
-  bool get canContinue => !isReadOnly && (relevantStage?.canPerform ?? false);
+  String? get effectiveProcessPeriodId =>
+      (processPeriodId != null && processPeriodId!.isNotEmpty)
+          ? processPeriodId
+          : processPeriod?.id;
+
+  bool get canContinue => !isReadOnly;
 
   // Rótulo do botão de continuar
   String get continueLabel => (completedStep != null && completedStep! >= 4)

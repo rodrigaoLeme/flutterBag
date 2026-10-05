@@ -12,7 +12,6 @@ import '../../../domain/usecases/enrollment/delete_family_member_usecase.dart';
 import '../../../domain/usecases/enrollment/set_scholarship_step_usecase.dart';
 import '../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
 import '../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
-import '../../../main/factories/usecases/schools/load_school_grades_factory.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../../main/routes/routes.dart';
 import '../../components/components.dart';
@@ -40,6 +39,7 @@ class NewScholarshipRequestPage extends StatefulWidget {
   final String? scholarshipId;
   final List<AnnouncementSchoolEntity> announcementSchools;
   final int? processYear;
+  final String? announcementId;
 
   const NewScholarshipRequestPage({
     super.key,
@@ -48,6 +48,7 @@ class NewScholarshipRequestPage extends StatefulWidget {
     this.scholarshipId,
     this.announcementSchools = const [],
     this.processYear,
+    this.announcementId,
   });
 
   @override
@@ -63,6 +64,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   late final MemberRegistrationViewModel _familyStepVm;
 
   late final NewScholarshipRequestPresenter _presenter;
+  late final ScrollController _stepScrollController;
   final GlobalKey<ExpensesStepState> _expensesStepKey =
       GlobalKey<ExpensesStepState>();
   final GlobalKey<CandidateStepState> _candidateStepKey =
@@ -71,6 +73,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       GlobalKey<DocumentsStepState>();
 
   List<Map<String, dynamic>> _registeredCandidates = [];
+  bool _candidatesHydrated = false;
   List<String> _registeredFamilyMemberNames = [];
   final Map<String, Map<String, DocumentUploadRecord>>
       _uploadedDocumentsByGroup = {};
@@ -98,12 +101,21 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           scholarshipId: widget.scholarshipId,
         );
     _presenter.stepSubSteps;
-    _presenter.currentStepStream.listen((s) => setState(() {
-          _currentStep = s;
-          _isInitializing = false;
-        }));
-    _presenter.currentSubStepStream
-        .listen((s) => setState(() => _currentSubStep = s));
+    _stepScrollController = ScrollController();
+    _presenter.currentStepStream.listen((s) {
+      if (!mounted) return;
+      _resetStepScroll();
+      setState(() {
+        _currentStep = s;
+        _isInitializing = false;
+        _hydrateCandidatesFromForm();
+      });
+    });
+    _presenter.currentSubStepStream.listen((s) {
+      if (!mounted) return;
+      _resetStepScroll();
+      setState(() => _currentSubStep = s);
+    });
 
     // TODO(dev): remover junto com `_kDebugJumpToDocumentsStep` acima
     if (kDebugMode && _kDebugJumpToDocumentsStep) {
@@ -114,6 +126,17 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     }
 
     _familyStepVm = MemberRegistrationViewModel();
+  }
+
+  @override
+  void dispose() {
+    _stepScrollController.dispose();
+    super.dispose();
+  }
+
+  void _resetStepScroll() {
+    if (!_stepScrollController.hasClients) return;
+    _stepScrollController.jumpTo(0);
   }
 
   void _goToStep(int step) {
@@ -206,17 +229,34 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   }
 
   Future<void> _handleCandidateStepNext() async {
+    _syncRegisteredCandidates();
+    final candidates = List<Map<String, dynamic>>.from(
+      _candidateStepKey.currentState?.candidates ?? _registeredCandidates,
+    );
+
     final missing = _missingScholarshipCandidates();
     if (missing.isNotEmpty) {
       await _showMissingCandidatesDialog(missing);
       return;
     }
 
+    if (candidates.isEmpty) {
+      await _showMissingCandidatesDialog(_requiredScholarshipCandidates());
+      return;
+    }
+
     final acknowledged = await _showCandidateAwarenessDialog();
     if (acknowledged == true && mounted) {
-      _syncRegisteredCandidates();
       _presenter.next();
     }
+  }
+
+  void _hydrateCandidatesFromForm() {
+    if (_candidatesHydrated) return;
+    _candidatesHydrated = true;
+    if (_presenter.form.candidates.isEmpty) return;
+    _registeredCandidates =
+        _presenter.form.candidates.map((e) => e.toUiMap()).toList();
   }
 
   void _syncRegisteredCandidates() {
@@ -380,6 +420,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
             id: _familyMemberId(member) ?? '',
             name: member.name ?? '',
             cpf: member.personCpf,
+            birthDate: member.personBirthDate,
           ),
         )
         .toList();
@@ -703,9 +744,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       MaterialPageRoute(
         builder: (_) => CandidateAddPage(
           eligibleMembers: _eligibleFamilyMembers(),
-          announcementSchools: widget.announcementSchools,
+          announcementSchools: const [],
           processYear: _processYear,
-          loadSchoolGradesUsecase: makeRemoteLoadSchoolGrades(),
           excludedMemberIds: _candidateStepKey.currentState?.addedMemberIds
                   .where(
                     (id) => id != initialData?['familyMemberId']?.toString(),
@@ -858,7 +898,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                             }
                           }
                         } else {
-                          _presenter.next();
+                          await _handleNext();
                         }
                       }
                     : null,
@@ -982,6 +1022,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       case 4:
         return CandidateStep(
           key: _candidateStepKey,
+          initialCandidates: _registeredCandidates,
           onCandidatesChanged: () {
             _syncRegisteredCandidates();
             setState(() {});
@@ -1053,6 +1094,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
             ),
             Expanded(
               child: SingleChildScrollView(
+                controller: _stepScrollController,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 8,

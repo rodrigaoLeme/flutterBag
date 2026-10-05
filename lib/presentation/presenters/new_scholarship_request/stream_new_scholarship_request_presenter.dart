@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../../data/cache/enrollment_draft_storage.dart';
+import '../../../domain/entities/candidate_entity.dart';
 import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/expenses_entity.dart';
 import '../../../domain/entities/family_member_entity.dart';
@@ -16,8 +17,10 @@ import '../../../domain/usecases/enrollment/load_scholarship_form_usecase.dart';
 import '../../../domain/usecases/enrollment/lookup_zip_code_usecase.dart';
 import '../../../domain/usecases/enrollment/save_step_1_usecase.dart';
 import '../../../domain/usecases/enrollment/save_step_3_usecase.dart';
+import '../../../domain/usecases/enrollment/save_step_4_usecase.dart';
 import '../../../infra/repositories/enrollment/remote_save_step_1_usecase.dart';
 import '../../../infra/repositories/enrollment/remote_save_step_3_usecase.dart';
+import '../../../infra/repositories/enrollment/remote_save_step_4_usecase.dart';
 import '../../../main/di/injection_container.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../../share/current_account.dart';
@@ -31,6 +34,7 @@ class StreamNewScholarshipRequestPresenter
   final String? scholarshipId;
   final SaveStep1Usecase saveStep1Usecase;
   final SaveStep3Usecase saveStep3Usecase;
+  final SaveStep4Usecase saveStep4Usecase;
   final LookupZipCodeUsecase lookupZipCodeUsecase;
   final LoadScholarshipFormUsecase loadScholarshipFormUsecase;
   final EnrollmentDraftStorage draftStorage;
@@ -40,6 +44,7 @@ class StreamNewScholarshipRequestPresenter
     this.scholarshipId,
     required this.saveStep1Usecase,
     required this.saveStep3Usecase,
+    required this.saveStep4Usecase,
     required this.lookupZipCodeUsecase,
     required this.loadScholarshipFormUsecase,
     required this.draftStorage,
@@ -227,6 +232,8 @@ class StreamNewScholarshipRequestPresenter
       familyMembers: remote.familyMembers.isNotEmpty
           ? remote.familyMembers
           : draft.familyMembers,
+      candidates:
+          remote.candidates.isNotEmpty ? remote.candidates : draft.candidates,
     );
   }
 
@@ -592,6 +599,49 @@ class StreamNewScholarshipRequestPresenter
       _currentStepController.add(_currentStep);
       _currentSubStepController.add(_currentSubStep);
     } on SaveStep3Exception catch (e) {
+      uiError = e.message;
+    } catch (_) {
+      uiError = AppI18n.current.errorUnexpected;
+    } finally {
+      isLoading = LoadingData(isLoading: false);
+    }
+  }
+
+  @override
+  Future<void> submitStep4(List<CandidateEntity> candidates) async {
+    final scholarshipId = _form.id;
+    if (scholarshipId == null || scholarshipId.isEmpty) {
+      uiError = AppI18n.current.errorUnexpected;
+      return;
+    }
+
+    isLoading = LoadingData(isLoading: true);
+    uiError = null;
+
+    try {
+      await saveStep4Usecase.save(
+        SaveStep4Params(
+          scholarshipId: scholarshipId,
+          candidates: candidates,
+          educationLevel: _form.educationLevel?.value,
+        ),
+      );
+
+      final completed = _form.completedStep < 4 ? 4 : _form.completedStep;
+      _form = _form.copyWith(
+        candidates: candidates,
+        completedStep: completed,
+        currentStep: 5,
+      );
+      _completedStepNotifier.value = completed;
+
+      await _saveDraftSilently();
+
+      _currentStep = 5;
+      _currentSubStep = 1;
+      _currentStepController.add(_currentStep);
+      _currentSubStepController.add(_currentSubStep);
+    } on SaveStep4Exception catch (e) {
       uiError = e.message;
     } catch (_) {
       uiError = AppI18n.current.errorUnexpected;

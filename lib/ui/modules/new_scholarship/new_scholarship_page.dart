@@ -345,6 +345,7 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
                 builder: (_) => NewScholarshipRequestPage(
                   processPeriodId: announcement.processPeriod!.id,
                   announcementSchools: announcement.schools,
+                  announcementId: announcement.id,
                   processYear: widget.lockedYear,
                 ),
               ),

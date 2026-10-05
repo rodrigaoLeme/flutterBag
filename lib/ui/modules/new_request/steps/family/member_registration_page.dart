@@ -119,7 +119,9 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
     if (_presenter is StreamMemberRegistrationPresenter) {
       _subStepSubscription = (_presenter).currentSubStepStream.listen((step) {
-        if (mounted) setState(() => _currentSubStep = step);
+        if (!mounted) return;
+        _resetSubStepScroll();
+        setState(() => _currentSubStep = step);
       });
     }
     if (widget.initialFamilyMembers.isEmpty) {
@@ -156,6 +158,11 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     final clean = cpf.replaceAll(RegExp(r'\D'), '');
     if (clean.length != 11) return cpf;
     return '${clean.substring(0, 3)}.${clean.substring(3, 6)}.${clean.substring(6, 9)}-${clean.substring(9)}';
+  }
+
+  void _resetSubStepScroll() {
+    if (!_scrollController.hasClients) return;
+    _scrollController.jumpTo(0);
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'announcement_enums.dart';
+import 'candidate_entity.dart';
 import 'enrollment_enums.dart';
 import 'expenses_entity.dart';
 import 'family_member_entity.dart';
@@ -30,6 +31,8 @@ class ScholarshipFormEntity {
   final ExpensesEntity? expenses;
 
   // Step 4 - Candidatos
+  final List<CandidateEntity> candidates;
+  final String? announcementId;
 
   const ScholarshipFormEntity({
     this.id,
@@ -49,6 +52,8 @@ class ScholarshipFormEntity {
     this.familyMembers = const [],
     this.groupIncome,
     this.expenses,
+    this.candidates = const [],
+    this.announcementId,
   });
 
   bool get hasScholarship => id != null;
@@ -71,6 +76,8 @@ class ScholarshipFormEntity {
     List<FamilyMemberEntity>? familyMembers,
     GroupIncomeEntity? groupIncome,
     ExpensesEntity? expenses,
+    List<CandidateEntity>? candidates,
+    String? announcementId,
   }) =>
       ScholarshipFormEntity(
         id: id ?? this.id,
@@ -90,6 +97,8 @@ class ScholarshipFormEntity {
         familyMembers: familyMembers ?? this.familyMembers,
         groupIncome: groupIncome ?? this.groupIncome,
         expenses: expenses ?? this.expenses,
+        candidates: candidates ?? this.candidates,
+        announcementId: announcementId ?? this.announcementId,
       );
 
   Map<String, dynamic> toJson() => {
@@ -110,6 +119,8 @@ class ScholarshipFormEntity {
         'familyMembers': familyMembers.map((e) => e.toJson()).toList(),
         'groupIncome': groupIncome?.toJson(),
         'expenses': expenses?.toJson(),
+        'candidates': candidates.map((e) => e.toJson()).toList(),
+        'announcementId': announcementId,
       };
 
   factory ScholarshipFormEntity.fromJson(Map<String, dynamic> json) =>
@@ -143,5 +154,20 @@ class ScholarshipFormEntity {
             ? ExpensesEntity.fromJson(
                 Map<String, dynamic>.from(json['expenses'] as Map))
             : null,
+        candidates: _parseCandidates(json),
+        announcementId: json['announcementId'] as String? ??
+            (json['announcement'] is Map
+                ? (json['announcement'] as Map)['id'] as String?
+                : null),
       );
+
+  static List<CandidateEntity> _parseCandidates(Map<String, dynamic> json) {
+    final raw =
+        json['students'] ?? json['candidates'] ?? json['scholarshipCandidates'];
+    if (raw is! List) return const [];
+    return raw
+        .map((e) =>
+            CandidateEntity.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
+  }
 }

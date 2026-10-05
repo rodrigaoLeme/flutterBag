@@ -12,20 +12,46 @@ class RemoteLoadSchoolGradesUsecase implements LoadSchoolGradesUsecase {
   @override
   Future<List<SchoolGradeEntity>> load(LoadSchoolGradesParams params) async {
     try {
-      final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/v1/schools/${params.schoolId}/grades',
-        method: HttpMethod.get,
-        queryParameters: {'year': params.year},
-      );
+      final processPeriodId = params.processPeriodId;
+      final attempts = <({String url, Map<String, dynamic>? query})>[];
 
-      return (response as List)
-          .map(
-            (e) => SchoolGradeEntity(
-              id: (e as Map)['id'] as String,
-              name: e['name'] as String?,
-            ),
-          )
-          .toList();
+      if (processPeriodId != null && processPeriodId.isNotEmpty) {
+        attempts.addAll([
+          (
+            url:
+                '${Flavor.webApiBaseUrl}/v2/schools/${params.schoolId}/process-periods/$processPeriodId/academic-courses',
+            query: {'active': true},
+          ),
+          (
+            url:
+                '${Flavor.webApiBaseUrl}/v2/process-periods/$processPeriodId/courses',
+            query: {'schoolId': params.schoolId},
+          ),
+        ]);
+      }
+
+      attempts.addAll([
+        (
+          url:
+              '${Flavor.webApiBaseUrl}/v2/schools/${params.schoolId}/academic-courses',
+          query: {'year': params.year},
+        ),
+        (
+          url:
+              '${Flavor.webApiBaseUrl}/v2/schools/${params.schoolId}/school-courses',
+          query: null,
+        ),
+      ]);
+
+      for (final attempt in attempts) {
+        final grades = await _tryLoad(
+          url: attempt.url,
+          queryParameters: attempt.query,
+        );
+        if (grades.isNotEmpty) return grades;
+      }
+
+      return const [];
     } on HttpError catch (e) {
       if (e == HttpError.noConnectivity) {
         throw LoadSchoolGradesException(AppI18n.current.errorNoInternet);
@@ -35,6 +61,29 @@ class RemoteLoadSchoolGradesUsecase implements LoadSchoolGradesUsecase {
       throw LoadSchoolGradesException(
         e.title.isNotEmpty ? e.title : AppI18n.current.errorUnexpected,
       );
+    }
+  }
+
+  Future<List<SchoolGradeEntity>> _tryLoad({
+    required String url,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      final response = await httpClient.request(
+        url: url,
+        method: HttpMethod.get,
+        queryParameters: queryParameters,
+      );
+      return SchoolGradeEntity.listFrom(response);
+    } on HttpError catch (e) {
+      if (e == HttpError.notFound ||
+          e == HttpError.unauthorized ||
+          e == HttpError.forbidden) {
+        return const [];
+      }
+      rethrow;
+    } on ApiException {
+      return const [];
     }
   }
 }

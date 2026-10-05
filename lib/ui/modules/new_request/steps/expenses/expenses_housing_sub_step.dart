@@ -39,6 +39,7 @@ class ExpensesHousingSubStep extends StatelessWidget {
     required this.waterController,
     required this.gasController,
     required this.phoneInternetController,
+    this.isFinancingLocked = false,
   });
 
   final TextEditingController rentController;
@@ -49,6 +50,7 @@ class ExpensesHousingSubStep extends StatelessWidget {
   final TextEditingController waterController;
   final TextEditingController gasController;
   final TextEditingController phoneInternetController;
+  final bool isFinancingLocked;
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +66,7 @@ class ExpensesHousingSubStep extends StatelessWidget {
           financingController,
           i18n.expenseFinancingValueLabel,
           keyboard,
+          enabled: !isFinancingLocked,
         ),
         const SizedBox(height: 12),
         _buildField(
@@ -100,6 +103,7 @@ class ExpensesHousingSubStep extends StatelessWidget {
     String label,
     TextInputType keyboardType, {
     String? helperText,
+    bool enabled = true,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,6 +115,7 @@ class ExpensesHousingSubStep extends StatelessWidget {
             label: label,
             keyboardType: keyboardType,
             inputFormatters: [MoneyTextInputFormatter()],
+            enabled: enabled,
           ),
         ),
         if (helperText != null) ...[

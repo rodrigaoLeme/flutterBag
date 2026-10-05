@@ -58,10 +58,7 @@ class ProcessesCurrentPage extends StatelessWidget {
                   warningMessage: scholarship.bannerDeadline != null
                       ? 'Até ${_formatDate(scholarship.bannerDeadline!)}'
                       : '-',
-                  // Botão continuar — habilitado só se canContinue
-                  onContinue: scholarship.canContinue
-                      ? () => _onContinue(context, scholarship)
-                      : null,
+                  onContinue: () => _onContinue(context, scholarship),
                   onDetail: () => Navigator.of(context)
                       .push(
                     MaterialPageRoute(
@@ -69,9 +66,7 @@ class ProcessesCurrentPage extends StatelessWidget {
                         scholarship: scholarship,
                         period: scholarship.processPeriod,
                         step: _mapStep(scholarship.completedStep),
-                        onContinue: scholarship.canContinue
-                            ? () => _onContinue(context, scholarship)
-                            : null,
+                        onContinue: () => _onContinue(context, scholarship),
                       ),
                     ),
                   )
@@ -122,12 +117,14 @@ class ProcessesCurrentPage extends StatelessWidget {
   }
 
   void _onContinue(BuildContext context, ScholarshipEntity scholarship) {
-    if (scholarship.processPeriodId == null) return;
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => NewScholarshipRequestPage(
-          processPeriodId: scholarship.processPeriodId!,
+          processPeriodId: scholarship.effectiveProcessPeriodId ?? '',
           scholarshipId: scholarship.id,
+          processYear: scholarship.academicYear,
+          announcementId: scholarship.announcementId ??
+              scholarship.processPeriod?.announcementId,
         ),
       ),
     );

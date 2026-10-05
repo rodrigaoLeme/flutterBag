@@ -13,6 +13,7 @@ NewScholarshipRequestPresenter makeNewRequestPresenter({
       scholarshipId: scholarshipId,
       saveStep1Usecase: makeRemoteSaveStep1(),
       saveStep3Usecase: makeRemoteSaveStep3(),
+      saveStep4Usecase: makeRemoteSaveStep4(),
       lookupZipCodeUsecase: makeRemoteLookupZipCode(),
       loadScholarshipFormUsecase: makeRemoteLoadScholarshipForm(),
       draftStorage: sl<EnrollmentDraftStorage>(),

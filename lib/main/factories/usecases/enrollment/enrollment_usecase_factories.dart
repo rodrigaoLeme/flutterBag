@@ -11,6 +11,7 @@ import '../../../../domain/usecases/enrollment/lookup_zip_code_usecase.dart';
 import '../../../../domain/usecases/enrollment/save_step_1_usecase.dart';
 import '../../../../domain/usecases/enrollment/save_step_2_usecase.dart';
 import '../../../../domain/usecases/enrollment/save_step_3_usecase.dart';
+import '../../../../domain/usecases/enrollment/save_step_4_usecase.dart';
 import '../../../../domain/usecases/enrollment/set_scholarship_step_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_cancel_scholarship_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_delete_family_member_usecase.dart';
@@ -26,6 +27,7 @@ import '../../../../infra/repositories/enrollment/remote_save_family_member_usec
 import '../../../../infra/repositories/enrollment/remote_save_step_1_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_save_step_2_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_save_step_3_usecase.dart';
+import '../../../../infra/repositories/enrollment/remote_save_step_4_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_set_scholarship_step_usecase.dart';
 import '../../http/http_factories.dart';
 
@@ -85,6 +87,10 @@ LoadAssetTypesUsecase makeRemoteLoadAssetTypes() => RemoteLoadAssetTypesUsecase(
     );
 
 SaveStep3Usecase makeRemoteSaveStep3() => RemoteSaveStep3Usecase(
+      httpClient: makeAuthorizeHttpClientDecorator(),
+    );
+
+SaveStep4Usecase makeRemoteSaveStep4() => RemoteSaveStep4Usecase(
       httpClient: makeAuthorizeHttpClientDecorator(),
     );
 

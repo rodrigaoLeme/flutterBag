@@ -1,15 +1,40 @@
 import 'announcement_enums.dart';
+import 'school_grade_entity.dart';
 
 class AnnouncementSchoolEntity {
   final String id;
   final String? name;
   final String? city;
+  final EducationLevel? educationLevel;
+  final List<SchoolGradeEntity> grades;
 
   const AnnouncementSchoolEntity({
     required this.id,
     this.name,
     this.city,
+    this.educationLevel,
+    this.grades = const [],
   });
+
+  bool matchesEducationLevel(EducationLevel level) {
+    if (educationLevel == null) return false;
+    if (educationLevel == EducationLevel.basicAndHigher) return true;
+    return educationLevel == level;
+  }
+
+  AnnouncementSchoolEntity copyWith({
+    String? name,
+    String? city,
+    EducationLevel? educationLevel,
+    List<SchoolGradeEntity>? grades,
+  }) =>
+      AnnouncementSchoolEntity(
+        id: id,
+        name: name ?? this.name,
+        city: city ?? this.city,
+        educationLevel: educationLevel ?? this.educationLevel,
+        grades: grades ?? this.grades,
+      );
 }
 
 class ProcessPeriodEntity {

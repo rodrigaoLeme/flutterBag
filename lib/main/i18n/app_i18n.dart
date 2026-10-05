@@ -354,6 +354,7 @@ abstract class AppI18n {
   String get guardianRelationshipMother;
   String get guardianRelationshipGuardianship;
   String get addCandidateAction;
+  String get highSchoolScholarshipHolderQuestion;
   String get candidateDeleteDialogTitle;
   String candidateDeleteDialogMessage(String name);
   String get candidateMissingDialogIntro;
