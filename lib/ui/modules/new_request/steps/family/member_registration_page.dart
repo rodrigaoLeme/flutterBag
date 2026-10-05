@@ -1010,79 +1010,82 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _vm,
-      builder: (context, _) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(AppI18n.current.memberRegistrationAppBarTitle),
-            centerTitle: true,
-            leading: const BackButton(color: Colors.white),
-          ),
-          body: SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                  child: ScholarshipStepIndicator(
-                    currentStep: 2,
-                    completedStep: 2,
-                    onStepTap: (_) {},
-                  ),
-                ),
-                Expanded(
-                  child: Scrollbar(
-                    controller: _scrollController,
-                    thumbVisibility: true,
-                    thickness: 2,
-                    radius: const Radius.circular(8),
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _buildStepHeader(),
-                          MemberRegistrationSubStepNav(
-                            navTitle: memberRegistrationSubStepConfig(
-                              _currentSubStep,
-                            ).navTitle,
-                            canGoBack: _currentSubStep > 1,
-                            canGoForward:
-                                _currentSubStep < _presenter.totalSubSteps &&
-                                    (DevNavigationOverrides
-                                            .allowAdvanceWithoutFill ||
-                                        _presenter.canAdvance),
-                            onBack: _onFooterBack,
-                            onForward: _onNavForward,
-                          ),
-                          _buildCurrentSubStep(),
-                          const SizedBox(height: 24),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                MemberRegistrationFooter(
-                  canAdvance: DevNavigationOverrides.allowAdvanceWithoutFill ||
-                      _presenter.canAdvance,
-                  showBack: _currentSubStep != 3,
-                  advanceLabel: _currentSubStep == 3
-                      ? AppI18n.current.saveMemberAction
-                      : null,
-                  onBack: _onFooterBack,
-                  onAdvance: _onFooterAdvance,
-                ),
-              ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppI18n.current.memberRegistrationAppBarTitle),
+        centerTitle: true,
+        leading: const BackButton(color: Colors.white),
+      ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: ScholarshipStepIndicator(
+                currentStep: 2,
+                completedStep: 2,
+                onStepTap: (_) {},
+              ),
             ),
-          ),
-        );
-      },
+            Expanded(
+              child: Scrollbar(
+                controller: _scrollController,
+                thumbVisibility: true,
+                thickness: 2,
+                radius: const Radius.circular(8),
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: AnimatedBuilder(
+                      animation: _vm,
+                      builder: (context, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildStepHeader(),
+                            MemberRegistrationSubStepNav(
+                              navTitle: memberRegistrationSubStepConfig(
+                                _currentSubStep,
+                              ).navTitle,
+                              canGoBack: _currentSubStep > 1,
+                              canGoForward:
+                                  _currentSubStep < _presenter.totalSubSteps &&
+                                      (DevNavigationOverrides
+                                              .allowAdvanceWithoutFill ||
+                                          _presenter.canAdvance),
+                              onBack: _onFooterBack,
+                              onForward: _onNavForward,
+                            ),
+                            _buildCurrentSubStep(),
+                            const SizedBox(height: 24),
+                          ],
+                        );
+                      }),
+                ),
+              ),
+            ),
+            AnimatedBuilder(
+                animation: _vm,
+                builder: (context, _) {
+                  return MemberRegistrationFooter(
+                    canAdvance:
+                        DevNavigationOverrides.allowAdvanceWithoutFill ||
+                            _presenter.canAdvance,
+                    showBack: _currentSubStep != 3,
+                    advanceLabel: _currentSubStep == 3
+                        ? AppI18n.current.saveMemberAction
+                        : null,
+                    onBack: _onFooterBack,
+                    onAdvance: _onFooterAdvance,
+                  );
+                }),
+          ],
+        ),
+      ),
     );
   }
 }
