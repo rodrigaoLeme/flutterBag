@@ -1337,6 +1337,28 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
       'Total de todos os integrantes da família';
 
   @override
+  String get expenseMedicalAmountValueLabel => 'Despesas médicas';
+
+  @override
+  String get expenseMedicalAmountHelper =>
+      'Informar o valor total divido por doze';
+
+  @override
+  String get expenseDentalPlanAmountValueLabel =>
+      'Plano ou Convênio Odontológico';
+
+  @override
+  String get expenseDentalPlanAmountHelper =>
+      'Total de todos os integrantes da família';
+
+  @override
+  String get expensDentalAmountValueLabel => 'Despesas Odontológicas';
+
+  @override
+  String get expenseDentalAmountHelper =>
+      'Informar o valor total divido por doze';
+
+  @override
   String get expenseChronicDiseaseValueLabel => 'Valor doença crônica';
 
   @override
@@ -1408,6 +1430,9 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
 
   @override
   String get expenseEducationMonthlyValueLabel => 'Valor mensal';
+
+  @override
+  String get expenseEducationTypeOtherLabel => 'Descrição da despesa';
 
   @override
   String get saveEducationExpenseAction => 'Salvar';

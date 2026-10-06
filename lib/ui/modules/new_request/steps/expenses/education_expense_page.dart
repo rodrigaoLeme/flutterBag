@@ -15,6 +15,7 @@ class EducationExpensePage extends StatefulWidget {
     this.initialMemberName,
     this.initialInstitution,
     this.initialMonthlyValue,
+    this.initialTypeOther,
   });
 
   final List<FamilyMemberEntity> familyMembers;
@@ -23,6 +24,7 @@ class EducationExpensePage extends StatefulWidget {
   final String? initialMemberName;
   final String? initialInstitution;
   final String? initialMonthlyValue;
+  final String? initialTypeOther;
 
   @override
   State<EducationExpensePage> createState() => _EducationExpensePageState();
@@ -34,6 +36,7 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
   String? _selectedMemberName;
   late final TextEditingController _institutionController;
   late final TextEditingController _monthlyValueController;
+  late final TextEditingController _typeOtherController;
 
   List<String> get _typeOptions {
     final i18n = AppI18n.current;
@@ -70,14 +73,21 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
     _monthlyValueController = TextEditingController(
       text: widget.initialMonthlyValue ?? '',
     );
+    _typeOtherController = TextEditingController(
+      text: widget.initialTypeOther ?? '',
+    );
   }
 
   @override
   void dispose() {
     _institutionController.dispose();
     _monthlyValueController.dispose();
+    _typeOtherController.dispose();
     super.dispose();
   }
+
+  bool get _isOtherType =>
+      _selectedType == AppI18n.current.expenseEducationTypeOther;
 
   bool get _hasZeroValues {
     if (_institutionController.text.trim().isNotEmpty &&
@@ -88,12 +98,17 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
   }
 
   bool get _canSave {
-    return _selectedType != null &&
-        _selectedMemberName != null &&
-        _selectedMemberName!.isNotEmpty &&
-        _institutionController.text.trim().isNotEmpty &&
-        _monthlyValueController.text.trim().isNotEmpty &&
-        _hasZeroValues;
+    if (_selectedType == null) return false;
+    if (_selectedMemberName == null || _selectedMemberName!.isEmpty) {
+      return false;
+    }
+    if (_isOtherType && _typeOtherController.text.trim().isEmpty) {
+      return false;
+    }
+    if (_institutionController.text.trim().isEmpty) return false;
+    if (_monthlyValueController.text.trim().isEmpty) return false;
+    if (!_hasZeroValues) return false;
+    return true;
   }
 
   Future<void> _openTypeSelector() async {
@@ -152,6 +167,7 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
 
     Navigator.of(context).pop({
       'type': _selectedType,
+      'typeOther': _isOtherType ? _typeOtherController.text.trim() : null,
       'memberId': _selectedMemberId,
       'memberName': _selectedMemberName,
       'institution': _institutionController.text.trim(),
@@ -233,6 +249,17 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
               onTap: _openTypeSelector,
             ),
             const SizedBox(height: 24),
+            if (_isOtherType) ...[
+              SizedBox(
+                height: 56,
+                child: EbolsaTextField(
+                  controller: _typeOtherController,
+                  label: i18n.expenseEducationTypeOtherLabel,
+                  onChanged: (_) => setState(() {}),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
             _buildSelectorField(
               hint: i18n.expenseEducationForWhomLabel,
               value: _selectedMemberName,

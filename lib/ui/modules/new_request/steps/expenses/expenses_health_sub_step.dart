@@ -9,6 +9,9 @@ class ExpensesHealthSubStep extends StatefulWidget {
   const ExpensesHealthSubStep({
     super.key,
     required this.healthPlanController,
+    required this.medicalAmountController,
+    required this.dentalPlanAmountController,
+    required this.dentalAmountController,
     required this.chronicDiseaseController,
     required this.otherServicesController,
     required this.otherServicesSpecifyController,
@@ -16,6 +19,9 @@ class ExpensesHealthSubStep extends StatefulWidget {
   });
 
   final TextEditingController healthPlanController;
+  final TextEditingController medicalAmountController;
+  final TextEditingController dentalPlanAmountController;
+  final TextEditingController dentalAmountController;
   final TextEditingController chronicDiseaseController;
   final TextEditingController otherServicesController;
   final TextEditingController otherServicesSpecifyController;
@@ -142,6 +148,27 @@ class ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
           i18n.expenseHealthPlanValueLabel,
           keyboard,
           helperText: i18n.expenseHealthPlanHelper,
+        ),
+        const SizedBox(height: 24),
+        _buildField(
+          widget.medicalAmountController,
+          i18n.expenseMedicalAmountValueLabel,
+          keyboard,
+          helperText: i18n.expenseMedicalAmountHelper,
+        ),
+        const SizedBox(height: 24),
+        _buildField(
+          widget.dentalPlanAmountController,
+          i18n.expenseDentalPlanAmountValueLabel,
+          keyboard,
+          helperText: i18n.expenseDentalPlanAmountHelper,
+        ),
+        const SizedBox(height: 24),
+        _buildField(
+          widget.dentalAmountController,
+          i18n.expensDentalAmountValueLabel,
+          keyboard,
+          helperText: i18n.expenseDentalAmountHelper,
         ),
         const SizedBox(height: 24),
         GestureDetector(

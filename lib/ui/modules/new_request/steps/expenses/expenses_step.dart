@@ -141,6 +141,9 @@ class ExpensesStepState extends State<ExpensesStep> {
   late final TextEditingController _phoneInternetController;
   late final TextEditingController _foodValueController;
   late final TextEditingController _healthPlanController;
+  late final TextEditingController _medicalAmountController;
+  late final TextEditingController _dentalPlanAmountController;
+  late final TextEditingController _dentalAmountController;
   late final TextEditingController _chronicDiseaseController;
   late final TextEditingController _otherHealthServicesController;
   late final TextEditingController _otherHealthServicesSpecifyController;
@@ -165,6 +168,9 @@ class ExpensesStepState extends State<ExpensesStep> {
     _phoneInternetController = TextEditingController();
     _foodValueController = TextEditingController();
     _healthPlanController = TextEditingController();
+    _medicalAmountController = TextEditingController();
+    _dentalPlanAmountController = TextEditingController();
+    _dentalAmountController = TextEditingController();
     _chronicDiseaseController = TextEditingController();
     _otherHealthServicesController = TextEditingController();
     _otherHealthServicesSpecifyController = TextEditingController();
@@ -364,6 +370,9 @@ class ExpensesStepState extends State<ExpensesStep> {
               ExpensesHealthSubStep(
                 key: _healthSubStepKey,
                 healthPlanController: _healthPlanController,
+                medicalAmountController: _medicalAmountController,
+                dentalPlanAmountController: _dentalPlanAmountController,
+                dentalAmountController: _dentalAmountController,
                 chronicDiseaseController: _chronicDiseaseController,
                 otherServicesController: _otherHealthServicesController,
                 otherServicesSpecifyController:

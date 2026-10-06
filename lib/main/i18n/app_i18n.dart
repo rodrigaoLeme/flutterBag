@@ -474,6 +474,12 @@ abstract class AppI18n {
   String get expensesHealthSubStepNavTitle;
   String get expenseHealthPlanValueLabel;
   String get expenseHealthPlanHelper;
+  String get expenseMedicalAmountValueLabel;
+  String get expenseMedicalAmountHelper;
+  String get expenseDentalPlanAmountValueLabel;
+  String get expenseDentalPlanAmountHelper;
+  String get expensDentalAmountValueLabel;
+  String get expenseDentalAmountHelper;
   String get expenseChronicDiseaseValueLabel;
   String get expenseChronicDiseaseHelper;
   String get expenseChronicDiseaseDialogBody;
@@ -496,6 +502,7 @@ abstract class AppI18n {
   String get expenseEducationForWhomLabel;
   String get expenseEducationInstitutionLabel;
   String get expenseEducationMonthlyValueLabel;
+  String get expenseEducationTypeOtherLabel;
   String get saveEducationExpenseAction;
   String get expenseEducationForWhomDisplayLabel;
   String get expenseEducationWhereDisplayLabel;

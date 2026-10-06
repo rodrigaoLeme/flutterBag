@@ -38,11 +38,21 @@ class ExpensesLoansSubStepState extends State<ExpensesLoansSubStep> {
 
   void _notifyFormChanged() => widget.onFormChanged?.call();
 
+  bool get checkZeroValues {
+    if (widget.otherServicesController.text.trim().isNotEmpty) {
+      if (widget.otherServicesController.text.trim() == '0,00') {
+        return false;
+      }
+    }
+    return true;
+  }
+
   @override
   void initState() {
     super.initState();
     _showOtherServicesDescribeField =
-        widget.otherServicesController.text.trim().isNotEmpty;
+        widget.otherServicesController.text.trim().isNotEmpty &&
+            checkZeroValues;
     widget.otherServicesController.addListener(_onOtherServicesChanged);
   }
 
@@ -53,7 +63,8 @@ class ExpensesLoansSubStepState extends State<ExpensesLoansSubStep> {
   }
 
   void _onOtherServicesChanged() {
-    final hasValue = widget.otherServicesController.text.trim().isNotEmpty;
+    final hasValue = widget.otherServicesController.text.trim().isNotEmpty &&
+        widget.otherServicesController.text != '0,00';
     if (hasValue == _showOtherServicesDescribeField) {
       _notifyFormChanged();
       return;
@@ -61,7 +72,7 @@ class ExpensesLoansSubStepState extends State<ExpensesLoansSubStep> {
 
     setState(() {
       _showOtherServicesDescribeField = hasValue;
-      if (!hasValue) {
+      if (!hasValue || (widget.otherServicesController.text != '0,00')) {
         widget.otherServicesDescribeController.clear();
       }
     });

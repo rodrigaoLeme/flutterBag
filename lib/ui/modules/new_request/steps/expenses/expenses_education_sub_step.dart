@@ -230,6 +230,7 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
         builder: (_) => EducationExpensePage(
           familyMembers: widget.familyMembers,
           initialType: initial?['type'] as String?,
+          initialTypeOther: initial?['typeOther'] as String?,
           initialMemberId: initial?['memberId'] as String?,
           initialMemberName: initial?['memberName'] as String?,
           initialInstitution: initial?['institution'] as String?,
