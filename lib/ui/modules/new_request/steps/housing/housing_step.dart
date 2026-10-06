@@ -141,7 +141,7 @@ class _HousingStepState extends State<HousingStep> {
           appStrings.housingStepResidenceDescription,
           style: AppTextStyles.bodyMedium,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 32),
 
         // CEP e Número
         Row(
@@ -174,7 +174,7 @@ class _HousingStepState extends State<HousingStep> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 22),
 
         // Complemento
         EbolsaTextField(
@@ -196,7 +196,7 @@ class _HousingStepState extends State<HousingStep> {
           enabled: false,
           errorText: widget.addressError,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 22),
 
         // Bairro
         EbolsaTextField(
@@ -208,7 +208,7 @@ class _HousingStepState extends State<HousingStep> {
           enabled: false,
           errorText: widget.neighborhoodError,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 22),
 
         // Cidade / Estado
         Row(
@@ -263,7 +263,7 @@ class _HousingStepState extends State<HousingStep> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 22),
 
         // Tipo de área
         Text(appStrings.housingLabel, style: AppTextStyles.titleLarge),

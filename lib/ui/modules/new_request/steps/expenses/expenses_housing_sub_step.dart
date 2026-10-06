@@ -61,33 +61,33 @@ class ExpensesHousingSubStep extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildField(rentController, i18n.expenseRentValueLabel, keyboard),
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
         _buildField(
           financingController,
           i18n.expenseFinancingValueLabel,
           keyboard,
           enabled: !isFinancingLocked,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
         _buildField(
           iptuController,
           i18n.expenseIptuValueLabel,
           keyboard,
           helperText: i18n.expenseIptuHelper,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
         _buildField(condoController, i18n.expenseCondoValueLabel, keyboard),
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
         _buildField(
           electricityController,
           i18n.expenseElectricityValueLabel,
           keyboard,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
         _buildField(waterController, i18n.expenseWaterValueLabel, keyboard),
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
         _buildField(gasController, i18n.expenseGasValueLabel, keyboard),
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
         _buildField(
           phoneInternetController,
           i18n.expensePhoneInternetValueLabel,
@@ -119,9 +119,8 @@ class ExpensesHousingSubStep extends StatelessWidget {
           ),
         ),
         if (helperText != null) ...[
-          const SizedBox(height: 4),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               helperText,
               style: AppTextStyles.bodySmall,

@@ -1024,8 +1024,7 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get occupationDialogValidationCancelButton => 'Cancelar';
 
   @override
-  String get occupationDialogValidationProceedButton =>
-      'Remover ocupações e continuar';
+  String get occupationDialogValidationProceedButton => 'Remover e continuar';
 
   @override
   String get childSupportIncomeQuestion =>
@@ -1387,7 +1386,7 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
 
   @override
   String get educationExpensePageDescription =>
-      'Informe alguns dados referente ao educação.';
+      'Informe alguns dados referente a educação.';
 
   @override
   String get expenseEducationTypeBasic => 'Mensalidade Educação Básica';

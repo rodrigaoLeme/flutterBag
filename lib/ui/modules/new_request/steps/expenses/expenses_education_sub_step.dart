@@ -144,6 +144,13 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
     if (_hasEducationCosts == 1 && _addedEducationExpenses.isEmpty) {
       return false;
     }
+    if (_requiresTransportValue) {
+      if (widget.educationValueController.text.trim().isNotEmpty) {
+        if (widget.educationValueController.text == '0,00') {
+          return false;
+        }
+      }
+    }
     if (!_requiresTransportValue) return true;
     return widget.educationValueController.text.trim().isNotEmpty;
   }
@@ -183,8 +190,7 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
     setState(() {
       _schoolTransportType = value;
       _schoolTransportError = null;
-      if (value == SchoolTransportType.none ||
-          value == SchoolTransportType.public) {
+      if (value == SchoolTransportType.none) {
         widget.educationValueController.clear();
       }
     });

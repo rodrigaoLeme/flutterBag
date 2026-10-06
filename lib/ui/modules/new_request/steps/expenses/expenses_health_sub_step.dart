@@ -46,6 +46,15 @@ class ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
 
   void _notifyFormChanged() => widget.onFormChanged?.call();
 
+  bool get canAdvance {
+    if (_showOtherServicesSpecifyField) {
+      if (widget.otherServicesSpecifyController.text.trim().isEmpty) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -134,7 +143,7 @@ class ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
           keyboard,
           helperText: i18n.expenseHealthPlanHelper,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
         GestureDetector(
           onTap: _onChronicDiseaseFieldTap,
           behavior: HitTestBehavior.opaque,
@@ -148,14 +157,14 @@ class ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
         _buildField(
           widget.otherServicesController,
           i18n.expenseOtherHealthServicesValueLabel,
           keyboard,
         ),
         if (_showOtherServicesSpecifyField) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 24),
           _buildField(
             widget.otherServicesSpecifyController,
             i18n.expenseOtherHealthServicesSpecifyLabel,
@@ -187,9 +196,8 @@ class ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
           ),
         ),
         if (helperText != null) ...[
-          const SizedBox(height: 4),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               helperText,
               style: AppTextStyles.bodySmall,

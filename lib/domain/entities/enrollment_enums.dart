@@ -242,7 +242,8 @@ enum SchoolTransportType {
 
   bool get requiresAmount =>
       this == SchoolTransportType.paidChartered ||
-      this == SchoolTransportType.ownFuel;
+      this == SchoolTransportType.ownFuel ||
+      this == SchoolTransportType.public;
 
   static SchoolTransportType? fromValue(int? value) {
     if (value == null) return null;

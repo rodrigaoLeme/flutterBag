@@ -79,12 +79,21 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
     super.dispose();
   }
 
+  bool get _hasZeroValues {
+    if (_institutionController.text.trim().isNotEmpty &&
+        _monthlyValueController.text.trim() == '0,00') {
+      return false;
+    }
+    return true;
+  }
+
   bool get _canSave {
     return _selectedType != null &&
         _selectedMemberName != null &&
         _selectedMemberName!.isNotEmpty &&
         _institutionController.text.trim().isNotEmpty &&
-        _monthlyValueController.text.trim().isNotEmpty;
+        _monthlyValueController.text.trim().isNotEmpty &&
+        _hasZeroValues;
   }
 
   Future<void> _openTypeSelector() async {
@@ -98,6 +107,7 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
       emptyStateText: i18n.noticesTermsBottomSheetNoResults,
       closeTooltip: i18n.noticesTermsCloseAction,
       selectedValue: _selectedType,
+      showSearchInput: false,
     );
     if (selected != null) {
       setState(() => _selectedType = selected);
@@ -115,6 +125,7 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
       emptyStateText: i18n.noticesTermsBottomSheetNoResults,
       closeTooltip: i18n.noticesTermsCloseAction,
       selectedValue: _selectedMemberName,
+      showSearchInput: false,
     );
     if (selected != null) {
       String? memberId;
@@ -221,13 +232,13 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
               value: _selectedType,
               onTap: _openTypeSelector,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 24),
             _buildSelectorField(
               hint: i18n.expenseEducationForWhomLabel,
               value: _selectedMemberName,
               onTap: _openMemberSelector,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 24),
             SizedBox(
               height: 56,
               child: EbolsaTextField(
@@ -236,7 +247,7 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
                 onChanged: (_) => setState(() {}),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 24),
             SizedBox(
               height: 56,
               child: EbolsaTextField(

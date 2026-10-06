@@ -120,7 +120,9 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
     if (_presenter is StreamMemberRegistrationPresenter) {
       _subStepSubscription = (_presenter).currentSubStepStream.listen((step) {
         if (!mounted) return;
-        _resetSubStepScroll();
+        if (step != _currentSubStep) {
+          _resetSubStepScroll();
+        }
         setState(() => _currentSubStep = step);
       });
     }

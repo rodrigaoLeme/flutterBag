@@ -29,9 +29,8 @@ class ExpensesFoodSubStep extends StatelessWidget {
             inputFormatters: [MoneyTextInputFormatter()],
           ),
         ),
-        const SizedBox(height: 4),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             i18n.expenseFoodHelper,
             style: AppTextStyles.bodySmall,

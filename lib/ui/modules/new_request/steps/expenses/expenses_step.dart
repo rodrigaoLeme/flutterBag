@@ -22,6 +22,7 @@ class ExpensesStep extends StatefulWidget {
   final List<FamilyMemberEntity> familyMembers;
   final ExpensesEntity? initialExpenses;
   final double? propertyFinancingAmount;
+  final double? vehicleFinancingAmount;
 
   const ExpensesStep({
     super.key,
@@ -32,6 +33,7 @@ class ExpensesStep extends StatefulWidget {
     this.familyMembers = const [],
     this.initialExpenses,
     this.propertyFinancingAmount,
+    this.vehicleFinancingAmount,
   });
 
   @override
@@ -50,7 +52,9 @@ class ExpensesStepState extends State<ExpensesStep> {
     switch (widget.currentSubStep) {
       case 1: // Moradia — opcional
       case 2: // Alimentação — opcional
+        return true;
       case 3: // Saúde — opcional
+        return _healthSubStepKey.currentState?.canAdvance ?? false;
       case 5: // Automóvel — opcional
       case 6: // Financiamento / empréstimo — opcional
         return true;
@@ -178,6 +182,15 @@ class ExpensesStepState extends State<ExpensesStep> {
         widget.propertyFinancingAmount! > 0) {
       _setAmount(_financingController, widget.propertyFinancingAmount);
     }
+
+    if (widget.vehicleFinancingAmount != null &&
+        widget.vehicleFinancingAmount! > 0) {
+      _setAmount(_vehicleFinancingController, widget.vehicleFinancingAmount);
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _notifyFormChanged();
+    });
 
     for (final controller in [
       _rentController,
@@ -345,7 +358,7 @@ class ExpensesStepState extends State<ExpensesStep> {
                 waterController: _waterController,
                 gasController: _gasController,
                 phoneInternetController: _phoneInternetController,
-                isFinancingLocked: (widget.propertyFinancingAmount ?? 0) > 0,
+                isFinancingLocked: true,
               ),
               ExpensesFoodSubStep(foodValueController: _foodValueController),
               ExpensesHealthSubStep(
@@ -368,6 +381,7 @@ class ExpensesStepState extends State<ExpensesStep> {
                 ipvaController: _ipvaController,
                 carInsuranceController: _carInsuranceController,
                 vehicleFinancingController: _vehicleFinancingController,
+                isVehicleFinancingLocked: true,
               ),
               ExpensesLoansSubStep(
                 key: _loansSubStepKey,

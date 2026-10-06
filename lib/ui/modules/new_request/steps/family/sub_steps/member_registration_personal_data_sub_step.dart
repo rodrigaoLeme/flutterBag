@@ -118,7 +118,7 @@ class _MemberRegistrationPersonalDataSubStepState
               ),
             ],
           ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 22),
         EbolsaIgnorePointer(
           ignoring: (!widget.vm.isCpfValidated || widget.vm.isLoadingPerson) &&
               !widget.vm.isEditing,
@@ -135,7 +135,7 @@ class _MemberRegistrationPersonalDataSubStepState
                 ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 22),
               Row(
                 children: [
                   Expanded(
@@ -197,7 +197,7 @@ class _MemberRegistrationPersonalDataSubStepState
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 22),
               Row(
                 children: [
                   Expanded(
@@ -292,7 +292,7 @@ class _MemberRegistrationPersonalDataSubStepState
               ),
               // se o estado civil for viuva deve aparecer esse campo abaixo para informar se recebe pensão
               if (widget.vm.showReceivesPension) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: 22),
                 EbolsaRadioGroup<int>(
                   question: AppI18n.current.receivesPensionQuestion,
                   options: [
@@ -304,7 +304,7 @@ class _MemberRegistrationPersonalDataSubStepState
                 ),
                 // se ele responder que sim, deve mostrar o campo para inserir se é aposentado(a)?
                 if (widget.vm.showIsRetired) ...[
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 22),
                   EbolsaRadioGroup<int>(
                     question: AppI18n.current.isRetiredQuestion,
                     options: [
@@ -320,7 +320,7 @@ class _MemberRegistrationPersonalDataSubStepState
                 isFirstMember: widget.vm.addedFamilyMembers.isEmpty,
                 isHigherEducation: widget.vm.isHigherEducation,
               )) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: 22),
                 EbolsaRadioGroup<int>(
                   question: AppI18n.current.willApplyScholarshipQuestion,
                   options: [
@@ -331,7 +331,7 @@ class _MemberRegistrationPersonalDataSubStepState
                   onChanged: (v) => widget.vm.setSeraCandidato(v),
                 ),
               ],
-              const SizedBox(height: 12),
+              const SizedBox(height: 22),
               SizedBox(
                 height: 56,
                 child: InkWell(
@@ -364,7 +364,7 @@ class _MemberRegistrationPersonalDataSubStepState
               ),
               // se ele for nacionalidade estrangeira deve mostrar o campo abaixo
               if (widget.vm.showNaturalizedField) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: 22),
                 EbolsaRadioGroup<int>(
                   question: AppI18n.current.naturalizedQuestion,
                   options: [
@@ -382,7 +382,7 @@ class _MemberRegistrationPersonalDataSubStepState
                   ),
                 ]
               ],
-              const SizedBox(height: 12),
+              const SizedBox(height: 22),
               EbolsaRadioGroup<int>(
                 question: AppI18n.current.hasCINQuestion,
                 options: [
@@ -417,7 +417,7 @@ class _MemberRegistrationPersonalDataSubStepState
                   ],
                 ),
               ],
-              const SizedBox(height: 12),
+              const SizedBox(height: 22),
               EbolsaRadioGroup<int>(
                 question: AppI18n.current.hasCadunicoQuestion,
                 options: [
@@ -437,7 +437,7 @@ class _MemberRegistrationPersonalDataSubStepState
                   ),
                 ),
               ],
-              const SizedBox(height: 12),
+              const SizedBox(height: 22),
               EbolsaRadioGroup<int>(
                 question: 'Transtorno do Espectro Autista(TEA)?',
                 options: [
@@ -447,7 +447,7 @@ class _MemberRegistrationPersonalDataSubStepState
                 groupValue: widget.vm.espectro,
                 onChanged: (v) => widget.vm.setEspectro(v),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 22),
               EbolsaRadioGroup<int>(
                 question: 'Altas Habilidades ou Superdotação?',
                 options: [
@@ -457,7 +457,7 @@ class _MemberRegistrationPersonalDataSubStepState
                 groupValue: widget.vm.superdotacao,
                 onChanged: (v) => widget.vm.setSuperdotacao(v),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 22),
               EbolsaRadioGroup<int>(
                 question: AppI18n.current.hasChronicDiseaseQuestion,
                 options: [
@@ -478,7 +478,7 @@ class _MemberRegistrationPersonalDataSubStepState
                 ),
               ],
               // O dropdown de PcD deve aparecer sempre (label + campo no estilo)
-              const SizedBox(height: 8),
+              const SizedBox(height: 22),
               Text(
                 AppI18n.current.pcdLabel,
                 style: AppTextStyles.bodyMedium,
@@ -513,7 +513,7 @@ class _MemberRegistrationPersonalDataSubStepState
                 ),
               ),
               if (widget.vm.legalAge) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 22),
                 EbolsaRadioGroup<int>(
                   question: AppI18n.current.irpfConditionLabel,
                   options: [
@@ -524,7 +524,7 @@ class _MemberRegistrationPersonalDataSubStepState
                   groupValue: widget.vm.irpfCondition,
                   onChanged: (v) => widget.vm.setIrpfCondition(v),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 22),
                 EbolsaRadioGroup<int>(
                   question: AppI18n.current.declaredThisYearQuestion,
                   options: [
@@ -536,7 +536,7 @@ class _MemberRegistrationPersonalDataSubStepState
                 ),
               ],
               if (widget.vm.showWorkCardField) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 22),
                 EbolsaRadioGroup<int>(
                   question: AppI18n.current.hasWorkCardQuestion,
                   options: [
@@ -548,7 +548,7 @@ class _MemberRegistrationPersonalDataSubStepState
                 ),
               ],
               if (widget.vm.showRuralWorkerField) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 22),
                 EbolsaRadioGroup<int>(
                   question: AppI18n.current.ruralWorkerQuestion,
                   options: [

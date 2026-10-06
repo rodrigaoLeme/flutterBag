@@ -342,7 +342,7 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
                 backgroundColor: Colors.white,
               ),
               Padding(
-                padding: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.only(bottom: 24),
                 child: EbolsaTextField(
                   controller: _monthlyIncomeController,
                   label: config.useIncomeValueLabel
@@ -360,7 +360,7 @@ class _OtherIncomeSourcePageState extends State<OtherIncomeSourcePage> {
               ),
               if (config.requiresDescription)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.only(bottom: 24),
                   child: TextField(
                     controller: _descriptionController,
                     minLines: 3,

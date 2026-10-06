@@ -13,7 +13,6 @@ class StreamMemberRegistrationPresenter implements MemberRegistrationPresenter {
               isHigherEducation: isHigherEducation,
             ) {
     _currentSubStepController.add(_currentSubStep);
-    this.viewModel.addListener(_emitSubStep);
   }
 
   @override
@@ -63,7 +62,6 @@ class StreamMemberRegistrationPresenter implements MemberRegistrationPresenter {
 
   @override
   void dispose() {
-    viewModel.removeListener(_emitSubStep);
     viewModel.dispose();
     _currentSubStepController.close();
   }

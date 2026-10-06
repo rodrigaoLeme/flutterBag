@@ -189,6 +189,13 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     });
   }
 
+  double _calculateVehicleFinancing() {
+    final vehicles = _presenter.form.groupIncome?.vehicles ?? [];
+    return vehicles.fold(0.0, (sum, v) {
+      return sum + (v.installmentAmount ?? 0.0);
+    });
+  }
+
   Future<void> _handleNext() async {
     if (DevNavigationOverrides.allowAdvanceWithoutFill) {
       _presenter.next();
@@ -1017,6 +1024,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           familyMembers: _familyMembersForExpenses(),
           initialExpenses: _presenter.form.expenses,
           propertyFinancingAmount: _calculatePropertyFinancing(),
+          vehicleFinancingAmount: _calculateVehicleFinancing(),
         );
 
       case 4:

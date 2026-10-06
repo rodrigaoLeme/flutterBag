@@ -82,7 +82,7 @@ class ExpensesLoansSubStepState extends State<ExpensesLoansSubStep> {
           keyboard,
           helperText: i18n.expenseBankLoansHelper,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
         _buildField(
           widget.otherServicesController,
           i18n.expenseLoansOtherServicesLabel,
@@ -90,7 +90,7 @@ class ExpensesLoansSubStepState extends State<ExpensesLoansSubStep> {
           helperText: i18n.expenseLoansOtherServicesHelper,
         ),
         if (_showOtherServicesDescribeField) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 24),
           SizedBox(
             height: 56,
             child: EbolsaTextField(
@@ -123,9 +123,8 @@ class ExpensesLoansSubStepState extends State<ExpensesLoansSubStep> {
           ),
         ),
         if (helperText != null) ...[
-          const SizedBox(height: 4),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               helperText,
               style: AppTextStyles.bodySmall,

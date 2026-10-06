@@ -376,21 +376,19 @@ class _OccupationPageState extends State<OccupationPage> {
             },
             child: Row(
               children: ['Não', 'Sim'].map((label) {
-                return Expanded(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      setState(() {
-                        controller.text = label;
-                        onAnswerChanged?.call(label);
-                      });
-                    },
-                    child: Row(
-                      children: [
-                        Radio<String>(value: label),
-                        Text(label, style: AppTextStyles.bodyMedium),
-                      ],
-                    ),
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    setState(() {
+                      controller.text = label;
+                      onAnswerChanged?.call(label);
+                    });
+                  },
+                  child: Row(
+                    children: [
+                      Radio<String>(value: label),
+                      Text(label, style: AppTextStyles.bodyMedium),
+                    ],
                   ),
                 );
               }).toList(),
@@ -539,7 +537,7 @@ class _OccupationPageState extends State<OccupationPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 10),
 
               // ── Campos dinâmicos ───────────────────────────────
               if (_selectedType != null) ...[
@@ -550,7 +548,7 @@ class _OccupationPageState extends State<OccupationPage> {
                     message: _selectedType!.description!,
                     backgroundColor: Colors.white,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 0),
                 ],
 
                 // 2.2 Assalariado / 2.4 Autônomo+Informal / 2.5 Estágio Rem. / Aprendiz
@@ -562,7 +560,7 @@ class _OccupationPageState extends State<OccupationPage> {
                     hint: 'Função',
                     borderRadius: 12.0,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                 ],
                 if (_showCompany) ...[
                   EbolsaTextField(
@@ -571,7 +569,7 @@ class _OccupationPageState extends State<OccupationPage> {
                     hint: 'Empresa',
                     borderRadius: 12.0,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                 ],
 
                 // 2.3 Proprietário — ordem: CNPJ → Porte → Situação → Função
@@ -586,7 +584,7 @@ class _OccupationPageState extends State<OccupationPage> {
                     borderRadius: 12.0,
                     errorText: _cnpjError,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   _buildEnumSelectorField<CompanyType>(
                     label: 'Porte da empresa',
                     selectedValue: _selectedCompanyType,
@@ -599,7 +597,7 @@ class _OccupationPageState extends State<OccupationPage> {
                       onSelected: (v) => _selectedCompanyType = v,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   _buildEnumSelectorField<CompanySituation>(
                     label: 'Situação',
                     selectedValue: _selectedCompanySituation,
@@ -612,7 +610,7 @@ class _OccupationPageState extends State<OccupationPage> {
                       onSelected: (v) => _selectedCompanySituation = v,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   // Função do Proprietário
                   if (_showFunction) ...[
                     EbolsaTextField(
@@ -621,7 +619,7 @@ class _OccupationPageState extends State<OccupationPage> {
                       hint: 'Função/Atuação',
                       borderRadius: 12.0,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                   ],
                   if (_showOptantesSimples)
                     _buildYesNoRadioGroup(
@@ -647,7 +645,7 @@ class _OccupationPageState extends State<OccupationPage> {
                         inputFormatters: [MoneyTextInputFormatter()],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                   ],
                 ],
 
@@ -663,7 +661,7 @@ class _OccupationPageState extends State<OccupationPage> {
                     inputFormatters: [MoneyTextInputFormatter()],
                     borderRadius: 12.0,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                 ],
 
                 // 2.7 Desempregado
@@ -685,7 +683,7 @@ class _OccupationPageState extends State<OccupationPage> {
                       inputFormatters: [MoneyTextInputFormatter()],
                       borderRadius: 12.0,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                   ],
                 ],
               ],

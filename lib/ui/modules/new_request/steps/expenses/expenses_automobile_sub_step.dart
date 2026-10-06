@@ -11,11 +11,13 @@ class ExpensesAutomobileSubStep extends StatelessWidget {
     required this.ipvaController,
     required this.carInsuranceController,
     required this.vehicleFinancingController,
+    this.isVehicleFinancingLocked = false,
   });
 
   final TextEditingController ipvaController;
   final TextEditingController carInsuranceController;
   final TextEditingController vehicleFinancingController;
+  final bool isVehicleFinancingLocked;
 
   @override
   Widget build(BuildContext context) {
@@ -31,18 +33,19 @@ class ExpensesAutomobileSubStep extends StatelessWidget {
           keyboard,
           helperText: i18n.expenseIptuHelper,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
         _buildField(
           carInsuranceController,
           i18n.expenseCarInsuranceLabel,
           keyboard,
           helperText: i18n.expenseIptuHelper,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
         _buildField(
           vehicleFinancingController,
           i18n.expenseVehicleFinancingLabel,
           keyboard,
+          enabled: !isVehicleFinancingLocked,
         ),
       ],
     );
@@ -53,6 +56,7 @@ class ExpensesAutomobileSubStep extends StatelessWidget {
     String label,
     TextInputType keyboardType, {
     String? helperText,
+    bool enabled = true,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,12 +68,12 @@ class ExpensesAutomobileSubStep extends StatelessWidget {
             label: label,
             keyboardType: keyboardType,
             inputFormatters: [MoneyTextInputFormatter()],
+            enabled: enabled,
           ),
         ),
         if (helperText != null) ...[
-          const SizedBox(height: 4),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               helperText,
               style: AppTextStyles.bodySmall,
