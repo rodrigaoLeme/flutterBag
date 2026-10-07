@@ -98,8 +98,11 @@ class _OccupationPageState extends State<OccupationPage> {
 
   // Campos especiais — apenas para Proprietário
   bool get _showCnpj => _isProprietario;
-  bool get _showOptantesSimples => _isProprietario;
-  //bool get _showMovimentacao => _isProprietario;
+  bool get _showOptantesSimples =>
+      _isProprietario &&
+      _selectedCompanyType != null &&
+      _selectedCompanyType != CompanyType.emp &&
+      _selectedCompanyType != CompanyType.egp;
   bool get _showMovimentacaoValue =>
       _isProprietario && _movimentacaoController.text == 'Sim';
 
@@ -239,7 +242,9 @@ class _OccupationPageState extends State<OccupationPage> {
       if (_cnpjController?.text.trim().isEmpty ?? true) return false;
       if (_selectedCompanyType == null) return false;
       if (_selectedCompanySituation == null) return false;
-      if (_optanteSimplesController.text.isEmpty) return false;
+      if (_showOptantesSimples && _optanteSimplesController.text.isEmpty) {
+        return false;
+      }
       if (_movimentacaoController.text.isEmpty) return false;
       if ((_showMovimentacaoValue &&
               ((_movimentacaoValueController?.text.trim().isEmpty) ?? true)) ||

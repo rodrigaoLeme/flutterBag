@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/ebolsa_text_field.dart';
+import '../../../../helpers/money_formatter.dart';
 import '../../../../helpers/money_text_input_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
 
@@ -78,7 +79,12 @@ class ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
   }
 
   void _onOtherServicesChanged() {
-    final hasValue = widget.otherServicesController.text.trim().isNotEmpty;
+    final text = widget.otherServicesController.text.trim();
+    final hasValue = text.isNotEmpty &&
+        text != '0,00' &&
+        text != '0' &&
+        MoneyFormatter.parse(text) > 0;
+
     if (hasValue == _showOtherServicesSpecifyField) {
       _notifyFormChanged();
       return;
@@ -86,6 +92,7 @@ class ExpensesHealthSubStepState extends State<ExpensesHealthSubStep> {
 
     setState(() {
       _showOtherServicesSpecifyField = hasValue;
+      // Limpa a descrição quando o valor zera
       if (!hasValue) {
         widget.otherServicesSpecifyController.clear();
       }

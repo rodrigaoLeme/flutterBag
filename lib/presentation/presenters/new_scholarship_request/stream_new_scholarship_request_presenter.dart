@@ -694,7 +694,7 @@ class StreamNewScholarshipRequestPresenter
 
     if (_currentStep > 1) {
       _currentStep--;
-      _currentSubStep = _stepSubSteps[_currentStep] ?? 1;
+      _currentSubStep = 1;
       _currentStepController.add(_currentStep);
       _currentSubStepController.add(_currentSubStep);
       _form = _form.copyWith(currentStep: _currentStep);

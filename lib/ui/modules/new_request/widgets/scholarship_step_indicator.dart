@@ -9,7 +9,7 @@ class ScholarshipStepIndicator extends StatelessWidget {
   final int completedStep;
   final int totalSteps;
   final List<String> labels;
-  final StepTapCallback onStepTap;
+  final StepTapCallback? onStepTap;
 
   const ScholarshipStepIndicator({
     super.key,
@@ -23,7 +23,7 @@ class ScholarshipStepIndicator extends StatelessWidget {
       'Candidato',
       'Documentos',
     ],
-    required this.onStepTap,
+    this.onStepTap,
   });
 
   @override
@@ -36,6 +36,7 @@ class ScholarshipStepIndicator extends StatelessWidget {
           final label = labels.length > index ? labels[index] : '$step';
           final isCurrent = step == currentStep;
           final isCompleted = step < currentStep;
+          // ignore: unused_local_variable
           final canTap = step <= completedStep;
 
           Widget child;
@@ -86,10 +87,7 @@ class ScholarshipStepIndicator extends StatelessWidget {
 
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
-            child: GestureDetector(
-              onTap: canTap ? () => onStepTap.call(step) : null,
-              child: child,
-            ),
+            child: child,
           );
         }),
       ),

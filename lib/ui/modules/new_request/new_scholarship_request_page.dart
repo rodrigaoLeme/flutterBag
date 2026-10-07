@@ -139,6 +139,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     _stepScrollController.jumpTo(0);
   }
 
+  // ignore: unused_element
   void _goToStep(int step) {
     _presenter.goToStep(step);
   }
@@ -617,7 +618,10 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       return;
     }
 
-    if (_currentStep > 1 && _presenter.form.id != null) {
+    final isFirstSubStep = _currentSubStep == 1;
+    final shouldCallStepEndpoint = isFirstSubStep && _presenter.form.id != null;
+
+    if (shouldCallStepEndpoint) {
       try {
         await _setScholarshipStep.set(SetScholarshipStepParams(
           scholarshipId: _presenter.form.id!,
@@ -1096,7 +1100,6 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                     return ScholarshipStepIndicator(
                       currentStep: _currentStep,
                       completedStep: completedStep,
-                      onStepTap: _goToStep,
                     );
                   }),
             ),

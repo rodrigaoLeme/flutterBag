@@ -127,7 +127,6 @@ class MemberRegistrationFamilyMembersSubStep extends StatelessWidget {
               onDelete: () => onDeleteMember(i),
             ),
           ],
-        const SizedBox(height: 200),
       ],
     );
   }

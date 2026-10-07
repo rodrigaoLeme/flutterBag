@@ -86,6 +86,9 @@ class ExpensesStepState extends State<ExpensesStep> {
       otherResidenceAmount: _amountOrNull(_financingController),
       foodAmount: _amountOrNull(_foodValueController),
       healthPlanAmount: _amountOrNull(_healthPlanController),
+      medicalAmount: _amountOrNull(_medicalAmountController),
+      dentalPlanAmount: _amountOrNull(_dentalPlanAmountController),
+      dentalAmount: _amountOrNull(_dentalAmountController),
       otherHealthAmount: _amountOrNull(_otherHealthServicesController),
       otherHealthDescription:
           _textOrNull(_otherHealthServicesSpecifyController),
@@ -209,6 +212,9 @@ class ExpensesStepState extends State<ExpensesStep> {
       _phoneInternetController,
       _foodValueController,
       _healthPlanController,
+      _medicalAmountController,
+      _dentalPlanAmountController,
+      _dentalAmountController,
       _chronicDiseaseController,
       _otherHealthServicesController,
       _otherHealthServicesSpecifyController,
@@ -237,6 +243,9 @@ class ExpensesStepState extends State<ExpensesStep> {
     _setAmount(_phoneInternetController, expenses.phoneAmount);
     _setAmount(_foodValueController, expenses.foodAmount);
     _setAmount(_healthPlanController, expenses.healthPlanAmount);
+    _setAmount(_medicalAmountController, expenses.medicalAmount);
+    _setAmount(_dentalPlanAmountController, expenses.dentalPlanAmount);
+    _setAmount(_dentalAmountController, expenses.dentalAmount);
     _setAmount(_chronicDiseaseController, expenses.chronicDiseaseAmount);
     _setAmount(_otherHealthServicesController, expenses.otherHealthAmount);
     _otherHealthServicesSpecifyController.text =
@@ -274,6 +283,9 @@ class ExpensesStepState extends State<ExpensesStep> {
     _phoneInternetController.dispose();
     _foodValueController.dispose();
     _healthPlanController.dispose();
+    _medicalAmountController.dispose();
+    _dentalPlanAmountController.dispose();
+    _dentalAmountController.dispose();
     _chronicDiseaseController.dispose();
     _otherHealthServicesController.dispose();
     _otherHealthServicesSpecifyController.dispose();
