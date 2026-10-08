@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../domain/entities/school_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/ebolsa_candidate_card.dart';
 import '../../../../helpers/themes/themes.dart';
@@ -9,6 +10,8 @@ class CandidateStep extends StatefulWidget {
   final void Function(Map<String, dynamic> candidate)? onEditCandidate;
   final VoidCallback? onCandidatesChanged;
   final List<Map<String, dynamic>> initialCandidates;
+  final List<SchoolEntity> schools;
+  final String processPeriodId;
 
   const CandidateStep({
     super.key,
@@ -16,6 +19,8 @@ class CandidateStep extends StatefulWidget {
     this.onEditCandidate,
     this.onCandidatesChanged,
     this.initialCandidates = const [],
+    required this.schools,
+    required this.processPeriodId,
   });
 
   @override

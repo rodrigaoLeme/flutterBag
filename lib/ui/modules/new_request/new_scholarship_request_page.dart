@@ -7,7 +7,9 @@ import 'package:intl/intl.dart';
 import '../../../domain/entities/available_announcement_entity.dart';
 import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/family_member_entity.dart';
+import '../../../domain/entities/school_entity.dart';
 import '../../../domain/helpers/app_constants.dart';
+import '../../../domain/usecases/candidate/load_process_period_schools_usecase.dart';
 import '../../../domain/usecases/enrollment/delete_family_member_usecase.dart';
 import '../../../domain/usecases/enrollment/set_scholarship_step_usecase.dart';
 import '../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
@@ -77,6 +79,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   List<String> _registeredFamilyMemberNames = [];
   final Map<String, Map<String, DocumentUploadRecord>>
       _uploadedDocumentsByGroup = {};
+  List<SchoolEntity> _schools = [];
+  bool _isLoadingSchools = false;
 
   static const int _totalSteps = 5;
 
@@ -124,6 +128,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         _presenter.goToStep(5);
       });
     }
+
+    _loadSchools();
 
     _familyStepVm = MemberRegistrationViewModel();
   }
@@ -749,13 +755,29 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     });
   }
 
+  Future<void> _loadSchools() async {
+    setState(() => _isLoadingSchools = true);
+    try {
+      _schools = await makeRemoteLoadProcessPeriodSchools().load(
+        LoadProcessPeriodSchoolsParams(
+          processPeriodId: widget.processPeriodId,
+        ),
+      );
+    } on LoadProcessPeriodSchoolsException catch (_) {
+      if (!mounted) return;
+    } finally {
+      if (mounted) setState(() => _isLoadingSchools = false);
+    }
+  }
+
   Future<void> _openCandidateAddPage(
       {Map<String, dynamic>? initialData}) async {
     final result = await Navigator.of(context).push<Map<String, dynamic>?>(
       MaterialPageRoute(
         builder: (_) => CandidateAddPage(
           eligibleMembers: _eligibleFamilyMembers(),
-          announcementSchools: const [],
+          schools: widget.schools,
+          processPeriodId: widget.processPeriodId,
           processYear: _processYear,
           excludedMemberIds: _candidateStepKey.currentState?.addedMemberIds
                   .where(
@@ -1034,6 +1056,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       case 4:
         return CandidateStep(
           key: _candidateStepKey,
+          schools: _schools,
+          processPeriodId: widget.processPeriodId,
           initialCandidates: _registeredCandidates,
           onCandidatesChanged: () {
             _syncRegisteredCandidates();

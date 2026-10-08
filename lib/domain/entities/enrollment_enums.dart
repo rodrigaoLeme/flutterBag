@@ -42,7 +42,8 @@ enum ResidenceType {
 enum GuardianRelationshipType {
   father(1, 'Sou pai'),
   mother(2, 'Sou mãe'),
-  legalGuardian(3, 'Tenho guarda judicial');
+  legalGuardian(3, 'Tenho guarda judicial'),
+  candidate(4, 'Sou o candidato');
 
   const GuardianRelationshipType(this.value, this.label);
   final int value;

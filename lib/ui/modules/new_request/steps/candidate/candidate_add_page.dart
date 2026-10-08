@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../domain/entities/academic_course_entity.dart';
 import '../../../../../domain/entities/available_announcement_entity.dart';
 import '../../../../../domain/entities/enrollment_enums.dart';
+import '../../../../../domain/entities/school_entity.dart';
 import '../../../../../domain/entities/school_grade_entity.dart';
+import '../../../../../domain/usecases/candidate/load_academic_courses_usecase.dart';
+import '../../../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/searchable_options_bottom_sheet.dart';
 import '../../../../helpers/themes/themes.dart';
@@ -24,16 +28,18 @@ class CandidateFamilyMemberOption {
 
 class CandidateAddPage extends StatefulWidget {
   final List<CandidateFamilyMemberOption> eligibleMembers;
-  final List<AnnouncementSchoolEntity> announcementSchools;
+  final List<SchoolEntity> schools;
   final List<String> excludedMemberIds;
   final int processYear;
   final Map<String, dynamic>? initialData;
+  final String processPeriodId;
 
   const CandidateAddPage({
     super.key,
     required this.eligibleMembers,
-    required this.announcementSchools,
+    required this.schools,
     required this.processYear,
+    required this.processPeriodId,
     this.excludedMemberIds = const [],
     this.initialData,
   });
@@ -43,32 +49,39 @@ class CandidateAddPage extends StatefulWidget {
 }
 
 class _CandidateAddPageState extends State<CandidateAddPage> {
-  static const _mockSchools = [
-    AnnouncementSchoolEntity(
-      id: 'mock-school-1',
-      name: 'Colégio Adventista',
-    ),
-    AnnouncementSchoolEntity(
-      id: 'mock-school-2',
-      name: 'Faculdade Adventista',
-    ),
-  ];
+  // static const _mockSchools = [
+  //   AnnouncementSchoolEntity(
+  //     id: 'mock-school-1',
+  //     name: 'Colégio Adventista',
+  //   ),
+  //   AnnouncementSchoolEntity(
+  //     id: 'mock-school-2',
+  //     name: 'Faculdade Adventista',
+  //   ),
+  // ];
 
-  static const _mockGrades = [
-    SchoolGradeEntity(id: 'mock-grade-1', name: '1º ano'),
-    SchoolGradeEntity(id: 'mock-grade-2', name: '2º ano'),
-    SchoolGradeEntity(id: 'mock-grade-3', name: '3º ano'),
-  ];
+  // static const _mockGrades = [
+  //   SchoolGradeEntity(id: 'mock-grade-1', name: '1º ano'),
+  //   SchoolGradeEntity(id: 'mock-grade-2', name: '2º ano'),
+  //   SchoolGradeEntity(id: 'mock-grade-3', name: '3º ano'),
+  // ];
 
+  final _loadCourses = makeRemoteLoadAcademicCourses();
+
+  SchoolEntity? _selectedSchool;
+  AcademicCourseEntity? _selectedCourse;
+  List<AcademicCourseEntity> _courses = [];
+  bool _isLoadingCourses = false;
   CandidateFamilyMemberOption? _selectedMember;
   GuardianRelationshipType? _selectedRelationship;
-  AnnouncementSchoolEntity? _selectedSchool;
-  SchoolGradeEntity? _selectedGrade;
+  // SchoolGradeEntity? _selectedGrade;
 
-  List<AnnouncementSchoolEntity> get _schools =>
-      widget.announcementSchools.isNotEmpty
-          ? widget.announcementSchools
-          : _mockSchools;
+  List<SchoolEntity> get _schools => widget.schools;
+
+  // List<AnnouncementSchoolEntity> get _schools =>
+  //     widget.announcementSchools.isNotEmpty
+  //         ? widget.announcementSchools
+  //         : _mockSchools;
 
   List<CandidateFamilyMemberOption> get _availableMembers {
     if (widget.initialData != null) {
@@ -83,6 +96,33 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
   void initState() {
     super.initState();
     _restoreInitialData();
+  }
+
+  Future<void> _onSchoolSelected(SchoolEntity school) async {
+    setState(() {
+      _selectedSchool = school;
+      _selectedCourse = null;
+      _courses = [];
+      _isLoadingCourses = true;
+    });
+
+    try {
+      final courses = await _loadCourses.load(LoadAcademicCoursesParams(
+        processPeriodId: widget.processPeriodId,
+        schoolId: school.id,
+      ));
+      if (!mounted) return;
+      setState(() {
+        _courses = courses;
+        _isLoadingCourses = false;
+      });
+    } on LoadAcademicCoursesException catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoadingCourses = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
+    }
   }
 
   void _restoreInitialData() {
@@ -103,10 +143,10 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
       _selectedSchool = _schools.firstWhere((s) => s.id == schoolId);
     } catch (_) {}
 
-    final gradeId = data['gradeId']?.toString();
-    try {
-      _selectedGrade = _mockGrades.firstWhere((g) => g.id == gradeId);
-    } catch (_) {}
+    // final gradeId = data['gradeId']?.toString();
+    // try {
+    //   _selectedGrade = _mockGrades.firstWhere((g) => g.id == gradeId);
+    // } catch (_) {}
   }
 
   Future<void> _openMemberSelector() async {
@@ -122,6 +162,7 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
       emptyStateText: i18n.noticesTermsBottomSheetNoResults,
       closeTooltip: i18n.noticesTermsCloseAction,
       selectedValue: _selectedMember?.name,
+      showSearchInput: false,
     );
 
     if (selectedName == null) return;
@@ -152,6 +193,7 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
       selectedValue: _selectedRelationship != null
           ? _relationshipLabel(_selectedRelationship!)
           : null,
+      showSearchInput: false,
     );
 
     if (selectedLabel == null) return;
@@ -168,6 +210,7 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
       GuardianRelationshipType.mother => i18n.guardianRelationshipMother,
       GuardianRelationshipType.legalGuardian =>
         i18n.guardianRelationshipGuardianship,
+      GuardianRelationshipType.candidate => 'Sou o candidato',
     };
   }
 
@@ -187,54 +230,57 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
 
   Future<void> _openSchoolSelector() async {
     final i18n = AppI18n.current;
-    final options = _schools.map((s) => s.name ?? s.id).toList();
 
-    final selectedName = await SearchableOptionsBottomSheet.show<String>(
+    final selected = await SearchableOptionsBottomSheet.show<SchoolEntity>(
       context: context,
       title: i18n.unitOfInterestLabel,
-      options: options,
+      options: _schools,
       searchHint: i18n.noticesTermsSearchHint,
       helperText: i18n.noticesTermsBottomSheetSearchHelp,
       emptyStateText: i18n.noticesTermsBottomSheetNoResults,
       closeTooltip: i18n.noticesTermsCloseAction,
-      selectedValue: _selectedSchool?.name ?? _selectedSchool?.id,
+      selectedValue: _selectedSchool,
+      labelBuilder: (s) => s.displayName,
+      searchTextBuilder: (s) => s.displayName,
     );
 
-    if (selectedName == null) return;
+    if (selected != null) await _onSchoolSelected(selected);
 
-    final school = _schools.firstWhere(
-      (s) => (s.name ?? s.id) == selectedName,
-    );
+    // final school = _schools.firstWhere(
+    //   (s) => (s.name ?? s.id) == selectedName,
+    // );
 
-    setState(() {
-      _selectedSchool = school;
-      _selectedGrade = null;
-    });
+    // setState(() {
+    //   _selectedSchool = school;
+    //   _selectedGrade = null;
+    // });
   }
 
-  Future<void> _openGradeSelector() async {
-    if (_selectedSchool == null) return;
+  Future<void> _openCourseSelector() async {
+    if (_isLoadingCourses || _courses.isEmpty) return;
 
     final i18n = AppI18n.current;
-    final options = _mockGrades.map((g) => g.displayName).toList();
 
-    final selectedName = await SearchableOptionsBottomSheet.show<String>(
+    final selected =
+        await SearchableOptionsBottomSheet.show<AcademicCourseEntity>(
       context: context,
       title: i18n.intendedCourseLabel(widget.processYear),
-      options: options,
+      options: _courses,
       searchHint: i18n.noticesTermsSearchHint,
       helperText: i18n.noticesTermsBottomSheetSearchHelp,
       emptyStateText: i18n.noticesTermsBottomSheetNoResults,
       closeTooltip: i18n.noticesTermsCloseAction,
-      selectedValue: _selectedGrade?.displayName,
+      selectedValue: _selectedCourse,
+      labelBuilder: (c) => c.name ?? '',
+      showSearchInput: false,
     );
 
-    if (selectedName == null) return;
+    if (selected != null) setState(() => _selectedCourse = selected);
 
-    setState(() {
-      _selectedGrade =
-          _mockGrades.firstWhere((g) => g.displayName == selectedName);
-    });
+    // setState(() {
+    //   _selectedGrade =
+    //       _mockGrades.firstWhere((g) => g.displayName == selectedName);
+    // });
   }
 
   void _saveAndReturn() {
@@ -384,10 +430,12 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
                     const SizedBox(height: 12),
                     _buildSelectorField(
                       hint: i18n.intendedCourseLabel(widget.processYear),
-                      value: _selectedGrade?.displayName,
+                      value: _isLoadingCourses
+                          ? 'Carregando...'
+                          : _selectedCourse?.name,
                       onTap:
-                          _selectedSchool == null ? null : _openGradeSelector,
-                      enabled: _selectedSchool != null,
+                          _selectedSchool == null ? null : _openCourseSelector,
+                      enabled: _selectedSchool != null && !_isLoadingCourses,
                     ),
                   ],
                 ),
