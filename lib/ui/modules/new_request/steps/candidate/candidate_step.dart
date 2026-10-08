@@ -8,6 +8,7 @@ import '../../../../helpers/themes/themes.dart';
 class CandidateStep extends StatefulWidget {
   final VoidCallback? onAddCandidate;
   final void Function(Map<String, dynamic> candidate)? onEditCandidate;
+  final Future<bool> Function(String candidateId)? onDeleteCandidate;
   final VoidCallback? onCandidatesChanged;
   final List<Map<String, dynamic>> initialCandidates;
   final List<SchoolEntity> schools;
@@ -17,6 +18,7 @@ class CandidateStep extends StatefulWidget {
     super.key,
     this.onAddCandidate,
     this.onEditCandidate,
+    this.onDeleteCandidate,
     this.onCandidatesChanged,
     this.initialCandidates = const [],
     required this.schools,
@@ -66,11 +68,6 @@ class CandidateStepState extends State<CandidateStep> {
     widget.onCandidatesChanged?.call();
   }
 
-  void removeCandidateAt(int index) {
-    setState(() => _candidates.removeAt(index));
-    widget.onCandidatesChanged?.call();
-  }
-
   Future<void> _confirmDeleteCandidate(int index) async {
     final candidate = _candidates[index];
     final name = candidate['name']?.toString() ?? '';
@@ -101,7 +98,7 @@ class CandidateStepState extends State<CandidateStep> {
             child: Text(
               i18n.answerYes,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.primary,
+                color: AppColors.error,
               ),
             ),
           ),
@@ -109,9 +106,17 @@ class CandidateStepState extends State<CandidateStep> {
       ),
     );
 
-    if (confirmed == true && mounted) {
-      removeCandidateAt(index);
+    if (confirmed != true) return;
+
+    final candidateId = candidate['id']?.toString() ?? '';
+
+    if (candidateId.isNotEmpty && widget.onDeleteCandidate != null) {
+      final success = await widget.onDeleteCandidate!(candidateId);
+      if (!success) return;
     }
+
+    setState(() => _candidates.removeAt(index));
+    widget.onCandidatesChanged?.call();
   }
 
   @override
@@ -186,7 +191,7 @@ class CandidateStepState extends State<CandidateStep> {
           name: _candidates[i]['name']?.toString() ?? '',
           unit: _candidates[i]['schoolName']?.toString() ?? '-',
           grade: _candidates[i]['gradeName']?.toString() ?? '-',
-          onTap: () => widget.onEditCandidate?.call(_candidates[i]),
+          onTap: null,
           onDelete: () => _confirmDeleteCandidate(i),
         ),
         const SizedBox(height: 12),

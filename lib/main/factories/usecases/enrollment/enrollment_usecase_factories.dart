@@ -1,5 +1,7 @@
+import '../../../../domain/usecases/candidate/delete_candidate_usecase.dart';
 import '../../../../domain/usecases/candidate/load_academic_courses_usecase.dart';
 import '../../../../domain/usecases/candidate/load_process_period_schools_usecase.dart';
+import '../../../../domain/usecases/candidate/save_candidate_usecase.dart';
 import '../../../../domain/usecases/enrollment/cancel_scholarship_usecase.dart';
 import '../../../../domain/usecases/enrollment/delete_family_member_usecase.dart';
 import '../../../../domain/usecases/enrollment/load_asset_types_usecase.dart';
@@ -15,8 +17,10 @@ import '../../../../domain/usecases/enrollment/save_step_2_usecase.dart';
 import '../../../../domain/usecases/enrollment/save_step_3_usecase.dart';
 import '../../../../domain/usecases/enrollment/save_step_4_usecase.dart';
 import '../../../../domain/usecases/enrollment/set_scholarship_step_usecase.dart';
+import '../../../../infra/repositories/candidate/remote_delete_candidate_usecase.dart';
 import '../../../../infra/repositories/candidate/remote_load_academic_courses_usecase.dart';
 import '../../../../infra/repositories/candidate/remote_load_process_period_schools_usecase.dart';
+import '../../../../infra/repositories/candidate/remote_save_candidate_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_cancel_scholarship_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_delete_family_member_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_load_asset_types_usecase.dart';
@@ -115,5 +119,14 @@ LoadProcessPeriodSchoolsUsecase makeRemoteLoadProcessPeriodSchools() =>
 
 LoadAcademicCoursesUsecase makeRemoteLoadAcademicCourses() =>
     RemoteLoadAcademicCoursesUsecase(
+      httpClient: makeAuthorizeHttpClientDecorator(),
+    );
+
+SaveCandidateUsecase makeRemoteSaveCandidate() => RemoteSaveCandidateUsecase(
+      httpClient: makeAuthorizeHttpClientDecorator(),
+    );
+
+DeleteCandidateUsecase makeRemoteDeleteCandidate() =>
+    RemoteDeleteCandidateUsecase(
       httpClient: makeAuthorizeHttpClientDecorator(),
     );

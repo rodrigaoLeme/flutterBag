@@ -67,4 +67,6 @@ abstract class NewScholarshipRequestPresenter {
 
   Future<void> checkSession();
   void dispose();
+
+  Future<void> updateCandidates(List<CandidateEntity> entities) async {}
 }

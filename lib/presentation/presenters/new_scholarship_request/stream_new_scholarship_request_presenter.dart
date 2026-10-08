@@ -651,6 +651,12 @@ class StreamNewScholarshipRequestPresenter
   }
 
   @override
+  Future<void> updateCandidates(List<CandidateEntity> candidates) async {
+    _form = _form.copyWith(candidates: candidates);
+    _saveDraftSilently();
+  }
+
+  @override
   void goToStep(int step) {
     final newStep = step.clamp(1, _stepSubSteps.length);
     _currentStep = newStep;

@@ -4,12 +4,16 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
+import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/available_announcement_entity.dart';
+import '../../../domain/entities/candidate_entity.dart';
 import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/entities/school_entity.dart';
 import '../../../domain/helpers/app_constants.dart';
+import '../../../domain/usecases/candidate/delete_candidate_usecase.dart';
 import '../../../domain/usecases/candidate/load_process_period_schools_usecase.dart';
+import '../../../domain/usecases/candidate/save_candidate_usecase.dart';
 import '../../../domain/usecases/enrollment/delete_family_member_usecase.dart';
 import '../../../domain/usecases/enrollment/set_scholarship_step_usecase.dart';
 import '../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
@@ -80,6 +84,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   final Map<String, Map<String, DocumentUploadRecord>>
       _uploadedDocumentsByGroup = {};
   List<SchoolEntity> _schools = [];
+
+  // ignore: unused_field
   bool _isLoadingSchools = false;
 
   static const int _totalSteps = 5;
@@ -87,6 +93,10 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   final _deleteFamilyMember = makeRemoteDeleteFamilyMember();
 
   final _setScholarshipStep = makeRemoteSetScholarshipStep();
+
+  final _saveCandidate = makeRemoteSaveCandidate();
+
+  final _deleteCandidate = makeRemoteDeleteCandidate();
 
   // ---------------------------------------------------------------------------
   // TODO(dev): ATALHO TEMPORÁRIO — documente/remova ao finalizar a tela Documentos
@@ -417,6 +427,35 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         ],
       ),
     );
+  }
+
+  Future<bool> _onDeleteCandidate(String candidateId) async {
+    final scholarshipId = _presenter.form.id;
+    if (scholarshipId == null || candidateId.isEmpty) return true;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      await _deleteCandidate.delete(DeleteCandidateParams(
+        scholarshipId: scholarshipId,
+        studentId: candidateId,
+      ));
+      if (!mounted) return false;
+      Navigator.of(context).pop();
+      await _syncCandidatesToDraft();
+      return true;
+    } on DeleteCandidateException catch (e) {
+      if (!mounted) return false;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message), backgroundColor: AppColors.error),
+      );
+      return false;
+    }
   }
 
   int get _processYear {
@@ -770,8 +809,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     }
   }
 
-  Future<void> _openCandidateAddPage(
-      {Map<String, dynamic>? initialData}) async {
+  Future<void> _openCandidateAddPage() async {
     final result = await Navigator.of(context).push<Map<String, dynamic>?>(
       MaterialPageRoute(
         builder: (_) => CandidateAddPage(
@@ -779,26 +817,79 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           schools: _schools,
           processPeriodId: widget.processPeriodId,
           processYear: _processYear,
-          excludedMemberIds: _candidateStepKey.currentState?.addedMemberIds
-                  .where(
-                    (id) => id != initialData?['familyMemberId']?.toString(),
-                  )
-                  .toList() ??
-              const [],
-          initialData: initialData,
+          isHigherEducation:
+              _presenter.form.educationLevel == EducationLevel.higher,
+          excludedMemberIds:
+              _candidateStepKey.currentState?.addedMemberIds ?? [],
         ),
       ),
     );
 
     if (!mounted || result == null) return;
 
-    if (initialData != null) {
-      _candidateStepKey.currentState?.updateCandidate(result);
-    } else {
+    final scholarshipId = _presenter.form.id;
+    if (scholarshipId == null) {
       _candidateStepKey.currentState?.addCandidate(result);
+      _syncRegisteredCandidates();
+      setState(() {});
+      return;
     }
-    _syncRegisteredCandidates();
-    setState(() {});
+
+    // Mostra loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final educationLevel = _presenter.form.educationLevel;
+      final isHigher = educationLevel == EducationLevel.higher;
+
+      final studentId = await _saveCandidate.save(SaveCandidateParams(
+        scholarshipId: scholarshipId,
+        familyMemberId: result['familyMemberId'] as String,
+        schoolId: result['schoolId'] as String,
+        academicCourseId: result['gradeId'] as String,
+        legalPersonType: result['guardianRelationship'] as int,
+        educationLevel: educationLevel?.value ?? EducationLevel.basic.value,
+        scholarshipType: result['scholarshipType'] as int? ??
+            (isHigher
+                ? ScholarshipType.prouni.value
+                : ScholarshipType.cebas.value),
+        completedGraduation: isHigher
+            ? (result['completedGraduation'] as bool? ?? false)
+            : false,
+        currentlyEnrolledInGraduation: isHigher
+            ? (result['currentlyEnrolledInGraduation'] as bool? ?? false)
+            : false,
+        highSchoolScholarshipHolder:
+            result['highSchoolScholarshipHolder'] as bool?,
+      ));
+
+      if (!mounted) return;
+      Navigator.of(context).pop(); // fecha loading
+
+      // Adiciona ao state com o id retornado
+      final candidateWithId = {...result, 'id': studentId};
+      _candidateStepKey.currentState?.addCandidate(candidateWithId);
+      _syncRegisteredCandidates();
+      await _syncCandidatesToDraft();
+      setState(() {});
+    } on SaveCandidateException catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message), backgroundColor: AppColors.error),
+      );
+    }
+  }
+
+  Future<void> _syncCandidatesToDraft() async {
+    final candidates = _candidateStepKey.currentState?.candidates ?? [];
+    final entities =
+        candidates.map((c) => CandidateEntity.fromJson(c)).toList();
+    await _presenter.updateCandidates(entities);
   }
 
   bool _canAdvanceCurrentStep() {
@@ -1064,8 +1155,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
             setState(() {});
           },
           onAddCandidate: _openCandidateAddPage,
-          onEditCandidate: (candidate) =>
-              _openCandidateAddPage(initialData: candidate),
+          onDeleteCandidate: _onDeleteCandidate,
         );
 
       case 5:

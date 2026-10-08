@@ -31,6 +31,7 @@ class CandidateAddPage extends StatefulWidget {
   final int processYear;
   final Map<String, dynamic>? initialData;
   final String processPeriodId;
+  final bool isHigherEducation;
 
   const CandidateAddPage({
     super.key,
@@ -38,6 +39,7 @@ class CandidateAddPage extends StatefulWidget {
     required this.schools,
     required this.processYear,
     required this.processPeriodId,
+    required this.isHigherEducation,
     this.excludedMemberIds = const [],
     this.initialData,
   });
@@ -146,13 +148,13 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
 
   Future<void> _openRelationshipSelector() async {
     final i18n = AppI18n.current;
-    final options = [
-      i18n.guardianRelationshipFather,
-      i18n.guardianRelationshipMother,
-      i18n.guardianRelationshipGuardianship,
-    ];
+    final options = GuardianRelationshipType.values
+        .where((t) =>
+            t != GuardianRelationshipType.candidate || widget.isHigherEducation)
+        .toList();
 
-    final selectedLabel = await SearchableOptionsBottomSheet.show<String>(
+    final selected =
+        await SearchableOptionsBottomSheet.show<GuardianRelationshipType>(
       context: context,
       title: i18n.guardianRelationshipLabel,
       options: options,
@@ -160,42 +162,13 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
       helperText: i18n.noticesTermsBottomSheetSearchHelp,
       emptyStateText: i18n.noticesTermsBottomSheetNoResults,
       closeTooltip: i18n.noticesTermsCloseAction,
-      selectedValue: _selectedRelationship != null
-          ? _relationshipLabel(_selectedRelationship!)
-          : null,
+      selectedValue: _selectedRelationship,
+      labelBuilder: (t) => t.label,
+      searchTextBuilder: (t) => t.label,
       showSearchInput: false,
     );
 
-    if (selectedLabel == null) return;
-
-    setState(() {
-      _selectedRelationship = _relationshipFromLabel(selectedLabel);
-    });
-  }
-
-  String _relationshipLabel(GuardianRelationshipType type) {
-    final i18n = AppI18n.current;
-    return switch (type) {
-      GuardianRelationshipType.father => i18n.guardianRelationshipFather,
-      GuardianRelationshipType.mother => i18n.guardianRelationshipMother,
-      GuardianRelationshipType.legalGuardian =>
-        i18n.guardianRelationshipGuardianship,
-      GuardianRelationshipType.candidate => 'Sou o candidato',
-    };
-  }
-
-  GuardianRelationshipType? _relationshipFromLabel(String label) {
-    final i18n = AppI18n.current;
-    if (label == i18n.guardianRelationshipFather) {
-      return GuardianRelationshipType.father;
-    }
-    if (label == i18n.guardianRelationshipMother) {
-      return GuardianRelationshipType.mother;
-    }
-    if (label == i18n.guardianRelationshipGuardianship) {
-      return GuardianRelationshipType.legalGuardian;
-    }
-    return null;
+    if (selected != null) setState(() => _selectedRelationship = selected);
   }
 
   Future<void> _openSchoolSelector() async {
@@ -253,9 +226,7 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
       'name': _selectedMember?.name ?? 'Candidato',
       'cpf': _selectedMember?.cpf,
       'guardianRelationship': _selectedRelationship?.value,
-      'guardianRelationshipLabel': _selectedRelationship != null
-          ? _relationshipLabel(_selectedRelationship!)
-          : null,
+      'guardianRelationshipLabel': _selectedRelationship?.label,
       'schoolId': _selectedSchool?.id ?? 'mock-school-id',
       'schoolName': _selectedSchool?.name,
       'gradeId': _selectedCourse?.id ?? '',
@@ -379,9 +350,7 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
                     const SizedBox(height: 12),
                     _buildSelectorField(
                       hint: i18n.guardianRelationshipLabel,
-                      value: _selectedRelationship != null
-                          ? _relationshipLabel(_selectedRelationship!)
-                          : null,
+                      value: _selectedRelationship?.label,
                       onTap: _openRelationshipSelector,
                     ),
                     const SizedBox(height: 12),
