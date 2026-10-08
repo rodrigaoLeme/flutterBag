@@ -776,7 +776,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       MaterialPageRoute(
         builder: (_) => CandidateAddPage(
           eligibleMembers: _eligibleFamilyMembers(),
-          schools: widget.schools,
+          schools: _schools,
           processPeriodId: widget.processPeriodId,
           processYear: _processYear,
           excludedMemberIds: _candidateStepKey.currentState?.addedMemberIds

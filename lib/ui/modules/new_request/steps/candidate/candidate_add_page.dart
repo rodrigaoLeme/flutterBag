@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../domain/entities/academic_course_entity.dart';
-import '../../../../../domain/entities/available_announcement_entity.dart';
 import '../../../../../domain/entities/enrollment_enums.dart';
 import '../../../../../domain/entities/school_entity.dart';
-import '../../../../../domain/entities/school_grade_entity.dart';
 import '../../../../../domain/usecases/candidate/load_academic_courses_usecase.dart';
 import '../../../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../../../main/i18n/app_i18n.dart';
@@ -49,23 +47,6 @@ class CandidateAddPage extends StatefulWidget {
 }
 
 class _CandidateAddPageState extends State<CandidateAddPage> {
-  // static const _mockSchools = [
-  //   AnnouncementSchoolEntity(
-  //     id: 'mock-school-1',
-  //     name: 'Colégio Adventista',
-  //   ),
-  //   AnnouncementSchoolEntity(
-  //     id: 'mock-school-2',
-  //     name: 'Faculdade Adventista',
-  //   ),
-  // ];
-
-  // static const _mockGrades = [
-  //   SchoolGradeEntity(id: 'mock-grade-1', name: '1º ano'),
-  //   SchoolGradeEntity(id: 'mock-grade-2', name: '2º ano'),
-  //   SchoolGradeEntity(id: 'mock-grade-3', name: '3º ano'),
-  // ];
-
   final _loadCourses = makeRemoteLoadAcademicCourses();
 
   SchoolEntity? _selectedSchool;
@@ -74,14 +55,8 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
   bool _isLoadingCourses = false;
   CandidateFamilyMemberOption? _selectedMember;
   GuardianRelationshipType? _selectedRelationship;
-  // SchoolGradeEntity? _selectedGrade;
 
   List<SchoolEntity> get _schools => widget.schools;
-
-  // List<AnnouncementSchoolEntity> get _schools =>
-  //     widget.announcementSchools.isNotEmpty
-  //         ? widget.announcementSchools
-  //         : _mockSchools;
 
   List<CandidateFamilyMemberOption> get _availableMembers {
     if (widget.initialData != null) {
@@ -142,11 +117,6 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
     try {
       _selectedSchool = _schools.firstWhere((s) => s.id == schoolId);
     } catch (_) {}
-
-    // final gradeId = data['gradeId']?.toString();
-    // try {
-    //   _selectedGrade = _mockGrades.firstWhere((g) => g.id == gradeId);
-    // } catch (_) {}
   }
 
   Future<void> _openMemberSelector() async {
@@ -245,15 +215,6 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
     );
 
     if (selected != null) await _onSchoolSelected(selected);
-
-    // final school = _schools.firstWhere(
-    //   (s) => (s.name ?? s.id) == selectedName,
-    // );
-
-    // setState(() {
-    //   _selectedSchool = school;
-    //   _selectedGrade = null;
-    // });
   }
 
   Future<void> _openCourseSelector() async {
@@ -276,12 +237,14 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
     );
 
     if (selected != null) setState(() => _selectedCourse = selected);
-
-    // setState(() {
-    //   _selectedGrade =
-    //       _mockGrades.firstWhere((g) => g.displayName == selectedName);
-    // });
   }
+
+  bool get _canSave =>
+      _selectedMember != null &&
+      _selectedRelationship != null &&
+      _selectedSchool != null &&
+      _selectedCourse != null &&
+      !_isLoadingCourses;
 
   void _saveAndReturn() {
     Navigator.of(context).pop({
@@ -295,8 +258,8 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
           : null,
       'schoolId': _selectedSchool?.id ?? 'mock-school-id',
       'schoolName': _selectedSchool?.name,
-      'gradeId': _selectedGrade?.id ?? 'mock-grade-id',
-      'gradeName': _selectedGrade?.displayName,
+      'gradeId': _selectedCourse?.id ?? '',
+      'gradeName': _selectedCourse?.name ?? '',
     });
   }
 
@@ -446,9 +409,10 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
               child: SizedBox(
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: _saveAndReturn,
+                  onPressed: _canSave ? _saveAndReturn : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor:
+                        _canSave ? AppColors.primary : AppColors.dividerLight,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
                     ),
