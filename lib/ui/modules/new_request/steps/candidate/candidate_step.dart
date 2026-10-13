@@ -194,7 +194,7 @@ class CandidateStepState extends State<CandidateStep> {
           onTap: null,
           onDelete: () => _confirmDeleteCandidate(i),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 0),
       ],
     ];
   }

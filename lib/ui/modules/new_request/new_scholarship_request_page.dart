@@ -270,9 +270,22 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     }
 
     final acknowledged = await _showCandidateAwarenessDialog();
-    if (acknowledged == true && mounted) {
-      _presenter.next();
-    }
+    if (acknowledged != true || !mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    await _presenter.submitStep4(
+      _candidateStepKey.currentState?.candidates
+              .map((c) => CandidateEntity.fromJson(c))
+              .toList() ??
+          [],
+    );
+
+    if (mounted) Navigator.of(context).pop();
   }
 
   void _hydrateCandidatesFromForm() {
@@ -362,7 +375,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                 Padding(
                   padding: const EdgeInsets.only(left: 8, bottom: 4),
                   child: Text(
-                    '• ${member.personCpf ?? '-'} - ${member.name ?? ''}',
+                    '• ${_formatCpf(member.personCpf ?? '-')} - ${member.name ?? ''}',
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.primary,
                     ),
@@ -446,7 +459,6 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       ));
       if (!mounted) return false;
       Navigator.of(context).pop();
-      await _syncCandidatesToDraft();
       return true;
     } on DeleteCandidateException catch (e) {
       if (!mounted) return false;
@@ -874,7 +886,6 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       final candidateWithId = {...result, 'id': studentId};
       _candidateStepKey.currentState?.addCandidate(candidateWithId);
       _syncRegisteredCandidates();
-      await _syncCandidatesToDraft();
       setState(() {});
     } on SaveCandidateException catch (e) {
       if (!mounted) return;
@@ -1150,8 +1161,9 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           schools: _schools,
           processPeriodId: widget.processPeriodId,
           initialCandidates: _registeredCandidates,
-          onCandidatesChanged: () {
+          onCandidatesChanged: () async {
             _syncRegisteredCandidates();
+            await _syncCandidatesToDraft();
             setState(() {});
           },
           onAddCandidate: _openCandidateAddPage,
