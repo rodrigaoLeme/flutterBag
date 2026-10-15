@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../domain/entities/announcement_enums.dart';
 import '../../../../../domain/entities/process_enums.dart';
+import '../../../../../domain/entities/students_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/ebolsa_text_button.dart';
 import '../../../../helpers/themes/themes.dart';
@@ -17,8 +19,8 @@ class ProcessCardCurrent extends StatelessWidget {
   final String level;
   final String scholarshipType;
   final ProcessesType processType;
-  final ProcessSteps step;
-  final List<String> candidates;
+  final ApplicantScholarshipStatus step;
+  final List<StudentsEntity> candidates;
   final ProcessesBanner processesBanner;
   final String warningMessage;
   final VoidCallback? onDetail;
@@ -157,11 +159,11 @@ class ProcessCardCurrent extends StatelessWidget {
                     )
                   else
                     ...candidates.map(
-                      (name) => Padding(
+                      (student) => Padding(
                         padding: const EdgeInsets.only(bottom: 6),
                         child: Center(
                           child: Text(
-                            name,
+                            student.name,
                             style:
                                 Theme.of(context).textTheme.bodyLarge?.copyWith(
                                       color: AppColors.textSecondaryLight,

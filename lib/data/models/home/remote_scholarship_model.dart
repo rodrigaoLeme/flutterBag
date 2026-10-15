@@ -2,6 +2,7 @@ import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/authorization_capabilities_entity.dart';
 import '../../../domain/entities/scholarship_entity.dart';
 import '../../../domain/entities/scholarship_process_period_entity.dart';
+import '../../../domain/entities/students_entity.dart';
 
 class RemoteScholarshipModel {
   final String id;
@@ -69,9 +70,15 @@ class RemoteScholarshipModel {
       completedStep: _parseInt(json['completedStep']),
       finishedOnUtc: _parseDateTime(json['finishedOnUtc']),
       canceledOnUtc: _parseDateTime(json['canceledOnUtc']),
+      updatedOnUtc: _parseDateTime(json['updatedOnUtc']),
       processPeriodId: _parseId(json['processPeriodId']),
       processType: ProcessType.fromValue(_parseInt(json['processType'])),
       status: ApplicantScholarshipStatus.fromValue(_parseInt(json['status'])),
+      students: (json['students'] as List?)
+              ?.map((e) =>
+                  StudentsEntity.fromJson(Map<String, dynamic>.from(e as Map)))
+              .toList() ??
+          [],
       scholarshipStatus:
           ScholarshipStatus.fromValue(_parseInt(json['scholarshipStatus'])),
       createdOnUtc: DateTime.parse(json['createdOnUtc'] as String),

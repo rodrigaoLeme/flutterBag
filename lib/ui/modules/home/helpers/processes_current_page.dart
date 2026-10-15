@@ -53,8 +53,8 @@ class ProcessesCurrentPage extends StatelessWidget {
                   processType: scholarship.processType == ProcessType.renewal
                       ? ProcessesType.renewProcess
                       : ProcessesType.newProcess,
-                  step: _mapStep(scholarship.completedStep),
-                  candidates: const [],
+                  step: scholarship.status!,
+                  candidates: scholarship.students ?? [],
                   warningMessage: scholarship.bannerDeadline != null
                       ? 'Até ${_formatDate(scholarship.bannerDeadline!)}'
                       : '-',

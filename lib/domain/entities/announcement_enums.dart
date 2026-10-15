@@ -1,3 +1,7 @@
+import 'dart:ui';
+
+import '../../ui/helpers/themes/app_colors.dart';
+
 enum ScholarshipType {
   both(0, 'CEBAS e PROUNI'),
   cebas(1, 'CEBAS'),
@@ -67,39 +71,49 @@ enum ProcessType {
 }
 
 enum ApplicantScholarshipStatus {
+  // Em andamento
   registrationInProgress(
       100, 'Inscrição em Adamento', 'Preencha o formulário completo'),
-  registrationNotCompletedWithinTheDeadline(
-      110, 'Desclassificado', 'Inscrição não concluída no prazo'),
   registrationCompleted(
       120, 'Inscrição concluída', 'Aguarde as próximas etapas'),
   sendingDocuments(
       130, 'Enviando documentos', 'Faça o upload dos documentos solicitados'),
-  incompleteDocumentation(140, 'Desclassificado', 'Documentação incompleta'),
   documentsSent(150, 'Documentos enviados', 'Aguardando análise'),
   documentsUnderReview(160, 'Documentos em análise',
       'Nossos revisores estão verificando seus documentos'),
   pendingDocuments(170, 'Documentos pendentes',
       'Reenvio necessário — veja os itens recusados'),
-  incompleteDocumentReview(
-      180, 'Desclassificado', 'Revisão documental incompleta'),
-  incorrectShipments(190, 'Desclassificado', 'Envios incorretos'),
-  documentsDoNotMeetTheRequirements(
-      200, 'Desclassificado', 'Documentos não atendem aos requisitos'),
   approvedDocuments(
       210, 'Documentos aprovados', 'Análise socioeconômica em andamento'),
-  incompleteSupplementaryDocuments(
-      220, 'Desclassificado', 'Documentos complementares incompletos'),
   socioeconomicAnalysisCompleted(230, 'Análise socioeconômica concluída',
       'Aguardando deliberação da comissão'),
   waitingList(240, 'Lista de espera', 'Aguardando disponibilidade de vaga'),
   underDeliberation(
       250, 'Em deliberação', 'A comissão está avaliando seu processo'),
   deliberationConcluded(260, 'Deliberação concluída', 'Resultado em breve'),
+
+  // Desclassificações
+  registrationNotCompletedWithinTheDeadline(
+      110, 'Desclassificado', 'Inscrição não concluída no prazo'),
+  incompleteDocumentation(140, 'Desclassificado', 'Documentação incompleta'),
+  incompleteDocumentReview(
+      180, 'Desclassificado', 'Revisão documental incompleta'),
+  incorrectShipments(190, 'Desclassificado', 'Envios incorretos'),
+  documentsDoNotMeetTheRequirements(
+      200, 'Desclassificado', 'Documentos não atendem aos requisitos'),
+  incompleteSupplementaryDocuments(
+      220, 'Desclassificado', 'Documentos complementares incompletos'),
+  declassificatedByIncorrectApplicant(
+      320, 'Desclassificado', 'Candidato incorreto'),
+
+  // Resultado
   resultApproved(
       270, 'Resultado aprovado', 'Parabéns! Veja os próximos passos'),
   resultAnnounced(280, 'Resultado comunicado', 'Verifique seu e-mail'),
-  finished(290, 'Matrícula confirmada', 'Processo concluído com sucesso');
+  finished(290, 'Matrícula confirmada', 'Processo concluído com sucesso'),
+
+  // Cancelados
+  canceled(330, 'Cancelado', 'Inscrição cancelada');
 
   final String label;
   final String sublabel;
@@ -114,6 +128,33 @@ enum ApplicantScholarshipStatus {
     } catch (_) {
       return null;
     }
+  }
+
+  bool get isActive =>
+      value >= 100 && value < 110 ||
+      value == 120 ||
+      value == 130 ||
+      value == 150 ||
+      value == 160 ||
+      value == 170 ||
+      value == 210 ||
+      value == 230;
+
+  bool get isDeclassified =>
+      value == 110 ||
+      value == 140 ||
+      value == 180 ||
+      value == 190 ||
+      value == 200 ||
+      value == 220 ||
+      value == 320;
+
+  bool get isCanceled => value == 330;
+
+  Color get color {
+    if (isDeclassified || isCanceled) return AppColors.error;
+    if (value == 170) return AppColors.warning;
+    return AppColors.secondary;
   }
 }
 

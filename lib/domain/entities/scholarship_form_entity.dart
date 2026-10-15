@@ -4,6 +4,7 @@ import 'enrollment_enums.dart';
 import 'expenses_entity.dart';
 import 'family_member_entity.dart';
 import 'group_income_entity.dart';
+import 'minimum_wage_entity.dart';
 
 class ScholarshipFormEntity {
   final String? id; // Scholarship
@@ -11,6 +12,7 @@ class ScholarshipFormEntity {
   final int currentStep;
   final int completedStep;
   final EducationLevel? educationLevel;
+  final DateTime? updatedOnUtc;
 
   // Step 1 - Moradia
   final String? zipCode;
@@ -26,6 +28,7 @@ class ScholarshipFormEntity {
   // Step 2 - Família
   final List<FamilyMemberEntity> familyMembers;
   final GroupIncomeEntity? groupIncome;
+  final MinimumWageEntity? minimumWage;
 
   // Step 3 - Despesas
   final ExpensesEntity? expenses;
@@ -40,6 +43,7 @@ class ScholarshipFormEntity {
     this.currentStep = 1,
     this.completedStep = 0,
     this.educationLevel,
+    this.updatedOnUtc,
     this.zipCode,
     this.street,
     this.number,
@@ -51,6 +55,7 @@ class ScholarshipFormEntity {
     this.residenceAreaType,
     this.familyMembers = const [],
     this.groupIncome,
+    this.minimumWage,
     this.expenses,
     this.candidates = const [],
     this.announcementId,
@@ -64,6 +69,7 @@ class ScholarshipFormEntity {
     int? currentStep,
     int? completedStep,
     EducationLevel? educationLevel,
+    DateTime? updatedOnUtc,
     String? zipCode,
     String? street,
     String? number,
@@ -75,6 +81,7 @@ class ScholarshipFormEntity {
     ResidenceAreaType? residenceAreaType,
     List<FamilyMemberEntity>? familyMembers,
     GroupIncomeEntity? groupIncome,
+    MinimumWageEntity? minimumWage,
     ExpensesEntity? expenses,
     List<CandidateEntity>? candidates,
     String? announcementId,
@@ -85,6 +92,7 @@ class ScholarshipFormEntity {
         currentStep: currentStep ?? this.currentStep,
         completedStep: completedStep ?? this.completedStep,
         educationLevel: educationLevel ?? this.educationLevel,
+        updatedOnUtc: updatedOnUtc ?? this.updatedOnUtc,
         zipCode: zipCode ?? this.zipCode,
         street: street ?? this.street,
         number: number ?? this.number,
@@ -96,6 +104,7 @@ class ScholarshipFormEntity {
         residenceAreaType: residenceAreaType ?? this.residenceAreaType,
         familyMembers: familyMembers ?? this.familyMembers,
         groupIncome: groupIncome ?? this.groupIncome,
+        minimumWage: minimumWage ?? this.minimumWage,
         expenses: expenses ?? this.expenses,
         candidates: candidates ?? this.candidates,
         announcementId: announcementId ?? this.announcementId,
@@ -107,6 +116,7 @@ class ScholarshipFormEntity {
         'currentStep': currentStep,
         'completedStep': completedStep,
         'educationLevel': educationLevel?.value,
+        'updatedOnUtc': updatedOnUtc,
         'zipCode': zipCode,
         'street': street,
         'number': number,
@@ -118,6 +128,7 @@ class ScholarshipFormEntity {
         'residenceAreaType': residenceAreaType?.value,
         'familyMembers': familyMembers.map((e) => e.toJson()).toList(),
         'groupIncome': groupIncome?.toJson(),
+        'minimumWage': minimumWage?.toJson(),
         'expenses': expenses?.toJson(),
         'candidates': candidates.map((e) => e.toJson()).toList(),
         'announcementId': announcementId,
@@ -131,6 +142,9 @@ class ScholarshipFormEntity {
         completedStep: json['completedStep'] as int? ?? 0,
         educationLevel:
             EducationLevel.fromValue(json['educationLevel'] as int? ?? 0),
+        updatedOnUtc: json['updatedOnUtc'] != null
+            ? DateTime.tryParse(json['updatedOnUtc'] as String)
+            : null,
         zipCode: json['zipCode'] as String?,
         street: json['street'] as String?,
         number: json['number'] as String?,
@@ -149,6 +163,10 @@ class ScholarshipFormEntity {
         groupIncome: json['groupIncome'] != null
             ? GroupIncomeEntity.fromJson(
                 Map<String, dynamic>.from(json['groupIncome'] as Map))
+            : null,
+        minimumWage: json['minimumWage'] != null
+            ? MinimumWageEntity.fromJson(
+                Map<String, dynamic>.from(json['minimumWage'] as Map))
             : null,
         expenses: json['expenses'] != null
             ? ExpensesEntity.fromJson(

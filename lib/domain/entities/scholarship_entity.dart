@@ -2,6 +2,7 @@ import 'announcement_enums.dart';
 import 'authorization_capabilities_entity.dart';
 import 'authorization_stage_entity.dart';
 import 'scholarship_process_period_entity.dart';
+import 'students_entity.dart';
 
 class ScholarshipEntity {
   final String id;
@@ -10,9 +11,11 @@ class ScholarshipEntity {
   final int? completedStep;
   final DateTime? finishedOnUtc;
   final DateTime? canceledOnUtc;
+  final DateTime? updatedOnUtc;
   final String? processPeriodId;
   final ProcessType? processType;
   final ApplicantScholarshipStatus? status;
+  final List<StudentsEntity>? students;
   final ScholarshipStatus? scholarshipStatus;
   final DateTime createdOnUtc;
   final int declassificationType;
@@ -33,9 +36,11 @@ class ScholarshipEntity {
     this.completedStep,
     this.finishedOnUtc,
     this.canceledOnUtc,
+    this.updatedOnUtc,
     this.processPeriodId,
     this.processType,
     this.status,
+    this.students,
     this.scholarshipStatus,
     required this.createdOnUtc,
     this.declassificationType = 0,

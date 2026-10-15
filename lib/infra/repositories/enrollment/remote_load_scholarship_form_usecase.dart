@@ -5,6 +5,7 @@ import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/expenses_entity.dart';
 import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/entities/group_income_entity.dart';
+import '../../../domain/entities/minimum_wage_entity.dart';
 import '../../../domain/entities/scholarship_form_entity.dart';
 import '../../../domain/usecases/enrollment/load_scholarship_form_usecase.dart';
 import '../../../main/flavors.dart';
@@ -32,6 +33,7 @@ class RemoteLoadScholarshipFormUsecase implements LoadScholarshipFormUsecase {
         completedStep: json['completedStep'] as int? ?? 0,
         educationLevel:
             EducationLevel.fromValue(json['educationLevel'] as int? ?? 0),
+        updatedOnUtc: json['updatedOnUtc'] as DateTime?,
         zipCode: json['zipCode'] as String?,
         street: json['street'] as String?,
         number: json['number'] as String?,
@@ -48,6 +50,7 @@ class RemoteLoadScholarshipFormUsecase implements LoadScholarshipFormUsecase {
                 .toList() ??
             [],
         groupIncome: _parseGroupIncome(json),
+        minimumWage: MinimumWageEntity.fromJson(json['minimumWage']),
         expenses: _parseExpenses(json),
         candidates: _parseCandidates(json),
         announcementId: json['announcementId'] as String? ??

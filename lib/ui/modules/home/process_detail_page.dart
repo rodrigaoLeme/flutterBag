@@ -5,6 +5,7 @@ import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/process_enums.dart';
 import '../../../domain/entities/scholarship_entity.dart';
 import '../../../domain/entities/scholarship_process_period_entity.dart';
+import '../../../domain/entities/students_entity.dart';
 import '../../../domain/usecases/enrollment/cancel_scholarship_usecase.dart';
 import '../../../main/di/injection_container.dart';
 import '../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
@@ -130,6 +131,7 @@ class _ProcessDetailPageState extends State<ProcessDetailPage> {
   @override
   Widget build(BuildContext context) {
     final appStrings = AppI18n.current;
+    final List<StudentsEntity> candidates = widget.scholarship.students ?? [];
 
     return Scaffold(
       appBar: AppBar(
@@ -203,11 +205,11 @@ class _ProcessDetailPageState extends State<ProcessDetailPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 6),
                             decoration: BoxDecoration(
-                              color: widget.step.color,
+                              color: widget.scholarship.status!.color,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              widget.step.label,
+                              widget.scholarship.status?.label ?? '',
                               style: Theme.of(context)
                                   .textTheme
                                   .labelMedium
@@ -225,57 +227,124 @@ class _ProcessDetailPageState extends State<ProcessDetailPage> {
                   const SizedBox(height: 12),
 
                   // Candidatos
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 16),
-                    decoration: BoxDecoration(
-                      color: AppColors.outlineVariant,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Center(
-                          child: Text(
-                            appStrings.processCardCandidatePlural,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  color: AppColors.textSecondaryLight,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                  if (candidates.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.outlineVariant,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Center(
+                            child: Text(
+                              candidates.length == 1
+                                  ? appStrings.candidateStepTitle
+                                  : appStrings.processCardCandidatePlural,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: AppColors.textSecondaryLight,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
                           ),
-                        ),
-
-                        // if (candidates.isEmpty)
-                        //   Center(
-                        //     child: Text(
-                        //       '-',
-                        //       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        //             color: AppColors.textSecondaryLight,
-                        //           ),
-                        //     ),
-                        //   )
-                        // else
-                        //   ...candidates.map(
-                        //     (name) => Padding(
-                        //       padding: const EdgeInsets.only(bottom: 6),
-                        //       child: Center(
-                        //         child: Text(
-                        //           name,
-                        //           style:
-                        //               Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        //                     color: AppColors.textSecondaryLight,
-                        //                     fontWeight: FontWeight.w500,
-                        //                   ),
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ),
-                      ],
+                          const SizedBox(height: 6),
+                          if (candidates.isEmpty)
+                            Center(
+                              child: Text(
+                                '-',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(
+                                      color: AppColors.textSecondaryLight,
+                                    ),
+                              ),
+                            )
+                          else
+                            ...candidates.map(
+                              (student) => Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: Center(
+                                  child: Text(
+                                    student.name,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(
+                                          color: AppColors.textSecondaryLight,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                  )
+                  ],
+
+                  // Candidatos
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(
+                  //       horizontal: 16, vertical: 16),
+                  //   decoration: BoxDecoration(
+                  //     color: AppColors.outlineVariant,
+                  //     borderRadius: BorderRadius.circular(12),
+                  //   ),
+                  //   child: Column(
+                  //     crossAxisAlignment: CrossAxisAlignment.stretch,
+                  //     children: [
+                  //       Center(
+                  //         child: Text(
+                  //           appStrings.processCardCandidatePlural,
+                  //           style: Theme.of(context)
+                  //               .textTheme
+                  //               .bodyMedium
+                  //               ?.copyWith(
+                  //                 color: AppColors.textSecondaryLight,
+                  //                 fontWeight: FontWeight.w500,
+                  //               ),
+                  //         ),
+                  //       ),
+                  //       if (candidates.isEmpty)
+                  //         Center(
+                  //           child: Text(
+                  //             '-',
+                  //             style: Theme.of(context)
+                  //                 .textTheme
+                  //                 .bodyLarge
+                  //                 ?.copyWith(
+                  //                   color: AppColors.textSecondaryLight,
+                  //                 ),
+                  //           ),
+                  //         )
+                  //       else
+                  //         ...candidates.map(
+                  //           (student) => Padding(
+                  //             padding: const EdgeInsets.only(bottom: 6),
+                  //             child: Center(
+                  //               child: Text(
+                  //                 student.name,
+                  //                 style: Theme.of(context)
+                  //                     .textTheme
+                  //                     .bodyLarge
+                  //                     ?.copyWith(
+                  //                       color: AppColors.textSecondaryLight,
+                  //                       fontWeight: FontWeight.w500,
+                  //                     ),
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //     ],
+                  //   ),
+                  // )
                 ],
               ),
             ),
