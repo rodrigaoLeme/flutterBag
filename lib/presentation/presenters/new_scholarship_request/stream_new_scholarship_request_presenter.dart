@@ -202,6 +202,19 @@ class StreamNewScholarshipRequestPresenter
     ScholarshipFormEntity remote,
     ScholarshipFormEntity draft,
   ) {
+    final remoteUpdated = remote.updatedOnUtc;
+    final draftUpdated = draft.updatedOnUtc;
+
+    if (remoteUpdated != null && draftUpdated != null) {
+      if (remoteUpdated.isAfter(draftUpdated)) {
+        return remote.copyWith(
+          currentStep: remote.currentStep >= draft.currentStep
+              ? remote.currentStep
+              : draft.currentStep,
+        );
+      }
+    }
+
     GroupIncomeEntity? mergedGroupIncome;
     final remoteIncome = remote.groupIncome;
     final draftIncome = draft.groupIncome;
