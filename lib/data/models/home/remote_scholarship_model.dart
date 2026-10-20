@@ -96,17 +96,4 @@ class RemoteScholarshipModel {
       authorizationCapabilities: authCaps,
     );
   }
-
-  ScholarshipEntity toEntity() => ScholarshipEntity(
-        id: id,
-        academicYear: academicYear,
-        currentStep: currentStep,
-        completedStep: completedStep,
-        finishedOnUtc: finisheOnUtc,
-        processPeriodId: processPeriodId,
-        processType: ProcessType.fromValue(processType),
-        status: ApplicantScholarshipStatus.fromValue(status),
-        scholarshipStatus: ScholarshipStatus.fromValue(scholarshipStatus),
-        createdOnUtc: createdOnUtc,
-      );
 }

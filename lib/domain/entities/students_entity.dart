@@ -11,7 +11,7 @@ class StudentsEntity {
 
   factory StudentsEntity.fromJson(Map<String, dynamic> json) => StudentsEntity(
         id: json['id'] as String,
-        name: json['name'] as String,
+        name: json['name'] as String? ?? '',
         status: json['status'] as int?,
       );
 }

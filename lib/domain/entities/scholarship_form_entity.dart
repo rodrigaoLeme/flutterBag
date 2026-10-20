@@ -116,7 +116,7 @@ class ScholarshipFormEntity {
         'currentStep': currentStep,
         'completedStep': completedStep,
         'educationLevel': educationLevel?.value,
-        'updatedOnUtc': updatedOnUtc,
+        'updatedOnUtc': updatedOnUtc?.toIso8601String(),
         'zipCode': zipCode,
         'street': street,
         'number': number,

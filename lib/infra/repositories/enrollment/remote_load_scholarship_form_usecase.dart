@@ -33,7 +33,9 @@ class RemoteLoadScholarshipFormUsecase implements LoadScholarshipFormUsecase {
         completedStep: json['completedStep'] as int? ?? 0,
         educationLevel:
             EducationLevel.fromValue(json['educationLevel'] as int? ?? 0),
-        updatedOnUtc: json['updatedOnUtc'] as DateTime?,
+        updatedOnUtc: json['updatedOnUtc'] != null
+            ? DateTime.tryParse(json['updatedOnUtc'] as String)
+            : null,
         zipCode: json['zipCode'] as String?,
         street: json['street'] as String?,
         number: json['number'] as String?,

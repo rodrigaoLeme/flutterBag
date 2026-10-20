@@ -1023,6 +1023,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                                       _presenter.form.educationLevel,
                                   initialSubStep: 5,
                                   residenceType: _presenter.form.residenceType,
+                                  minimumWage: _presenter.form.minimumWage,
                                 ),
                               ),
                             );
@@ -1110,6 +1111,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                   initialFamilyMembers: _presenter.form.familyMembers,
                   educationLevel: _presenter.form.educationLevel,
                   residenceType: _presenter.form.residenceType,
+                  minimumWage: _presenter.form.minimumWage,
                 ),
               ),
             );

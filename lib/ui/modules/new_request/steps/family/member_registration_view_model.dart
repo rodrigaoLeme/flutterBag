@@ -9,6 +9,7 @@ import '../../../../../domain/entities/extra_income_entity.dart';
 import '../../../../../domain/entities/extra_income_type_entity.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../domain/entities/group_income_entity.dart';
+import '../../../../../domain/entities/minimum_wage_entity.dart';
 import '../../../../../domain/entities/nationalities_entity.dart';
 import '../../../../../domain/entities/occupation_entity.dart';
 import '../../../../../domain/entities/occupation_type_entity.dart';
@@ -18,11 +19,21 @@ import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../helpers/money_formatter.dart';
 
 class MemberRegistrationViewModel extends ChangeNotifier {
-  // TODO: Verificar endpoint que retorna a constante do salário mínimo
-  static const double minimumWage = 1621;
   static const _brazilianNationalityId = 'c88ac7a5-2de6-4b2e-a9b2-dc4d3f654dfa';
   static const _nenhunmaSpecialNeedsId = '8bb77161-9f1b-46eb-b92a-cef26b02f804';
   static const _proprietarioId = '7c8efd3f-c5b1-449f-a2c2-cef814cb296e';
+
+  // Salário mínimo
+  double _minimumWage = 1621;
+
+  double get minimumWage => _minimumWage;
+
+  void updateMinimumWage(MinimumWageEntity? entity) {
+    if (entity?.value != null && entity!.value! > 0) {
+      _minimumWage = entity.value!;
+      notifyListeners();
+    }
+  }
 
   final TextEditingController cpfController = TextEditingController();
   final TextEditingController nameController = TextEditingController();

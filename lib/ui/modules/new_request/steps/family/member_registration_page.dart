@@ -11,6 +11,7 @@ import '../../../../../domain/entities/enrollment_enums.dart';
 import '../../../../../domain/entities/extra_income_type_entity.dart';
 import '../../../../../domain/entities/family_member_entity.dart';
 import '../../../../../domain/entities/group_income_entity.dart';
+import '../../../../../domain/entities/minimum_wage_entity.dart';
 import '../../../../../domain/entities/nationalities_entity.dart';
 import '../../../../../domain/entities/occupation_type_entity.dart';
 import '../../../../../domain/entities/process_enums.dart';
@@ -70,6 +71,7 @@ class MemberRegistrationPage extends StatefulWidget {
     this.initialEditIndex,
     this.initialSubStep,
     this.residenceType,
+    this.minimumWage,
   });
 
   final MemberRegistrationPresenter? presenter;
@@ -80,6 +82,7 @@ class MemberRegistrationPage extends StatefulWidget {
   final int? initialEditIndex;
   final int? initialSubStep;
   final ResidenceType? residenceType;
+  final MinimumWageEntity? minimumWage;
 
   @override
   State<MemberRegistrationPage> createState() => _MemberRegistrationPageState();
@@ -133,6 +136,11 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
         _onCpfComplete(account.userCpf);
       }
     }
+
+    if (widget.minimumWage != null) {
+      _vm.updateMinimumWage(widget.minimumWage);
+    }
+
     _vm.dobController.addListener(_onDobChanged);
 
     _loadSpecialNeeds();
