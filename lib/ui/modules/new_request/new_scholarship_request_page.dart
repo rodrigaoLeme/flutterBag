@@ -20,6 +20,7 @@ import '../../../main/factories/pages/new_scholarship_request/new_scholarship_re
 import '../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../../main/routes/routes.dart';
+import '../../../presentation/mixins/mixins.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
 import 'dev_navigation_overrides.dart';
@@ -87,6 +88,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
 
   // ignore: unused_field
   bool _isLoadingSchools = false;
+
+  bool _isNavigating = false;
 
   static const int _totalSteps = 5;
 
@@ -623,6 +626,35 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     );
   }
 
+  Future<void> _confirmGoHome() async {
+    final i18n = AppI18n.current;
+
+    // Step 5 — dialog com aviso de prazo
+    if (_currentStep == 5) {
+      await _confirmDocumentsGoHome();
+      return;
+    }
+
+    await EbolsaDialogWithCancel.show(
+      context: context,
+      title: i18n.familyConfirmDialogTitle,
+      description: i18n.goHomeDialogBody,
+      actions: [
+        EbolsaDialogAction(
+          label: i18n.answerNo,
+          isPrimary: true,
+          onPressed: () {},
+        ),
+        EbolsaDialogAction(
+          label: i18n.answerYes,
+          onPressed: () {
+            Navigator.of(context).pop('home');
+          },
+        ),
+      ],
+    );
+  }
+
   Future<void> _confirmDocumentsGoHome() async {
     final i18n = AppI18n.current;
     final deadline = _formattedSubmissionDeadline;
@@ -679,12 +711,16 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     final shouldCallStepEndpoint = isFirstSubStep && _presenter.form.id != null;
 
     if (shouldCallStepEndpoint) {
+      setState(() => _isNavigating = true);
       try {
         await _setScholarshipStep.set(SetScholarshipStepParams(
           scholarshipId: _presenter.form.id!,
           step: _currentStep - 1,
         ));
-      } catch (_) {}
+      } catch (_) {
+      } finally {
+        if (mounted) setState(() => _isNavigating = false);
+      }
     }
 
     _presenter.previous();
@@ -1189,74 +1225,93 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   Widget build(BuildContext context) {
     final isDocumentsStep = _currentStep == 5;
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(
-          color: Colors.white,
-          onPressed: _onAppBarBackPressed,
-        ),
-        title: Text(
-          isDocumentsStep
-              ? AppI18n.current.documentsStepTitle
-              : AppI18n.current.newProcess,
-        ),
-        centerTitle: true,
-        actions: [
-          if (isDocumentsStep)
-            IconButton(
-              onPressed: _confirmDocumentsGoHome,
-              icon: SvgPicture.asset(
-                AppIcons.houseIcon,
-                width: 24,
-                height: 24,
+    return StreamBuilder<LoadingData?>(
+        stream: _presenter.isLoadingStream,
+        builder: (context, loadingSnapshot) {
+          final isLoading =
+              (loadingSnapshot.data?.isLoading ?? false) || _isNavigating;
+
+          return Scaffold(
+            appBar: AppBar(
+              leading: BackButton(
                 color: Colors.white,
+                onPressed: _onAppBarBackPressed,
               ),
-            ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
+              title: Text(
+                isDocumentsStep
+                    ? AppI18n.current.documentsStepTitle
+                    : AppI18n.current.newProcess,
               ),
-              child: ValueListenableBuilder<int>(
-                  valueListenable: _presenter.completedStepListenable,
-                  builder: (context, completedStep, _) {
-                    return ScholarshipStepIndicator(
-                      currentStep: _currentStep,
-                      completedStep: completedStep,
-                    );
-                  }),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                controller: _stepScrollController,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
+              centerTitle: true,
+              actions: [
+                IconButton(
+                  onPressed: _confirmGoHome,
+                  icon: SvgPicture.asset(
+                    AppIcons.houseIcon,
+                    width: 24,
+                    height: 24,
+                    color: Colors.white,
+                  ),
                 ),
-                child: _buildCurrentStep(),
+              ],
+            ),
+            body: SafeArea(
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        child: ValueListenableBuilder<int>(
+                            valueListenable: _presenter.completedStepListenable,
+                            builder: (context, completedStep, _) {
+                              return ScholarshipStepIndicator(
+                                currentStep: _currentStep,
+                                completedStep: completedStep,
+                              );
+                            }),
+                      ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          controller: _stepScrollController,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          child: _buildCurrentStep(),
+                        ),
+                      ),
+                      StreamBuilder<String?>(
+                        stream: _presenter.uiErrorStream,
+                        builder: (context, snapshot) {
+                          if (snapshot.data != null) {
+                            return Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                              child: EbolsaErrorBanner(message: snapshot.data!),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                      _buildReactiveStepFooter(),
+                    ],
+                  ),
+                  if (isLoading)
+                    const Positioned.fill(
+                      child: ColoredBox(
+                        color: Colors.black26,
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
-            StreamBuilder<String?>(
-              stream: _presenter.uiErrorStream,
-              builder: (context, snapshot) {
-                if (snapshot.data != null) {
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                    child: EbolsaErrorBanner(message: snapshot.data!),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-            _buildReactiveStepFooter(),
-          ],
-        ),
-      ),
-    );
+          );
+        });
   }
 }

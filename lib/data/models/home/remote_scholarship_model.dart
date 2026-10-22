@@ -82,6 +82,8 @@ class RemoteScholarshipModel {
       scholarshipStatus:
           ScholarshipStatus.fromValue(_parseInt(json['scholarshipStatus'])),
       createdOnUtc: DateTime.parse(json['createdOnUtc'] as String),
+      registrationCompletedOnUtc:
+          _parseDateTime(json['registrationCompletedOnUtc']),
       declassificationType: _parseInt(json['declassificationType']) ?? 0,
       administrativeAcronym: json['administrativeAcronym'] as String?,
       announcementId: json['announcementId'] as String?,

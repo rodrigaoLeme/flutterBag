@@ -6,6 +6,7 @@ import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/expenses_entity.dart';
 import '../../../domain/entities/family_member_entity.dart';
 import '../../../domain/entities/scholarship_form_entity.dart';
+import '../../../presentation/mixins/mixins.dart';
 
 abstract class NewScholarshipRequestPresenter {
   Stream<String?> get navigationRouteStream;
@@ -47,7 +48,7 @@ abstract class NewScholarshipRequestPresenter {
 
   List<FamilyMemberEntity> get familyMembers;
 
-  Stream<void> get isLoadingStream;
+  Stream<LoadingData?> get isLoadingStream;
   Stream<String?> get uiErrorStream;
   Stream<bool> get zipCodeLoadingStream;
 

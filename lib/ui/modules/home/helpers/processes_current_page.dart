@@ -71,7 +71,7 @@ class ProcessesCurrentPage extends StatelessWidget {
                     ),
                   )
                       .then((result) {
-                    if (result == 'cancelled') {
+                    if (result == 'home' || result == 'cancelled') {
                       onScholarshipCancelled?.call(); // ← chama o callback
                     }
                   }),

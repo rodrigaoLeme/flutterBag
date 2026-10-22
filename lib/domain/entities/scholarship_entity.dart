@@ -18,6 +18,7 @@ class ScholarshipEntity {
   final List<StudentsEntity>? students;
   final ScholarshipStatus? scholarshipStatus;
   final DateTime createdOnUtc;
+  final DateTime? registrationCompletedOnUtc;
   final int declassificationType;
   final String? administrativeAcronym;
   final String? announcementId;
@@ -43,6 +44,7 @@ class ScholarshipEntity {
     this.students,
     this.scholarshipStatus,
     required this.createdOnUtc,
+    this.registrationCompletedOnUtc,
     this.declassificationType = 0,
     this.administrativeAcronym,
     this.announcementId,
@@ -66,7 +68,10 @@ class ScholarshipEntity {
 
   // Stage relevante baseado no completedStep
   AuthorizationStageEntity? get relevantStage =>
-      authorizationCapabilities?.stageFor(completedStep);
+      authorizationCapabilities?.stageFor(
+        completedStep,
+        registrationCompletedOnUtc,
+      );
 
   // Data do banner — effectiveDeadline do stage relevante
   DateTime? get bannerDeadline => relevantStage?.effectiveDeadline;

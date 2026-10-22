@@ -1513,6 +1513,10 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get expensePhoneInternetHelper => 'Informe o valor total';
 
   @override
+  String get goHomeDialogBody =>
+      'Deseja voltar para a home? Seu progresso foi salvo.';
+
+  @override
   String get familyConfirmDialogTitle => 'Atenção!';
 
   @override

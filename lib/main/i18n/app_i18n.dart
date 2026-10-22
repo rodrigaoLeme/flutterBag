@@ -528,6 +528,7 @@ abstract class AppI18n {
   String get expenseGasValueLabel;
   String get expensePhoneInternetValueLabel;
   String get expensePhoneInternetHelper;
+  String get goHomeDialogBody;
   String get familyConfirmDialogTitle;
   String get familyConfirmDialogBodyEmphasis1;
   String get familyConfirmDialogBodyMiddle;

@@ -22,8 +22,14 @@ class AuthorizationCapabilitiesEntity {
             [],
       );
 
-  AuthorizationStageEntity? stageFor(int? completedStep) {
-    final targetStage = (completedStep != null && completedStep >= 4) ? 3 : 2;
+  AuthorizationStageEntity? stageFor(
+    int? completedStep,
+    DateTime? registrationCompletedOnUtc,
+  ) {
+    final targetStage = (completedStep != null && completedStep >= 4) ||
+            registrationCompletedOnUtc != null
+        ? 3
+        : 2;
     try {
       return stages.firstWhere((s) => s.stage == targetStage);
     } catch (_) {
