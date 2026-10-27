@@ -47,6 +47,7 @@ class NewScholarshipRequestPage extends StatefulWidget {
   final List<AnnouncementSchoolEntity> announcementSchools;
   final int? processYear;
   final String? announcementId;
+  final EducationLevel? educationLevel;
 
   const NewScholarshipRequestPage({
     super.key,
@@ -56,6 +57,7 @@ class NewScholarshipRequestPage extends StatefulWidget {
     this.announcementSchools = const [],
     this.processYear,
     this.announcementId,
+    this.educationLevel,
   });
 
   @override
@@ -116,12 +118,17 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         makeNewRequestPresenter(
           processPeriodId: widget.processPeriodId,
           scholarshipId: widget.scholarshipId,
+          educationLevel: widget.educationLevel,
         );
+    _familyStepVm = MemberRegistrationViewModel(
+      isHigherEducation: widget.educationLevel == EducationLevel.higher,
+    );
     _presenter.stepSubSteps;
     _stepScrollController = ScrollController();
     _presenter.currentStepStream.listen((s) {
       if (!mounted) return;
       _resetStepScroll();
+      _familyStepVm.isHigherEducation = _isHigherEducation;
       setState(() {
         _currentStep = s;
         _isInitializing = false;
@@ -143,9 +150,15 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     }
 
     _loadSchools();
-
-    _familyStepVm = MemberRegistrationViewModel();
   }
+
+  bool get _isHigherEducation =>
+      _presenter.form.educationLevel == EducationLevel.higher ||
+      widget.educationLevel == EducationLevel.higher;
+
+  EducationLevel? get _registrationEducationLevel => _isHigherEducation
+      ? EducationLevel.higher
+      : _presenter.form.educationLevel;
 
   @override
   void dispose() {
@@ -272,6 +285,15 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       return;
     }
 
+    if (_isHigherEducation && candidates.length > 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppI18n.current.higherEducationSingleCandidateHint),
+        ),
+      );
+      return;
+    }
+
     final acknowledged = await _showCandidateAwarenessDialog();
     if (acknowledged != true || !mounted) return;
 
@@ -313,6 +335,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   }
 
   void _syncFamilyMembersToVm() {
+    _familyStepVm.isHigherEducation = _isHigherEducation;
     _familyStepVm.addedFamilyMembers.clear();
     _familyStepVm.familyMemberEntities.clear();
 
@@ -858,6 +881,9 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   }
 
   Future<void> _openCandidateAddPage() async {
+    final alreadyAdded = _candidateStepKey.currentState?.candidates.length ?? 0;
+    if (_isHigherEducation && alreadyAdded >= 1) return;
+
     final result = await Navigator.of(context).push<Map<String, dynamic>?>(
       MaterialPageRoute(
         builder: (_) => CandidateAddPage(
@@ -865,8 +891,9 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           schools: _schools,
           processPeriodId: widget.processPeriodId,
           processYear: _processYear,
-          isHigherEducation:
-              _presenter.form.educationLevel == EducationLevel.higher,
+          isHigherEducation: _isHigherEducation,
+          preferSelfCandidate:
+              _isHigherEducation && _presenter.familyMembers.length == 1,
           excludedMemberIds:
               _candidateStepKey.currentState?.addedMemberIds ?? [],
         ),
@@ -891,8 +918,10 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     );
 
     try {
-      final educationLevel = _presenter.form.educationLevel;
-      final isHigher = educationLevel == EducationLevel.higher;
+      final isHigher = _isHigherEducation;
+      final educationLevel = isHigher
+          ? EducationLevel.higher
+          : _presenter.form.educationLevel;
 
       final studentId = await _saveCandidate.save(SaveCandidateParams(
         scholarshipId: scholarshipId,
@@ -902,9 +931,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         legalPersonType: result['guardianRelationship'] as int,
         educationLevel: educationLevel?.value ?? EducationLevel.basic.value,
         scholarshipType: result['scholarshipType'] as int? ??
-            (isHigher
-                ? ScholarshipType.prouni.value
-                : ScholarshipType.cebas.value),
+            ScholarshipType.cebas.value,
         completedGraduation: isHigher
             ? (result['completedGraduation'] as bool? ?? false)
             : false,
@@ -946,7 +973,11 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       case 1:
         return _presenter.isStep1Complete();
       case 2:
-        return _presenter.familyMembers.isNotEmpty;
+        final members = _presenter.familyMembers;
+        if (members.isEmpty) return false;
+        if (!_isHigherEducation) return true;
+        return members.where((member) => member.isCandidate == true).length ==
+            1;
       case 3:
         return _expensesStepKey.currentState?.canAdvanceCurrentSubStep() ??
             false;
@@ -1055,8 +1086,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                                   processPeriodId: widget.processPeriodId,
                                   initialFamilyMembers:
                                       _presenter.form.familyMembers,
-                                  educationLevel:
-                                      _presenter.form.educationLevel,
+                                  educationLevel: _registrationEducationLevel,
                                   initialSubStep: 5,
                                   residenceType: _presenter.form.residenceType,
                                   minimumWage: _presenter.form.minimumWage,
@@ -1145,7 +1175,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                   scholarshipId: _presenter.form.id ?? '',
                   processPeriodId: widget.processPeriodId,
                   initialFamilyMembers: _presenter.form.familyMembers,
-                  educationLevel: _presenter.form.educationLevel,
+                  educationLevel: _registrationEducationLevel,
                   residenceType: _presenter.form.residenceType,
                   minimumWage: _presenter.form.minimumWage,
                 ),
@@ -1168,7 +1198,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                   scholarshipId: _presenter.form.id ?? '',
                   processPeriodId: widget.processPeriodId,
                   initialFamilyMembers: _presenter.form.familyMembers,
-                  educationLevel: _presenter.form.educationLevel,
+                  educationLevel: _registrationEducationLevel,
                   initialEditIndex: index, // ← passa o índice
                 ),
               ),
@@ -1198,6 +1228,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           key: _candidateStepKey,
           schools: _schools,
           processPeriodId: widget.processPeriodId,
+          singleCandidate: _isHigherEducation,
           initialCandidates: _registeredCandidates,
           onCandidatesChanged: () async {
             _syncRegisteredCandidates();

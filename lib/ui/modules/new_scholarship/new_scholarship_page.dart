@@ -347,6 +347,7 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
                   announcementSchools: announcement.schools,
                   announcementId: announcement.id,
                   processYear: widget.lockedYear,
+                  educationLevel: announcement.educationLevel,
                 ),
               ),
             );

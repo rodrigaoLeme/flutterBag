@@ -374,6 +374,7 @@ class _OccupationPageState extends State<OccupationPage> {
           RadioGroup<String>(
             groupValue: currentValue,
             onChanged: (v) {
+              FocusManager.instance.primaryFocus?.unfocus();
               setState(() {
                 controller.text = v ?? '';
                 onAnswerChanged?.call(v ?? '');
@@ -384,6 +385,7 @@ class _OccupationPageState extends State<OccupationPage> {
                 return GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
                     setState(() {
                       controller.text = label;
                       onAnswerChanged?.call(label);

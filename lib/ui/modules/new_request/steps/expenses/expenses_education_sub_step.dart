@@ -187,6 +187,7 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
   }
 
   void _onSchoolTransportChanged(SchoolTransportType? value) {
+    FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
       _schoolTransportType = value;
       _schoolTransportError = null;

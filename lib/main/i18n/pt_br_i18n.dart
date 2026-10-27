@@ -87,6 +87,20 @@ class PtBrI18n implements AppI18n {
   String get renewalDetailStartButton => 'Iniciar Renovação';
 
   @override
+  String get renewalEmptyTitle => 'Nenhum aluno encontrado para renovação';
+
+  @override
+  String get renewalEmptyMessage =>
+      'Não localizamos alunos bolsistas vinculados ao seu CPF como responsável legal. Se você não é o responsável pela matrícula na unidade escolar, não será possível realizar a renovação da bolsa.';
+
+  @override
+  String get renewalEmptyContact =>
+      'Em caso de dúvidas, entre em contato diretamente com a secretaria da sua unidade escolar.';
+
+  @override
+  String get renewalEmptyBackHome => 'Voltar para a Home';
+
+  @override
   String get processCardSchoolUnit => 'Unidade Escolar';
 
   // Housing step
@@ -911,6 +925,10 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
       ' os candidatos que você deseja que participe do processo seletivo. Lembrando que os mesmos precisam compor o grupo familiar.';
 
   @override
+  String get candidateStepSingleDescription =>
+      'Nesta etapa, cadastre a pessoa candidata à bolsa. Ela precisa fazer parte do grupo familiar.';
+
+  @override
   String get addCandidate => 'Adicionar candidato';
 
   @override
@@ -944,6 +962,13 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   @override
   String get highSchoolScholarshipHolderQuestion =>
       'O candidato foi bolsista no ensino médio?';
+
+  @override
+  String get completedGraduationQuestion => 'Já possui graduação concluída?';
+
+  @override
+  String get currentlyEnrolledInGraduationQuestion =>
+      'Está cursando graduação atualmente?';
 
   @override
   String get candidateDeleteDialogTitle => 'Confirmação';
@@ -1585,6 +1610,14 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
 
   @override
   String get willApplyScholarshipQuestion => 'Será candidato a bolsa?';
+
+  @override
+  String get higherEducationCandidateRequiredHint =>
+      'No ensino superior, marque uma pessoa como candidata à bolsa. Se o grupo tiver só uma pessoa, ela precisa ser a candidata para avançar.';
+
+  @override
+  String get higherEducationSingleCandidateHint =>
+      'No ensino superior, apenas uma pessoa pode ser candidata à bolsa.';
 
   @override
   String get nationalityLabel => 'Nacionalidade';

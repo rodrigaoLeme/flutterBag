@@ -6,6 +6,7 @@ import '../../../../../domain/entities/school_entity.dart';
 import '../../../../../domain/usecases/candidate/load_academic_courses_usecase.dart';
 import '../../../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../../../main/i18n/app_i18n.dart';
+import '../../../../components/ebolsa_radio_group.dart';
 import '../../../../components/searchable_options_bottom_sheet.dart';
 import '../../../../helpers/themes/themes.dart';
 import '../../widgets/scholarship_step_indicator.dart';
@@ -32,6 +33,7 @@ class CandidateAddPage extends StatefulWidget {
   final Map<String, dynamic>? initialData;
   final String processPeriodId;
   final bool isHigherEducation;
+  final bool preferSelfCandidate;
 
   const CandidateAddPage({
     super.key,
@@ -40,6 +42,7 @@ class CandidateAddPage extends StatefulWidget {
     required this.processYear,
     required this.processPeriodId,
     required this.isHigherEducation,
+    this.preferSelfCandidate = false,
     this.excludedMemberIds = const [],
     this.initialData,
   });
@@ -57,6 +60,9 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
   bool _isLoadingCourses = false;
   CandidateFamilyMemberOption? _selectedMember;
   GuardianRelationshipType? _selectedRelationship;
+  int? _completedGraduation;
+  int? _currentlyEnrolledInGraduation;
+  int? _highSchoolScholarshipHolder;
 
   List<SchoolEntity> get _schools => widget.schools;
 
@@ -73,6 +79,12 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
   void initState() {
     super.initState();
     _restoreInitialData();
+    if (_selectedMember == null && _availableMembers.length == 1) {
+      _selectedMember = _availableMembers.first;
+    }
+    if (widget.preferSelfCandidate && _selectedRelationship == null) {
+      _selectedRelationship = GuardianRelationshipType.candidate;
+    }
   }
 
   Future<void> _onSchoolSelected(SchoolEntity school) async {
@@ -102,6 +114,11 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
     }
   }
 
+  int? _yesNoFrom(dynamic value) {
+    if (value is bool) return value ? 1 : 0;
+    return null;
+  }
+
   void _restoreInitialData() {
     final data = widget.initialData;
     if (data == null) return;
@@ -114,6 +131,12 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
 
     _selectedRelationship = GuardianRelationshipType.fromValue(
         data['guardianRelationship'] as int?);
+
+    _completedGraduation = _yesNoFrom(data['completedGraduation']);
+    _currentlyEnrolledInGraduation =
+        _yesNoFrom(data['currentlyEnrolledInGraduation']);
+    _highSchoolScholarshipHolder =
+        _yesNoFrom(data['highSchoolScholarshipHolder']);
 
     final schoolId = data['schoolId']?.toString();
     try {
@@ -217,7 +240,11 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
       _selectedRelationship != null &&
       _selectedSchool != null &&
       _selectedCourse != null &&
-      !_isLoadingCourses;
+      !_isLoadingCourses &&
+      (!widget.isHigherEducation ||
+          (_completedGraduation != null &&
+              _currentlyEnrolledInGraduation != null &&
+              _highSchoolScholarshipHolder != null));
 
   void _saveAndReturn() {
     Navigator.of(context).pop({
@@ -231,6 +258,11 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
       'schoolName': _selectedSchool?.name,
       'gradeId': _selectedCourse?.id ?? '',
       'gradeName': _selectedCourse?.name ?? '',
+      if (widget.isHigherEducation) ...{
+        'completedGraduation': _completedGraduation == 1,
+        'currentlyEnrolledInGraduation': _currentlyEnrolledInGraduation == 1,
+        'highSchoolScholarshipHolder': _highSchoolScholarshipHolder == 1,
+      },
     });
   }
 
@@ -369,6 +401,43 @@ class _CandidateAddPageState extends State<CandidateAddPage> {
                           _selectedSchool == null ? null : _openCourseSelector,
                       enabled: _selectedSchool != null && !_isLoadingCourses,
                     ),
+                    if (widget.isHigherEducation) ...[
+                      const SizedBox(height: 22),
+                      EbolsaRadioGroup<int>(
+                        question: i18n.completedGraduationQuestion,
+                        options: [
+                          RadioOption(label: i18n.answerNo, value: 0),
+                          RadioOption(label: i18n.answerYes, value: 1),
+                        ],
+                        groupValue: _completedGraduation,
+                        onChanged: (value) => setState(
+                          () => _completedGraduation = value,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      EbolsaRadioGroup<int>(
+                        question: i18n.currentlyEnrolledInGraduationQuestion,
+                        options: [
+                          RadioOption(label: i18n.answerNo, value: 0),
+                          RadioOption(label: i18n.answerYes, value: 1),
+                        ],
+                        groupValue: _currentlyEnrolledInGraduation,
+                        onChanged: (value) => setState(
+                          () => _currentlyEnrolledInGraduation = value,
+                        ),
+                      ),
+                      EbolsaRadioGroup<int>(
+                        question: i18n.highSchoolScholarshipHolderQuestion,
+                        options: [
+                          RadioOption(label: i18n.answerNo, value: 0),
+                          RadioOption(label: i18n.answerYes, value: 1),
+                        ],
+                        groupValue: _highSchoolScholarshipHolder,
+                        onChanged: (value) => setState(
+                          () => _highSchoolScholarshipHolder = value,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

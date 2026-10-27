@@ -13,6 +13,7 @@ class CandidateStep extends StatefulWidget {
   final List<Map<String, dynamic>> initialCandidates;
   final List<SchoolEntity> schools;
   final String processPeriodId;
+  final bool singleCandidate;
 
   const CandidateStep({
     super.key,
@@ -21,6 +22,7 @@ class CandidateStep extends StatefulWidget {
     this.onDeleteCandidate,
     this.onCandidatesChanged,
     this.initialCandidates = const [],
+    this.singleCandidate = false,
     required this.schools,
     required this.processPeriodId,
   });
@@ -41,6 +43,8 @@ class CandidateStepState extends State<CandidateStep> {
   }
 
   bool get hasCandidates => _candidates.isNotEmpty;
+
+  bool get canAddAnother => !widget.singleCandidate || _candidates.isEmpty;
 
   List<String> get addedMemberIds => _candidates
       .map((c) => c['familyMemberId']?.toString())
@@ -130,23 +134,29 @@ class CandidateStepState extends State<CandidateStep> {
         children: [
           Text(i18n.candidateStepTitle, style: AppTextStyles.titleLarge),
           const SizedBox(height: 8),
-          Text.rich(
-            TextSpan(
+          if (widget.singleCandidate)
+            Text(
+              i18n.candidateStepSingleDescription,
               style: AppTextStyles.bodyMedium,
-              children: [
-                TextSpan(text: i18n.candidateStepDescriptionPrefix),
-                TextSpan(
-                  text: i18n.candidateStepDescriptionEmphasis,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w600,
+            )
+          else
+            Text.rich(
+              TextSpan(
+                style: AppTextStyles.bodyMedium,
+                children: [
+                  TextSpan(text: i18n.candidateStepDescriptionPrefix),
+                  TextSpan(
+                    text: i18n.candidateStepDescriptionEmphasis,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                TextSpan(text: i18n.candidateStepDescriptionSuffix),
-              ],
+                  TextSpan(text: i18n.candidateStepDescriptionSuffix),
+                ],
+              ),
             ),
-          ),
           const SizedBox(height: 24),
-          _buildAddCandidateButton(),
+          if (canAddAnother) _buildAddCandidateButton(),
           if (_candidates.isNotEmpty) ...[
             const SizedBox(height: 24),
             ..._buildCandidateCards(),

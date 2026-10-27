@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../../data/cache/enrollment_draft_storage.dart';
+import '../../../domain/entities/announcement_enums.dart';
 import '../../../domain/entities/candidate_entity.dart';
 import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/expenses_entity.dart';
@@ -32,6 +33,7 @@ class StreamNewScholarshipRequestPresenter
     implements NewScholarshipRequestPresenter {
   final String processPeriodId;
   final String? scholarshipId;
+  final EducationLevel? educationLevel;
   final SaveStep1Usecase saveStep1Usecase;
   final SaveStep3Usecase saveStep3Usecase;
   final SaveStep4Usecase saveStep4Usecase;
@@ -42,6 +44,7 @@ class StreamNewScholarshipRequestPresenter
   StreamNewScholarshipRequestPresenter({
     required this.processPeriodId,
     this.scholarshipId,
+    this.educationLevel,
     required this.saveStep1Usecase,
     required this.saveStep3Usecase,
     required this.saveStep4Usecase,
@@ -141,6 +144,7 @@ class StreamNewScholarshipRequestPresenter
             final remoteForm = await loadScholarshipFormUsecase.load(idToLoad);
             if (remoteForm != null) {
               _form = _mergeRemoteOverDraft(remoteForm, _form);
+              _applyRequestedEducationLevel();
               await _saveDraftSilently();
               _completedStepNotifier.value = _form.completedStep;
               _populateControllersFromForm(_form);
@@ -155,6 +159,7 @@ class StreamNewScholarshipRequestPresenter
         } else {
           _currentStep = _form.currentStep.clamp(1, _stepSubSteps.length);
         }
+        _applyRequestedEducationLevel();
         _currentSubStep = 1;
         _currentStepController.add(_currentStep);
         _currentSubStepController.add(_currentSubStep);
@@ -191,9 +196,18 @@ class StreamNewScholarshipRequestPresenter
       _form = ScholarshipFormEntity(processPeriodId: processPeriodId);
       _currentStep = 1;
     }
+    _applyRequestedEducationLevel();
     _currentSubStep = 1;
     _currentStepController.add(_currentStep);
     _currentSubStepController.add(_currentSubStep);
+  }
+
+  void _applyRequestedEducationLevel() {
+    final level = educationLevel;
+    if (level == null) return;
+    if (_form.educationLevel != null && level != EducationLevel.higher) return;
+    if (_form.educationLevel == level) return;
+    _form = _form.copyWith(educationLevel: level);
   }
 
   /// Mantém progresso local (ex.: despesas ainda não sincronizadas) e

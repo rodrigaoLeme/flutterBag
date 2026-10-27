@@ -30,14 +30,6 @@ class RemoteLoadAnnouncementSchoolsUsecase
             queryParameters: const {'enabled': true},
           ),
         );
-        _mergeInto(
-          eligible,
-          await _tryLoad(
-            url:
-                '${Flavor.webApiBaseUrl}/v2/process-periods/$processPeriodId/schools',
-            queryParameters: const {'enabled': true},
-          ),
-        );
       }
 
       final announcementId = params.announcementId;
@@ -46,12 +38,6 @@ class RemoteLoadAnnouncementSchoolsUsecase
           eligible,
           await _tryLoad(
             url: '${Flavor.apiBaseUrl}/v1/announcements/$announcementId',
-          ),
-        );
-        _mergeInto(
-          eligible,
-          await _tryLoad(
-            url: '${Flavor.webApiBaseUrl}/v2/announcements/$announcementId',
           ),
         );
       }

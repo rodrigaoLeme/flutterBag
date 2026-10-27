@@ -19,15 +19,6 @@ class Flavor {
     }
   }
 
-  static String get webApiBaseUrl {
-    switch (flavorType) {
-      case FlavorType.dev:
-        return 'https://api-ebolsa-dev.educadventista.org/api';
-      case FlavorType.prod:
-        return 'https://api-ebolsa.educadventista.org/api';
-    }
-  }
-
   static String get appName {
     final appStrings = AppI18n.current;
 

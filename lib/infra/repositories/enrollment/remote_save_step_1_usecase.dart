@@ -16,7 +16,7 @@ class RemoteSaveStep1Usecase implements SaveStep1Usecase {
     try {
       if (scholarshipId != null) {
         await httpClient.request(
-          url: '${Flavor.apiBaseUrl}/scholarships/$scholarshipId/step-1',
+          url: '${Flavor.apiBaseUrl}/v1/scholarships/$scholarshipId/step-1',
           method: HttpMethod.put,
           body: housing.toUpdateJson(),
         );
@@ -24,7 +24,7 @@ class RemoteSaveStep1Usecase implements SaveStep1Usecase {
       }
 
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/scholarships/step-1',
+        url: '${Flavor.apiBaseUrl}/v1/scholarships/step-1',
         method: HttpMethod.post,
         body: housing.toJson(),
       );

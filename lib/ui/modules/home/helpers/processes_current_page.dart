@@ -125,6 +125,7 @@ class ProcessesCurrentPage extends StatelessWidget {
           processYear: scholarship.academicYear,
           announcementId: scholarship.announcementId ??
               scholarship.processPeriod?.announcementId,
+          educationLevel: scholarship.educationLevel,
         ),
       ),
     );

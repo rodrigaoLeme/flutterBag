@@ -51,6 +51,7 @@ class EbolsaTextField extends StatelessWidget {
       inputFormatters: inputFormatters,
       onChanged: onChanged,
       onSubmitted: onSubmitted,
+      onTapUpOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,

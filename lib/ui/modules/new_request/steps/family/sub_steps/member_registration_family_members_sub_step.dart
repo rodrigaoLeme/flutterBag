@@ -23,6 +23,17 @@ class MemberRegistrationFamilyMembersSubStep extends StatelessWidget {
   final void Function(int index) onEditMember;
   final void Function(int index) onDeleteMember;
 
+  String? _memberTag(Map<String, dynamic> member) {
+    final i18n = AppI18n.current;
+    final tags = <String>[
+      if (member['isResponsible'] == true) i18n.scholarshipResponsibleTag,
+      if (member['isScholarshipCandidate'] == true)
+        i18n.scholarshipCandidateTag,
+    ];
+    if (tags.isEmpty) return null;
+    return tags.join(' · ');
+  }
+
   String _calculateAge(String? dob) {
     if (dob == null || dob.isEmpty) return '-';
     try {
@@ -76,6 +87,14 @@ class MemberRegistrationFamilyMembersSubStep extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
+        if (vm.higherEducationFamilyHint != null) ...[
+          Text(
+            vm.higherEducationFamilyHint!,
+            style: AppTextStyles.bodyMedium
+                .copyWith(color: AppColors.warningLight),
+          ),
+          const SizedBox(height: 16),
+        ],
         if (vm.addedFamilyMembers.isEmpty)
           Center(
             child: Padding(
@@ -91,11 +110,7 @@ class MemberRegistrationFamilyMembersSubStep extends StatelessWidget {
             EbolsaMemberCard(
               isResponsible: vm.addedFamilyMembers[i]['isResponsible'],
               headerTitle: null,
-              tag: vm.addedFamilyMembers[i]['isResponsible'] == true
-                  ? AppI18n.current.scholarshipResponsibleTag
-                  : vm.addedFamilyMembers[i]['isScholarshipCandidate'] == true
-                      ? AppI18n.current.scholarshipCandidateTag
-                      : null,
+              tag: _memberTag(vm.addedFamilyMembers[i]),
               title: vm.addedFamilyMembers[i]['name']?.toString() ?? '',
               subtitle:
                   null, //vm.addedFamilyMembers[i]['maritalStatus']?.toString(),

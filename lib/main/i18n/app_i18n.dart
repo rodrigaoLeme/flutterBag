@@ -309,6 +309,10 @@ abstract class AppI18n {
   String get renewalDetailCandidatesSubtitle;
   String get renewalDetailViewNotice;
   String get renewalDetailStartButton;
+  String get renewalEmptyTitle;
+  String get renewalEmptyMessage;
+  String get renewalEmptyContact;
+  String get renewalEmptyBackHome;
   String get processCardSchoolUnit;
 
   // Steps - Erros de domínio
@@ -344,6 +348,7 @@ abstract class AppI18n {
   String get candidateStepDescriptionPrefix;
   String get candidateStepDescriptionEmphasis;
   String get candidateStepDescriptionSuffix;
+  String get candidateStepSingleDescription;
   String get addCandidate;
   String get noCandidatesRegistered;
   String get selectCandidateLabel;
@@ -355,6 +360,8 @@ abstract class AppI18n {
   String get guardianRelationshipGuardianship;
   String get addCandidateAction;
   String get highSchoolScholarshipHolderQuestion;
+  String get completedGraduationQuestion;
+  String get currentlyEnrolledInGraduationQuestion;
   String get candidateDeleteDialogTitle;
   String candidateDeleteDialogMessage(String name);
   String get candidateMissingDialogIntro;
@@ -551,6 +558,8 @@ abstract class AppI18n {
   String get receivesPensionQuestion;
   String get isRetiredQuestion;
   String get willApplyScholarshipQuestion;
+  String get higherEducationCandidateRequiredHint;
+  String get higherEducationSingleCandidateHint;
   String get nationalityLabel;
   String get naturalizedQuestion;
   String get concessionBannerTitle;

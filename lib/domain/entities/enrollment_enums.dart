@@ -255,3 +255,27 @@ enum SchoolTransportType {
     }
   }
 }
+
+enum ScholarshipProofReference {
+  familyGroup(0, 'Grupo Familiar'),
+  familyMember(1, 'Membro Familiar'),
+  candidate(2, 'Candidato'),
+  occupation(3, 'Ocupação'),
+  realState(4, 'Bem Imóvel'),
+  investment(5, 'Investimento'),
+  vehicle(6, 'Veículo');
+
+  const ScholarshipProofReference(this.value, this.label);
+  final int value;
+  final String label;
+
+  static ScholarshipProofReference? fromValue(int? value) {
+    if (value == null) return null;
+    try {
+      return ScholarshipProofReference.values
+          .firstWhere((e) => e.value == value);
+    } catch (_) {
+      return null;
+    }
+  }
+}

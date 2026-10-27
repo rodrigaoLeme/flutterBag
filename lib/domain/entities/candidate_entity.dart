@@ -78,7 +78,7 @@ class CandidateEntity {
 
   int _resolvedScholarshipType(int? level) {
     if (level == EducationLevel.higher.value) {
-      return ScholarshipType.prouni.value;
+      return ScholarshipType.cebas.value;
     }
     if (level == EducationLevel.basic.value) {
       return ScholarshipType.cebas.value;

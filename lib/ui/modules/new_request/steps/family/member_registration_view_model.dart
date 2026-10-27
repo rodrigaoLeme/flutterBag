@@ -185,9 +185,36 @@ class MemberRegistrationViewModel extends ChangeNotifier {
         programaGovernoValueController,
       ];
 
+  bool get hasAnotherScholarshipCandidate {
+    for (var i = 0; i < addedFamilyMembers.length; i++) {
+      if (i == _editingIndex) continue;
+      if (addedFamilyMembers[i]['isScholarshipCandidate'] == true) return true;
+    }
+    return false;
+  }
+
+  int get scholarshipCandidateCount => addedFamilyMembers
+      .where((member) => member['isScholarshipCandidate'] == true)
+      .length;
+
+  bool get canContinueFamilyMembers {
+    if (addedFamilyMembers.isEmpty) return false;
+    if (!isHigherEducation) return true;
+    return scholarshipCandidateCount == 1;
+  }
+
+  String? get higherEducationFamilyHint {
+    if (!isHigherEducation || addedFamilyMembers.isEmpty) return null;
+    if (scholarshipCandidateCount == 1) return null;
+    if (scholarshipCandidateCount > 1) {
+      return AppI18n.current.higherEducationSingleCandidateHint;
+    }
+    return AppI18n.current.higherEducationCandidateRequiredHint;
+  }
+
   bool showCandidateField(
       {required bool isFirstMember, required bool isHigherEducation}) {
-    if (isHigherEducation) return true;
+    if (isHigherEducation) return !hasAnotherScholarshipCandidate;
     return !isFirstMember;
   }
 
@@ -617,6 +644,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   }
 
   void setSeraCandidato(int? v) {
+    if (isHigherEducation && v == 1 && hasAnotherScholarshipCandidate) return;
     seraCandidato = v;
     notifyListeners();
   }
@@ -1055,7 +1083,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       case 3:
         return isOtherIncomeSubStepComplete();
       case 4:
-        return addedFamilyMembers.isNotEmpty;
+        return canContinueFamilyMembers;
       case 5:
         return isAssetsSubStepComplete();
       case 6:

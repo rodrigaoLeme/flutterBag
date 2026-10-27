@@ -35,7 +35,10 @@ class EbolsaRadioGroup<T> extends StatelessWidget {
     final radioItems = options.map((o) {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => onChanged(o.value),
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+          onChanged(o.value);
+        },
         child: Padding(
           padding: EdgeInsets.only(
             right: isVertical ? 0 : 12.0,
@@ -74,7 +77,10 @@ class EbolsaRadioGroup<T> extends StatelessWidget {
         const SizedBox(height: 4),
         RadioGroup<T>(
           groupValue: groupValue,
-          onChanged: onChanged,
+          onChanged: (value) {
+            FocusManager.instance.primaryFocus?.unfocus();
+            onChanged(value);
+          },
           child: isVertical
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -16,32 +16,12 @@ class RemoteLoadSchoolGradesUsecase implements LoadSchoolGradesUsecase {
       final attempts = <({String url, Map<String, dynamic>? query})>[];
 
       if (processPeriodId != null && processPeriodId.isNotEmpty) {
-        attempts.addAll([
-          (
-            url:
-                '${Flavor.webApiBaseUrl}/v2/schools/${params.schoolId}/process-periods/$processPeriodId/academic-courses',
-            query: {'active': true},
-          ),
-          (
-            url:
-                '${Flavor.webApiBaseUrl}/v2/process-periods/$processPeriodId/courses',
-            query: {'schoolId': params.schoolId},
-          ),
-        ]);
-      }
-
-      attempts.addAll([
-        (
+        attempts.add((
           url:
-              '${Flavor.webApiBaseUrl}/v2/schools/${params.schoolId}/academic-courses',
-          query: {'year': params.year},
-        ),
-        (
-          url:
-              '${Flavor.webApiBaseUrl}/v2/schools/${params.schoolId}/school-courses',
+              '${Flavor.apiBaseUrl}/v1/process-periods/$processPeriodId/schools/${params.schoolId}/academic-courses',
           query: null,
-        ),
-      ]);
+        ));
+      }
 
       for (final attempt in attempts) {
         final grades = await _tryLoad(

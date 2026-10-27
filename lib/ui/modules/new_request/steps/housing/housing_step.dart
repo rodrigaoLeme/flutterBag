@@ -104,6 +104,7 @@ class _HousingStepState extends State<HousingStep> {
   }
 
   Future<void> _openHousingTypeSelector() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     final appStrings = AppI18n.current;
     final options = ResidenceType.values.toList();
 
@@ -279,12 +280,16 @@ class _HousingStepState extends State<HousingStep> {
                 RadioGroup<String>(
                   groupValue: residenceVal,
                   onChanged: (value) {
+                    FocusManager.instance.primaryFocus?.unfocus();
                     if (value != null) widget.onResidenceAreaChanged(value);
                   },
                   child: Column(
                     children: ResidenceAreaType.values.map((type) {
                       return InkWell(
-                        onTap: () => widget.onResidenceAreaChanged(type.label),
+                        onTap: () {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                          widget.onResidenceAreaChanged(type.label);
+                        },
                         child: Row(
                           children: [
                             Radio<String>(
