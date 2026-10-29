@@ -477,6 +477,7 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
                     for (var i = 0; i < _requirements.length; i++) ...[
                       _DocumentRequirementRow(
                         title: _requirements[i].title,
+                        referenceDescription: _requirements[i].description,
                         isUploaded: _requirements[i].isUploaded,
                         actionLabel: _requirements[i].isUploaded
                             ? i18n.documentEditAction
@@ -511,6 +512,7 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
 
 class _DocumentRequirementRow extends StatelessWidget {
   final String title;
+  final String? referenceDescription;
   final bool isUploaded;
   final String actionLabel;
   final VoidCallback onSend;
@@ -520,6 +522,7 @@ class _DocumentRequirementRow extends StatelessWidget {
     required this.isUploaded,
     required this.actionLabel,
     required this.onSend,
+    this.referenceDescription,
   });
 
   @override
@@ -537,9 +540,19 @@ class _DocumentRequirementRow extends StatelessWidget {
             const SizedBox(width: 8),
           ],
           Expanded(
-            child: Text(
-              title,
-              style: AppTextStyles.bodyLarge,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTextStyles.bodyLarge,
+                ),
+                if (referenceDescription != null)
+                  Text(
+                    referenceDescription!,
+                    style: AppTextStyles.bodySmall,
+                  ),
+              ],
             ),
           ),
           const SizedBox(width: 16),

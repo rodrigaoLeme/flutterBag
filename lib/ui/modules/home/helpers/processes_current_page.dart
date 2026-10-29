@@ -122,6 +122,7 @@ class ProcessesCurrentPage extends StatelessWidget {
         builder: (_) => NewScholarshipRequestPage(
           processPeriodId: scholarship.effectiveProcessPeriodId ?? '',
           scholarshipId: scholarship.id,
+          submissionDeadline: scholarship.bannerDeadline,
           processYear: scholarship.academicYear,
           announcementId: scholarship.announcementId ??
               scholarship.processPeriod?.announcementId,

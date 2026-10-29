@@ -9,11 +9,13 @@ import '../../../domain/entities/available_announcement_entity.dart';
 import '../../../domain/entities/candidate_entity.dart';
 import '../../../domain/entities/enrollment_enums.dart';
 import '../../../domain/entities/family_member_entity.dart';
+import '../../../domain/entities/scholarship_proof_entity.dart';
 import '../../../domain/entities/school_entity.dart';
 import '../../../domain/helpers/app_constants.dart';
 import '../../../domain/usecases/candidate/delete_candidate_usecase.dart';
 import '../../../domain/usecases/candidate/load_process_period_schools_usecase.dart';
 import '../../../domain/usecases/candidate/save_candidate_usecase.dart';
+import '../../../domain/usecases/documents/load_proofs_usecase.dart';
 import '../../../domain/usecases/enrollment/delete_family_member_usecase.dart';
 import '../../../domain/usecases/enrollment/set_scholarship_step_usecase.dart';
 import '../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
@@ -24,6 +26,7 @@ import '../../../presentation/mixins/mixins.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
 import 'dev_navigation_overrides.dart';
+import 'helpers/proof_group.dart';
 import 'new_scholarship_request_presenter.dart';
 import 'steps/candidate/candidate_add_page.dart';
 import 'steps/candidate/candidate_step.dart';
@@ -44,6 +47,7 @@ class NewScholarshipRequestPage extends StatefulWidget {
   final NewScholarshipRequestPresenter? presenter;
   final String processPeriodId;
   final String? scholarshipId;
+  final DateTime? submissionDeadline;
   final List<AnnouncementSchoolEntity> announcementSchools;
   final int? processYear;
   final String? announcementId;
@@ -54,6 +58,7 @@ class NewScholarshipRequestPage extends StatefulWidget {
     this.presenter,
     required this.processPeriodId,
     this.scholarshipId,
+    this.submissionDeadline,
     this.announcementSchools = const [],
     this.processYear,
     this.announcementId,
@@ -88,10 +93,14 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       _uploadedDocumentsByGroup = {};
   List<SchoolEntity> _schools = [];
 
+  List<ScholarshipProofEntity> _proofs = [];
+
   // ignore: unused_field
   bool _isLoadingSchools = false;
 
   bool _isNavigating = false;
+
+  bool _isLoadingProofs = false;
 
   static const int _totalSteps = 5;
 
@@ -134,6 +143,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         _isInitializing = false;
         _hydrateCandidatesFromForm();
       });
+      if (s == 5) _loadProofs();
     });
     _presenter.currentSubStepStream.listen((s) {
       if (!mounted) return;
@@ -518,55 +528,87 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   }
 
   List<DocumentGroupItem> _buildDocumentGroups() {
-    final i18n = AppI18n.current;
-    final groups = <DocumentGroupItem>[
-      DocumentGroupItem(
-        id: 'family-group',
-        title: i18n.familyInfoGroupTitle,
-        type: DocumentGroupType.family,
-        totalDocuments: 6,
-      ),
-    ];
+    if (_proofs.isEmpty) return [];
 
-    final candidates = _registeredCandidates;
-    final candidateIds = <String>{};
+    final Map<String, ProofGroup> groups = {};
+    for (final proof in _proofs) {
+      String groupId;
+      String groupTitle;
+      DocumentGroupType groupType;
 
-    for (final candidate in candidates) {
-      final id = candidate['familyMemberId']?.toString() ??
-          candidate['name']?.toString() ??
-          '';
-      candidateIds.add(id);
-      groups.add(
-        DocumentGroupItem(
-          id: id,
-          title: candidate['name']?.toString() ?? '',
-          type: DocumentGroupType.candidate,
-          totalDocuments: 4,
-        ),
-      );
-    }
+      switch (proof.proofReference) {
+        case ScholarshipProofReference.familyGroup:
+          groupId = 'family';
+          groupTitle = AppI18n.current.familyInfoGroupTitle;
+          groupType = DocumentGroupType.family;
+          break;
 
-    for (final member in _presenter.familyMembers) {
-      final memberId = _familyMemberId(member);
-      if (member.isCandidate == true || candidateIds.contains(memberId)) {
-        continue;
+        case ScholarshipProofReference.candidate:
+          groupId = proof.familyMemberId ?? proof.studentId ?? 'candidate';
+          groupTitle =
+              proof.contextLabel ?? proof.familyMemberName ?? 'Candidato';
+          groupType = DocumentGroupType.candidate;
+          break;
+
+        case ScholarshipProofReference.familyMember:
+          final isCandidateMember = _proofs.any((p) =>
+              p.proofReference == ScholarshipProofReference.candidate &&
+              p.familyMemberId == proof.familyMemberId);
+
+          if (isCandidateMember) {
+            groupId = proof.familyMemberId ?? 'member';
+            groupTitle =
+                proof.contextLabel ?? proof.familyMemberName ?? 'Membro';
+            groupType = DocumentGroupType.candidate; // ← tipo candidato
+          } else {
+            // Membro comum — grupo separado
+            groupId = proof.familyMemberId ?? 'member';
+            groupTitle =
+                proof.familyMemberName ?? proof.contextLabel ?? 'Membro';
+            groupType = DocumentGroupType.member;
+          }
+          break;
+
+        default:
+          groupId = proof.familyMemberId ?? 'family';
+          groupTitle =
+              proof.familyMemberName ?? AppI18n.current.familyInfoGroupTitle;
+          groupType = proof.familyMemberId != null
+              ? DocumentGroupType.member
+              : DocumentGroupType.family;
       }
 
-      groups.add(
-        DocumentGroupItem(
-          id: memberId ?? '',
-          title: member.name ?? '',
-          type: DocumentGroupType.member,
-          totalDocuments: 4,
-        ),
-      );
+      groups
+          .putIfAbsent(
+              groupId,
+              () => ProofGroup(
+                    id: groupId,
+                    title: groupTitle,
+                    type: groupType,
+                  ))
+          .addProof(proof);
     }
 
-    if (groups.length == 1) {
-      return _mockDocumentGroups();
-    }
+    // Ordena: família primeiro, depois candidatos, depois membros
+    final sorted = groups.values.toList()
+      ..sort((a, b) {
+        final order = {
+          DocumentGroupType.family: 0,
+          DocumentGroupType.candidate: 1,
+          DocumentGroupType.member: 2,
+        };
+        return (order[a.type] ?? 3).compareTo(order[b.type] ?? 3);
+      });
 
-    return groups.map(_withUploadProgress).toList();
+    return sorted
+        .map((g) => DocumentGroupItem(
+              id: g.id,
+              title: g.title,
+              type: g.type,
+              totalDocuments: g.totalSlots,
+              uploadedDocuments: g.uploadedSlots,
+            ))
+        .toList();
   }
 
   int _uploadedCount(String groupId) =>
@@ -575,43 +617,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   DocumentGroupItem _withUploadProgress(DocumentGroupItem group) =>
       group.copyWith(uploadedDocuments: _uploadedCount(group.id));
 
-  List<DocumentGroupItem> _mockDocumentGroups() {
-    final i18n = AppI18n.current;
-
-    return [
-      DocumentGroupItem(
-        id: 'family-group',
-        title: i18n.familyInfoGroupTitle,
-        type: DocumentGroupType.family,
-        totalDocuments: 6,
-      ),
-      const DocumentGroupItem(
-        id: 'candidate-ana',
-        title: 'Ana Silva',
-        type: DocumentGroupType.candidate,
-        totalDocuments: 6,
-      ),
-      const DocumentGroupItem(
-        id: 'candidate-andre',
-        title: 'André Silva',
-        type: DocumentGroupType.candidate,
-        totalDocuments: 6,
-      ),
-      const DocumentGroupItem(
-        id: 'member-maria',
-        title: 'Maria Silva',
-        type: DocumentGroupType.member,
-        totalDocuments: 4,
-      ),
-      const DocumentGroupItem(
-        id: 'member-joao',
-        title: 'João Silva',
-        type: DocumentGroupType.member,
-        totalDocuments: 4,
-      ),
-    ].map(_withUploadProgress).toList();
-  }
-
+  // TODO: Verificar para remover isso depois;
   DateTime? get _submissionDeadline => DateTime(2026, 4, 1);
 
   String? get _formattedSubmissionDeadline {
@@ -880,6 +886,24 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     }
   }
 
+  Future<void> _loadProofs() async {
+    final scholarshipId = _presenter.form.id;
+    if (scholarshipId == null) return;
+
+    setState(() => _isLoadingProofs = true);
+    try {
+      _proofs = await makeRemoteLoadProofs().load(scholarshipId);
+      setState(() {});
+    } on LoadProofsException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoadingProofs = false);
+    }
+  }
+
   Future<void> _openCandidateAddPage() async {
     final alreadyAdded = _candidateStepKey.currentState?.candidates.length ?? 0;
     if (_isHigherEducation && alreadyAdded >= 1) return;
@@ -919,9 +943,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
 
     try {
       final isHigher = _isHigherEducation;
-      final educationLevel = isHigher
-          ? EducationLevel.higher
-          : _presenter.form.educationLevel;
+      final educationLevel =
+          isHigher ? EducationLevel.higher : _presenter.form.educationLevel;
 
       final studentId = await _saveCandidate.save(SaveCandidateParams(
         scholarshipId: scholarshipId,
@@ -930,8 +953,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         academicCourseId: result['gradeId'] as String,
         legalPersonType: result['guardianRelationship'] as int,
         educationLevel: educationLevel?.value ?? EducationLevel.basic.value,
-        scholarshipType: result['scholarshipType'] as int? ??
-            ScholarshipType.cebas.value,
+        scholarshipType:
+            result['scholarshipType'] as int? ?? ScholarshipType.cebas.value,
         completedGraduation: isHigher
             ? (result['completedGraduation'] as bool? ?? false)
             : false,
@@ -1240,12 +1263,14 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
         );
 
       case 5:
-        return DocumentsStep(
-          key: _documentsStepKey,
-          groups: _buildDocumentGroups(),
-          submissionDeadline: _submissionDeadline,
-          onGroupTap: _openDocumentGroupDetail,
-        );
+        return _isLoadingProofs
+            ? const Center(child: CircularProgressIndicator())
+            : DocumentsStep(
+                key: _documentsStepKey,
+                groups: _buildDocumentGroups(),
+                submissionDeadline: widget.submissionDeadline,
+                onGroupTap: (group) => _openDocumentGroupDetail(group),
+              );
 
       default:
         return const SizedBox.shrink();
