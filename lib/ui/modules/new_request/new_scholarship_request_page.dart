@@ -845,30 +845,39 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     final index = groups.indexWhere((item) => item.id == group.id);
     if (index < 0) return;
 
-    final result = await Navigator.of(context)
-        .push<Map<String, Map<String, DocumentUploadRecord>>>(
+    final proofsByGroup = <String, List<ScholarshipProofEntity>>{};
+    for (final g in groups) {
+      proofsByGroup[g.id] = _getProofsForGroup(g.id);
+    }
+
+    await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => DocumentGroupDetailPage(
           groups: groups,
           initialIndex: index,
           submissionDeadline: _submissionDeadline,
-          uploadedDocumentsByGroup: {
-            for (final entry in _uploadedDocumentsByGroup.entries)
-              entry.key: Map<String, DocumentUploadRecord>.from(entry.value),
-          },
+          proofsByGroup: proofsByGroup,
         ),
       ),
     );
 
-    if (result == null || !mounted) return;
-    setState(() {
-      _uploadedDocumentsByGroup
-        ..clear()
-        ..addAll({
-          for (final entry in result.entries)
-            entry.key: Map<String, DocumentUploadRecord>.from(entry.value),
-        });
-    });
+    await _loadProofs();
+    setState(() {});
+  }
+
+  List<ScholarshipProofEntity> _getProofsForGroup(String groupId) {
+    return _proofs.where((proof) {
+      switch (proof.proofReference) {
+        case ScholarshipProofReference.familyGroup:
+          return groupId == 'family';
+        case ScholarshipProofReference.candidate:
+        case ScholarshipProofReference.familyMember:
+          return proof.familyMemberId == groupId;
+        default:
+          return proof.familyMemberId == groupId ||
+              (proof.familyMemberId == null && groupId == 'family');
+      }
+    }).toList();
   }
 
   Future<void> _loadSchools() async {

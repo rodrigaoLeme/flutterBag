@@ -5,6 +5,8 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../../../../domain/entities/proof_document_entity.dart';
+import '../../../../../domain/entities/scholarship_proof_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../../main/routes/routes.dart';
 import '../../../../components/components.dart';
@@ -22,14 +24,14 @@ class DocumentGroupDetailPage extends StatefulWidget {
   final List<DocumentGroupItem> groups;
   final int initialIndex;
   final DateTime? submissionDeadline;
-  final Map<String, Map<String, DocumentUploadRecord>> uploadedDocumentsByGroup;
+  final Map<String, List<ScholarshipProofEntity>> proofsByGroup;
 
   const DocumentGroupDetailPage({
     super.key,
     required this.groups,
     required this.initialIndex,
     this.submissionDeadline,
-    this.uploadedDocumentsByGroup = const {},
+    this.proofsByGroup = const {},
   });
 
   @override
@@ -50,7 +52,7 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
     super.initState();
     _currentIndex = widget.initialIndex.clamp(0, widget.groups.length - 1);
     _uploadedDocumentsByGroup = {
-      for (final entry in widget.uploadedDocumentsByGroup.entries)
+      for (final entry in widget.proofsByGroup.entries)
         entry.key: Map<String, DocumentUploadRecord>.from(entry.value),
     };
     _loadRequirements();
@@ -511,22 +513,29 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
 }
 
 class _DocumentRequirementRow extends StatelessWidget {
-  final String title;
+  final String proofName;
   final String? referenceDescription;
+  final ProofDocumentEntity document;
+  final VoidCallback? onTap;
   final bool isUploaded;
   final String actionLabel;
   final VoidCallback onSend;
 
   const _DocumentRequirementRow({
-    required this.title,
+    required this.proofName,
+    required this.document,
     required this.isUploaded,
     required this.actionLabel,
     required this.onSend,
     this.referenceDescription,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final hasFile = document.hasFile;
+    final needsReview = document.lastReviewInvalid;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
       child: Row(
@@ -544,7 +553,7 @@ class _DocumentRequirementRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  proofName,
                   style: AppTextStyles.bodyLarge,
                 ),
                 if (referenceDescription != null)
@@ -624,3 +633,9 @@ class _PickSourceCard extends StatelessWidget {
 }
 
 enum _ProofPickSource { camera, gallery, documents }
+
+class _ProofRow {
+  final ScholarshipProofEntity proof;
+  final ProofDocumentEntity document;
+  _ProofRow({required this.proof, required this.document});
+}
