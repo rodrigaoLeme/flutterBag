@@ -17,7 +17,6 @@ import 'document_group_item.dart';
 import 'document_proof_preview_page.dart';
 import 'document_proof_submit_page.dart';
 import 'document_requirement_item.dart';
-import 'document_requirements.dart';
 import 'document_upload_record.dart';
 
 class DocumentGroupDetailPage extends StatefulWidget {
@@ -41,45 +40,25 @@ class DocumentGroupDetailPage extends StatefulWidget {
 
 class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
   late int _currentIndex;
-  late List<DocumentRequirementItem> _requirements;
-  late final Map<String, Map<String, DocumentUploadRecord>>
-      _uploadedDocumentsByGroup;
+  late Map<String, List<ScholarshipProofEntity>> _proofsByGroup;
 
   DocumentGroupItem get _currentGroup => widget.groups[_currentIndex];
+
+  List<_ProofRow> get _currentRows => [
+        for (final proof in _proofsByGroup[_currentGroup.id] ??
+            const <ScholarshipProofEntity>[])
+          for (final doc in proof.scholarshipProofDocuments)
+            _ProofRow(proof: proof, document: doc),
+      ];
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex.clamp(0, widget.groups.length - 1);
-    _uploadedDocumentsByGroup = {
-      for (final entry in widget.proofsByGroup.entries)
-        entry.key: Map<String, DocumentUploadRecord>.from(entry.value),
-    };
-    _loadRequirements();
+    _proofsByGroup = Map.of(widget.proofsByGroup);
   }
 
-  void _loadRequirements() {
-    final uploaded = _uploadedDocumentsByGroup[_currentGroup.id] ?? {};
-    _requirements = [
-      for (final item in documentRequirementsForGroup(_currentGroup))
-        item.copyWith(isUploaded: uploaded.containsKey(item.id)),
-    ];
-  }
-
-  DocumentUploadRecord? _recordFor(String requirementId) =>
-      _uploadedDocumentsByGroup[_currentGroup.id]?[requirementId];
-
-  void _saveRecord(String requirementId, DocumentUploadRecord record) {
-    _uploadedDocumentsByGroup.putIfAbsent(
-      _currentGroup.id,
-      () => <String, DocumentUploadRecord>{},
-    )[requirementId] = record;
-    setState(_loadRequirements);
-  }
-
-  void _popToDocuments() {
-    Navigator.of(context).pop(_uploadedDocumentsByGroup);
-  }
+  void _popToDocuments() => Navigator.of(context).pop();
 
   String? get _formattedDeadline {
     final deadline = widget.submissionDeadline;
@@ -92,10 +71,7 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
 
   void _goToGroup(int index) {
     if (index < 0 || index >= widget.groups.length) return;
-    setState(() {
-      _currentIndex = index;
-      _loadRequirements();
-    });
+    setState(() => _currentIndex = index);
   }
 
   Future<void> _confirmGoHome() async {
@@ -424,6 +400,7 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
     final i18n = AppI18n.current;
     final canGoBack = _currentIndex > 0;
     final canGoForward = _currentIndex < widget.groups.length - 1;
+    final rows = _currentRows;
 
     return PopScope(
       canPop: false,
@@ -476,23 +453,20 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
                         onForward: () => _goToGroup(_currentIndex + 1),
                       ),
                     ),
-                    for (var i = 0; i < _requirements.length; i++) ...[
+                    for (var i = 0; i < rows.length; i++) ...[
                       _DocumentRequirementRow(
-                        title: _requirements[i].title,
-                        referenceDescription: _requirements[i].description,
-                        isUploaded: _requirements[i].isUploaded,
-                        actionLabel: _requirements[i].isUploaded
-                            ? i18n.documentEditAction
-                            : i18n.documentSendAction,
-                        onSend: () => _onSendDocument(_requirements[i]),
+                        proofName: rows[i].proof.proofName ?? '',
+                        referenceDescription:
+                            rows[i].proof.referenceDescription,
+                        document: rows[i].document,
+                        onSend: () => _onSendDocument(rows[i]),
                       ),
                       const Divider(
-                        height: 1,
-                        thickness: 1,
-                        indent: 16,
-                        endIndent: 16,
-                        color: Color(0xFFCAC4D0),
-                      ),
+                          height: 1,
+                          thickness: 1,
+                          indent: 16,
+                          endIndent: 16,
+                          color: Color(0xFFCAC4D0)),
                     ],
                   ],
                 ),
@@ -524,11 +498,8 @@ class _DocumentRequirementRow extends StatelessWidget {
   const _DocumentRequirementRow({
     required this.proofName,
     required this.document,
-    required this.isUploaded,
-    required this.actionLabel,
     required this.onSend,
     this.referenceDescription,
-    this.onTap,
   });
 
   @override
