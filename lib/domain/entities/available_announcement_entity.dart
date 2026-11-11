@@ -37,6 +37,16 @@ class AnnouncementSchoolEntity {
       );
 }
 
+class AnnouncementCandidateEntity {
+  final String? studentName;
+  final String? studentSchool;
+
+  const AnnouncementCandidateEntity({
+    this.studentName,
+    this.studentSchool,
+  });
+}
+
 class ProcessPeriodEntity {
   final String id;
   final DateTime? registerStart;
@@ -76,7 +86,10 @@ class AvailableAnnouncementEntity {
   final String? processTypeDescription;
   final ProcessPeriodEntity? processPeriod;
   final List<AnnouncementSchoolEntity> schools;
+  final List<AnnouncementCandidateEntity> candidates;
   final bool isPersonAuthorized;
+  final bool canRegister;
+  final String? timeZone;
 
   const AvailableAnnouncementEntity({
     required this.id,
@@ -91,7 +104,10 @@ class AvailableAnnouncementEntity {
     this.processTypeDescription,
     this.processPeriod,
     this.schools = const [],
+    this.candidates = const [],
     this.isPersonAuthorized = false,
+    this.canRegister = false,
+    this.timeZone,
   });
 
   bool get isEdital => announcementType == AnnouncementType.edital;
@@ -99,7 +115,9 @@ class AvailableAnnouncementEntity {
   // Regra do botão para Solicitar Bolsa
   bool get canApply {
     if (processPeriod == null) return false;
-    return (isPersonAuthorized || processPeriod!.isRegistrationOpen);
+    return canRegister ||
+        isPersonAuthorized ||
+        processPeriod!.isRegistrationOpen;
   }
 
   // Testa se está dentro do período de inscrição

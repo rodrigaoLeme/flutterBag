@@ -15,7 +15,10 @@ class RemoteAvailableAnnouncementModel {
   final String? processTypeDescription;
   final ProcessPeriodEntity? processPeriod;
   final List<AnnouncementSchoolEntity> schools;
+  final List<AnnouncementCandidateEntity> candidates;
   final bool isPersonAuthorized;
+  final bool canRegister;
+  final String? timeZone;
 
   const RemoteAvailableAnnouncementModel({
     required this.id,
@@ -30,7 +33,10 @@ class RemoteAvailableAnnouncementModel {
     this.processTypeDescription,
     this.processPeriod,
     this.schools = const [],
+    this.candidates = const [],
     this.isPersonAuthorized = false,
+    this.canRegister = false,
+    this.timeZone,
   });
 
   factory RemoteAvailableAnnouncementModel.fromJson(Map<String, dynamic> json) {
@@ -48,10 +54,20 @@ class RemoteAvailableAnnouncementModel {
         }).toList() ??
         [];
 
+    final candidates = (json['candidates'] as List?)?.map((candidate) {
+          final map = Map<String, dynamic>.from(candidate as Map);
+          return AnnouncementCandidateEntity(
+            studentName: map['studentName'] as String?,
+            studentSchool: map['studentSchool'] as String?,
+          );
+        }).toList() ??
+        const <AnnouncementCandidateEntity>[];
+
     ProcessPeriodEntity? processPeriod;
-    if (processPeriodJson != null) {
+    final periodId = processPeriodJson?['id']?.toString();
+    if (processPeriodJson != null && periodId != null && periodId.isNotEmpty) {
       processPeriod = ProcessPeriodEntity(
-        id: processPeriodJson['id'] as String,
+        id: periodId,
         registerStart: processPeriodJson['registerStart'] != null
             ? DateTime.tryParse(processPeriodJson['registerStart'] as String)
             : null,
@@ -91,7 +107,12 @@ class RemoteAvailableAnnouncementModel {
       processTypeDescription: json['processTypeDescription'] as String?,
       processPeriod: processPeriod,
       schools: schoolsList,
+      candidates: candidates,
       isPersonAuthorized: json['isPersonAuthorized'] as bool? ?? false,
+      canRegister: json['canRegister'] as bool? ??
+          json['isPersonAuthorized'] as bool? ??
+          false,
+      timeZone: json['timeZone'] as String?,
     );
   }
 
@@ -108,7 +129,10 @@ class RemoteAvailableAnnouncementModel {
         processTypeDescription: processTypeDescription,
         processPeriod: processPeriod,
         schools: schools,
+        candidates: candidates,
         isPersonAuthorized: isPersonAuthorized,
+        canRegister: canRegister,
+        timeZone: timeZone,
       );
 
   static EducationLevel? _educationLevelFrom(Map<String, dynamic> json) {

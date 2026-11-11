@@ -17,10 +17,15 @@ class RemoteLoadAvailableAnnouncementsUsecase
     try {
       final queryParams = <String, dynamic>{
         'year': params.year,
-        'city': params.city,
-        'schoolId': params.schoolId,
         'processType': params.processType.value,
       };
+
+      if (params.city != null && params.city!.isNotEmpty) {
+        queryParams['city'] = params.city;
+      }
+      if (params.schoolId != null && params.schoolId!.isNotEmpty) {
+        queryParams['schoolId'] = params.schoolId;
+      }
 
       if (params.educationLevel != null) {
         queryParams['educationLevel'] = params.educationLevel!.value;

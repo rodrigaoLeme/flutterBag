@@ -5,7 +5,6 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../../../../domain/entities/proof_document_entity.dart';
 import '../../../../../domain/entities/scholarship_proof_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../../main/routes/routes.dart';
@@ -15,9 +14,6 @@ import '../../widgets/scholarship_step_indicator.dart';
 import '../family/widgets/member_registration_sub_step_nav.dart';
 import 'document_group_item.dart';
 import 'document_proof_preview_page.dart';
-import 'document_proof_submit_page.dart';
-import 'document_requirement_item.dart';
-import 'document_upload_record.dart';
 
 class DocumentGroupDetailPage extends StatefulWidget {
   final List<DocumentGroupItem> groups;
@@ -44,12 +40,8 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
 
   DocumentGroupItem get _currentGroup => widget.groups[_currentIndex];
 
-  List<_ProofRow> get _currentRows => [
-        for (final proof in _proofsByGroup[_currentGroup.id] ??
-            const <ScholarshipProofEntity>[])
-          for (final doc in proof.scholarshipProofDocuments)
-            _ProofRow(proof: proof, document: doc),
-      ];
+  List<ScholarshipProofEntity> get _currentProofs =>
+      _proofsByGroup[_currentGroup.id] ?? const <ScholarshipProofEntity>[];
 
   @override
   void initState() {
@@ -249,150 +241,9 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
     );
   }
 
-  Future<void> _openPreviewForEdit(DocumentRequirementItem item) async {
-    final existing = _recordFor(item.id);
-    if (existing == null || !existing.hasFile) return;
-
-    if (item.id == 'me-epp-proof') {
-      final i18n = AppI18n.current;
-      final submitted = await Navigator.of(context).push<DocumentUploadRecord>(
-        MaterialPageRoute(
-          builder: (_) => DocumentProofSubmitPage(
-            documentTitle: item.title,
-            documentId: item.id,
-            uploadOptions: [
-              i18n.documentMeEppDecoreLabel,
-              i18n.documentMeEppDefisLabel,
-              i18n.documentMeEppDasLabel,
-            ],
-            autoConfirmOnPick: true,
-            initialRecord: existing,
-          ),
-        ),
-      );
-      if (submitted != null && mounted) {
-        _saveRecord(item.id, submitted);
-      }
-      return;
-    }
-
-    if (item.id == 'address-proof' || item.id == 'no-work-card') {
-      await _openSubmitFlow(item, initialRecord: existing);
-      return;
-    }
-
-    final previewTitle = existing.selectedDocumentType ?? item.title;
-    final result = await Navigator.of(context).push<DocumentProofPreviewResult>(
-      MaterialPageRoute(
-        builder: (_) => DocumentProofPreviewPage(
-          documentTitle: previewTitle,
-          fileName: existing.fileName,
-          filePath: existing.filePath,
-          onReplace: _pickFile,
-        ),
-      ),
-    );
-
-    if (result != null && mounted) {
-      _saveRecord(
-        item.id,
-        existing.copyWith(
-          fileName: result.fileName,
-          filePath: result.filePath,
-        ),
-      );
-    }
-  }
-
-  Future<void> _openSubmitFlow(
-    DocumentRequirementItem item, {
-    DocumentUploadRecord? initialRecord,
-  }) async {
-    final i18n = AppI18n.current;
-    final isPersonDocument =
-        _currentGroup.type == DocumentGroupType.candidate ||
-            _currentGroup.type == DocumentGroupType.member;
-
-    DocumentUploadRecord? submitted;
-
-    if (item.id == 'address-proof') {
-      submitted = await Navigator.of(context).push<DocumentUploadRecord>(
-        MaterialPageRoute(
-          builder: (_) => DocumentProofSubmitPage(
-            documentTitle: item.title,
-            documentTypeOptions: [
-              i18n.documentTypeInternet,
-              i18n.documentTypeElectricity,
-              i18n.documentTypeCableTv,
-              i18n.documentTypePipedGas,
-              i18n.documentTypeWaterLastMonth,
-              i18n.documentTypeLandline,
-            ],
-            requireValue: true,
-            initialRecord: initialRecord,
-          ),
-        ),
-      );
-    } else if (item.id == 'me-epp-proof') {
-      submitted = await Navigator.of(context).push<DocumentUploadRecord>(
-        MaterialPageRoute(
-          builder: (_) => DocumentProofSubmitPage(
-            documentTitle: item.title,
-            documentId: item.id,
-            uploadOptions: [
-              i18n.documentMeEppDecoreLabel,
-              i18n.documentMeEppDefisLabel,
-              i18n.documentMeEppDasLabel,
-            ],
-            autoConfirmOnPick: true,
-            initialRecord: initialRecord,
-          ),
-        ),
-      );
-    } else if (item.id == 'no-work-card') {
-      submitted = await Navigator.of(context).push<DocumentUploadRecord>(
-        MaterialPageRoute(
-          builder: (_) => DocumentProofSubmitPage(
-            documentTitle: item.title,
-            documentId: item.id,
-            documentTypeOptions: [
-              i18n.documentNoWorkCardTypeNoCtps,
-              i18n.documentNoWorkCardTypePublicRpps,
-            ],
-            showDeclarationModelDownload: true,
-            openPreviewAfterPick: true,
-            initialRecord: initialRecord,
-          ),
-        ),
-      );
-    } else {
-      submitted = await Navigator.of(context).push<DocumentUploadRecord>(
-        MaterialPageRoute(
-          builder: (_) => DocumentProofSubmitPage(
-            documentTitle: item.title,
-            documentId: item.id,
-            description: isPersonDocument
-                ? i18n.documentPersonProofDescription(item.title)
-                : null,
-            autoConfirmOnPick: true,
-            openPreviewAfterPick: true,
-            initialRecord: initialRecord,
-          ),
-        ),
-      );
-    }
-
-    if (submitted != null && mounted) {
-      _saveRecord(item.id, submitted);
-    }
-  }
-
-  Future<void> _onSendDocument(DocumentRequirementItem item) async {
-    if (item.isUploaded && _recordFor(item.id) != null) {
-      await _openPreviewForEdit(item);
-      return;
-    }
-    await _openSubmitFlow(item);
+  Future<void> _onSendDocument(ScholarshipProofEntity proof) async {
+    // TODO: fluxo real de envio (próximo passo)
+    debugPrint('enviar proof ${proof.id} | slots: ${proof.totalSlots}');
   }
 
   @override
@@ -400,7 +251,7 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
     final i18n = AppI18n.current;
     final canGoBack = _currentIndex > 0;
     final canGoForward = _currentIndex < widget.groups.length - 1;
-    final rows = _currentRows;
+    final proofs = _currentProofs;
 
     return PopScope(
       canPop: false,
@@ -453,13 +304,10 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
                         onForward: () => _goToGroup(_currentIndex + 1),
                       ),
                     ),
-                    for (var i = 0; i < rows.length; i++) ...[
+                    for (var i = 0; i < proofs.length; i++) ...[
                       _DocumentRequirementRow(
-                        proofName: rows[i].proof.proofName ?? '',
-                        referenceDescription:
-                            rows[i].proof.referenceDescription,
-                        document: rows[i].document,
-                        onSend: () => _onSendDocument(rows[i]),
+                        proof: proofs[i],
+                        onSend: () => _onSendDocument(proofs[i]),
                       ),
                       const Divider(
                           height: 1,
@@ -487,34 +335,29 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
 }
 
 class _DocumentRequirementRow extends StatelessWidget {
-  final String proofName;
-  final String? referenceDescription;
-  final ProofDocumentEntity document;
-  final VoidCallback? onTap;
-  final bool isUploaded;
-  final String actionLabel;
+  final ScholarshipProofEntity proof;
   final VoidCallback onSend;
 
   const _DocumentRequirementRow({
-    required this.proofName,
-    required this.document,
+    required this.proof,
     required this.onSend,
-    this.referenceDescription,
   });
 
   @override
   Widget build(BuildContext context) {
-    final hasFile = document.hasFile;
-    final needsReview = document.lastReviewInvalid;
+    final i18n = AppI18n.current;
+    final isComplete = proof.isComplete;
+    final needsReview = proof.needsReview;
+    final showProgress = proof.totalSlots > 1 && !isComplete;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
       child: Row(
         children: [
-          if (isUploaded) ...[
-            const Icon(
-              Icons.check_circle,
-              color: AppColors.success,
+          if (needsReview || isComplete) ...[
+            Icon(
+              needsReview ? Icons.warning_amber_rounded : Icons.check_circle,
+              color: needsReview ? Colors.orange : AppColors.success,
               size: 22,
             ),
             const SizedBox(width: 8),
@@ -524,12 +367,17 @@ class _DocumentRequirementRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  proofName,
+                  proof.proofName ?? '',
                   style: AppTextStyles.bodyLarge,
                 ),
-                if (referenceDescription != null)
+                if (proof.referenceDescription != null)
                   Text(
-                    referenceDescription!,
+                    proof.referenceDescription!,
+                    style: AppTextStyles.bodySmall,
+                  ),
+                if (showProgress)
+                  Text(
+                    '${proof.uploadedSlots}/${proof.totalSlots}',
                     style: AppTextStyles.bodySmall,
                   ),
               ],
@@ -549,7 +397,7 @@ class _DocumentRequirementRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             ),
             child: Text(
-              actionLabel,
+              isComplete ? i18n.documentEditAction : i18n.documentSendAction,
               style: AppTextStyles.titleSmall.copyWith(
                 color: AppColors.onSurface,
               ),
@@ -604,9 +452,3 @@ class _PickSourceCard extends StatelessWidget {
 }
 
 enum _ProofPickSource { camera, gallery, documents }
-
-class _ProofRow {
-  final ScholarshipProofEntity proof;
-  final ProofDocumentEntity document;
-  _ProofRow({required this.proof, required this.document});
-}

@@ -1,51 +1,100 @@
 import 'package:flutter/material.dart';
 
-import '../../../../domain/entities/renewal_process_entity.dart';
+import '../../../../domain/entities/announcement_enums.dart';
+import '../../../../domain/entities/available_announcement_entity.dart';
+import '../../../../main/factories/pages/new_scholarship/new_scholarship_page_factory.dart';
+import '../../../../main/factories/pages/notices_terms/notice_document_page_factory.dart';
 import '../../../../main/i18n/app_i18n.dart';
 import '../../../helpers/themes/themes.dart';
-import '../../new_request/new_scholarship_request_page.dart';
-
-class _RenewalCandidate {
-  final String name;
-  final String school;
-
-  const _RenewalCandidate({required this.name, required this.school});
-}
+import '../../notices_terms/notice_document_page.dart';
 
 class RenewalScholarshipDetailPage extends StatelessWidget {
-  final RenewalProcessEntity process;
+  final AvailableAnnouncementEntity announcement;
+  final int year;
 
   const RenewalScholarshipDetailPage({
     super.key,
-    required this.process,
+    required this.announcement,
+    required this.year,
   });
 
-  // Mock de candidatos com unidade escolar
-  static const _candidates = [
-    _RenewalCandidate(
-      name: 'Maria Julia Padilha da Silva',
-      school: 'Colégio Adventista de Hortolândia',
-    ),
-    _RenewalCandidate(
-      name: 'João da Padilha da Silva',
-      school: 'Colégio Adventista de Hortolândia',
-    ),
-  ];
+  List<_TimelineItem> get _deadlines {
+    final period = announcement.processPeriod;
+    return [
+      _TimelineItem(
+        date: _formatDate(period?.registerStart),
+        label: 'Inic. das\nInscrições',
+        isPast: _isPast(period?.registerStart),
+      ),
+      _TimelineItem(
+        date: _formatDate(period?.registerEnd),
+        label: 'Tér. das\nInscrições',
+        isPast: _isPast(period?.registerEnd),
+      ),
+      _TimelineItem(
+        date: _formatDate(period?.documentationUploadDeadLine),
+        label: 'Limite envio de\nDocumentos',
+        isPast: _isPast(period?.documentationUploadDeadLine),
+      ),
+      _TimelineItem(
+        date: _formatDate(period?.resultRelease),
+        label: 'Resultados',
+        isPast: _isPast(period?.resultRelease),
+      ),
+    ];
+  }
 
-  // Mock de datas da timeline
-  static final _deadlines = [
-    _TimelineItem(
-        date: '20/10/25', label: 'Inic. das\nInscrições', isPast: true),
-    _TimelineItem(
-        date: '22/10/25', label: 'Tér. das\nInscrições', isPast: false),
-    _TimelineItem(
-        date: '26/10/25', label: 'Limite envio de\nDocumentos', isPast: false),
-    _TimelineItem(date: '10/12/25', label: 'Resultados', isPast: false),
-  ];
+  String _formatDate(DateTime? date) {
+    if (date == null) return '-';
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final shortYear = (date.year % 100).toString().padLeft(2, '0');
+    return '$day/$month/$shortYear';
+  }
+
+  bool _isPast(DateTime? date) {
+    if (date == null) return false;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final day = DateTime(date.year, date.month, date.day);
+    return day.isBefore(today);
+  }
+
+  String _display(String? value) {
+    final text = value?.trim();
+    if (text == null || text.isEmpty) return '-';
+    return text;
+  }
+
+  String get _noticeTitle {
+    final title = announcement.title?.trim();
+    if (title != null && title.isNotEmpty) return title;
+    return _display(announcement.editalNumber);
+  }
+
+  AnnouncementSchoolEntity? get _renewalSchool {
+    final candidateSchool = announcement.candidates
+        .map((candidate) => candidate.studentSchool?.trim().toLowerCase())
+        .whereType<String>()
+        .where((name) => name.isNotEmpty)
+        .firstOrNull;
+    if (candidateSchool != null) {
+      for (final school in announcement.schools) {
+        if (school.name?.trim().toLowerCase() == candidateSchool) {
+          return school;
+        }
+      }
+    }
+    if (announcement.schools.isNotEmpty) return announcement.schools.first;
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
     final appStrings = AppI18n.current;
+    final candidates = announcement.candidates;
+    final canStart =
+        announcement.canRegister && announcement.processPeriod != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -61,7 +110,7 @@ class RenewalScholarshipDetailPage extends StatelessWidget {
                 children: [
                   // Região administrativa em destaque
                   Text(
-                    'Região Administrativa: ${process.administrativeRegion}',
+                    'Região Administrativa: ${_display(announcement.administrativeAcronym)}',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           color: AppColors.sysLightPrimary,
                           fontWeight: FontWeight.w500,
@@ -76,8 +125,7 @@ class RenewalScholarshipDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    // TODO: Ajustar o ano correto
-                    '${appStrings.renewalDetailDeadlinesSubtitle} 2027',
+                    '${appStrings.renewalDetailDeadlinesSubtitle} $year',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondaryLight,
                         ),
@@ -113,7 +161,7 @@ class RenewalScholarshipDetailPage extends StatelessWidget {
                     padding: EdgeInsets.only(left: 16, right: 16),
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _candidates.length,
+                    itemCount: candidates.length,
                     separatorBuilder: (_, __) => const Padding(
                       padding: EdgeInsets.only(left: 10),
                       child: Divider(
@@ -122,12 +170,12 @@ class RenewalScholarshipDetailPage extends StatelessWidget {
                       ),
                     ),
                     itemBuilder: (context, index) {
-                      final candidate = _candidates[index];
+                      final candidate = candidates[index];
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            candidate.name,
+                            _display(candidate.studentName),
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -144,7 +192,7 @@ class RenewalScholarshipDetailPage extends StatelessWidget {
                                 ),
                           ),
                           Text(
-                            candidate.school,
+                            _display(candidate.studentSchool),
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ],
@@ -165,7 +213,15 @@ class RenewalScholarshipDetailPage extends StatelessWidget {
               children: [
                 TextButton(
                   onPressed: () {
-                    // TODO: abrir PDF do edital
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => NoticeDocumentPage(
+                          presenter: makeNoticeDocumentPresenter(),
+                          announcementId: announcement.id,
+                          title: _noticeTitle,
+                        ),
+                      ),
+                    );
                   },
                   child: Text(
                     appStrings.renewalDetailViewNotice,
@@ -177,16 +233,28 @@ class RenewalScholarshipDetailPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 ElevatedButton(
-                  onPressed: () {
-                    // TODO: substituir por processPeriodId real
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const NewScholarshipRequestPage(
-                          processPeriodId: '',
-                        ),
-                      ),
-                    );
-                  },
+                  onPressed: canStart
+                      ? () {
+                          final school = _renewalSchool;
+                          final candidateSchool = announcement.candidates
+                              .map((candidate) => candidate.studentSchool?.trim())
+                              .whereType<String>()
+                              .where((name) => name.isNotEmpty)
+                              .firstOrNull;
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => makeNewScholarshipPage(
+                                lockedYear: year,
+                                processType: ProcessType.renewal,
+                                lockedCity: school?.city,
+                                lockedSchoolId: school?.id,
+                                lockedSchoolName:
+                                    school?.name ?? candidateSchool,
+                              ),
+                            ),
+                          );
+                        }
+                      : null,
                   child: Text(appStrings.renewalDetailStartButton),
                 ),
               ],

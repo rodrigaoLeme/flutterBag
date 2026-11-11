@@ -13,10 +13,12 @@ import '../../../ui/modules/new_scholarship/new_scholarship_view_model.dart';
 class StreamNewScholarshipPresenter implements NewScholarshipPresenter {
   final LoadSchoolsUsecase loadSchoolsUsecase;
   final LoadAvailableAnnouncementsUsecase loadAvailableAnnouncementsUsecase;
+  final ProcessType processType;
 
   StreamNewScholarshipPresenter({
     required this.loadSchoolsUsecase,
     required this.loadAvailableAnnouncementsUsecase,
+    this.processType = ProcessType.newEnrollment,
   });
 
   final _viewModelController =
@@ -104,7 +106,7 @@ class StreamNewScholarshipPresenter implements NewScholarshipPresenter {
           year: year,
           city: city,
           schoolId: schoolId,
-          processType: ProcessType.newEnrollment, // Como é processo para novos
+          processType: processType,
           educationLevel: educationLevel,
         ),
       );

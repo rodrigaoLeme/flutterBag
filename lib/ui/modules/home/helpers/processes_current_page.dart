@@ -4,12 +4,12 @@ import '../../../../domain/entities/announcement_enums.dart';
 import '../../../../domain/entities/process_enums.dart';
 import '../../../../domain/entities/scholarship_entity.dart';
 import '../../../../main/factories/pages/new_scholarship/new_scholarship_page_factory.dart';
+import '../../../../main/factories/pages/renewal/renewal_scholarship_page_factory.dart';
 import '../../../../main/i18n/app_i18n.dart';
 import '../../../components/components.dart';
 import '../../new_request/new_scholarship_request_page.dart';
 import '../components/cards/processes_cards_current.dart';
 import '../process_detail_page.dart';
-import '../renewal/renewal_scholarship_page.dart';
 
 class ProcessesCurrentPage extends StatelessWidget {
   final int yearSelected;
@@ -99,7 +99,8 @@ class ProcessesCurrentPage extends StatelessWidget {
                 child: EbolsaButton(
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => const RenewalScholarshipPage(),
+                      builder: (_) =>
+                          makeRenewalScholarshipPage(year: yearSelected),
                     ),
                   ),
                   label: appStrings.homeRenewScholarshipButton,

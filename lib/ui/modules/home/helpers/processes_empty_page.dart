@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../main/factories/pages/new_scholarship/new_scholarship_page_factory.dart';
+import '../../../../main/factories/pages/renewal/renewal_scholarship_page_factory.dart';
 import '../../../../main/i18n/app_i18n.dart';
 import '../../../components/components.dart';
-import '../renewal/renewal_scholarship_page.dart';
 
 class ProcessesEmptyPage extends StatefulWidget {
   final int yearSelected;
@@ -36,7 +36,8 @@ class _ProcessesEmptyPageState extends State<ProcessesEmptyPage> {
           EbolsaButton(
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => const RenewalScholarshipPage(),
+                builder: (_) =>
+                    makeRenewalScholarshipPage(year: widget.yearSelected),
               ),
             ),
             label: appStrings.homeRenewScholarshipButton,

@@ -1,26 +1,83 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
-import '../../../../domain/entities/renewal_process_entity.dart';
+import '../../../../domain/entities/available_announcement_entity.dart';
 import '../../../../main/i18n/app_i18n.dart';
-import '../../../components/ebolsa_button.dart';
-import '../../../components/ebolsa_text_button.dart';
+import '../../../components/components.dart';
 import '../../../helpers/themes/themes.dart';
 import '../helpers/info_table_view_helper.dart';
 import 'renewal_scholarship_detail_page.dart';
+import 'renewal_scholarship_presenter.dart';
+import 'renewal_scholarship_view_model.dart';
 
-class RenewalScholarshipPage extends StatelessWidget {
-  final List<RenewalProcessEntity> processes;
+class RenewalScholarshipPage extends StatefulWidget {
+  final RenewalScholarshipPresenter presenter;
+  final int year;
 
   const RenewalScholarshipPage({
     super.key,
-    this.processes = const [],
+    required this.presenter,
+    required this.year,
   });
+
+  @override
+  State<RenewalScholarshipPage> createState() => _RenewalScholarshipPageState();
+}
+
+class _RenewalScholarshipPageState extends State<RenewalScholarshipPage> {
+  late final StreamSubscription<RenewalScholarshipViewModel> _subscription;
+  bool _isLoading = true;
+  String? _errorMessage;
+  List<AvailableAnnouncementEntity> _announcements = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _subscription = widget.presenter.viewModelStream.listen((viewModel) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = viewModel.isLoading;
+        _errorMessage = viewModel.errorMessage;
+        _announcements = viewModel.announcements;
+      });
+    });
+    widget.presenter.load(widget.year);
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    widget.presenter.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final appStrings = AppI18n.current;
 
-    if (processes.isEmpty) {
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(appStrings.renewalScholarshipTitle),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(appStrings.renewalScholarshipTitle),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: EbolsaErrorBanner(message: _errorMessage!),
+        ),
+      );
+    }
+
+    if (_announcements.isEmpty) {
       return _RenewalEmptyPage(appStrings: appStrings);
     }
 
@@ -48,16 +105,17 @@ class RenewalScholarshipPage extends StatelessWidget {
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: processes.length,
+              itemCount: _announcements.length,
               separatorBuilder: (_, __) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
-                final process = processes[index];
+                final announcement = _announcements[index];
                 return _RenewalProcessCard(
-                  process: process,
+                  announcement: announcement,
                   onDetails: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => RenewalScholarshipDetailPage(
-                        process: process,
+                        announcement: announcement,
+                        year: widget.year,
                       ),
                     ),
                   ),
@@ -72,17 +130,22 @@ class RenewalScholarshipPage extends StatelessWidget {
 }
 
 class _RenewalProcessCard extends StatelessWidget {
-  final RenewalProcessEntity process;
+  final AvailableAnnouncementEntity announcement;
   final VoidCallback onDetails;
 
   const _RenewalProcessCard({
-    required this.process,
+    required this.announcement,
     required this.onDetails,
   });
 
   @override
   Widget build(BuildContext context) {
     final appStrings = AppI18n.current;
+    final candidateNames = announcement.candidates
+        .map((candidate) => candidate.studentName?.trim())
+        .whereType<String>()
+        .where((name) => name.isNotEmpty)
+        .toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -99,9 +162,9 @@ class _RenewalProcessCard extends StatelessWidget {
                 // Região administrativa e Ediral
                 InfoRow2Col(
                   label1: appStrings.administrativeRegion,
-                  value1: process.administrativeRegion,
+                  value1: _display(announcement.administrativeAcronym),
                   label2: appStrings.processCardNotice,
-                  value2: process.notice,
+                  value2: _noticeLabel(announcement),
                 ),
 
                 const SizedBox(height: 12),
@@ -109,9 +172,9 @@ class _RenewalProcessCard extends StatelessWidget {
                 // Nível e Tipo de Bolsa
                 InfoRow2Col(
                   label1: appStrings.processCardLevel,
-                  value1: process.level,
+                  value1: _display(announcement.educationLevel?.label),
                   label2: appStrings.processCardScholarshipType,
-                  value2: process.scholarshipType,
+                  value2: _display(announcement.scholarshipType?.label),
                 ),
 
                 const SizedBox(height: 12),
@@ -133,7 +196,7 @@ class _RenewalProcessCard extends StatelessWidget {
                             ),
                       ),
                       const SizedBox(height: 8),
-                      ...process.candidates.map(
+                      ...candidateNames.map(
                         (name) => Padding(
                           padding: const EdgeInsets.only(bottom: 4),
                           child: Text(
@@ -163,6 +226,18 @@ class _RenewalProcessCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _display(String? value) {
+    final text = value?.trim();
+    if (text == null || text.isEmpty) return '-';
+    return text;
+  }
+
+  String _noticeLabel(AvailableAnnouncementEntity announcement) {
+    final title = announcement.title?.trim();
+    if (title != null && title.isNotEmpty) return title;
+    return _display(announcement.editalNumber);
   }
 }
 

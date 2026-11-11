@@ -33,10 +33,17 @@ class _FilterOption {
 class NewScholarshipPage extends StatefulWidget {
   final NewScholarshipPresenter presenter;
   final int lockedYear;
+  final String? lockedCity;
+  final String? lockedSchoolId;
+  final String? lockedSchoolName;
+
   const NewScholarshipPage({
     super.key,
     required this.presenter,
     required this.lockedYear,
+    this.lockedCity,
+    this.lockedSchoolId,
+    this.lockedSchoolName,
   });
 
   @override
@@ -70,6 +77,9 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
   bool get _areFiltersComplete =>
       _selectedCity != null && _selectedUnit != null;
 
+  bool get _isSchoolLocked =>
+      widget.lockedSchoolName != null && widget.lockedSchoolName!.isNotEmpty;
+
   @override
   void initState() {
     super.initState();
@@ -86,15 +96,36 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
     _announcementsSubscription =
         widget.presenter.announcementsStream.listen((announcements) {
       if (!mounted || _isEad) return;
+      final visible = _visibleAnnouncements(announcements);
       setState(() {
-        _activeAnnouncements = announcements.where((a) => a.isActive).toList();
-        _expiredAnnouncements =
-            announcements.where((a) => !a.isActive).toList();
+        _activeAnnouncements = visible.where((a) => a.isActive).toList();
+        _expiredAnnouncements = visible.where((a) => !a.isActive).toList();
         _isLoadingAnnouncements = false;
+        if (_isSchoolLocked) _hasAppliedFilters = true;
       });
     });
 
+    if (_isSchoolLocked) {
+      _selectedCity = _FilterOption(
+        id: widget.lockedCity ?? widget.lockedSchoolName!,
+        label: _displayLocked(widget.lockedCity),
+      );
+      _selectedUnit = _FilterOption(
+        id: widget.lockedSchoolId ?? widget.lockedSchoolName!,
+        label: widget.lockedSchoolName!,
+      );
+      _isLoadingAnnouncements = true;
+      _hasAppliedFilters = true;
+    }
+
     widget.presenter.loadInitialData(widget.lockedYear);
+    if (_isSchoolLocked) {
+      widget.presenter.fetchAnnouncements(
+        year: widget.lockedYear.toString(),
+        city: widget.lockedCity ?? '',
+        schoolId: widget.lockedSchoolId ?? '',
+      );
+    }
   }
 
   @override
@@ -103,6 +134,39 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
     _announcementsSubscription.cancel();
     widget.presenter.dispose();
     super.dispose();
+  }
+
+  String _displayLocked(String? value) {
+    final text = value?.trim();
+    if (text == null || text.isEmpty) return '-';
+    return text;
+  }
+
+  bool _matchesLockedSchool(AvailableAnnouncementEntity announcement) {
+    final schoolId = widget.lockedSchoolId;
+    if (schoolId != null &&
+        schoolId.isNotEmpty &&
+        announcement.schools.any((school) => school.id == schoolId)) {
+      return true;
+    }
+
+    final lockedName = _normalize(widget.lockedSchoolName ?? '');
+    if (lockedName.isEmpty) return false;
+    final schoolNames = announcement.schools.map((school) => school.name);
+    final candidateSchools =
+        announcement.candidates.map((candidate) => candidate.studentSchool);
+    return [...schoolNames, ...candidateSchools].any(
+      (name) => _normalize(name ?? '') == lockedName,
+    );
+  }
+
+  List<AvailableAnnouncementEntity> _visibleAnnouncements(
+    List<AvailableAnnouncementEntity> announcements,
+  ) {
+    if (!_isSchoolLocked) return announcements;
+    final matched = announcements.where(_matchesLockedSchool).toList();
+    if (matched.isEmpty) return announcements;
+    return matched;
   }
 
   String _normalize(String value) => value
@@ -435,7 +499,17 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
                 child: EbolsaErrorBanner(message: _schoolsError!),
               ),
 
-            if (_isEad) ...[
+            if (_isSchoolLocked) ...[
+              OptionCardEAD(
+                icon: AppIcons.escola,
+                title: _selectedCity?.label ?? '-',
+              ),
+              const SizedBox(height: 16),
+              OptionCardEAD(
+                icon: AppIcons.capelo,
+                title: _selectedUnit?.label ?? '-',
+              ),
+            ] else if (_isEad) ...[
               OptionCardEAD(
                 icon: AppIcons.escola,
                 title: AppConstants.eadCityDisplayLabel,
@@ -462,23 +536,23 @@ class _NewScholarshipPageState extends State<NewScholarshipPage> {
             ],
             const SizedBox(height: 16),
 
-            /// EAD TOGGLE
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    appStrings.noticesTermsEadLabel,
-                    style: AppTextStyles.ebolsaBodyLarge,
+            if (!_isSchoolLocked)
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      appStrings.noticesTermsEadLabel,
+                      style: AppTextStyles.ebolsaBodyLarge,
+                    ),
                   ),
-                ),
-                Switch(
-                  value: _isEad,
-                  onChanged: _onEadChanged,
-                  activeTrackColor: AppColors.primary,
-                  activeThumbColor: Colors.white,
-                ),
-              ],
-            ),
+                  Switch(
+                    value: _isEad,
+                    onChanged: _onEadChanged,
+                    activeTrackColor: AppColors.primary,
+                    activeThumbColor: Colors.white,
+                  ),
+                ],
+              ),
 
             /// EXIBIR ENCERRADOS TOGGLE
             Row(

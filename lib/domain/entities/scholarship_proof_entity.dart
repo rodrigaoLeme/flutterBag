@@ -40,6 +40,9 @@ class ScholarshipProofEntity {
       scholarshipProofDocuments.isNotEmpty &&
       scholarshipProofDocuments.every((d) => d.hasFile);
 
+  bool get needsReview =>
+      scholarshipProofDocuments.any((d) => d.lastReviewInvalid);
+
   factory ScholarshipProofEntity.fromJson(Map<String, dynamic> json) =>
       ScholarshipProofEntity(
         id: json['id'] as String,
