@@ -14,6 +14,7 @@ import '../../widgets/scholarship_step_indicator.dart';
 import '../family/widgets/member_registration_sub_step_nav.dart';
 import 'document_group_item.dart';
 import 'document_proof_preview_page.dart';
+import 'document_proof_send_page.dart';
 
 class DocumentGroupDetailPage extends StatefulWidget {
   final List<DocumentGroupItem> groups;
@@ -158,12 +159,12 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
                     borderRadius: BorderRadius.circular(100),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
                 Row(
                   children: [
                     Expanded(
                       child: _PickSourceCard(
-                        icon: Icons.photo_camera_outlined,
+                        icon: AppIcons.cameraIcon,
                         label: i18n.documentProofTakePhoto,
                         onTap: () =>
                             Navigator.of(ctx).pop(_ProofPickSource.camera),
@@ -172,7 +173,7 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _PickSourceCard(
-                        icon: Icons.image_outlined,
+                        icon: AppIcons.imageIcon,
                         label: i18n.documentProofSelectImage,
                         onTap: () =>
                             Navigator.of(ctx).pop(_ProofPickSource.gallery),
@@ -181,7 +182,7 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _PickSourceCard(
-                        icon: Icons.picture_as_pdf_outlined,
+                        icon: AppIcons.pdfFileIcon,
                         label: i18n.documentProofSelectDocument,
                         onTap: () =>
                             Navigator.of(ctx).pop(_ProofPickSource.documents),
@@ -242,8 +243,19 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
   }
 
   Future<void> _onSendDocument(ScholarshipProofEntity proof) async {
-    // TODO: fluxo real de envio (próximo passo)
-    debugPrint('enviar proof ${proof.id} | slots: ${proof.totalSlots}');
+    final files = await Navigator.of(context)
+        .push<Map<String, DocumentProofPreviewResult>>(
+      MaterialPageRoute(
+        builder: (_) => DocumentProofSendPage(
+          proof: proof,
+          onPickFile: _pickFile,
+        ),
+      ),
+    );
+    if (files == null || !mounted) return;
+
+    // TODO: envio — endpoints e regras a definir
+    debugPrint('arquivos escolhidos por slot: ${files.keys.toList()}');
   }
 
   @override
@@ -410,7 +422,7 @@ class _DocumentRequirementRow extends StatelessWidget {
 }
 
 class _PickSourceCard extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String label;
   final VoidCallback onTap;
 
@@ -423,21 +435,33 @@ class _PickSourceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(16),
+      color: AppColors.backgroundLight,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: AppColors.primaryOutline,
+          width: 1,
+        ),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 28, color: AppColors.primary),
-              const SizedBox(height: 12),
+              SvgPicture.asset(
+                icon,
+                width: 24,
+                height: 24,
+                color: AppColors.onSurface,
+              ),
+              const SizedBox(height: 20),
               Text(
                 label,
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.left,
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.onSurface,
                   fontWeight: FontWeight.w500,

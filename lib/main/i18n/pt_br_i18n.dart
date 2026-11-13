@@ -1938,13 +1938,13 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get documentProofPickFromGallery => 'Fototeca';
 
   @override
-  String get documentProofTakePhoto => 'Tirar foto';
+  String get documentProofTakePhoto => 'Tirar\nfoto';
 
   @override
   String get documentProofSelectImage => 'Selecionar imagem';
 
   @override
-  String get documentProofSelectDocument => 'Selecionar Documento';
+  String get documentProofSelectDocument => 'Selecionar documento';
 
   @override
   String get concludeAction => 'Concluir';

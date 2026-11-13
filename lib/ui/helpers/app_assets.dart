@@ -41,4 +41,7 @@ class AppIcons {
   static const downloadIcon = 'lib/ui/assets/icons/download-icon.svg';
   static const editIcon = 'lib/ui/assets/icons/edit.svg';
   static const deleteIcon = 'lib/ui/assets/icons/delete.svg';
+  static const uploadIcon = 'lib/ui/assets/icons/upload.svg';
+  static const cameraIcon = 'lib/ui/assets/icons/camera.svg';
+  static const imageIcon = 'lib/ui/assets/icons/images.svg';
 }
