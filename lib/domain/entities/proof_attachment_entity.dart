@@ -7,13 +7,26 @@ class ProofAttachment {
   final String name;
   final int sizeBytes;
   final ProofAttachmentType type;
+  final bool isEncrypted;
+  final String? password;
 
   const ProofAttachment({
     required this.path,
     required this.name,
     required this.sizeBytes,
     required this.type,
+    this.isEncrypted = false,
+    this.password,
   });
+
+  ProofAttachment copyWith({String? password}) => ProofAttachment(
+        path: path,
+        name: name,
+        sizeBytes: sizeBytes,
+        type: type,
+        isEncrypted: isEncrypted,
+        password: password ?? this.password,
+      );
 }
 
 class ProofAttachments {

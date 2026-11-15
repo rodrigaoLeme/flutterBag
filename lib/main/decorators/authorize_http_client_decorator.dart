@@ -109,4 +109,47 @@ class AuthorizeHttpClientDecorator implements HttpClient {
     await secureStorage.delete(key: StorageKeys.refreshToken);
     await secureStorage.delete(key: StorageKeys.refreshTokenExpiryTime);
   }
+
+  @override
+  Future<HttpUploadResponse> upload({
+    required String url,
+    required HttpMethod method,
+    required MultipartPayload payload,
+    Map<dynamic, dynamic>? headers,
+    void Function(int sent, int total)? onSendProgress,
+  }) async {
+    Map<String, dynamic> withToken(String? token) {
+      final authorized = Map<String, dynamic>.from(headers ?? {});
+      if (token != null) authorized['authorization'] = 'Bearer $token';
+      return authorized;
+    }
+
+    try {
+      var token = await secureStorage.fetch(key: StorageKeys.accessToken);
+      if (token != null && JwtDecoder.isExpired(token)) {
+        token = await _tryRefresh();
+      }
+      return await decoratee.upload(
+        url: url,
+        method: method,
+        payload: payload,
+        headers: withToken(token),
+        onSendProgress: onSendProgress,
+      );
+    } on HttpError catch (error) {
+      if (error == HttpError.unauthorized) {
+        final newToken = await _tryRefresh();
+        return await decoratee.upload(
+          url: url,
+          method: method,
+          payload: payload,
+          headers: withToken(newToken),
+          onSendProgress: onSendProgress,
+        );
+      }
+      rethrow;
+    } on ApiException {
+      rethrow;
+    }
+  }
 }

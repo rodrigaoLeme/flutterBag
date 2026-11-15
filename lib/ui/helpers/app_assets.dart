@@ -44,4 +44,6 @@ class AppIcons {
   static const uploadIcon = 'lib/ui/assets/icons/upload.svg';
   static const cameraIcon = 'lib/ui/assets/icons/camera.svg';
   static const imageIcon = 'lib/ui/assets/icons/images.svg';
+  static const fullScreenIcon =
+      'lib/ui/assets/icons/arrow-up-right-from-square.svg';
 }

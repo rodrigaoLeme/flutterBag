@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http_parser/http_parser.dart';
 
 import '../../data/http/http_client.dart';
 
@@ -239,5 +240,95 @@ class DioAdapter implements HttpClient {
       default:
         throw HttpError.serverError;
     }
+  }
+
+  @override
+  Future<HttpUploadResponse> upload({
+    required String url,
+    required HttpMethod method,
+    required MultipartPayload payload,
+    Map<dynamic, dynamic>? headers,
+    void Function(int sent, int total)? onSendProgress,
+  }) async {
+    final options = Options(
+      method: method.name.toUpperCase(),
+      headers: headers?.cast<String, dynamic>(),
+      sendTimeout: const Duration(minutes: 3),
+      receiveTimeout: const Duration(seconds: 60),
+    );
+
+    _logUpload(method: method, url: url, payload: payload);
+
+    try {
+      final formData = await _buildFormData(payload);
+      final response = await _dio.request(
+        url,
+        data: formData,
+        options: options,
+        onSendProgress: onSendProgress,
+      );
+      _logResponse(response);
+
+      final status = response.statusCode ?? 0;
+      if (status < 200 || status >= 300) throw HttpError.serverError;
+
+      return HttpUploadResponse(
+        statusCode: status,
+        headers: {
+          for (final e in response.headers.map.entries)
+            e.key.toLowerCase(): e.value.join(','),
+        },
+        data: response.data,
+      );
+    } on DioException catch (e) {
+      _throwFromDio(e);
+    }
+  }
+
+  Future<FormData> _buildFormData(MultipartPayload payload) async {
+    final form = FormData();
+    form.fields.addAll(payload.fields);
+    for (final file in payload.files) {
+      form.files.add(MapEntry(
+        file.field,
+        await MultipartFile.fromFile(
+          file.path,
+          filename: file.filename,
+          // Se o analyzer reclamar(Dio>=5.8), trocar por DioMediaType.parse(file.contentType).
+          contentType: MediaType.parse(file.contentType),
+        ),
+      ));
+    }
+    return form;
+  }
+
+  Never _throwFromDio(DioException e) {
+    developer.log('<<< ${e.response?.statusCode} | ${e.response?.data}',
+        name: 'HTTP ERROR');
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout ||
+        e.type == DioExceptionType.sendTimeout) {
+      throw HttpError.timeout;
+    }
+    if (e.type == DioExceptionType.connectionError) {
+      throw HttpError.noConnectivity;
+    }
+    if (e.response != null) _handleErrorResponse(e.response!);
+    throw HttpError.unexpected;
+  }
+
+  void _logUpload({
+    required HttpMethod method,
+    required String url,
+    required MultipartPayload payload,
+  }) {
+    if (!kDebugMode) return;
+    final fields = [
+      for (final f in payload.fields)
+        '${f.key}=${f.key.toLowerCase().contains('password') ? '***' : f.value}',
+    ];
+    final files = [for (final f in payload.files) '${f.field}: ${f.filename}'];
+    debugPrint('[HTTP UPLOAD] ${method.name.toUpperCase()} $url\n'
+        'fields: $fields\nfiles: $files');
   }
 }

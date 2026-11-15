@@ -8,6 +8,48 @@ abstract class HttpClient {
     Map? headers,
     Map<String, dynamic>? queryParameters,
   });
+
+  Future<HttpUploadResponse> upload({
+    required String url,
+    required HttpMethod method,
+    required MultipartPayload payload,
+    Map? headers,
+    void Function(int sent, int total)? onSendProgress,
+  });
+}
+
+class MultipartFileData {
+  final String field;
+  final String path;
+  final String filename;
+  final String contentType;
+
+  const MultipartFileData({
+    required this.field,
+    required this.path,
+    required this.filename,
+    this.contentType = 'application/pdf',
+  });
+}
+
+class MultipartPayload {
+  /// Campos de texto na ordem de envio. Chave repetida vira array.
+  final List<MapEntry<String, String>> fields;
+  final List<MultipartFileData> files;
+
+  const MultipartPayload({this.fields = const [], this.files = const []});
+}
+
+class HttpUploadResponse {
+  final int statusCode;
+  final Map<String, String> headers; // chaves em minúsculas
+  final dynamic data;
+
+  const HttpUploadResponse({
+    required this.statusCode,
+    this.headers = const {},
+    this.data,
+  });
 }
 
 enum HttpError {

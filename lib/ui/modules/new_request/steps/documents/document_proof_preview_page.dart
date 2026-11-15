@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:open_document/open_document.dart';
 
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
-import '../../../../helpers/app_assets.dart';
 import '../../../../helpers/themes/themes.dart';
 
 class DocumentProofPreviewResult {
@@ -57,6 +57,40 @@ class _DocumentProofPreviewPageState extends State<DocumentProofPreviewPage> {
         name.endsWith('.heic');
   }
 
+  Future<void> _onViewFullscreen() async {
+    final path = _filePath;
+    if (path == null || !File(path).existsSync()) {
+      _showOpenError();
+      return;
+    }
+
+    if (_isImage) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          fullscreenDialog: true,
+          builder: (_) => _FullscreenImagePage(title: _fileName, path: path),
+        ),
+      );
+      return;
+    }
+
+    try {
+      await OpenDocument.openDocument(filePath: path);
+    } catch (_) {
+      if (!mounted) return;
+      _showOpenError();
+    }
+  }
+
+  void _showOpenError() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(AppI18n.current.documentFullscreenError),
+        backgroundColor: AppColors.error,
+      ),
+    );
+  }
+
   Future<void> _onReplace() async {
     final replaced = await widget.onReplace();
     if (replaced == null || !mounted) return;
@@ -86,7 +120,7 @@ class _DocumentProofPreviewPageState extends State<DocumentProofPreviewPage> {
           color: Colors.white,
           onPressed: () => Navigator.of(context).maybePop(),
         ),
-        title: Text(i18n.documentProofSubmitAppBarTitle),
+        title: Text(i18n.documentProofEditSubmitAppBarTitle),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -107,6 +141,7 @@ class _DocumentProofPreviewPageState extends State<DocumentProofPreviewPage> {
                       fileName: _fileName,
                       filePath: _filePath,
                       isImage: _isImage,
+                      onFullscreen: _onViewFullscreen,
                     ),
                     const SizedBox(height: 16),
                     _ReplaceButton(
@@ -121,7 +156,7 @@ class _DocumentProofPreviewPageState extends State<DocumentProofPreviewPage> {
               padding: const EdgeInsets.all(16),
               child: EbolsaButton(
                 onPressed: _onSend,
-                label: i18n.documentSendAction,
+                label: i18n.documentSendDoneAction,
               ),
             ),
           ],
@@ -178,15 +213,54 @@ class _ReplaceButton extends StatelessWidget {
   }
 }
 
+class _FullscreenImagePage extends StatelessWidget {
+  final String title;
+  final String path;
+
+  const _FullscreenImagePage({required this.title, required this.path});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        leading: const CloseButton(color: Colors.white),
+        title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
+      body: SizedBox.expand(
+        child: InteractiveViewer(
+          minScale: 1,
+          maxScale: 5,
+          child: Center(
+            child: Image.file(
+              File(path),
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.broken_image_outlined,
+                color: Colors.white54,
+                size: 48,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _DocumentPreviewCard extends StatelessWidget {
   final String fileName;
   final String? filePath;
   final bool isImage;
+  final VoidCallback? onFullscreen;
 
   const _DocumentPreviewCard({
     required this.fileName,
     required this.filePath,
     required this.isImage,
+    this.onFullscreen,
   });
 
   @override
@@ -203,9 +277,21 @@ class _DocumentPreviewCard extends StatelessWidget {
         children: [
           SizedBox(
             height: 220,
-            child: ColoredBox(
-              color: const Color(0xFFF7F7F9),
-              child: _buildPreviewContent(),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: ColoredBox(
+                    color: const Color(0xFFF7F7F9),
+                    child: _buildPreviewContent(),
+                  ),
+                ),
+                if (onFullscreen != null)
+                  Positioned(
+                    left: 12,
+                    bottom: 12,
+                    child: _FullscreenButton(onTap: onFullscreen!),
+                  ),
+              ],
             ),
           ),
           Container(
@@ -239,6 +325,39 @@ class _DocumentPreviewCard extends StatelessWidget {
   }
 }
 
+class _FullscreenButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _FullscreenButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: AppI18n.current.documentViewFullscreenAction,
+      child: Material(
+        color: AppColors.secondaryContainer,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: SizedBox(
+            width: 48,
+            height: 48,
+            child: Center(
+              child: SvgPicture.asset(
+                AppIcons.fullScreenIcon,
+                width: 24,
+                height: 24,
+                color: AppColors.onPrimaryContainer,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _PdfPlaceholder extends StatelessWidget {
   const _PdfPlaceholder();
 
@@ -255,9 +374,9 @@ class _PdfPlaceholder extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'PDF',
+            AppI18n.current.documentEditPdfFullscreenInfo,
             style: AppTextStyles.titleMedium.copyWith(
-              color: AppColors.onSurface.withOpacity(0.6),
+              color: AppColors.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ],

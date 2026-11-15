@@ -5,8 +5,10 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../../../../domain/entities/proof_attachment_entity.dart';
+import '../../../../../domain/entities/proof_slot_submission.dart';
 import '../../../../../domain/entities/scholarship_proof_entity.dart';
+import '../../../../../domain/usecases/documents/upload_proof_document_usecase.dart';
+import '../../../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../../main/routes/routes.dart';
 import '../../../../components/components.dart';
@@ -22,11 +24,15 @@ class DocumentGroupDetailPage extends StatefulWidget {
   final int initialIndex;
   final DateTime? submissionDeadline;
   final Map<String, List<ScholarshipProofEntity>> proofsByGroup;
+  final String scholarshipId;
+  final Future<Map<String, List<ScholarshipProofEntity>>> Function() onRefresh;
 
   const DocumentGroupDetailPage({
     super.key,
     required this.groups,
     required this.initialIndex,
+    required this.scholarshipId,
+    required this.onRefresh,
     this.submissionDeadline,
     this.proofsByGroup = const {},
   });
@@ -39,6 +45,7 @@ class DocumentGroupDetailPage extends StatefulWidget {
 class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
   late int _currentIndex;
   late Map<String, List<ScholarshipProofEntity>> _proofsByGroup;
+  final _uploadProofDocument = makeRemoteUploadProofDocument();
 
   DocumentGroupItem get _currentGroup => widget.groups[_currentIndex];
 
@@ -203,7 +210,7 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
     if (!status.isGranted) return const [];
     try {
       final pictures =
-          await CunningDocumentScanner.getPictures(); // sem noOfPages: 1
+          await _withLoader(() => CunningDocumentScanner.getPictures());
       if (pictures == null) return const [];
       return [
         for (final p in pictures)
@@ -215,10 +222,10 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
   }
 
   Future<List<DocumentProofPreviewResult>> _pickFromGallery() async {
-    final result = await FilePicker.pickFiles(
-      type: FileType.image,
-      allowMultiple: true,
-    );
+    final result = await _withLoader(() => FilePicker.pickFiles(
+          type: FileType.image,
+          allowMultiple: true,
+        ));
     if (result == null) return const [];
     return [
       for (final f in result.files)
@@ -227,11 +234,11 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
   }
 
   Future<List<DocumentProofPreviewResult>> _pickFromDocuments() async {
-    final result = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: const ['pdf'],
-      allowMultiple: true,
-    );
+    final result = await _withLoader(() => FilePicker.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: const ['pdf'],
+          allowMultiple: true,
+        ));
     if (result == null) return const [];
     return [
       for (final f in result.files)
@@ -239,20 +246,57 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
     ];
   }
 
+  Future<T> _withLoader<T>(Future<T> Function() action) async {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const PopScope(
+        canPop: false,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+    );
+    try {
+      return await action();
+    } finally {
+      navigator.pop();
+    }
+  }
+
+  Future<void> _uploadSlot(
+    String proofDocumentId,
+    ProofSlotSubmission submission,
+  ) async {
+    await _uploadProofDocument.upload(UploadProofDocumentParams(
+      scholarshipId: widget.scholarshipId,
+      proofDocumentId: proofDocumentId,
+      documentId: submission.documentId,
+      acceptTerm: submission.acceptTerm,
+      attachments: submission.attachments,
+    ));
+  }
+
+  Future<void> _refreshProofs() async {
+    try {
+      final updated = await widget.onRefresh();
+      if (!mounted) return;
+      setState(() => _proofsByGroup = updated);
+    } catch (_) {}
+  }
+
   Future<void> _onSendDocument(ScholarshipProofEntity proof) async {
-    final attachments =
-        await Navigator.of(context).push<Map<String, ProofAttachments>>(
+    await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => DocumentProofSendPage(
           proof: proof,
           onPickFiles: _pickFiles,
+          onUploadSlot: _uploadSlot,
         ),
       ),
     );
-    if (attachments == null || !mounted) return;
-
-    // TODO: envio — endpoints e regras a definir
-    debugPrint('slots com anexos: ${attachments.keys.toList()}');
+    if (!mounted) return;
+    // Sempre recarrega: cobre sucesso, envio parcial e o header de arquivamento
+    await _refreshProofs();
   }
 
   @override

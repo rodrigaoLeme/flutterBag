@@ -600,6 +600,7 @@ abstract class AppI18n {
   String get documentsHomeDialogConfirm;
   String get documentSendAction;
   String get documentEditAction;
+  String get documentEditPdfFullscreenInfo;
   String get documentReplaceAction;
   String get documentsBackToDocumentsAction;
   String get documentAddressProofLabel;
@@ -637,6 +638,9 @@ abstract class AppI18n {
   String get documentMeEppDasLabel;
   String documentPersonProofDescription(String documentTitle);
   String get documentProofSubmitAppBarTitle;
+  String get documentProofEditSubmitAppBarTitle;
+  String get documentViewFullscreenAction;
+  String get documentFullscreenError;
   String get documentAddressProofDescription;
   String get documentTypeSelectorPlaceholder;
   String get documentTypeSelectorTitle;
@@ -660,6 +664,8 @@ abstract class AppI18n {
   String get documentProofAttachTooManyFiles;
   String get documentProofAttachTooLarge;
   String documentProofAttachCounter(String files, String size);
+  String get documentSendDoneAction;
+  String get documentProofAttachInfoMessage;
   String get concludeAction;
   String get answerYes;
   String get answerNo;

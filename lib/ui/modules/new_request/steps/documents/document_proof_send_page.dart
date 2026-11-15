@@ -6,7 +6,9 @@ import 'package:flutter_svg/svg.dart';
 import '../../../../../domain/entities/proof_attachment_entity.dart';
 import '../../../../../domain/entities/proof_document_entity.dart';
 import '../../../../../domain/entities/proof_document_option_entity.dart';
+import '../../../../../domain/entities/proof_slot_submission.dart';
 import '../../../../../domain/entities/scholarship_proof_entity.dart';
+import '../../../../../domain/usecases/documents/upload_proof_document_usecase.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/themes/themes.dart';
@@ -15,11 +17,14 @@ import 'document_proof_preview_page.dart';
 class DocumentProofSendPage extends StatefulWidget {
   final ScholarshipProofEntity proof;
   final Future<List<DocumentProofPreviewResult>> Function() onPickFiles;
+  final Future<void> Function(
+      String proofDocumentId, ProofSlotSubmission submission) onUploadSlot;
 
   const DocumentProofSendPage({
     super.key,
     required this.proof,
     required this.onPickFiles,
+    required this.onUploadSlot,
   });
 
   @override
@@ -30,6 +35,8 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
   final Map<String, ProofDocumentOptionEntity> _selectedOptions = {};
   final Map<String, ProofAttachments> _attachments = {};
   final Set<String> _acceptedTerms = {};
+  final Set<String> _sentSlots = {};
+  bool _isSubmitting = false;
 
   List<ProofDocumentEntity> get _slots =>
       widget.proof.scholarshipProofDocuments;
@@ -64,9 +71,15 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
 
   bool get _allComplete => _slots.isNotEmpty && _slots.every(_isSlotComplete);
 
-  Map<String, ProofAttachments> get _result => {
-        for (final e in _attachments.entries)
-          if (e.value.isNotEmpty) e.key: e.value,
+  Map<String, ProofSlotSubmission> get _submissions => {
+        for (final slot in _slots)
+          if ((_attachments[slot.id]?.isNotEmpty ?? false) &&
+              _selectedOptions[slot.id] != null)
+            slot.id: ProofSlotSubmission(
+              documentId: _selectedOptions[slot.id]!.documentId,
+              acceptTerm: _acceptedTerms.contains(slot.id),
+              attachments: _attachments[slot.id]!,
+            ),
       };
 
   String get _description =>
@@ -195,6 +208,29 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
     setState(() => _attachments[slot.id] = without.add([replacement]));
   }
 
+  Future<void> _onConfirm() async {
+    // slots já enviados numa tentativa anterior não vão de novo
+    final pending =
+        _submissions.entries.where((e) => !_sentSlots.contains(e.key)).toList();
+
+    setState(() => _isSubmitting = true);
+    try {
+      for (final entry in pending) {
+        await widget.onUploadSlot(entry.key, entry.value);
+        _sentSlots.add(entry.key);
+      }
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    } on UploadProofDocumentException catch (e) {
+      if (!mounted) return;
+      _showLimitMessage(e.message);
+      // próximo passo: se e.failure for passwordRequired/invalidPassword,
+      // pedir a senhs dos PDFs e reenviar
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
   Widget _buildSlot(ProofDocumentEntity slot) {
     final i18n = AppI18n.current;
     final option = _selectedOptions[slot.id];
@@ -231,13 +267,23 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
         if (attachments.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 4, bottom: 12),
-            child: Text(
-              i18n.documentProofAttachCounter(
-                '${attachments.outgoingFileCount}/${ProofAttachments.maxFiles}',
-                '${_formatBytes(attachments.totalBytes)} / '
-                    '${ProofAttachments.maxBytes ~/ (1024 * 1024)} MB',
-              ),
-              style: AppTextStyles.bodySmall,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  i18n.documentProofAttachCounter(
+                    '${attachments.outgoingFileCount}/${ProofAttachments.maxFiles}',
+                    '${_formatBytes(attachments.totalBytes)} / '
+                        '${ProofAttachments.maxBytes ~/ (1024 * 1024)} MB',
+                  ),
+                  style: AppTextStyles.bodySmall,
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  i18n.documentProofAttachInfoMessage,
+                  style: AppTextStyles.bodySmall,
+                )
+              ],
             ),
           ),
         _UploadButton(
@@ -284,38 +330,48 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
         leading: const BackButton(color: Colors.white),
       ),
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.proof.proofName ?? '',
-                      style: AppTextStyles.titleLarge,
+            Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.proof.proofName ?? '',
+                          style: AppTextStyles.titleLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(_description, style: AppTextStyles.bodyMedium),
+                        const SizedBox(height: 32),
+                        for (final slot in _slots) ...[
+                          _buildSlot(slot),
+                          const SizedBox(height: 16),
+                        ],
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(_description, style: AppTextStyles.bodyMedium),
-                    const SizedBox(height: 32),
-                    for (final slot in _slots) ...[
-                      _buildSlot(slot),
-                      const SizedBox(height: 16),
-                    ],
-                  ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: EbolsaButton(
+                    onPressed:
+                        _allComplete && !_isSubmitting ? _onConfirm : null,
+                    label: i18n.confirmAction,
+                  ),
+                ),
+              ],
+            ),
+            if (_isSubmitting)
+              const Positioned.fill(
+                child: ColoredBox(
+                  color: Colors.black26,
+                  child: Center(child: CircularProgressIndicator()),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: EbolsaButton(
-                onPressed: _allComplete
-                    ? () => Navigator.of(context).pop(_result)
-                    : null,
-                label: i18n.confirmAction,
-              ),
-            ),
           ],
         ),
       ),

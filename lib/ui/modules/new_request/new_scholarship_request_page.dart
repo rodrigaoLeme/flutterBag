@@ -857,6 +857,8 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           initialIndex: index,
           submissionDeadline: _submissionDeadline,
           proofsByGroup: proofsByGroup,
+          scholarshipId: _presenter.form.id ?? '',
+          onRefresh: _refreshProofsByGroup,
         ),
       ),
     );
@@ -996,6 +998,14 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     final entities =
         candidates.map((c) => CandidateEntity.fromJson(c)).toList();
     await _presenter.updateCandidates(entities);
+  }
+
+  Future<Map<String, List<ScholarshipProofEntity>>>
+      _refreshProofsByGroup() async {
+    await _loadProofs();
+    return {
+      for (final g in _buildDocumentGroups()) g.id: _getProofsForGroup(g.id),
+    };
   }
 
   bool _canAdvanceCurrentStep() {

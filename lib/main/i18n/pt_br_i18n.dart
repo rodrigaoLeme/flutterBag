@@ -1745,6 +1745,10 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get documentEditAction => 'Editar';
 
   @override
+  String get documentEditPdfFullscreenInfo =>
+      'Toque para visualizar o arquivo completo';
+
+  @override
   String get documentReplaceAction => 'Substituir';
 
   @override
@@ -1886,6 +1890,16 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get documentProofSubmitAppBarTitle => 'Envio de Comprovante';
 
   @override
+  String get documentProofEditSubmitAppBarTitle =>
+      'Visualizar/Editar Comprovante';
+
+  @override
+  String get documentViewFullscreenAction => 'Ver em tela cheia';
+
+  @override
+  String get documentFullscreenError => 'Não foi possível abrir o arquivo';
+
+  @override
   String get documentAddressProofDescription =>
       'Envie um dos documentos abaixo que esteja em nome de algum membro do grupo familiar referente ao último mês.';
 
@@ -1960,6 +1974,13 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   @override
   String documentProofAttachCounter(String files, String size) =>
       '$files arquivos · $size';
+
+  @override
+  String get documentProofAttachInfoMessage =>
+      'Fotos e imagens da galeria serão enviados como um único arquivo em PDF.';
+
+  @override
+  String get documentSendDoneAction => 'Concluir edição';
 
   @override
   String get concludeAction => 'Concluir';
