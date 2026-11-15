@@ -1947,6 +1947,21 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get documentProofSelectDocument => 'Selecionar documento';
 
   @override
+  String get documentProofAttachAddAction => 'Adicionar arquivo';
+
+  @override
+  String get documentProofAttachTooManyFiles =>
+      'Limite de 6 arquivos. Todas as fotos contam como um único PDF.';
+
+  @override
+  String get documentProofAttachTooLarge =>
+      'O total dos arquivos não pode passar de 15 MB.';
+
+  @override
+  String documentProofAttachCounter(String files, String size) =>
+      '$files arquivos · $size';
+
+  @override
   String get concludeAction => 'Concluir';
 
   @override

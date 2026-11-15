@@ -656,6 +656,10 @@ abstract class AppI18n {
   String get documentProofTakePhoto;
   String get documentProofSelectImage;
   String get documentProofSelectDocument;
+  String get documentProofAttachAddAction;
+  String get documentProofAttachTooManyFiles;
+  String get documentProofAttachTooLarge;
+  String documentProofAttachCounter(String files, String size);
   String get concludeAction;
   String get answerYes;
   String get answerNo;

@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../../../../domain/entities/proof_attachment_entity.dart';
 import '../../../../../domain/entities/proof_document_entity.dart';
 import '../../../../../domain/entities/proof_document_option_entity.dart';
 import '../../../../../domain/entities/scholarship_proof_entity.dart';
@@ -11,12 +14,12 @@ import 'document_proof_preview_page.dart';
 
 class DocumentProofSendPage extends StatefulWidget {
   final ScholarshipProofEntity proof;
-  final Future<DocumentProofPreviewResult?> Function() onPickFile;
+  final Future<List<DocumentProofPreviewResult>> Function() onPickFiles;
 
   const DocumentProofSendPage({
     super.key,
     required this.proof,
-    required this.onPickFile,
+    required this.onPickFiles,
   });
 
   @override
@@ -25,7 +28,7 @@ class DocumentProofSendPage extends StatefulWidget {
 
 class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
   final Map<String, ProofDocumentOptionEntity> _selectedOptions = {};
-  final Map<String, DocumentProofPreviewResult> _pickedFiles = {};
+  final Map<String, ProofAttachments> _attachments = {};
   final Set<String> _acceptedTerms = {};
 
   List<ProofDocumentEntity> get _slots =>
@@ -38,7 +41,6 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
       if (slot.options.length == 1) {
         _selectedOptions[slot.id] = slot.options.first;
       } else if (slot.documentId != null) {
-        // pré-seleciona o tipo já vinculado ao slot
         for (final option in slot.options) {
           if (option.documentId == slot.documentId) {
             _selectedOptions[slot.id] = option;
@@ -49,16 +51,11 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
     }
   }
 
-  // Conforme o Figma: dropdown/declaração pedem "Confirmar";
-  // os demais confirmam sozinhos quando o último arquivo é enviado.
-  bool get _needsConfirmButton => _slots.any(
-        (s) => s.options.length > 1 || s.options.any((o) => o.isDeclaration),
-      );
-
   bool _isSlotComplete(ProofDocumentEntity slot) {
     final option = _selectedOptions[slot.id];
     if (option == null) return false;
-    if (!_pickedFiles.containsKey(slot.id) && !slot.hasFile) return false;
+    final hasNewFiles = _attachments[slot.id]?.isNotEmpty ?? false;
+    if (!hasNewFiles && !slot.hasFile) return false;
     if (option.isDeclaration && !_acceptedTerms.contains(slot.id)) {
       return false;
     }
@@ -67,11 +64,55 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
 
   bool get _allComplete => _slots.isNotEmpty && _slots.every(_isSlotComplete);
 
+  Map<String, ProofAttachments> get _result => {
+        for (final e in _attachments.entries)
+          if (e.value.isNotEmpty) e.key: e.value,
+      };
+
   String get _description =>
       widget.proof.referenceDescription ??
       AppI18n.current.documentPersonProofDescription(
         widget.proof.proofName ?? '',
       );
+
+  void _showLimitMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppColors.error),
+    );
+  }
+
+  bool _acceptCheck(AttachmentCheck check) {
+    switch (check) {
+      case AttachmentCheck.ok:
+        return true;
+      case AttachmentCheck.tooManyFiles:
+        _showLimitMessage(AppI18n.current.documentProofAttachTooManyFiles);
+        return false;
+      case AttachmentCheck.tooLarge:
+        _showLimitMessage(AppI18n.current.documentProofAttachTooLarge);
+        return false;
+    }
+  }
+
+  Future<ProofAttachment?> _toAttachment(
+    DocumentProofPreviewResult picked,
+  ) async {
+    final path = picked.filePath;
+    if (path == null) return null;
+    return ProofAttachment(
+      path: path,
+      name: picked.fileName,
+      sizeBytes: await File(path).length(),
+      type: path.toLowerCase().endsWith('.pdf')
+          ? ProofAttachmentType.pdf
+          : ProofAttachmentType.image,
+    );
+  }
+
+  Future<DocumentProofPreviewResult?> _pickOne() async {
+    final list = await widget.onPickFiles();
+    return list.isEmpty ? null : list.first;
+  }
 
   Future<void> _openOptionSelector(ProofDocumentEntity slot) async {
     final i18n = AppI18n.current;
@@ -95,50 +136,73 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
       final changed =
           _selectedOptions[slot.id]?.documentId != selected.documentId;
       if (changed) {
-        // trocou o tipo: o arquivo e o aceite anteriores não valem mais
-        _pickedFiles.remove(slot.id);
+        _attachments.remove(slot.id);
         _acceptedTerms.remove(slot.id);
       }
       _selectedOptions[slot.id] = selected;
     });
   }
 
-  Future<void> _onUpload(ProofDocumentEntity slot) async {
+  Future<void> _onAdd(ProofDocumentEntity slot) async {
+    final picked = await widget.onPickFiles();
+    if (picked.isEmpty || !mounted) return;
+
+    final current = _attachments[slot.id] ?? const ProofAttachments();
+    final existingPaths = current.items.map((a) => a.path).toSet();
+
+    final incoming = <ProofAttachment>[];
+    for (final p in picked) {
+      final attachment = await _toAttachment(p);
+      if (attachment != null && !existingPaths.contains(attachment.path)) {
+        incoming.add(attachment);
+      }
+    }
+    if (incoming.isEmpty || !mounted) return;
+    if (!_acceptCheck(current.check(incoming))) return;
+
+    setState(() => _attachments[slot.id] = current.add(incoming));
+  }
+
+  void _onRemove(ProofDocumentEntity slot, ProofAttachment attachment) {
+    final current = _attachments[slot.id] ?? const ProofAttachments();
+    setState(() => _attachments[slot.id] = current.remove(attachment));
+  }
+
+  Future<void> _openPreview(
+    ProofDocumentEntity slot,
+    ProofAttachment attachment,
+  ) async {
     final option = _selectedOptions[slot.id];
-    if (option == null) return;
-
-    final picked = await widget.onPickFile();
-    if (picked == null || !mounted) return;
-
-    final confirmed =
-        await Navigator.of(context).push<DocumentProofPreviewResult>(
+    final result = await Navigator.of(context).push<DocumentProofPreviewResult>(
       MaterialPageRoute(
         builder: (_) => DocumentProofPreviewPage(
-          documentTitle: option.name ?? widget.proof.proofName ?? '',
-          fileName: picked.fileName,
-          filePath: picked.filePath,
-          onReplace: widget.onPickFile,
+          documentTitle: option?.name ?? widget.proof.proofName ?? '',
+          fileName: attachment.name,
+          filePath: attachment.path,
+          onReplace: _pickOne,
         ),
       ),
     );
-    if (confirmed == null || !mounted) return;
+    if (result == null || !mounted) return;
+    if (result.filePath == null || result.filePath == attachment.path) return;
 
-    setState(() => _pickedFiles[slot.id] = confirmed);
+    final replacement = await _toAttachment(result);
+    if (replacement == null || !mounted) return;
 
-    if (!_needsConfirmButton && _allComplete) {
-      Navigator.of(context).pop(_pickedFiles);
-    }
+    final without =
+        (_attachments[slot.id] ?? const ProofAttachments()).remove(attachment);
+    if (!_acceptCheck(without.check([replacement]))) return;
+    setState(() => _attachments[slot.id] = without.add([replacement]));
   }
 
   Widget _buildSlot(ProofDocumentEntity slot) {
     final i18n = AppI18n.current;
     final option = _selectedOptions[slot.id];
-    final picked = _pickedFiles[slot.id];
-    final hasFile = picked != null || slot.hasFile;
+    final attachments = _attachments[slot.id] ?? const ProofAttachments();
 
     final String label;
-    if (picked != null) {
-      label = picked.fileName;
+    if (attachments.isNotEmpty) {
+      label = i18n.documentProofAttachAddAction;
     } else if (slot.hasFile && (slot.filename?.isNotEmpty ?? false)) {
       label = slot.filename!;
     } else if (slot.options.length > 1) {
@@ -158,10 +222,28 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
           ),
           const SizedBox(height: 16),
         ],
+        for (final attachment in attachments.items)
+          _AttachmentTile(
+            attachment: attachment,
+            onTap: () => _openPreview(slot, attachment),
+            onRemove: () => _onRemove(slot, attachment),
+          ),
+        if (attachments.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, bottom: 12),
+            child: Text(
+              i18n.documentProofAttachCounter(
+                '${attachments.outgoingFileCount}/${ProofAttachments.maxFiles}',
+                '${_formatBytes(attachments.totalBytes)} / '
+                    '${ProofAttachments.maxBytes ~/ (1024 * 1024)} MB',
+              ),
+              style: AppTextStyles.bodySmall,
+            ),
+          ),
         _UploadButton(
           label: label,
-          isUploaded: hasFile,
-          onPressed: option == null ? null : () => _onUpload(slot),
+          isUploaded: attachments.isEmpty && slot.hasFile,
+          onPressed: option == null ? null : () => _onAdd(slot),
         ),
         if (option != null && option.isDeclaration)
           CheckboxListTile(
@@ -225,18 +307,76 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
                 ),
               ),
             ),
-            if (_needsConfirmButton)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: EbolsaButton(
-                  onPressed: _allComplete
-                      ? () => Navigator.of(context).pop(_pickedFiles)
-                      : null,
-                  label: i18n.confirmAction,
-                ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: EbolsaButton(
+                onPressed: _allComplete
+                    ? () => Navigator.of(context).pop(_result)
+                    : null,
+                label: i18n.confirmAction,
               ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+String _formatBytes(int bytes) {
+  if (bytes < 1024 * 1024) return '${(bytes / 1024).round()} KB';
+  final mb = (bytes / (1024 * 1024)).toStringAsFixed(1).replaceAll('.', ',');
+  return '$mb MB';
+}
+
+class _AttachmentTile extends StatelessWidget {
+  final ProofAttachment attachment;
+  final VoidCallback onTap;
+  final VoidCallback onRemove;
+
+  const _AttachmentTile({
+    required this.attachment,
+    required this.onTap,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isImage = attachment.type == ProofAttachmentType.image;
+
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      onTap: onTap,
+      leading: ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: isImage
+              ? Image.file(
+                  File(attachment.path),
+                  fit: BoxFit.cover,
+                  cacheWidth: 120,
+                  errorBuilder: (_, __, ___) =>
+                      const Icon(Icons.image_outlined),
+                )
+              : const Icon(Icons.picture_as_pdf_outlined),
+        ),
+      ),
+      title: Text(
+        attachment.name,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppTextStyles.bodyMedium,
+      ),
+      subtitle: Text(
+        _formatBytes(attachment.sizeBytes),
+        style: AppTextStyles.bodySmall,
+      ),
+      trailing: IconButton(
+        icon: const Icon(Icons.delete_outline),
+        color: AppColors.onSurfaceVariant,
+        onPressed: onRemove,
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../../../../domain/entities/proof_attachment_entity.dart';
 import '../../../../../domain/entities/scholarship_proof_entity.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../../main/routes/routes.dart';
@@ -121,10 +122,9 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
     };
   }
 
-  Future<DocumentProofPreviewResult?> _pickFile() async {
+  Future<List<DocumentProofPreviewResult>> _pickFiles() async {
     final source = await _showPickSourceSheet();
-    if (source == null || !mounted) return null;
-
+    if (source == null || !mounted) return const [];
     switch (source) {
       case _ProofPickSource.camera:
         return _pickFromCamera();
@@ -198,64 +198,61 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
     );
   }
 
-  Future<DocumentProofPreviewResult?> _pickFromCamera() async {
-    final cameraStatus = await Permission.camera.request();
-    if (!cameraStatus.isGranted) return null;
-
+  Future<List<DocumentProofPreviewResult>> _pickFromCamera() async {
+    final status = await Permission.camera.request();
+    if (!status.isGranted) return const [];
     try {
-      final pictures = await CunningDocumentScanner.getPictures(noOfPages: 1);
-      if (pictures == null || pictures.isEmpty) return null;
-      final path = pictures.first;
-      return DocumentProofPreviewResult(
-        fileName: path.split('/').last,
-        filePath: path,
-      );
+      final pictures =
+          await CunningDocumentScanner.getPictures(); // sem noOfPages: 1
+      if (pictures == null) return const [];
+      return [
+        for (final p in pictures)
+          DocumentProofPreviewResult(fileName: p.split('/').last, filePath: p),
+      ];
     } catch (_) {
-      return null;
+      return const [];
     }
   }
 
-  Future<DocumentProofPreviewResult?> _pickFromGallery() async {
-    final photosStatus = await Permission.photos.request();
-    final hasAccess = photosStatus.isGranted || photosStatus.isLimited;
-    if (!hasAccess) return null;
-
-    final result = await FilePicker.pickFiles(type: FileType.image);
-    if (result == null || result.files.isEmpty) return null;
-    final file = result.files.single;
-    return DocumentProofPreviewResult(
-      fileName: file.name,
-      filePath: file.path,
+  Future<List<DocumentProofPreviewResult>> _pickFromGallery() async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.image,
+      allowMultiple: true,
     );
+    if (result == null) return const [];
+    return [
+      for (final f in result.files)
+        DocumentProofPreviewResult(fileName: f.name, filePath: f.path),
+    ];
   }
 
-  Future<DocumentProofPreviewResult?> _pickFromDocuments() async {
+  Future<List<DocumentProofPreviewResult>> _pickFromDocuments() async {
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
-      allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png'],
+      allowedExtensions: const ['pdf'],
+      allowMultiple: true,
     );
-    if (result == null || result.files.isEmpty) return null;
-    final file = result.files.single;
-    return DocumentProofPreviewResult(
-      fileName: file.name,
-      filePath: file.path,
-    );
+    if (result == null) return const [];
+    return [
+      for (final f in result.files)
+        DocumentProofPreviewResult(fileName: f.name, filePath: f.path),
+    ];
   }
 
   Future<void> _onSendDocument(ScholarshipProofEntity proof) async {
-    final files = await Navigator.of(context)
-        .push<Map<String, DocumentProofPreviewResult>>(
+    final attachments =
+        await Navigator.of(context).push<Map<String, ProofAttachments>>(
       MaterialPageRoute(
         builder: (_) => DocumentProofSendPage(
           proof: proof,
-          onPickFile: _pickFile,
+          onPickFiles: _pickFiles,
         ),
       ),
     );
-    if (files == null || !mounted) return;
+    if (attachments == null || !mounted) return;
 
     // TODO: envio — endpoints e regras a definir
-    debugPrint('arquivos escolhidos por slot: ${files.keys.toList()}');
+    debugPrint('slots com anexos: ${attachments.keys.toList()}');
   }
 
   @override
