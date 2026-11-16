@@ -548,6 +548,8 @@ abstract class AppI18n {
   String get scholarshipResponsibleTag;
   String get scholarshipCandidateTag;
   String get dobLabel;
+  String get dobInvalid;
+  String get dobFuture;
   String get genderLabel;
   String get kinshipLabel;
   String get maritalStatusLabel;

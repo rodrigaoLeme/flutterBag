@@ -321,13 +321,7 @@ class _MemberRegistrationPageState extends State<MemberRegistrationPage> {
 
   void _onDobChanged() {
     final text = _vm.dobController.text;
-    if (text.length < 10) return;
-
-    try {
-      DateFormat('dd/MM/yyyy').parse(text.trim());
-    } catch (_) {
-      return;
-    }
+    if (_vm.parsedBirthDate == null) return;
 
     if (text == _lastValidDob) return;
 

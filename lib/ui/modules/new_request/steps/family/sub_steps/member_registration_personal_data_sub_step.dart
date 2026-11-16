@@ -137,19 +137,18 @@ class _MemberRegistrationPersonalDataSubStepState
 
               const SizedBox(height: 22),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: SizedBox(
-                      height: 56,
-                      child: EbolsaTextField(
-                        controller: widget.vm.dobController,
-                        label: AppI18n.current.dobLabel,
-                        hint: 'dd/mm/aaaa',
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [_dobMask],
-                        enabled: widget.vm.isCpfValidated &&
-                            !widget.vm.isLoadingPerson,
-                      ),
+                    child: EbolsaTextField(
+                      controller: widget.vm.dobController,
+                      label: AppI18n.current.dobLabel,
+                      hint: 'dd/mm/aaaa',
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [_dobMask],
+                      errorText: widget.vm.dobError,
+                      enabled: widget.vm.isCpfValidated &&
+                          !widget.vm.isLoadingPerson,
                     ),
                   ),
                   const SizedBox(width: 12),

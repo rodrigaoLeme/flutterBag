@@ -144,19 +144,27 @@ class MemberRegistrationViewModel extends ChangeNotifier {
 
   bool get isEditing => _editingIndex != null;
 
+  DateTime? get parsedBirthDate => _parseDob();
+
+  String? get dobError {
+    final text = dobController.text.trim();
+    if (text.length < 10) return null;
+    final date = _calendarDate(text);
+    if (date == null) return AppI18n.current.dobInvalid;
+    if (_isFutureDate(date)) return AppI18n.current.dobFuture;
+    return null;
+  }
+
   int get age {
-    try {
-      final dob = DateFormat('dd/MM/yyyy').parse(dobController.text.trim());
-      final now = DateTime.now();
-      int age = now.year - dob.year;
-      if (now.month < dob.month ||
-          (now.month == dob.month && now.day < dob.day)) {
-        age--;
-      }
-      return age;
-    } catch (_) {
-      return 0; // data inválida ou vazia → sem filtro de idade
+    final dob = parsedBirthDate;
+    if (dob == null) return 0;
+    final now = DateTime.now();
+    var years = now.year - dob.year;
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
+      years--;
     }
+    return years < 0 ? 0 : years;
   }
 
   MemberRegistrationViewModel({this.isHigherEducation = false}) {
@@ -215,7 +223,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   bool showCandidateField(
       {required bool isFirstMember, required bool isHigherEducation}) {
     if (isHigherEducation) return !hasAnotherScholarshipCandidate;
-    return !isFirstMember;
+    if (isResponsibleMember || isFirstMember) return false;
+    return true;
   }
 
   bool isCpfAlreadyAdded(String cpf) {
@@ -279,6 +288,9 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   bool get hasPwd =>
       selectedPcdId != null && selectedPcdId != _nenhunmaSpecialNeedsId;
 
+  bool get hasApprenticeEligibility =>
+      hasPwd || espectro == 1 || superdotacao == 1;
+
   bool get hasIncompatibleOccupations => incompatibleOccupations.isNotEmpty;
 
   Gender? get selectedGenderEnum =>
@@ -304,14 +316,24 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       if (typeId == null) return false;
       final type = _occupationTypes.firstWhereOrNull((t) => t.id == typeId);
       if (type == null) return false;
-      return !type.isCompatibleWith(age: age, hasPwd: hasPwd);
+      return !_allowsOccupation(type);
     }).toList();
   }
 
   List<OccupationTypeEntity> get compatibleOccupationTypes {
-    return _occupationTypes
-        .where((t) => t.isCompatibleWith(age: age, hasPwd: hasPwd))
-        .toList();
+    return _occupationTypes.where(_allowsOccupation).toList();
+  }
+
+  bool _allowsOccupation(OccupationTypeEntity type) {
+    if (age >= 14 && age <= 15) return type.isAllowedBetween14And15;
+    if (age >= 16 && age <= 17) return type.isAllowedBetween16And17;
+    if (type.isCompatibleWith(
+      age: age,
+      hasSpecialCondition: hasApprenticeEligibility,
+    )) {
+      return true;
+    }
+    return hasApprenticeEligibility && type.isApprentice;
   }
 
   void setCpfError(String? error) {
@@ -374,7 +396,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       if (typeId == null) return false;
       final type = _occupationTypes.firstWhereOrNull((t) => t.id == typeId);
       if (type == null) return false;
-      return !type.isCompatibleWith(age: age, hasPwd: hasPwd);
+      return !_allowsOccupation(type);
     });
     notifyListeners();
   }
@@ -417,7 +439,11 @@ class MemberRegistrationViewModel extends ChangeNotifier {
     selectedGender = _genderLabel(entity.personGender!);
     maritalStatus = MaritalStatus.fromValue(entity.maritalStatus);
     kinshipType = KinshipType.fromValue(entity.kinshipType);
-    seraCandidato = entity.isCandidate == true ? 1 : 0;
+    final responsibleInBasicEducation = !isHigherEducation &&
+        (addedFamilyMembers[index]['isResponsible'] == true || index == 0);
+    seraCandidato = responsibleInBasicEducation
+        ? 0
+        : (entity.isCandidate == true ? 1 : 0);
     naturalizado = entity.naturalized == true ? 1 : 0;
     possuiCIN = entity.personHasCin == true ? 1 : 0;
     rgController.text = entity.personRg ?? '';
@@ -1012,13 +1038,7 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       return false;
     }
     if (!_isFieldFilled(nameController)) return false;
-    if (!_isFieldFilled(dobController)) return false;
-    try {
-      final dob = DateFormat('dd/MM/yyyy').parse(dobController.text.trim());
-      if (dob.isAfter(DateTime.now())) return false;
-    } catch (_) {
-      return false;
-    }
+    if (parsedBirthDate == null) return false;
     if (selectedGender == null) return false;
     if (!isResponsibleMember && kinshipType == null) return false;
     if (maritalStatus == null) return false;
@@ -1183,7 +1203,8 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       'name': nameController.text.trim(),
       'dob': dobController.text.trim(),
       'maritalStatus': maritalStatus?.label,
-      'isScholarshipCandidate': seraCandidato == 1,
+      'isScholarshipCandidate':
+          isResponsible && !isHigherEducation ? false : seraCandidato == 1,
       'isResponsible': isResponsible,
       'kinshipType': isResponsible ? null : kinshipType?.value,
       'occupations': List<Map<String, dynamic>>.from(addedOccupations),
@@ -1308,7 +1329,9 @@ class MemberRegistrationViewModel extends ChangeNotifier {
       maritalStatus: _parseMaritalStatus(),
       nationalityId: selectedNationalityId,
       naturalized: naturalizado == 1,
-      isCandidate: seraCandidato == 1,
+      isCandidate: isResponsibleMember && !isHigherEducation
+          ? false
+          : seraCandidato == 1,
       isRetired: aposentado == 1,
       hasWorkBooklet: forcedWorkBookletFalse
           ? false
@@ -1353,11 +1376,29 @@ class MemberRegistrationViewModel extends ChangeNotifier {
   }
 
   DateTime? _parseDob() {
-    try {
-      return DateFormat('dd/MM/yyyy').parse(dobController.text.trim());
-    } catch (_) {
+    final date = _calendarDate(dobController.text);
+    if (date == null || _isFutureDate(date)) return null;
+    return date;
+  }
+
+  DateTime? _calendarDate(String raw) {
+    final match = RegExp(r'^(\d{2})/(\d{2})/(\d{4})$').firstMatch(raw.trim());
+    if (match == null) return null;
+    final day = int.parse(match.group(1)!);
+    final month = int.parse(match.group(2)!);
+    final year = int.parse(match.group(3)!);
+    if (year < 1 || month < 1 || month > 12 || day < 1) return null;
+    final date = DateTime(year, month, day);
+    if (date.year != year || date.month != month || date.day != day) {
       return null;
     }
+    return date;
+  }
+
+  bool _isFutureDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return date.isAfter(today);
   }
 
   int _parseGender() {

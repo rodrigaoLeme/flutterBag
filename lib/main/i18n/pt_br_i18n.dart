@@ -1581,6 +1581,12 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get dobLabel => 'Dt. de Nascimento';
 
   @override
+  String get dobInvalid => 'Informe uma data de nascimento válida';
+
+  @override
+  String get dobFuture => 'A data de nascimento não pode ser futura';
+
+  @override
   String get genderLabel => 'Gênero';
 
   @override

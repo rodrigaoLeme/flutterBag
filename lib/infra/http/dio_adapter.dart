@@ -303,8 +303,6 @@ class DioAdapter implements HttpClient {
   }
 
   Never _throwFromDio(DioException e) {
-    developer.log('<<< ${e.response?.statusCode} | ${e.response?.data}',
-        name: 'HTTP ERROR');
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout ||
         e.type == DioExceptionType.sendTimeout) {
