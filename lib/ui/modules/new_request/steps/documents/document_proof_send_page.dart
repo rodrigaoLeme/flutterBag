@@ -369,7 +369,7 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
             controlAffinity: ListTileControlAffinity.leading,
             contentPadding: EdgeInsets.zero,
             title: Text(
-              'Texto para acceptlabel',
+              i18n.documentDeclarationLabel,
               style: AppTextStyles.bodyMedium,
             ),
           ),

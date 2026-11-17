@@ -5,6 +5,7 @@ class ScholarshipProofEntity {
   final String id;
   final String? proofName;
   final String? categoryName;
+  final String? guidanceMarkdown;
   final String? contextLabel;
   final String? referenceDescription;
   final int? reviewStatus;
@@ -18,6 +19,7 @@ class ScholarshipProofEntity {
     required this.id,
     this.proofName,
     this.categoryName,
+    this.guidanceMarkdown,
     this.contextLabel,
     this.referenceDescription,
     this.familyMemberId,
@@ -48,6 +50,8 @@ class ScholarshipProofEntity {
         id: json['id'] as String,
         proofName: json['proofName'] as String?,
         categoryName: json['categoryName'] as String?,
+        guidanceMarkdown: json['guidanceMarkdown'] as String? ??
+            'Envie o documento pedido para este comprovante, legível e completo.',
         contextLabel: json['contextLabel'] as String?,
         referenceDescription: json['referenceDescription'] as String?,
         familyMemberId: json['familyMemberId'] as String?,

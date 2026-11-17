@@ -5,6 +5,7 @@ class ProofDocumentEntity {
   final String? proofItemConfigId;
   final String? documentId;
   final String? documentName;
+  final String? documentDescription;
   final String? filename;
   final bool hasFile;
   final bool? isValid;
@@ -18,6 +19,7 @@ class ProofDocumentEntity {
     this.proofItemConfigId,
     this.documentId,
     this.documentName,
+    this.documentDescription,
     this.filename,
     required this.hasFile,
     this.isValid,
@@ -40,6 +42,7 @@ class ProofDocumentEntity {
         proofItemConfigId: json['proofItemConfigId'] as String?,
         documentId: json['documentId'] as String?,
         documentName: json['documentName'] as String?,
+        documentDescription: json['documentDescription'] as String?,
         filename: json['filename'] as String?,
         hasFile: json['hasFile'] as bool? ?? false,
         isValid: json['isValid'] as bool?,
