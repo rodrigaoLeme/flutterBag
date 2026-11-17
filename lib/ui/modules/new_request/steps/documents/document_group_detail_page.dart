@@ -263,17 +263,18 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
     }
   }
 
-  Future<void> _uploadSlot(
+  Future<bool> _uploadSlot(
     String proofDocumentId,
     ProofSlotSubmission submission,
   ) async {
-    await _uploadProofDocument.upload(UploadProofDocumentParams(
+    final result = await _uploadProofDocument.upload(UploadProofDocumentParams(
       scholarshipId: widget.scholarshipId,
       proofDocumentId: proofDocumentId,
       documentId: submission.documentId,
       acceptTerm: submission.acceptTerm,
       attachments: submission.attachments,
     ));
+    return result.archived;
   }
 
   Future<void> _refreshProofs() async {
@@ -407,14 +408,11 @@ class _DocumentRequirementRow extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
       child: Row(
         children: [
-          if (needsReview || isComplete) ...[
-            Icon(
-              needsReview ? Icons.warning_amber_rounded : Icons.check_circle,
-              color: needsReview ? Colors.orange : AppColors.success,
-              size: 22,
-            ),
-            const SizedBox(width: 8),
-          ],
+          EbolsaCheckProofsIcons(
+            needsReview: needsReview,
+            isComplete: isComplete,
+          ),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

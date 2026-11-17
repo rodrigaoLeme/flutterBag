@@ -1,5 +1,6 @@
 export 'available_announcement_card.dart';
 export 'ebolsa_button.dart';
+export 'ebolsa_check_proofs_icons.dart';
 export 'ebolsa_checkbox_item.dart';
 export 'ebolsa_cpf_field.dart';
 export 'ebolsa_dialog.dart';

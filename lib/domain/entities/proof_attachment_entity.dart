@@ -61,4 +61,8 @@ class ProofAttachments {
   ProofAttachments remove(ProofAttachment attachment) => ProofAttachments(
         items.where((a) => a.path != attachment.path).toList(),
       );
+
+  ProofAttachments update(ProofAttachment updated) => ProofAttachments([
+        for (final a in items) a.path == updated.path ? updated : a,
+      ]);
 }

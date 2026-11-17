@@ -1890,7 +1890,7 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
 
   @override
   String documentPersonProofDescription(String documentTitle) =>
-      'Envie uma imagem ou PDF da sua ${documentTitle.toLowerCase()}';
+      'Envie uma imagem ou PDF do ${documentTitle.toLowerCase()}';
 
   @override
   String get documentProofSubmitAppBarTitle => 'Envio de Comprovante';
@@ -1984,6 +1984,29 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   @override
   String get documentProofAttachInfoMessage =>
       'Fotos e imagens da galeria serão enviados como um único arquivo em PDF.';
+
+  @override
+  String get documentProofListChanged =>
+      'A lista de comprovantes foi atualizada. Confira os documentos e envie novamente.';
+
+  @override
+  String get documentProofPasswordTitle => 'Documento protegido por senha';
+
+  @override
+  String get documentProofPasswordWrongTitle => 'Senha incorreta';
+
+  @override
+  String get documentProofPasswordDescription =>
+      'Informe a senha dos PDFs protegidos. Deixe em branco os que abrem sem senha.';
+
+  @override
+  String get documentProofPasswordLabel => 'Senha';
+
+  @override
+  String get documentProofPasswordSendAction => 'Salvar';
+
+  @override
+  String get documentProofPasswordCancelAction => 'Cancelar';
 
   @override
   String get documentSendDoneAction => 'Concluir edição';

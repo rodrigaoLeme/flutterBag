@@ -46,4 +46,7 @@ class AppIcons {
   static const imageIcon = 'lib/ui/assets/icons/images.svg';
   static const fullScreenIcon =
       'lib/ui/assets/icons/arrow-up-right-from-square.svg';
+  static const greenCheckIcon = 'lib/ui/assets/icons/green-check-icon.svg';
+  static const yellowAtentionIcon =
+      'lib/ui/assets/icons/yellow-atention-icon.svg';
 }

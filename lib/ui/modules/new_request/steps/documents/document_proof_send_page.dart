@@ -10,6 +10,7 @@ import '../../../../../domain/entities/proof_slot_submission.dart';
 import '../../../../../domain/entities/scholarship_proof_entity.dart';
 import '../../../../../domain/usecases/documents/upload_proof_document_usecase.dart';
 import '../../../../../main/i18n/app_i18n.dart';
+import '../../../../../share/utils/pdf_inspector.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/themes/themes.dart';
 import 'document_proof_preview_page.dart';
@@ -17,7 +18,7 @@ import 'document_proof_preview_page.dart';
 class DocumentProofSendPage extends StatefulWidget {
   final ScholarshipProofEntity proof;
   final Future<List<DocumentProofPreviewResult>> Function() onPickFiles;
-  final Future<void> Function(
+  final Future<bool> Function(
       String proofDocumentId, ProofSlotSubmission submission) onUploadSlot;
 
   const DocumentProofSendPage({
@@ -112,13 +113,13 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
   ) async {
     final path = picked.filePath;
     if (path == null) return null;
+    final isPdf = path.toLowerCase().endsWith('.pdf');
     return ProofAttachment(
       path: path,
       name: picked.fileName,
       sizeBytes: await File(path).length(),
-      type: path.toLowerCase().endsWith('.pdf')
-          ? ProofAttachmentType.pdf
-          : ProofAttachmentType.image,
+      type: isPdf ? ProofAttachmentType.pdf : ProofAttachmentType.image,
+      isEncrypted: isPdf && await isLikelyEncryptedPdf(path),
     );
   }
 
@@ -151,6 +152,7 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
       if (changed) {
         _attachments.remove(slot.id);
         _acceptedTerms.remove(slot.id);
+        _sentSlots.remove(slot.id);
       }
       _selectedOptions[slot.id] = selected;
     });
@@ -173,7 +175,10 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
     if (incoming.isEmpty || !mounted) return;
     if (!_acceptCheck(current.check(incoming))) return;
 
-    setState(() => _attachments[slot.id] = current.add(incoming));
+    setState(() {
+      _attachments[slot.id] = current.add(incoming);
+      _sentSlots.remove(slot.id);
+    });
   }
 
   void _onRemove(ProofDocumentEntity slot, ProofAttachment attachment) {
@@ -205,30 +210,86 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
     final without =
         (_attachments[slot.id] ?? const ProofAttachments()).remove(attachment);
     if (!_acceptCheck(without.check([replacement]))) return;
-    setState(() => _attachments[slot.id] = without.add([replacement]));
+    setState(() {
+      _attachments[slot.id] = without.add([replacement]);
+      _sentSlots.remove(slot.id);
+    });
   }
 
   Future<void> _onConfirm() async {
-    // slots já enviados numa tentativa anterior não vão de novo
-    final pending =
-        _submissions.entries.where((e) => !_sentSlots.contains(e.key)).toList();
+    final slotIds =
+        _submissions.keys.where((id) => !_sentSlots.contains(id)).toList();
 
     setState(() => _isSubmitting = true);
     try {
-      for (final entry in pending) {
-        await widget.onUploadSlot(entry.key, entry.value);
-        _sentSlots.add(entry.key);
+      var archived = false;
+      for (final slotId in slotIds) {
+        archived = await _uploadWithPasswordRetry(slotId);
+        _sentSlots.add(slotId);
+        if (archived) break;
       }
       if (!mounted) return;
+      if (archived) _showLimitMessage(AppI18n.current.documentProofListChanged);
       Navigator.of(context).pop(true);
     } on UploadProofDocumentException catch (e) {
       if (!mounted) return;
       _showLimitMessage(e.message);
-      // próximo passo: se e.failure for passwordRequired/invalidPassword,
-      // pedir a senhs dos PDFs e reenviar
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  Future<bool> _uploadWithPasswordRetry(String slotId) async {
+    while (true) {
+      final submission =
+          _submissions[slotId]; // refeito a cada volta, com as senhas novas
+      if (submission == null) return false;
+      try {
+        return await widget.onUploadSlot(slotId, submission);
+      } on UploadProofDocumentException catch (e) {
+        final needsPassword =
+            e.failure == UploadProofFailure.passwordRequired ||
+                e.failure == UploadProofFailure.invalidPassword;
+        if (!needsPassword) rethrow;
+
+        final provided = await _askPasswords(
+          slotId,
+          wrongPassword: e.failure == UploadProofFailure.invalidPassword,
+        );
+        if (!provided) rethrow;
+      }
+    }
+  }
+
+  Future<bool> _askPasswords(
+    String slotId, {
+    required bool wrongPassword,
+    List<ProofAttachment>? only,
+  }) async {
+    final current = _attachments[slotId];
+    if (current == null) return false;
+
+    final pdfs = only ??
+        [
+          ...current.pdfs.where((p) => p.isEncrypted),
+          ...current.pdfs.where((p) => !p.isEncrypted),
+        ];
+    if (pdfs.isEmpty) return false;
+
+    final result = await showDialog<Map<String, String>>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) =>
+          _PdfPasswordsDialog(pdfs: pdfs, wrongPassword: wrongPassword),
+    );
+    if (result == null || !mounted) return false;
+
+    var updated = current;
+    for (final pdf in pdfs) {
+      updated = updated.update(pdf.copyWith(password: result[pdf.path] ?? ''));
+    }
+    setState(() => _attachments[slotId] = updated);
+    return true;
   }
 
   Widget _buildSlot(ProofDocumentEntity slot) {
@@ -263,6 +324,10 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
             attachment: attachment,
             onTap: () => _openPreview(slot, attachment),
             onRemove: () => _onRemove(slot, attachment),
+            onPassword: attachment.isEncrypted
+                ? () => _askPasswords(slot.id,
+                    wrongPassword: false, only: [attachment])
+                : null,
           ),
         if (attachments.isNotEmpty)
           Padding(
@@ -389,11 +454,13 @@ class _AttachmentTile extends StatelessWidget {
   final ProofAttachment attachment;
   final VoidCallback onTap;
   final VoidCallback onRemove;
+  final VoidCallback? onPassword;
 
   const _AttachmentTile({
     required this.attachment,
     required this.onTap,
     required this.onRemove,
+    this.onPassword,
   });
 
   @override
@@ -429,11 +496,129 @@ class _AttachmentTile extends StatelessWidget {
         _formatBytes(attachment.sizeBytes),
         style: AppTextStyles.bodySmall,
       ),
-      trailing: IconButton(
-        icon: const Icon(Icons.delete_outline),
-        color: AppColors.onSurfaceVariant,
-        onPressed: onRemove,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (attachment.isEncrypted)
+            IconButton(
+              tooltip: AppI18n.current.documentProofPasswordTitle,
+              icon: Icon(
+                (attachment.password?.isNotEmpty ?? false)
+                    ? Icons.lock_open
+                    : Icons.lock_outline,
+              ),
+              color: AppColors.onSurfaceVariant,
+              onPressed: onPassword,
+            ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            color: AppColors.onSurfaceVariant,
+            onPressed: onRemove,
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class _PdfPasswordsDialog extends StatefulWidget {
+  final List<ProofAttachment> pdfs;
+  final bool wrongPassword;
+
+  const _PdfPasswordsDialog({required this.pdfs, required this.wrongPassword});
+
+  @override
+  State<_PdfPasswordsDialog> createState() => _PdfPasswordsDialogState();
+}
+
+class _PdfPasswordsDialogState extends State<_PdfPasswordsDialog> {
+  late final Map<String, TextEditingController> _controllers;
+  final Set<String> _visible = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _controllers = {
+      for (final pdf in widget.pdfs)
+        pdf.path: TextEditingController(text: pdf.password ?? ''),
+    };
+  }
+
+  @override
+  void dispose() {
+    for (final c in _controllers.values) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final i18n = AppI18n.current;
+
+    return AlertDialog(
+      title: Text(
+        widget.wrongPassword
+            ? i18n.documentProofPasswordWrongTitle
+            : i18n.documentProofPasswordTitle,
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(i18n.documentProofPasswordDescription,
+                style: AppTextStyles.bodyMedium),
+            const SizedBox(height: 16),
+            for (final pdf in widget.pdfs) ...[
+              Text(
+                pdf.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.bodySmall,
+              ),
+              const SizedBox(height: 4),
+              TextField(
+                controller: _controllers[pdf.path],
+                autofocus: pdf == widget.pdfs.first,
+                obscureText: !_visible.contains(pdf.path),
+                autocorrect: false,
+                enableSuggestions: false,
+                decoration: InputDecoration(
+                  labelText: i18n.documentProofPasswordLabel,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _visible.contains(pdf.path)
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                    onPressed: () => setState(() {
+                      if (!_visible.add(pdf.path)) _visible.remove(pdf.path);
+                    }),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        EbolsaTextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          label: i18n.documentProofPasswordCancelAction,
+          isSecondary: true,
+        ),
+        EbolsaTextButton(
+          onPressed: () => Navigator.of(context).pop({
+            for (final e in _controllers.entries) e.key: e.value.text,
+          }),
+          label: i18n.documentProofPasswordSendAction,
+        ),
+      ],
     );
   }
 }

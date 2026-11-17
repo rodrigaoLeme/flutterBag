@@ -668,6 +668,13 @@ abstract class AppI18n {
   String documentProofAttachCounter(String files, String size);
   String get documentSendDoneAction;
   String get documentProofAttachInfoMessage;
+  String get documentProofListChanged;
+  String get documentProofPasswordTitle;
+  String get documentProofPasswordWrongTitle;
+  String get documentProofPasswordDescription;
+  String get documentProofPasswordLabel;
+  String get documentProofPasswordSendAction;
+  String get documentProofPasswordCancelAction;
   String get concludeAction;
   String get answerYes;
   String get answerNo;
