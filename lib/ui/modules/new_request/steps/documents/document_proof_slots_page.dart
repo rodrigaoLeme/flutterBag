@@ -85,7 +85,7 @@ class _DocumentProofSlotsPageState extends State<DocumentProofSlotsPage> {
             const SizedBox(height: 24),
             for (final slot in proof.scholarshipProofDocuments) ...[
               _SlotRow(
-                title: slot.displayName(proof.proofName),
+                title: slot.displayName(i18n.documentTypeChoice),
                 slot: slot,
                 onTap: () => _openSlot(proof, slot),
               ),

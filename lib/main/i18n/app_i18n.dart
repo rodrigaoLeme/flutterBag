@@ -635,6 +635,7 @@ abstract class AppI18n {
   String get documentNoWorkCardTypePublicRpps;
   String get documentNoWorkCardUploadLabel;
   String get documentNoWorkCardDownloadModelHint;
+  String get documentNoWorkCardDownloadModelDescription;
   String get documentNoWorkCardDownloadModelAction;
   String get documentMeEppProofLabel;
   String get documentMeEppProofDescriptionCollapsed;
@@ -644,6 +645,7 @@ abstract class AppI18n {
   String get documentMeEppDasLabel;
   String documentPersonProofDescription(String documentTitle);
   String get documentProofSubmitAppBarTitle;
+  String get documentTypeChoice;
   String get documentProofEditSubmitAppBarTitle;
   String get documentViewFullscreenAction;
   String get documentFullscreenError;

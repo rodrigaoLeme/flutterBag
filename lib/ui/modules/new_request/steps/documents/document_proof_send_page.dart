@@ -414,13 +414,31 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
               style: AppTextStyles.bodyMedium,
             ),
           ),
-        if (option?.declarationTemplateId != null)
-          TextButton(
-            onPressed: () {
-              // TODO: baixar o modelo (depende do endpoint)
-            },
-            child: Text(i18n.documentNoWorkCardDownloadModelAction),
+        if (option?.declarationTemplateId != null) ...[
+          SizedBox(height: 100),
+          Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadiusDirectional.circular(12),
+                color: AppColors.lightSurface),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Column(
+              children: [
+                Text(
+                  i18n.documentNoWorkCardDownloadModelDescription,
+                  style: AppTextStyles.bodyLarge,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                _DeclarationButton(
+                  label: i18n.documentNoWorkCardDownloadModelAction,
+                  onPressed: () {
+                    // TODO: baixar o modelo
+                  },
+                )
+              ],
+            ),
           ),
+        ]
       ],
     );
   }
@@ -725,6 +743,60 @@ class _UploadButton extends StatelessWidget {
                     width: 20,
                     color: AppColors.onSurfaceVariant,
                   ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.titleMedium.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DeclarationButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+
+  const _DeclarationButton({
+    required this.label,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: onPressed == null ? 0.5 : 1,
+      child: Material(
+        color: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: const BorderSide(
+            color: AppColors.primaryOutline,
+            width: 1, // Espessura da borda
+          ),
+        ),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(
+                  AppIcons.downloadIcon,
+                  width: 14,
+                  color: AppColors.onSurfaceVariant,
+                ),
                 const SizedBox(width: 8),
                 Flexible(
                   child: Text(

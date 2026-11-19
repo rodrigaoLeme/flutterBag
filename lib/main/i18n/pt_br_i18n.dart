@@ -1874,6 +1874,10 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
       'Caso precise de um modelo de declaração, clique no botão abaixo:';
 
   @override
+  String get documentNoWorkCardDownloadModelDescription =>
+      'Caso precise de um modelo de declaração, toque no botão abaixo:';
+
+  @override
   String get documentNoWorkCardDownloadModelAction =>
       'Baixar Modelo de declaração';
 
@@ -1908,6 +1912,9 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
 
   @override
   String get documentProofSubmitAppBarTitle => 'Envio de Comprovante';
+
+  @override
+  String get documentTypeChoice => 'Escolha o tipo de documento';
 
   @override
   String get documentProofEditSubmitAppBarTitle =>
