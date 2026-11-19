@@ -1833,6 +1833,16 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get documentUnemployedOrHomemakerLabel => 'Desempregado ou do Lar';
 
   @override
+  String get documentProofGuidanceDefault =>
+      'Envie o documento pedido para este comprovante, legível e completo.';
+
+  @override
+  String get documentProofGuidanceReadLess => 'Leia menos';
+
+  @override
+  String get documentProofGuidanceReadMore => 'Leia mais';
+
+  @override
   String get documentDeclarationLabel =>
       'Declaro a veracidade e autenticidade do documento e das informações prestadas.';
 

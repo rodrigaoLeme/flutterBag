@@ -14,9 +14,11 @@ import '../../../../../share/utils/pdf_inspector.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/themes/themes.dart';
 import 'document_proof_preview_page.dart';
+import 'proof_guidance.dart';
 
 class DocumentProofSendPage extends StatefulWidget {
   final ScholarshipProofEntity proof;
+  final ProofDocumentEntity slot;
   final Future<List<DocumentProofPreviewResult>> Function() onPickFiles;
   final Future<bool> Function(
       String proofDocumentId, ProofSlotSubmission submission) onUploadSlot;
@@ -24,6 +26,7 @@ class DocumentProofSendPage extends StatefulWidget {
   const DocumentProofSendPage({
     super.key,
     required this.proof,
+    required this.slot,
     required this.onPickFiles,
     required this.onUploadSlot,
   });
@@ -39,8 +42,7 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
   final Set<String> _sentSlots = {};
   bool _isSubmitting = false;
 
-  List<ProofDocumentEntity> get _slots =>
-      widget.proof.scholarshipProofDocuments;
+  List<ProofDocumentEntity> get _slots => [widget.slot];
 
   @override
   void initState() {
@@ -57,6 +59,15 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
       }
       if (slot.acceptedTerm) _acceptedTerms.add(slot.id);
     }
+  }
+
+  String? _optionDescription(ProofDocumentEntity slot) {
+    final option = _selectedOptions[slot.id];
+    if (option == null) return null;
+    final description = option.description?.trim();
+    if (description != null && description.isNotEmpty) return description;
+    if (option.documentId == slot.documentId) return slot.documentDescription;
+    return null;
   }
 
   bool _isSlotComplete(ProofDocumentEntity slot) {
@@ -82,12 +93,6 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
               attachments: _attachments[slot.id]!,
             ),
       };
-
-  String get _description =>
-      widget.proof.referenceDescription ??
-      AppI18n.current.documentPersonProofDescription(
-        widget.proof.proofName ?? '',
-      );
 
   void _showLimitMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -292,6 +297,38 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
     return true;
   }
 
+  Widget _buildHeader() {
+    final proof = widget.proof;
+    final isMultiSlot = proof.scholarshipProofDocuments.length > 1;
+
+    final title = isMultiSlot
+        ? widget.slot.displayName(proof.proofName)
+        : (proof.proofName ?? '');
+    final subtitle = (isMultiSlot && title != (proof.proofName ?? ''))
+        ? proof.proofName
+        : null;
+    final reference = proof.referenceDescription;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: AppTextStyles.titleLarge),
+        if (subtitle != null && subtitle.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Text(subtitle, style: AppTextStyles.bodySmall),
+        ],
+        if (!isMultiSlot) ...[
+          if (reference != null && reference.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(reference, style: AppTextStyles.bodyMedium),
+          ],
+          const SizedBox(height: 12),
+          ProofGuidance(markdown: proof.guidanceMarkdown),
+        ],
+      ],
+    );
+  }
+
   Widget _buildSlot(ProofDocumentEntity slot) {
     final i18n = AppI18n.current;
     final option = _selectedOptions[slot.id];
@@ -317,6 +354,10 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
             value: option?.name,
             onTap: () => _openOptionSelector(slot),
           ),
+          if (_optionDescription(slot) != null) ...[
+            const SizedBox(height: 8),
+            Text(_optionDescription(slot)!, style: AppTextStyles.bodySmall),
+          ],
           const SizedBox(height: 16),
         ],
         for (final attachment in attachments.items)
@@ -405,13 +446,8 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          widget.proof.proofName ?? '',
-                          style: AppTextStyles.titleLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(_description, style: AppTextStyles.bodyMedium),
-                        const SizedBox(height: 32),
+                        _buildHeader(),
+                        SizedBox(height: 24),
                         for (final slot in _slots) ...[
                           _buildSlot(slot),
                           const SizedBox(height: 16),
@@ -425,7 +461,7 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
                   child: EbolsaButton(
                     onPressed:
                         _allComplete && !_isSubmitting ? _onConfirm : null,
-                    label: i18n.confirmAction,
+                    label: i18n.documentSendAction,
                   ),
                 ),
               ],

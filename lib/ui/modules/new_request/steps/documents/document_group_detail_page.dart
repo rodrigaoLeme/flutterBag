@@ -18,6 +18,7 @@ import '../family/widgets/member_registration_sub_step_nav.dart';
 import 'document_group_item.dart';
 import 'document_proof_preview_page.dart';
 import 'document_proof_send_page.dart';
+import 'document_proof_slots_page.dart';
 
 class DocumentGroupDetailPage extends StatefulWidget {
   final List<DocumentGroupItem> groups;
@@ -51,6 +52,15 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
 
   List<ScholarshipProofEntity> get _currentProofs =>
       _proofsByGroup[_currentGroup.id] ?? const <ScholarshipProofEntity>[];
+
+  ScholarshipProofEntity? _findProof(String proofId) {
+    for (final proofs in _proofsByGroup.values) {
+      for (final proof in proofs) {
+        if (proof.id == proofId) return proof;
+      }
+    }
+    return null;
+  }
 
   @override
   void initState() {
@@ -286,17 +296,34 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
   }
 
   Future<void> _onSendDocument(ScholarshipProofEntity proof) async {
-    await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (_) => DocumentProofSendPage(
-          proof: proof,
-          onPickFiles: _pickFiles,
-          onUploadSlot: _uploadSlot,
+    final slots = proof.scholarshipProofDocuments;
+    if (slots.isEmpty) return;
+
+    if (slots.length == 1) {
+      await Navigator.of(context).push<bool>(
+        MaterialPageRoute(
+          builder: (_) => DocumentProofSendPage(
+            proof: proof,
+            slot: slots.first,
+            onPickFiles: _pickFiles,
+            onUploadSlot: _uploadSlot,
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      await Navigator.of(context).push<void>(
+        MaterialPageRoute(
+          builder: (_) => DocumentProofSlotsPage(
+            proofId: proof.id,
+            findProof: _findProof,
+            refresh: _refreshProofs,
+            onPickFiles: _pickFiles,
+            onUploadSlot: _uploadSlot,
+          ),
+        ),
+      );
+    }
     if (!mounted) return;
-    // Sempre recarrega: cobre sucesso, envio parcial e o header de arquivamento
     await _refreshProofs();
   }
 

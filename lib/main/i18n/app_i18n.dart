@@ -624,6 +624,9 @@ abstract class AppI18n {
   String get documentAcademicPerformanceLabel;
   String get documentCivilIdLabel;
   String get documentUnemployedOrHomemakerLabel;
+  String get documentProofGuidanceDefault;
+  String get documentProofGuidanceReadLess;
+  String get documentProofGuidanceReadMore;
   String get documentDeclarationLabel;
   String get documentNoWorkCardLabel;
   String get documentNoWorkCardGuidelinesCollapsed;

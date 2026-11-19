@@ -50,8 +50,7 @@ class ScholarshipProofEntity {
         id: json['id'] as String,
         proofName: json['proofName'] as String?,
         categoryName: json['categoryName'] as String?,
-        guidanceMarkdown: json['guidanceMarkdown'] as String? ??
-            'Envie o documento pedido para este comprovante, legível e completo.',
+        guidanceMarkdown: json['guidanceMarkdown'] as String?,
         contextLabel: json['contextLabel'] as String?,
         referenceDescription: json['referenceDescription'] as String?,
         familyMemberId: json['familyMemberId'] as String?,

@@ -36,6 +36,14 @@ class ProofDocumentEntity {
   ProofDocumentOptionEntity? get autoSelectedOption =>
       options.length == 1 ? options.first : null;
 
+  String displayName(String? proofName) {
+    if (documentName?.isNotEmpty ?? false) return documentName!;
+    if (options.length == 1 && (options.first.name?.isNotEmpty ?? false)) {
+      return options.first.name!;
+    }
+    return proofName ?? '';
+  }
+
   factory ProofDocumentEntity.fromJson(Map<String, dynamic> json) =>
       ProofDocumentEntity(
         id: json['id'] as String,

@@ -235,6 +235,12 @@ class DioAdapter implements HttpClient {
         throw HttpError.forbidden;
       case 404:
         throw HttpError.notFound;
+      case 413:
+        throw ApiException(
+          code: 'Payload.TooLarge',
+          title: 'O total dos arquivos passa do limite de 15 MB.',
+          statusCode: 413,
+        );
       case 429:
         throw HttpError.tooManyRequests;
       default:
