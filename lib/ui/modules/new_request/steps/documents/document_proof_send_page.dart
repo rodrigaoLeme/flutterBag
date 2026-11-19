@@ -13,12 +13,14 @@ import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../../share/utils/pdf_inspector.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/themes/themes.dart';
+import 'declaration_template_page.dart';
 import 'document_proof_preview_page.dart';
 import 'proof_guidance.dart';
 
 class DocumentProofSendPage extends StatefulWidget {
   final ScholarshipProofEntity proof;
   final ProofDocumentEntity slot;
+  final String scholarshipId;
   final Future<List<DocumentProofPreviewResult>> Function() onPickFiles;
   final Future<bool> Function(
       String proofDocumentId, ProofSlotSubmission submission) onUploadSlot;
@@ -27,6 +29,7 @@ class DocumentProofSendPage extends StatefulWidget {
     super.key,
     required this.proof,
     required this.slot,
+    required this.scholarshipId,
     required this.onPickFiles,
     required this.onUploadSlot,
   });
@@ -297,6 +300,17 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
     return true;
   }
 
+  Future<void> _openTemplate(String declarationTemplateId) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => DeclarationTemplatePage(
+          scholarshipId: widget.scholarshipId,
+          declarationTemplateId: declarationTemplateId,
+        ),
+      ),
+    );
+  }
+
   Widget _buildHeader() {
     final proof = widget.proof;
     final isMultiSlot = proof.scholarshipProofDocuments.length > 1;
@@ -431,9 +445,8 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
                 const SizedBox(height: 8),
                 _DeclarationButton(
                   label: i18n.documentNoWorkCardDownloadModelAction,
-                  onPressed: () {
-                    // TODO: baixar o modelo
-                  },
+                  onPressed: () =>
+                      _openTemplate(option!.declarationTemplateId!),
                 )
               ],
             ),

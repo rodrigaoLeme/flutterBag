@@ -2,6 +2,8 @@ import '../../../../domain/usecases/candidate/delete_candidate_usecase.dart';
 import '../../../../domain/usecases/candidate/load_academic_courses_usecase.dart';
 import '../../../../domain/usecases/candidate/load_process_period_schools_usecase.dart';
 import '../../../../domain/usecases/candidate/save_candidate_usecase.dart';
+import '../../../../domain/usecases/documents/load_declaration_template_file_usecase.dart';
+import '../../../../domain/usecases/documents/load_proof_document_file_url_usecase.dart';
 import '../../../../domain/usecases/documents/load_proofs_usecase.dart';
 import '../../../../domain/usecases/documents/upload_proof_document_usecase.dart';
 import '../../../../domain/usecases/enrollment/cancel_scholarship_usecase.dart';
@@ -23,6 +25,8 @@ import '../../../../infra/repositories/candidate/remote_delete_candidate_usecase
 import '../../../../infra/repositories/candidate/remote_load_academic_courses_usecase.dart';
 import '../../../../infra/repositories/candidate/remote_load_process_period_schools_usecase.dart';
 import '../../../../infra/repositories/candidate/remote_save_candidate_usecase.dart';
+import '../../../../infra/repositories/documents/remote_load_declaration_template_file_usecase.dart';
+import '../../../../infra/repositories/documents/remote_load_proof_document_file_url_usecase.dart';
 import '../../../../infra/repositories/documents/remote_load_proofs_usecase.dart';
 import '../../../../infra/repositories/documents/remote_upload_proof_document_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_cancel_scholarship_usecase.dart';
@@ -141,5 +145,15 @@ LoadProofsUsecase makeRemoteLoadProofs() => RemoteLoadProofsUsecase(
 
 UploadProofDocumentUsecase makeRemoteUploadProofDocument() =>
     RemoteUploadProofDocumentUsecase(
+      httpClient: makeAuthorizeHttpClientDecorator(),
+    );
+
+LoadDeclarationTemplateFileUsecase makeRemoteLoadDeclarationTemplateFile() =>
+    RemoteLoadDeclarationTemplateFileUsecase(
+      httpClient: makeAuthorizeHttpClientDecorator(),
+    );
+
+LoadProofDocumentFileUrlFileUsecase makeRemoteLoadProofDocumentFileUrlFile() =>
+    RemoteLoadProofDocumentFileUrlUsecase(
       httpClient: makeAuthorizeHttpClientDecorator(),
     );

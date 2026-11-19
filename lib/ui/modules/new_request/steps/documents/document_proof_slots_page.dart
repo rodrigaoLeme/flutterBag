@@ -12,6 +12,7 @@ import 'proof_guidance.dart';
 
 class DocumentProofSlotsPage extends StatefulWidget {
   final String proofId;
+  final String scholarshipId;
   final ScholarshipProofEntity? Function(String proofId) findProof;
   final Future<void> Function() refresh;
   final Future<List<DocumentProofPreviewResult>> Function() onPickFiles;
@@ -21,6 +22,7 @@ class DocumentProofSlotsPage extends StatefulWidget {
   const DocumentProofSlotsPage({
     super.key,
     required this.proofId,
+    required this.scholarshipId,
     required this.findProof,
     required this.refresh,
     required this.onPickFiles,
@@ -40,6 +42,7 @@ class _DocumentProofSlotsPageState extends State<DocumentProofSlotsPage> {
       MaterialPageRoute(
         builder: (_) => DocumentProofSendPage(
           proof: proof,
+          scholarshipId: widget.scholarshipId,
           slot: slot,
           onPickFiles: widget.onPickFiles,
           onUploadSlot: widget.onUploadSlot,

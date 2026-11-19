@@ -1882,6 +1882,19 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
       'Baixar Modelo de declaração';
 
   @override
+  String get documentTemplateAppBarTitle => 'Modelo de Declaração';
+
+  @override
+  String get documentTemplateDownloadAction => 'Download';
+
+  @override
+  String get documentTemplateShareAction => 'Compartilhar';
+
+  @override
+  String get documentTemplateShareError =>
+      'Não foi possível compartilhar o arquivo.';
+
+  @override
   String get documentMeEppProofLabel => 'Comprovante ME ou EPP';
 
   @override

@@ -304,6 +304,7 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
         MaterialPageRoute(
           builder: (_) => DocumentProofSendPage(
             proof: proof,
+            scholarshipId: widget.scholarshipId,
             slot: slots.first,
             onPickFiles: _pickFiles,
             onUploadSlot: _uploadSlot,
@@ -315,6 +316,7 @@ class _DocumentGroupDetailPageState extends State<DocumentGroupDetailPage> {
         MaterialPageRoute(
           builder: (_) => DocumentProofSlotsPage(
             proofId: proof.id,
+            scholarshipId: widget.scholarshipId,
             findProof: _findProof,
             refresh: _refreshProofs,
             onPickFiles: _pickFiles,

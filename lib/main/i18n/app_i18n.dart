@@ -637,6 +637,10 @@ abstract class AppI18n {
   String get documentNoWorkCardDownloadModelHint;
   String get documentNoWorkCardDownloadModelDescription;
   String get documentNoWorkCardDownloadModelAction;
+  String get documentTemplateAppBarTitle;
+  String get documentTemplateDownloadAction;
+  String get documentTemplateShareAction;
+  String get documentTemplateShareError;
   String get documentMeEppProofLabel;
   String get documentMeEppProofDescriptionCollapsed;
   String get documentMeEppProofDescriptionExpanded;
