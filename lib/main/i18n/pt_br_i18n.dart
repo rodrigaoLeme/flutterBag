@@ -1755,7 +1755,13 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
       'Toque para visualizar o arquivo completo';
 
   @override
-  String get documentReplaceAction => 'Substituir';
+  String get documentViewAction => 'Visualizar';
+
+  @override
+  String get documentReplaceAction => 'Substituir arquivo';
+
+  @override
+  String get documentFileAppBarTitle => 'Comprovante enviado';
 
   @override
   String get documentsBackToDocumentsAction => 'Voltar para Tela de Documentos';
@@ -1883,6 +1889,30 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
 
   @override
   String get documentTemplateAppBarTitle => 'Modelo de Declaração';
+
+  @override
+  String get documentSendConfirmTitle => 'Confirmação';
+
+  @override
+  String get documentSendConfirmDescription =>
+      'Todos os documentos foram enviados com sucesso.\nDeseja avançar para a declaração de autenticidade?';
+
+  @override
+  String get documentSendConfirmPositiveButton => 'Sim, avançar!';
+
+  @override
+  String get documentSendConfirmNegativeButton => 'Não';
+
+  @override
+  String documentDeclarationText(String responsible, int year) =>
+      'Eu, **$responsible**, declaro sob as penas da lei (artigo 299 do Código Penal Brasileiro) a veracidade e autenticidade dos documentos anexados e informações que aqui prestei, estando ciente que a omissão ou a declaração inverídica é considerada crime, sob as penas da lei.\n\n'
+      'Declaro ainda, que estou ciente de que a Entidade poderá solicitar outros documentos, se julgar necessário, para a análise documental e enquadramento do perfil socioeconômico estabelecido em lei, e que o benefício concedido com base neste formulário terá validade somente para as parcelas/mensalidades referentes ao ano de **$year**. Os percentuais de bolsas de estudos serão determinados de acordo com os critérios previstos pela Lei Complementar nº 187/2021.\n\n'
+      'Ao dar aceite nesta declaração, concordo de que a qualquer tempo poderá ser averiguada a veracidade das informações prestadas, por um(a) assistente social, mediante visita domiciliar e/ou entrevista, para que possa ser verificado o perfil socioeconômico do grupo familiar, com a finalidade de obter a continuidade/manutenção ou concessão do benefício da bolsa de estudo. Estou ciente dos motivos elencados na Lei Complementar nº 187/2021, que podem resultar no cancelamento da bolsa, bem como, que não haverá recurso de revisão neste processo seletivo, conforme estabelecido no Edital.\n\n'
+      'Autorizo o tratamento dos dados pessoais aqui prestados, inclusive os dados sensíveis, nos termos da LGPD Lei nº 13.709/2018, inclusive a transmissão destes aos órgãos públicos de todas as esferas.';
+
+  @override
+  String get documentDeclarationAccept =>
+      'Declaro sob as penas da lei, que aceito e concordo com os termos desta declaração, deste Processo Seletivo e com o Edital de Bolsas de Estudos.';
 
   @override
   String get documentTemplateDownloadAction => 'Download';

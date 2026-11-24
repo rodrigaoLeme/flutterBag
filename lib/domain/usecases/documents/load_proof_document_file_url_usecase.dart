@@ -1,6 +1,6 @@
 import '../../entities/proof_document_file_url_entity.dart';
 
-abstract class LoadProofDocumentFileUrlFileUsecase {
+abstract class LoadProofDocumentFileUrlUsecase {
   Future<ProofDocumentFileUrlEntity> load({
     required String scholarshipId,
     required String proofDocumentId,

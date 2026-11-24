@@ -153,7 +153,7 @@ LoadDeclarationTemplateFileUsecase makeRemoteLoadDeclarationTemplateFile() =>
       httpClient: makeAuthorizeHttpClientDecorator(),
     );
 
-LoadProofDocumentFileUrlFileUsecase makeRemoteLoadProofDocumentFileUrlFile() =>
+LoadProofDocumentFileUrlUsecase makeRemoteLoadProofDocumentFileUrl() =>
     RemoteLoadProofDocumentFileUrlUsecase(
       httpClient: makeAuthorizeHttpClientDecorator(),
     );

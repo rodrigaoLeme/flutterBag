@@ -5,7 +5,7 @@ import '../../../main/flavors.dart';
 import '../../../main/i18n/app_i18n.dart';
 
 class RemoteLoadProofDocumentFileUrlUsecase
-    implements LoadProofDocumentFileUrlFileUsecase {
+    implements LoadProofDocumentFileUrlUsecase {
   final HttpClient httpClient;
 
   RemoteLoadProofDocumentFileUrlUsecase({

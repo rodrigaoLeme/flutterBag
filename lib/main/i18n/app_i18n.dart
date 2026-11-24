@@ -603,7 +603,9 @@ abstract class AppI18n {
   String get documentSendAction;
   String get documentEditAction;
   String get documentEditPdfFullscreenInfo;
+  String get documentViewAction;
   String get documentReplaceAction;
+  String get documentFileAppBarTitle;
   String get documentsBackToDocumentsAction;
   String get documentAddressProofLabel;
   String get documentPhoneInternetProofLabel;
@@ -638,6 +640,12 @@ abstract class AppI18n {
   String get documentNoWorkCardDownloadModelDescription;
   String get documentNoWorkCardDownloadModelAction;
   String get documentTemplateAppBarTitle;
+  String get documentSendConfirmTitle;
+  String get documentSendConfirmDescription;
+  String get documentSendConfirmPositiveButton;
+  String get documentSendConfirmNegativeButton;
+  String documentDeclarationText(String responsible, int Year);
+  String get documentDeclarationAccept;
   String get documentTemplateDownloadAction;
   String get documentTemplateShareAction;
   String get documentTemplateShareError;

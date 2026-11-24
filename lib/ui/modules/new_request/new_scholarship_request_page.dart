@@ -614,6 +614,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   int _uploadedCount(String groupId) =>
       _uploadedDocumentsByGroup[groupId]?.length ?? 0;
 
+  // ignore: unused_element
   DocumentGroupItem _withUploadProgress(DocumentGroupItem group) =>
       group.copyWith(uploadedDocuments: _uploadedCount(group.id));
 

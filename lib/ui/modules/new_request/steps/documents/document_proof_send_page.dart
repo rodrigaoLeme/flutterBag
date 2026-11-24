@@ -9,12 +9,14 @@ import '../../../../../domain/entities/proof_document_option_entity.dart';
 import '../../../../../domain/entities/proof_slot_submission.dart';
 import '../../../../../domain/entities/scholarship_proof_entity.dart';
 import '../../../../../domain/usecases/documents/upload_proof_document_usecase.dart';
+import '../../../../../infra/files/image_compressor.dart';
 import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../../share/utils/pdf_inspector.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/themes/themes.dart';
 import 'declaration_template_page.dart';
 import 'document_proof_preview_page.dart';
+import 'proof_document_file_page.dart';
 import 'proof_guidance.dart';
 
 class DocumentProofSendPage extends StatefulWidget {
@@ -44,6 +46,10 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
   final Set<String> _acceptedTerms = {};
   final Set<String> _sentSlots = {};
   bool _isSubmitting = false;
+  bool _isReplacing = false;
+
+  bool _isViewingExisting(ProofDocumentEntity slot) =>
+      slot.hasFile && !_isReplacing;
 
   List<ProofDocumentEntity> get _slots => [widget.slot];
 
@@ -77,7 +83,7 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
     final option = _selectedOptions[slot.id];
     if (option == null) return false;
     final hasNewFiles = _attachments[slot.id]?.isNotEmpty ?? false;
-    if (!hasNewFiles && !slot.hasFile) return false;
+    if (!hasNewFiles && (!slot.hasFile || _isReplacing)) return false;
     if (option.isDeclaration && !_acceptedTerms.contains(slot.id)) {
       return false;
     }
@@ -119,9 +125,10 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
   Future<ProofAttachment?> _toAttachment(
     DocumentProofPreviewResult picked,
   ) async {
-    final path = picked.filePath;
+    var path = picked.filePath;
     if (path == null) return null;
     final isPdf = path.toLowerCase().endsWith('.pdf');
+    if (!isPdf) path = await compressImageForUpload(path);
     return ProofAttachment(
       path: path,
       name: picked.fileName,
@@ -173,20 +180,25 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
     final current = _attachments[slot.id] ?? const ProofAttachments();
     final existingPaths = current.items.map((a) => a.path).toSet();
 
-    final incoming = <ProofAttachment>[];
-    for (final p in picked) {
-      final attachment = await _toAttachment(p);
-      if (attachment != null && !existingPaths.contains(attachment.path)) {
-        incoming.add(attachment);
+    setState(() => _isSubmitting = true);
+    try {
+      final incoming = <ProofAttachment>[];
+      for (final p in picked) {
+        final attachment = await _toAttachment(p);
+        if (attachment != null && !existingPaths.contains(attachment.path)) {
+          incoming.add(attachment);
+        }
       }
-    }
-    if (incoming.isEmpty || !mounted) return;
-    if (!_acceptCheck(current.check(incoming))) return;
+      if (incoming.isEmpty || !mounted) return;
+      if (!_acceptCheck(current.check(incoming))) return;
 
-    setState(() {
-      _attachments[slot.id] = current.add(incoming);
-      _sentSlots.remove(slot.id);
-    });
+      setState(() {
+        _attachments[slot.id] = current.add(incoming);
+        _sentSlots.remove(slot.id);
+      });
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   void _onRemove(ProofDocumentEntity slot, ProofAttachment attachment) {
@@ -311,6 +323,17 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
     );
   }
 
+  Future<void> _openCurrentFile(ProofDocumentEntity slot) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => ProofDocumentFilePage(
+          scholarshipId: widget.scholarshipId,
+          proofDocumentId: slot.id,
+        ),
+      ),
+    );
+  }
+
   Widget _buildHeader() {
     final proof = widget.proof;
     final isMultiSlot = proof.scholarshipProofDocuments.length > 1;
@@ -351,8 +374,6 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
     final String label;
     if (attachments.isNotEmpty) {
       label = i18n.documentProofAttachAddAction;
-    } else if (slot.hasFile && (slot.filename?.isNotEmpty ?? false)) {
-      label = slot.filename!;
     } else if (slot.options.length > 1) {
       label = widget.proof.proofName ?? '';
     } else {
@@ -408,7 +429,7 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
           ),
         _UploadButton(
           label: label,
-          isUploaded: attachments.isEmpty && slot.hasFile,
+          isUploaded: false,
           onPressed: option == null ? null : () => _onAdd(slot),
         ),
         if (option != null && option.isDeclaration)
@@ -429,7 +450,7 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
             ),
           ),
         if (option?.declarationTemplateId != null) ...[
-          SizedBox(height: 100),
+          SizedBox(height: 10),
           Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadiusDirectional.circular(12),
@@ -453,6 +474,16 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
           ),
         ]
       ],
+    );
+  }
+
+  Widget _buildCurrentFile(ProofDocumentEntity slot) {
+    if (!slot.hasFile) return const SizedBox.shrink();
+    return EbolsaIconButton(
+      onPressed: () => _openCurrentFile(slot),
+      label: AppI18n.current.documentViewAction,
+      iconPath: AppIcons.pdfFileIcon,
+      isSecondary: true,
     );
   }
 
@@ -480,7 +511,10 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
                         _buildHeader(),
                         SizedBox(height: 24),
                         for (final slot in _slots) ...[
-                          _buildSlot(slot),
+                          if (_isViewingExisting(slot))
+                            _buildCurrentFile(slot)
+                          else
+                            _buildSlot(slot),
                           const SizedBox(height: 16),
                         ],
                       ],
@@ -489,11 +523,19 @@ class _DocumentProofSendPageState extends State<DocumentProofSendPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: EbolsaButton(
-                    onPressed:
-                        _allComplete && !_isSubmitting ? _onConfirm : null,
-                    label: i18n.documentSendAction,
-                  ),
+                  child: Builder(builder: (_) {
+                    final viewing = _isViewingExisting(widget.slot);
+                    return EbolsaButton(
+                      onPressed: viewing
+                          ? () => setState(() => _isReplacing = true)
+                          : (_allComplete && !_isSubmitting
+                              ? _onConfirm
+                              : null),
+                      label: viewing
+                          ? i18n.documentReplaceAction
+                          : i18n.documentSendAction,
+                    );
+                  }),
                 ),
               ],
             ),
