@@ -19,9 +19,13 @@ import '../../../domain/usecases/enrollment/lookup_zip_code_usecase.dart';
 import '../../../domain/usecases/enrollment/save_step_1_usecase.dart';
 import '../../../domain/usecases/enrollment/save_step_3_usecase.dart';
 import '../../../domain/usecases/enrollment/save_step_4_usecase.dart';
+import '../../../domain/usecases/enrollment/save_step_5_usecase.dart';
+import '../../../domain/usecases/enrollment/save_step_6_usecase.dart';
 import '../../../infra/repositories/enrollment/remote_save_step_1_usecase.dart';
 import '../../../infra/repositories/enrollment/remote_save_step_3_usecase.dart';
 import '../../../infra/repositories/enrollment/remote_save_step_4_usecase.dart';
+import '../../../infra/repositories/enrollment/remote_save_step_5_usecase.dart';
+import '../../../infra/repositories/enrollment/remote_save_step_6_usecase.dart';
 import '../../../main/di/injection_container.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../../share/current_account.dart';
@@ -37,6 +41,8 @@ class StreamNewScholarshipRequestPresenter
   final SaveStep1Usecase saveStep1Usecase;
   final SaveStep3Usecase saveStep3Usecase;
   final SaveStep4Usecase saveStep4Usecase;
+  final SaveStep5Usecase saveStep5Usecase;
+  final SaveStep6Usecase saveStep6Usecase;
   final LookupZipCodeUsecase lookupZipCodeUsecase;
   final LoadScholarshipFormUsecase loadScholarshipFormUsecase;
   final EnrollmentDraftStorage draftStorage;
@@ -48,6 +54,8 @@ class StreamNewScholarshipRequestPresenter
     required this.saveStep1Usecase,
     required this.saveStep3Usecase,
     required this.saveStep4Usecase,
+    required this.saveStep5Usecase,
+    required this.saveStep6Usecase,
     required this.lookupZipCodeUsecase,
     required this.loadScholarshipFormUsecase,
     required this.draftStorage,
@@ -681,6 +689,61 @@ class StreamNewScholarshipRequestPresenter
   Future<void> updateCandidates(List<CandidateEntity> candidates) async {
     _form = _form.copyWith(candidates: candidates);
     _saveDraftSilently();
+  }
+
+  @override
+  Future<void> submitStep5() async {
+    final scholarshipId = _form.id;
+    if (scholarshipId == null || scholarshipId.isEmpty) {
+      uiError = AppI18n.current.errorUnexpected;
+      return;
+    }
+
+    isLoading = LoadingData(isLoading: true);
+    uiError = null;
+
+    try {
+      await saveStep5Usecase
+          .save(SaveStep5Params(scholarshipId: scholarshipId));
+
+      final completed = _form.completedStep < 5 ? 5 : _form.completedStep;
+      _form = _form.copyWith(completedStep: completed, currentStep: 6);
+      _completedStepNotifier.value = completed;
+
+      await _saveDraftSilently();
+
+      _currentStep = 6;
+      _currentSubStep = 1;
+      _currentStepController.add(_currentStep);
+      _currentSubStepController.add(_currentSubStep);
+    } on SaveStep5Exception catch (e) {
+      uiError = e.message;
+    } catch (_) {
+      uiError = AppI18n.current.errorUnexpected;
+    } finally {
+      isLoading = LoadingData(isLoading: false);
+    }
+  }
+
+  @override
+  Future<String?> submitStep6({required String password}) async {
+    final scholarshipId = _form.id;
+    if (scholarshipId == null || scholarshipId.isEmpty) {
+      return AppI18n.current.errorUnexpected;
+    }
+
+    try {
+      await saveStep6Usecase.save(
+        SaveStep6Params(scholarshipId: scholarshipId, password: password),
+      );
+      _form = _form.copyWith(completedStep: 6, currentStep: 6);
+      _completedStepNotifier.value = 6;
+      return null;
+    } on SaveStep6Exception catch (e) {
+      return e.message;
+    } catch (_) {
+      return AppI18n.current.errorUnexpected;
+    }
   }
 
   @override

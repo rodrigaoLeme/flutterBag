@@ -15,13 +15,14 @@ class ScholarshipStepIndicator extends StatelessWidget {
     super.key,
     required this.currentStep,
     required this.completedStep,
-    this.totalSteps = 5,
+    this.totalSteps = 6,
     this.labels = const [
       'Moradia',
       'Família',
       'Despesas',
       'Candidato',
       'Documentos',
+      'Declaração',
     ],
     this.onStepTap,
   });

@@ -116,7 +116,7 @@ class _ProcessesPageState extends State<ProcessesPage> {
       yearSelected: _selectedYear,
       processesBanner: ProcessesBanner.warning,
       scholarships: _scholarships,
-      onScholarshipCancelled: () {
+      onRefresh: () {
         widget.presenter.onYearSelected(_selectedYear);
       },
     );

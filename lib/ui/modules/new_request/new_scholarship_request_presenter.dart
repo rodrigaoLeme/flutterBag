@@ -58,6 +58,8 @@ abstract class NewScholarshipRequestPresenter {
   Future<void> submitStep1();
   Future<void> submitStep3(ExpensesEntity expenses);
   Future<void> submitStep4(List<CandidateEntity> candidates);
+  Future<void> submitStep5();
+  Future<String?> submitStep6({required String password});
   bool isStep1Complete();
   bool get isPopulating;
 

@@ -18,11 +18,13 @@ import '../../../domain/usecases/candidate/save_candidate_usecase.dart';
 import '../../../domain/usecases/documents/load_proofs_usecase.dart';
 import '../../../domain/usecases/enrollment/delete_family_member_usecase.dart';
 import '../../../domain/usecases/enrollment/set_scholarship_step_usecase.dart';
+import '../../../main/di/injection_container.dart';
 import '../../../main/factories/pages/new_scholarship_request/new_scholarship_request_presenter_factory.dart';
 import '../../../main/factories/usecases/enrollment/enrollment_usecase_factories.dart';
 import '../../../main/i18n/app_i18n.dart';
 import '../../../main/routes/routes.dart';
 import '../../../presentation/mixins/mixins.dart';
+import '../../../share/current_account.dart';
 import '../../components/components.dart';
 import '../../helpers/themes/themes.dart';
 import 'dev_navigation_overrides.dart';
@@ -30,6 +32,8 @@ import 'helpers/proof_group.dart';
 import 'new_scholarship_request_presenter.dart';
 import 'steps/candidate/candidate_add_page.dart';
 import 'steps/candidate/candidate_step.dart';
+import 'steps/declaration/declaration_password_dialog.dart';
+import 'steps/declaration/declaration_step.dart';
 import 'steps/documents/document_group_detail_page.dart';
 import 'steps/documents/document_group_item.dart';
 import 'steps/documents/document_upload_record.dart';
@@ -102,7 +106,9 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
 
   bool _isLoadingProofs = false;
 
-  static const int _totalSteps = 5;
+  bool _declarationAccepted = false;
+
+  static const int _totalSteps = 6;
 
   final _deleteFamilyMember = makeRemoteDeleteFamilyMember();
 
@@ -169,6 +175,11 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
   EducationLevel? get _registrationEducationLevel => _isHigherEducation
       ? EducationLevel.higher
       : _presenter.form.educationLevel;
+
+  bool get _canSendAllDocuments {
+    final groups = _buildDocumentGroups();
+    return groups.isNotEmpty && groups.every((g) => g.isComplete);
+  }
 
   @override
   void dispose() {
@@ -918,6 +929,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
 
   Future<void> _openCandidateAddPage() async {
     final alreadyAdded = _candidateStepKey.currentState?.candidates.length ?? 0;
+    if (_missingScholarshipCandidates().isEmpty) return;
     if (_isHigherEducation && alreadyAdded >= 1) return;
 
     final result = await Navigator.of(context).push<Map<String, dynamic>?>(
@@ -1001,6 +1013,38 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
     await _presenter.updateCandidates(entities);
   }
 
+  Future<void> _confirmSendDocuments() async {
+    final i18n = AppI18n.current;
+
+    await EbolsaDialogWithCancel.show(
+      context: context,
+      title: i18n.documentSendConfirmTitle,
+      description: i18n.documentSendConfirmDescription,
+      actions: [
+        EbolsaDialogAction(
+          label: i18n.documentSendConfirmNegativeButton,
+          onPressed: () {},
+        ),
+        EbolsaDialogAction(
+          label: i18n.documentSendConfirmPositiveButton,
+          isPrimary: true,
+          onPressed: _presenter.submitStep5,
+        ),
+      ],
+    );
+  }
+
+  Future<void> _onConfirmDeclaration() async {
+    final success = await DeclarationPasswordDialog.show(
+      context,
+      onSubmit: (password) => _presenter.submitStep6(password: password),
+    );
+
+    if (success != true || !mounted) return;
+
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
   Future<Map<String, List<ScholarshipProofEntity>>>
       _refreshProofsByGroup() async {
     await _loadProofs();
@@ -1024,6 +1068,10 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
       case 3:
         return _expensesStepKey.currentState?.canAdvanceCurrentSubStep() ??
             false;
+      case 4:
+        final candidates = _candidateStepKey.currentState?.candidates ??
+            _registeredCandidates;
+        return candidates.isNotEmpty;
       default:
         return true;
     }
@@ -1051,8 +1099,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
 
   Widget _buildStepFooter() {
     if (_currentStep == 5) {
-      final canSend =
-          _documentsStepKey.currentState?.canSendAllDocuments ?? false;
+      final canSend = _canSendAllDocuments;
 
       return Padding(
         padding: const EdgeInsets.all(16),
@@ -1079,11 +1126,21 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
             const SizedBox(width: 12),
             Expanded(
               child: EbolsaButton(
-                onPressed: canSend ? _sendAllDocuments : null,
+                onPressed: canSend ? _confirmSendDocuments : null,
                 label: AppI18n.current.documentsSendAllAction,
               ),
             ),
           ],
+        ),
+      );
+    }
+
+    if (_currentStep == 6) {
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: EbolsaButton(
+          onPressed: _declarationAccepted ? _onConfirmDeclaration : null,
+          label: AppI18n.current.confirmAction,
         ),
       );
     }
@@ -1272,6 +1329,10 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
           schools: _schools,
           processPeriodId: widget.processPeriodId,
           singleCandidate: _isHigherEducation,
+          eligibleMemberIds: _requiredScholarshipCandidates()
+              .map((member) => _familyMemberId(member) ?? '')
+              .where((id) => id.isNotEmpty)
+              .toList(),
           initialCandidates: _registeredCandidates,
           onCandidatesChanged: () async {
             _syncRegisteredCandidates();
@@ -1291,7 +1352,13 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
                 submissionDeadline: widget.submissionDeadline,
                 onGroupTap: (group) => _openDocumentGroupDetail(group),
               );
-
+      case 6:
+        return DeclarationStep(
+          responsibleName: sl<CurrentAccount>().name,
+          year: _processYear,
+          accepted: _declarationAccepted,
+          onAcceptedChanged: (v) => setState(() => _declarationAccepted = v),
+        );
       default:
         return const SizedBox.shrink();
     }
@@ -1299,7 +1366,7 @@ class _NewScholarshipRequestPageState extends State<NewScholarshipRequestPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDocumentsStep = _currentStep == 5;
+    final isDocumentsStep = _currentStep == 5 || _currentStep == 6;
 
     return StreamBuilder<LoadingData?>(
         stream: _presenter.isLoadingStream,

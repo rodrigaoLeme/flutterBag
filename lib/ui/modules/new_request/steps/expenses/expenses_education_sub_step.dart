@@ -14,6 +14,7 @@ import '../../../../helpers/money_formatter.dart';
 import '../../../../helpers/money_text_input_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
 import 'education_expense_page.dart';
+import 'education_spending_type_labels.dart';
 
 class ExpensesEducationSubStep extends StatefulWidget {
   const ExpensesEducationSubStep({
@@ -60,7 +61,7 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
           ?.name
           ?.trim();
       _addedEducationExpenses.add({
-        'type': _educationTypeLabel(spending.educationSpendingType),
+        'type': educationSpendingTypeLabel(spending.educationSpendingType),
         'typeOther': spending.educationSpendingOther,
         'memberId': spending.familyMemberId,
         'memberName': memberName,
@@ -73,22 +74,6 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
                 decimalDigits: 2,
               ).format(spending.educationSpendingAmount).trim(),
       });
-    }
-  }
-
-  String? _educationTypeLabel(EducationSpendingType? type) {
-    final i18n = AppI18n.current;
-    switch (type) {
-      case EducationSpendingType.basic:
-        return i18n.expenseEducationTypeBasic;
-      case EducationSpendingType.higher:
-        return i18n.expenseEducationTypeHigher;
-      case EducationSpendingType.language:
-        return i18n.expenseEducationTypeLanguage;
-      case EducationSpendingType.other:
-        return i18n.expenseEducationTypeOther;
-      case null:
-        return null;
     }
   }
 
@@ -105,7 +90,8 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
   EducationSpendingEntity _mapEducationSpending(Map<String, dynamic> item) {
     final amountRaw = item['monthlyValue'];
     return EducationSpendingEntity(
-      educationSpendingType: _mapEducationType(item['type'] as String?),
+      educationSpendingType:
+          educationSpendingTypeFromLabel(item['type'] as String?),
       educationSpendingOther: item['typeOther'] as String?,
       familyMemberId: item['memberId'] as String?,
       educationSpendingInstitution: item['institution'] as String?,
@@ -114,24 +100,6 @@ class ExpensesEducationSubStepState extends State<ExpensesEducationSubStep> {
               ? null
               : MoneyFormatter.parse(amountRaw),
     );
-  }
-
-  EducationSpendingType? _mapEducationType(String? label) {
-    if (label == null) return null;
-    final i18n = AppI18n.current;
-    if (label == i18n.expenseEducationTypeBasic) {
-      return EducationSpendingType.basic;
-    }
-    if (label == i18n.expenseEducationTypeHigher) {
-      return EducationSpendingType.higher;
-    }
-    if (label == i18n.expenseEducationTypeLanguage) {
-      return EducationSpendingType.language;
-    }
-    if (label == i18n.expenseEducationTypeOther) {
-      return EducationSpendingType.other;
-    }
-    return null;
   }
 
   bool get _requiresTransportValue =>

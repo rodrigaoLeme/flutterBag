@@ -504,8 +504,13 @@ abstract class AppI18n {
   String get educationExpensePageDescription;
   String get expenseEducationTypeBasic;
   String get expenseEducationTypeHigher;
-  String get expenseEducationTypeLanguage;
+  String get expenseEducationTypeCourses;
   String get expenseEducationTypeOther;
+  String get expenseEducationTypeTutoring;
+  String get expenseEducationTypeSports;
+  String get expenseEducationTypeArts;
+  String get expenseEducationTypeAfterSchool;
+  String get expenseEducationTypeCaregiving;
   String get expenseEducationForWhomLabel;
   String get expenseEducationInstitutionLabel;
   String get expenseEducationMonthlyValueLabel;
@@ -644,8 +649,12 @@ abstract class AppI18n {
   String get documentSendConfirmDescription;
   String get documentSendConfirmPositiveButton;
   String get documentSendConfirmNegativeButton;
-  String documentDeclarationText(String responsible, int Year);
+  String documentDeclarationText(String responsible, int year);
   String get documentDeclarationAccept;
+  String get declarationStepTitle;
+  String get declarationPasswordTitle;
+  String get declarationPasswordDescription;
+  String get declarationPasswordCancel;
   String get documentTemplateDownloadAction;
   String get documentTemplateShareAction;
   String get documentTemplateShareError;

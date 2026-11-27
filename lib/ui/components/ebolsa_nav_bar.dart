@@ -18,9 +18,9 @@ class EbolsaNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appStrings = AppI18n.current;
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
-    return Container(
-      height: 72,
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.surface,
         boxShadow: [
@@ -31,28 +31,34 @@ class EbolsaNavBar extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _NavBarItem(
-            iconPath: AppIcons.noticeIcon,
-            label: appStrings.noticesLabel,
-            isSelected: currentTab == HomeTab.notices,
-            onTap: () => onTabSelected(HomeTab.notices),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: bottomInset),
+        child: SizedBox(
+          height: 72,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _NavBarItem(
+                iconPath: AppIcons.noticeIcon,
+                label: appStrings.noticesLabel,
+                isSelected: currentTab == HomeTab.notices,
+                onTap: () => onTabSelected(HomeTab.notices),
+              ),
+              _NavBarItem(
+                iconPath: AppIcons.homeIcon,
+                label: appStrings.homeLabel,
+                isSelected: currentTab == HomeTab.process,
+                onTap: () => onTabSelected(HomeTab.process),
+              ),
+              _NavBarItem(
+                iconPath: AppIcons.profileIcon,
+                label: appStrings.profileLabel,
+                isSelected: currentTab == HomeTab.profile,
+                onTap: () => onTabSelected(HomeTab.profile),
+              ),
+            ],
           ),
-          _NavBarItem(
-            iconPath: AppIcons.homeIcon,
-            label: appStrings.homeLabel,
-            isSelected: currentTab == HomeTab.process,
-            onTap: () => onTabSelected(HomeTab.process),
-          ),
-          _NavBarItem(
-            iconPath: AppIcons.profileIcon,
-            label: appStrings.profileLabel,
-            isSelected: currentTab == HomeTab.profile,
-            onTap: () => onTabSelected(HomeTab.profile),
-          ),
-        ],
+        ),
       ),
     );
   }

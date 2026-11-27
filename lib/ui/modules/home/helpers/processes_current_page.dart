@@ -15,14 +15,14 @@ class ProcessesCurrentPage extends StatelessWidget {
   final int yearSelected;
   final ProcessesBanner processesBanner;
   final List<ScholarshipEntity> scholarships;
-  final VoidCallback? onScholarshipCancelled;
+  final VoidCallback? onRefresh;
 
   const ProcessesCurrentPage({
     super.key,
     required this.yearSelected,
     required this.processesBanner,
     required this.scholarships,
-    this.onScholarshipCancelled,
+    this.onRefresh,
   });
 
   @override
@@ -72,7 +72,7 @@ class ProcessesCurrentPage extends StatelessWidget {
                   )
                       .then((result) {
                     if (result == 'home' || result == 'cancelled') {
-                      onScholarshipCancelled?.call(); // ← chama o callback
+                      onRefresh?.call(); // ← chama o callback
                     }
                   }),
                   processesBanner: processesBanner,
@@ -118,19 +118,21 @@ class ProcessesCurrentPage extends StatelessWidget {
   }
 
   void _onContinue(BuildContext context, ScholarshipEntity scholarship) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => NewScholarshipRequestPage(
-          processPeriodId: scholarship.effectiveProcessPeriodId ?? '',
-          scholarshipId: scholarship.id,
-          submissionDeadline: scholarship.bannerDeadline,
-          processYear: scholarship.academicYear,
-          announcementId: scholarship.announcementId ??
-              scholarship.processPeriod?.announcementId,
-          educationLevel: scholarship.educationLevel,
-        ),
-      ),
-    );
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (_) => NewScholarshipRequestPage(
+              processPeriodId: scholarship.effectiveProcessPeriodId ?? '',
+              scholarshipId: scholarship.id,
+              submissionDeadline: scholarship.bannerDeadline,
+              processYear: scholarship.academicYear,
+              announcementId: scholarship.announcementId ??
+                  scholarship.processPeriod?.announcementId,
+              educationLevel: scholarship.educationLevel,
+            ),
+          ),
+        )
+        .then((_) => onRefresh?.call());
   }
 
   ProcessSteps _mapStep(int? completedStep) {

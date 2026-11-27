@@ -1442,10 +1442,27 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   String get expenseEducationTypeHigher => 'Mensalidade Ensino Superior';
 
   @override
-  String get expenseEducationTypeLanguage => 'Cursos de Idiomas';
+  String get expenseEducationTypeCourses => 'Cursos e formação profissional';
 
   @override
   String get expenseEducationTypeOther => 'Outras despesas';
+
+  @override
+  String get expenseEducationTypeTutoring =>
+      'Reforço escolar e preparação para provas';
+
+  @override
+  String get expenseEducationTypeSports => 'Esportes e atividades físicas';
+
+  @override
+  String get expenseEducationTypeArts => 'Música, artes e cultura';
+
+  @override
+  String get expenseEducationTypeAfterSchool =>
+      'Atividades no contraturno e recreação';
+
+  @override
+  String get expenseEducationTypeCaregiving => 'Babá e cuidados';
 
   @override
   String get expenseEducationForWhomLabel => 'Para quem?';
@@ -1913,6 +1930,19 @@ A bolsa de estudo terá validade para o ano letivo de 2026, com a renovação a
   @override
   String get documentDeclarationAccept =>
       'Declaro sob as penas da lei, que aceito e concordo com os termos desta declaração, deste Processo Seletivo e com o Edital de Bolsas de Estudos.';
+
+  @override
+  String get declarationStepTitle => 'Declaração';
+
+  @override
+  String get declarationPasswordTitle => 'Confirmação';
+
+  @override
+  String get declarationPasswordDescription =>
+      'Informe novamente sua senha para confirmar seu aceite digital.';
+
+  @override
+  String get declarationPasswordCancel => 'Cancelar';
 
   @override
   String get documentTemplateDownloadAction => 'Download';

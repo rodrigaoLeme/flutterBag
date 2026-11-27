@@ -20,6 +20,8 @@ import '../../../../domain/usecases/enrollment/save_step_1_usecase.dart';
 import '../../../../domain/usecases/enrollment/save_step_2_usecase.dart';
 import '../../../../domain/usecases/enrollment/save_step_3_usecase.dart';
 import '../../../../domain/usecases/enrollment/save_step_4_usecase.dart';
+import '../../../../domain/usecases/enrollment/save_step_5_usecase.dart';
+import '../../../../domain/usecases/enrollment/save_step_6_usecase.dart';
 import '../../../../domain/usecases/enrollment/set_scholarship_step_usecase.dart';
 import '../../../../infra/repositories/candidate/remote_delete_candidate_usecase.dart';
 import '../../../../infra/repositories/candidate/remote_load_academic_courses_usecase.dart';
@@ -44,6 +46,8 @@ import '../../../../infra/repositories/enrollment/remote_save_step_1_usecase.dar
 import '../../../../infra/repositories/enrollment/remote_save_step_2_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_save_step_3_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_save_step_4_usecase.dart';
+import '../../../../infra/repositories/enrollment/remote_save_step_5_usecase.dart';
+import '../../../../infra/repositories/enrollment/remote_save_step_6_usecase.dart';
 import '../../../../infra/repositories/enrollment/remote_set_scholarship_step_usecase.dart';
 import '../../http/http_factories.dart';
 
@@ -155,5 +159,13 @@ LoadDeclarationTemplateFileUsecase makeRemoteLoadDeclarationTemplateFile() =>
 
 LoadProofDocumentFileUrlUsecase makeRemoteLoadProofDocumentFileUrl() =>
     RemoteLoadProofDocumentFileUrlUsecase(
+      httpClient: makeAuthorizeHttpClientDecorator(),
+    );
+
+SaveStep5Usecase makeRemoteSaveStep5() => RemoteSaveStep5Usecase(
+      httpClient: makeAuthorizeHttpClientDecorator(),
+    );
+
+SaveStep6Usecase makeRemoteSaveStep6() => RemoteSaveStep6Usecase(
       httpClient: makeAuthorizeHttpClientDecorator(),
     );

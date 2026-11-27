@@ -65,103 +65,88 @@ class MemberRegistrationDialogs {
 
     return showDialog<bool>(
       context: context,
-      builder: (context) => Dialog(
+      builder: (context) => AlertDialog(
         backgroundColor: AppColors.backgroundLight,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-        child: SizedBox(
-          width: 354,
-          height: 460,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-                child: Text(
-                  i18n.familyConfirmDialogTitle,
-                  style: AppTextStyles.titleLarge,
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text.rich(
-                        TextSpan(
-                          style: AppTextStyles.bodyMedium,
-                          children: [
-                            TextSpan(
-                              text: i18n.familyConfirmDialogBodyEmphasis1,
-                              style: underline.copyWith(
-                                color: AppColors.primary,
-                              ),
-                            ),
-                            TextSpan(text: i18n.familyConfirmDialogBodyMiddle),
-                            TextSpan(
-                              text: i18n.familyConfirmDialogBodyEmphasis2,
-                              style: underline.copyWith(
-                                color: AppColors.primary,
-                              ),
-                            ),
-                            TextSpan(text: i18n.familyConfirmDialogBodySuffix),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        i18n.familyConfirmDialogMembersIntro,
-                        style: AppTextStyles.bodyMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      for (final member in vm.addedFamilyMembers)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8, bottom: 4),
-                          child: Text(
-                            '• ${member['cpf']} - ${member['name']}'
-                            '${member['isScholarshipCandidate'] == true ? ' (${i18n.scholarshipCandidateTag})' : ''}',
-                            style: AppTextStyles.bodyMedium,
-                          ),
-                        ),
-                      const SizedBox(height: 16),
-                      Text(
-                        i18n.familyConfirmDialogQuestion,
-                        style: AppTextStyles.bodyMedium,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: Text(
-                        i18n.familyConfirmDialogReview,
-                        style: AppTextStyles.titleSmall.copyWith(
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      child: Text(
-                        i18n.familyConfirmDialogContinue,
-                        style: AppTextStyles.titleSmall.copyWith(
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+        scrollable: true,
+        title: Text(
+          i18n.familyConfirmDialogTitle,
+          style: AppTextStyles.titleLarge,
         ),
+        contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text.rich(
+              TextSpan(
+                style: AppTextStyles.bodyMedium,
+                children: [
+                  TextSpan(
+                    text: i18n.familyConfirmDialogBodyEmphasis1,
+                    style: underline.copyWith(
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  TextSpan(text: i18n.familyConfirmDialogBodyMiddle),
+                  TextSpan(
+                    text: i18n.familyConfirmDialogBodyEmphasis2,
+                    style: underline.copyWith(
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  TextSpan(text: i18n.familyConfirmDialogBodySuffix),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              i18n.familyConfirmDialogMembersIntro,
+              style: AppTextStyles.bodyMedium,
+            ),
+            const SizedBox(height: 8),
+            for (final member in vm.addedFamilyMembers)
+              Padding(
+                padding: const EdgeInsets.only(left: 8, bottom: 4),
+                child: Text(
+                  '• ${member['cpf']} - ${member['name']}'
+                  '${member['isScholarshipCandidate'] == true ? ' (${i18n.scholarshipCandidateTag})' : ''}',
+                  style: AppTextStyles.bodyMedium,
+                ),
+              ),
+            const SizedBox(height: 16),
+            Text(
+              i18n.familyConfirmDialogQuestion,
+              style: AppTextStyles.bodyMedium,
+            ),
+          ],
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actionsOverflowAlignment: OverflowBarAlignment.end,
+        actionsOverflowButtonSpacing: 4,
+        buttonPadding: const EdgeInsets.symmetric(horizontal: 4),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              i18n.familyConfirmDialogReview,
+              style: AppTextStyles.titleSmall.copyWith(
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(
+              i18n.familyConfirmDialogContinue,
+              style: AppTextStyles.titleSmall.copyWith(
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

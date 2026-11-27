@@ -11,6 +11,7 @@ class CandidateStep extends StatefulWidget {
   final Future<bool> Function(String candidateId)? onDeleteCandidate;
   final VoidCallback? onCandidatesChanged;
   final List<Map<String, dynamic>> initialCandidates;
+  final List<String> eligibleMemberIds;
   final List<SchoolEntity> schools;
   final String processPeriodId;
   final bool singleCandidate;
@@ -22,6 +23,7 @@ class CandidateStep extends StatefulWidget {
     this.onDeleteCandidate,
     this.onCandidatesChanged,
     this.initialCandidates = const [],
+    this.eligibleMemberIds = const [],
     this.singleCandidate = false,
     required this.schools,
     required this.processPeriodId,
@@ -44,7 +46,12 @@ class CandidateStepState extends State<CandidateStep> {
 
   bool get hasCandidates => _candidates.isNotEmpty;
 
-  bool get canAddAnother => !widget.singleCandidate || _candidates.isEmpty;
+  bool get canAddAnother {
+    if (widget.singleCandidate && _candidates.isNotEmpty) return false;
+    final added = addedMemberIds.toSet();
+    return widget.eligibleMemberIds
+        .any((id) => id.isNotEmpty && !added.contains(id));
+  }
 
   List<String> get addedMemberIds => _candidates
       .map((c) => c['familyMemberId']?.toString())
@@ -156,7 +163,7 @@ class CandidateStepState extends State<CandidateStep> {
               ),
             ),
           const SizedBox(height: 24),
-          if (canAddAnother) _buildAddCandidateButton(),
+          _buildAddCandidateButton(),
           if (_candidates.isNotEmpty) ...[
             const SizedBox(height: 24),
             ..._buildCandidateCards(),
@@ -167,28 +174,32 @@ class CandidateStepState extends State<CandidateStep> {
   }
 
   Widget _buildAddCandidateButton() {
-    return InkWell(
-      onTap: widget.onAddCandidate,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-        decoration: BoxDecoration(
-          color: AppColors.secondaryContainer,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.add,
-                size: 20, color: AppColors.onPrimaryContainer),
-            const SizedBox(width: 8),
-            Text(
-              AppI18n.current.addCandidate,
-              style: AppTextStyles.labelLarge.copyWith(
-                color: AppColors.onPrimaryContainer,
+    final enabled = canAddAnother;
+    final foreground =
+        enabled ? AppColors.onPrimaryContainer : AppColors.onSurfaceVariant;
+
+    return Opacity(
+      opacity: enabled ? 1 : 0.5,
+      child: InkWell(
+        onTap: enabled ? widget.onAddCandidate : null,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          decoration: BoxDecoration(
+            color: AppColors.secondaryContainer,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.add, size: 20, color: foreground),
+              const SizedBox(width: 8),
+              Text(
+                AppI18n.current.addCandidate,
+                style: AppTextStyles.labelLarge.copyWith(color: foreground),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

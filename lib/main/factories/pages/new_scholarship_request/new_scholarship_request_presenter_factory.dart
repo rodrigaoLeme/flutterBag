@@ -17,6 +17,8 @@ NewScholarshipRequestPresenter makeNewRequestPresenter({
       saveStep1Usecase: makeRemoteSaveStep1(),
       saveStep3Usecase: makeRemoteSaveStep3(),
       saveStep4Usecase: makeRemoteSaveStep4(),
+      saveStep5Usecase: makeRemoteSaveStep5(),
+      saveStep6Usecase: makeRemoteSaveStep6(),
       lookupZipCodeUsecase: makeRemoteLookupZipCode(),
       loadScholarshipFormUsecase: makeRemoteLoadScholarshipForm(),
       draftStorage: sl<EnrollmentDraftStorage>(),

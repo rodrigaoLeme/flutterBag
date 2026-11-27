@@ -5,6 +5,7 @@ import '../../../../../main/i18n/app_i18n.dart';
 import '../../../../components/components.dart';
 import '../../../../helpers/money_text_input_formatter.dart';
 import '../../../../helpers/themes/themes.dart';
+import 'education_spending_type_labels.dart';
 
 class EducationExpensePage extends StatefulWidget {
   const EducationExpensePage({
@@ -38,15 +39,8 @@ class _EducationExpensePageState extends State<EducationExpensePage> {
   late final TextEditingController _monthlyValueController;
   late final TextEditingController _typeOtherController;
 
-  List<String> get _typeOptions {
-    final i18n = AppI18n.current;
-    return [
-      i18n.expenseEducationTypeBasic,
-      i18n.expenseEducationTypeHigher,
-      i18n.expenseEducationTypeLanguage,
-      i18n.expenseEducationTypeOther,
-    ];
-  }
+  List<String> get _typeOptions =>
+      selectableEducationSpendingTypeLabels(currentLabel: _selectedType);
 
   List<String> get _memberNames => widget.familyMembers
       .map((m) => m.name?.trim() ?? '')

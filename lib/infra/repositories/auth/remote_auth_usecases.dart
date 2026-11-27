@@ -187,9 +187,11 @@ class RemoteForgotPasswordUsecase implements ForgotPasswordUsecase {
     }
     try {
       final response = await httpClient.request(
-        url: '${Flavor.apiBaseUrl}/v1/account/forgot-password',
+        url: '${Flavor.apiBaseUrl}/v1/auth/forgot-password',
         method: HttpMethod.post,
-        body: {'username': params.identifier.trim()},
+        body: {
+          'cpf': params.identifier.replaceAll(RegExp(r'[^\d]'), ''),
+        },
       );
 
       final emailMasked = response['emailMasked'] as String? ?? '';

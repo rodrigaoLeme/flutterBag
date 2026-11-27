@@ -57,6 +57,7 @@ class EbolsaTextField extends StatelessWidget {
         hintText: hint,
         suffixIcon: suffixIcon,
         errorText: errorText,
+        errorMaxLines: 3,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           borderSide: BorderSide(

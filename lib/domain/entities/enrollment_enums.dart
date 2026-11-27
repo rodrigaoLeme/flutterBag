@@ -209,11 +209,19 @@ enum CompanyType {
 enum EducationSpendingType {
   basic(1),
   higher(2),
-  language(3),
-  other(4);
+  courses(3),
+  other(4),
+  tutoring(5),
+  sports(6),
+  arts(7),
+  afterSchool(8),
+  caregiving(9);
 
   const EducationSpendingType(this.value);
   final int value;
+
+  /// OthersExpenses saiu das telas e permanece só para processos antigos.
+  bool get selectable => this != EducationSpendingType.other;
 
   static EducationSpendingType? fromValue(int? value) {
     if (value == null) return null;
